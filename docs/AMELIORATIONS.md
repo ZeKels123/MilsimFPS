@@ -26,7 +26,7 @@
 - 7 morts : en arrière, en avant, à genoux, pirouette, tir à la tête, assis contre le mur, projeté par une explosion.
 - L'arme tombe au sol (rebonds avec sons, repos, 14 armes au maximum, disparition après 22 s).
 - Les bots occupent les étages et les toits (tireurs d'élite en priorité), y restent postés et redescendent s'ils sont blessés ou inactifs. Simulation : les 4 maisons, montée jusqu'au toit en 4 à 9 s, descente complète.
-- Cagoule des bots réduite et collée au visage (elle dépassait).
+- Cagoule des bots refaite : coque qui épouse la tête, bord de tissu, col autour du cou (elle était un bloc qui dépassait).
 - L'invite « F — Ouvrir la porte » n'apparaît plus depuis un autre niveau que la porte.
 
 **Limites connues (v6)**
