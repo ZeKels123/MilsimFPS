@@ -25,11 +25,11 @@ vA=(1.-aEnd*.7)*(.55);gl_Position=projectionMatrix*viewMatrix*vec4(p,1.);}`,
 fragmentShader:`uniform float uIn,uLum;varying float vA;void main(){gl_FragColor=vec4(vec3(.72,.8,.92)*uLum,vA*(1.-uIn)*.55);}`});
 const rain=new THREE.LineSegments(rg,rainM);rain.frustumCulled=false;rain.renderOrder=5;S.add(rain);
 // lampe torche + lumières intérieures
-const fl=new THREE.SpotLight(0xfff0d6,0,34,.4,.55,1.2);fl.position.set(.14,-.12,0);C.add(fl,fl.target);fl.target.position.set(0,0,-8);let flOn=false;
+const fl=new THREE.SpotLight(0xfff0d6,0,34,.4,.55,1.2);fl.position.set(.14,-.12,0);C.add(fl,fl.target);fl.target.position.set(0,0,-8);let flOn=false,ILON=false;
 const inL=new THREE.PointLight(0xffe2b0,0,8,1.6),inL2=new THREE.PointLight(0xffe2b0,0,8,1.6);S.add(inL,inL2);
 // HUD
 const wxEl=document.createElement('div');wxEl.style.cssText='position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font:12px monospace;color:#dfe8d0;text-shadow:0 1px 3px #000;pointer-events:none;opacity:.85;letter-spacing:.05em;text-align:center;z-index:5';document.body.appendChild(wxEl);
-addEventListener('keydown',e=>{if(e.repeat)return;if(e.code==='KeyN'){TOD.t=(TOD.t+(e.shiftKey?-1:2)+24)%24}if(e.code==='KeyM'){TOD.tgt=(TOD.tgt+1)%5}if(e.code==='KeyL'){flOn=!flOn;snd(900,.04,.1,'square')}});
+addEventListener('keydown',e=>{if(e.repeat)return;if(e.code==='KeyN'){TOD.t=(TOD.t+(e.shiftKey?-1:2)+24)%24}if(e.code==='KeyM'){TOD.tgt=(TOD.tgt+1)%5}if(e.code==='KeyL'){flOn=!flOn;snd(900,.04,.1,'square')}if(e.code==='Digit0'&&inRoom(C.position.x,C.position.z)>=0){ILON=!ILON;snd(500,.05,.1,'square');typeof hlMsg==='function'&&hlMsg(ILON?'Lumière allumée':'Lumière éteinte')}});
 // bruit de pluie / tonnerre
 let rainG=null;function rainAudio(a){try{AC=AC||new AudioContext();if(!rainG){const n=AC.sampleRate*2,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;const s=AC.createBufferSource(),f=AC.createBiquadFilter();s.buffer=b;s.loop=true;f.type='bandpass';f.frequency.value=3200;f.Q.value=.35;rainG=AC.createGain();rainG.gain.value=0;s.connect(f).connect(rainG).connect(AC.destination);s.start()}rainG.gain.value+=(a-rainG.gain.value)*.05}catch(e){}}
 function thunder(){try{AC=AC||new AudioContext();const n=AC.sampleRate*3.2,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<n;i++){l=l*.97+(Math.random()*2-1)*.03;d[i]=l*Math.pow(1-i/n,2.2)*14}
@@ -63,7 +63,7 @@ rainMix(rn,ind,C.position.y);
 floor.material.roughness=1-.55*Math.min(1,rn*1.3);floor.material.color.setScalar(1-.28*Math.min(1,rn*1.2));
 // lumières intérieures
 const night=Math.max(0,Math.min(1,.5-e*4)),I=(.3+.95*night)*(ind?1:0);
-if(ri>=0){const r=ROOMS[ri],r2=ROOMS[ri^1];inL.position.set(r.x,2.3,r.z);inL2.position.set(r2.x,2.3,r2.z);inL.intensity+=(I*1.2-inL.intensity)*Math.min(1,dt*8);inL2.intensity+=(I*.8-inL2.intensity)*Math.min(1,dt*8)}else{inL.intensity*=Math.max(0,1-dt*8);inL2.intensity*=Math.max(0,1-dt*8)}
+if(ri<0)ILON=false;if(ri>=0&&ILON){const r=ROOMS[ri],r2=ROOMS[ri^1];inL.position.set(r.x,2.3,r.z);inL2.position.set(r2.x,2.3,r2.z);inL.intensity+=(I*1.2-inL.intensity)*Math.min(1,dt*8);inL2.intensity+=(I*.8-inL2.intensity)*Math.min(1,dt*8)}else{inL.intensity*=Math.max(0,1-dt*8);inL2.intensity*=Math.max(0,1-dt*8)}
 fl.intensity=flOn?3.2:0;
 // recalcul de l'environnement (reflets PBR) quand le ciel a assez changé
 const sig=TOD.t+cov*3+gr*3;if(Math.abs(sig-TOD.envW)>.28&&fz<.05&&performance.now()-TOD.envT>4000){TOD.envW=sig;TOD.envT=performance.now();const o=S.environment;S.environment=mkEnv(R);if(o&&o.dispose)o.dispose()}

@@ -35,8 +35,8 @@ cracks(x,sz,3,'rgba(40,38,35,.45)')},3);
 // --- crépi (hauteur non répétée : saleté en bas, coulures sous le toit)
 const T_plas=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,31),b=fbm(sz,96,96,2,13),e=fbm(sz,10,3,3,57),st=fbm(sz,40,2,3,71);
 for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,vv=1-y/sz;let r=.93+(a[i]-.5)*.1+(b[i]-.5)*.05,g=r*.985,bl=r*.95;
-const dk=c01((.17+(e[i]-.5)*.2-vv)/.15);r*=1-.4*dk;g*=1-.45*dk;bl*=1-.55*dk;
-const tk=c01((vv-.7)/.2)*c01((st[i]-.45)*4);r*=1-.17*tk;g*=1-.16*tk;bl*=1-.13*tk;
+const dk=c01((.17+(e[i]-.5)*.2-vv)/.15);r*=1-.18*dk;g*=1-.2*dk;bl*=1-.24*dk;
+const tk=c01((vv-.7)/.2)*c01((st[i]-.45)*4);r*=1-.06*tk;g*=1-.06*tk;bl*=1-.05*tk;
 P4(d,i,r*255,g*255,bl*255);H[i]=b[i]*.7+a[i]*.3}},(x,sz)=>cracks(x,sz,5,'rgba(70,62,52,.4)'),2.2);
 // --- pierre (moellons)
 const T_stone=ptex(256,(d,H,sz)=>{const G=5,cs=sz/G,n=fbm(sz,48,48,2,91),pts=[];for(let j=0;j<G;j++)for(let i=0;i<G;i++)pts.push([(i+.15+hsh(i,j)*.7)*cs,(j+.15+hsh(i+9,j+5)*.7)*cs,hsh(i*3+1,j*7+2)]);

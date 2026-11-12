@@ -271,3 +271,5 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Herbe exclue de l'emprise des ponts.
 - Tirer annule la pose et la vitesse de sprint.
 - Restent à traiter : caisse dans un trou, mare coupée, arbres-cônes lointains, rive bruitée au pont, socle en pierre, crépi.
+- Crépi : coulures et saleté atténuées (la bande de la façade n'est plus soulignée par des traînées sombres).
+- Lumière intérieure : ne s'allume plus automatiquement ; touche 0 dans une pièce pour l'allumer/éteindre.
