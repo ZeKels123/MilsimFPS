@@ -64,7 +64,7 @@ let dh=99;for(const r of HS){const dx=Math.max(r[0]-x,0,x-r[2]),dz=Math.max(r[1]
 const m=sstep(.3,2.2,d)*sstep(1.2,15,dh)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),Math.abs(z)));GHg[j*GN+i]=rel(x,z)*m*(.2+.8*sstep(5,36,wDist(x,z)))}
 {let mn=9;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(wDist(x,z))<1.2)mn=Math.min(mn,GHg[j*GN+i])}WL=mn-.12;
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,w=wDist(x,z);if(w>9)continue;const k=j*GN+i,h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
-for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(x-b.x)<=1.5&&Math.abs(z-b.z)<=b.hl+.6)GHg[j*GN+i]=b.y}}}
+for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;const dz=Math.abs(z-b.z)-b.hl;if(Math.abs(x-b.x)<=1.9&&dz<=.9)GHg[j*GN+i]=b.y;else if(Math.abs(x-b.x)<=3.4&&dz<=4.2&&dz>.9){const t=sstep(.9,4.2,dz),q=Math.abs(x-b.x)<=1.9?1:1-sstep(1.9,3.4,Math.abs(x-b.x));GHg[j*GN+i]=GHg[j*GN+i]+(Math.max(GHg[j*GN+i],b.y)-GHg[j*GN+i])*(1-t)*q}}}}
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
 scaleUV(g,25,25);g.computeVertexNormals();const nn=g.attributes.normal;
