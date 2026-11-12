@@ -264,3 +264,10 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - **Indices naturels** : 260 branches qui craquent sous les pas (son spatial 3D, bruit qui alerte bots et animaux, plus discret accroupi) ; les oiseaux qui s'envolent devant un bot s'entendent en 3D.
 - Correctifs : grésillement constant (le crépitement de la pluie était modulé même par temps clair : sa profondeur suit maintenant le volume de pluie ; sons de branches et d'oiseaux aussi limités en fréquence), caméra libre qui tournait quand l'inventaire était ouvert, indicateur à l'écran remplacé par un son spatial.
 - **F8** : désactive / réactive tous les ennemis (test et exploration). **F9** : panneau de diagnostic audio.
+
+## v12 : corrections visuelles
+- Ombres : biais augmentés (soleil proche et cascade) → plus de hachures sur la ceinture et les montants de porte.
+- SSAO atténuée de 40 % → halos sombres réduits (fenêtres, chaises, arme).
+- Herbe exclue de l'emprise des ponts.
+- Tirer annule la pose et la vitesse de sprint.
+- Restent à traiter : caisse dans un trou, mare coupée, arbres-cônes lointains, rive bruitée au pont, socle en pierre, crépi.

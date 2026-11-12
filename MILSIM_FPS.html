@@ -109,12 +109,12 @@ function mkEnv(r){try{const sc=new THREE.Scene();sc.add(new THREE.Mesh(envGeo(),
 const hemi=new THREE.HemisphereLight(0xbcd2ff,0x5a5238,.3);S.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d8,1.25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
 {const q=sun.shadow.camera;q.left=q.bottom=-28;q.right=q.top=28;q.near=1;q.far=170;q.updateProjectionMatrix()}
-sun.shadow.bias=-.0004;sun.shadow.normalBias=.04;
+sun.shadow.bias=-.0007;sun.shadow.normalBias=.09;
 sun.position.copy(SUND).multiplyScalar(80);S.add(sun,sun.target);
 // ombres en cascade : 2e lumière sans intensité qui ne sert que de carte d'ombre large (±110 m) ; le shader choisit la carte
 const sun2=new THREE.DirectionalLight(0xffffff,0);sun2.castShadow=true;sun2.shadow.mapSize.set(2048,2048);
 {const q=sun2.shadow.camera;q.left=q.bottom=-110;q.right=q.top=110;q.near=1;q.far=330;q.updateProjectionMatrix()}
-sun2.shadow.bias=-.0008;sun2.shadow.normalBias=.12;sun2.position.copy(SUND).multiplyScalar(80);S.add(sun2,sun2.target);
+sun2.shadow.bias=-.0012;sun2.shadow.normalBias=.22;sun2.position.copy(SUND).multiplyScalar(80);S.add(sun2,sun2.target);
 {const k=THREE.ShaderChunk.lights_fragment_begin,re=/directLight\.color \*= all\( bvec2\( directLight\.visible, receiveShadow \) \) \? getShadow\( directionalShadowMap\[ i \], directionalLightShadow\.shadowMapSize, directionalLightShadow\.shadowBias, directionalLightShadow\.shadowRadius, vDirectionalShadowCoord\[ i \] \) : 1\.0;/;
 if(re.test(k))THREE.ShaderChunk.lights_fragment_begin=k.replace(re,`
 #if NUM_DIR_LIGHT_SHADOWS > 1
@@ -752,7 +752,7 @@ for(const q of BU){const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>130*130)continue
 LP.a.count=na;LP.b.count=nb;LB.a.count=ba;LB.b.count=bb;LS.a.count=sa;LS.b.count=sb;[LP,LB,LS].forEach(L=>{[L.a,L.b].forEach(m=>{m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true})})}
 // --- herbe : une réserve d'instances recentrée sur le joueur, cellules de 3 m calculées une fois puis mémorisées
 const GR={cell:new Map(),pend:[],cx:1e9,cz:1e9,R:46,max:0,q:1};
-function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=6+((hsh(i+5,j+9)*4)|0);for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||nearPath(x,z,1.2))continue;const s=.5+hsh(i+q*13,j)*.6;out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6),.75+hsh(q,i)*.35,.85+hsh(j,q)*.25,.65+hsh(q+j,i)*.35])}GR.cell.set(k,out);return out}
+function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=6+((hsh(i+5,j+9)*4)|0);for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||BRG.some(b=>Math.abs(x-b.x)<3.2&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;const s=.5+hsh(i+q*13,j)*.6;out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6),.75+hsh(q,i)*.35,.85+hsh(j,q)*.25,.65+hsh(q+j,i)*.35])}GR.cell.set(k,out);return out}
 function grassFill(){const im=GRASS;if(!im)return;const R=GR.R,ci=Math.floor(GR.cx/3),cj=Math.floor(GR.cz/3),rc=Math.ceil(R/3);let n=0;const mx=Math.floor(im.userData.max*GR.q);
 for(let i=ci-rc;i<=ci+rc&&n<mx;i++)for(let j=cj-rc;j<=cj+rc&&n<mx;j++){const mxx=(i+.5)*3-GR.cx,mzz=(j+.5)*3-GR.cz;if(mxx*mxx+mzz*mzz>R*R)continue;const c=grassCell(i,j);for(const g of c){if(n>=mx)break;oo.position.set(g[0],g[1],g[2]);oo.rotation.set(0,g[3],0);oo.scale.set(g[4],g[5],g[4]);oo.updateMatrix();im.setMatrixAt(n,oo.matrix);col.setRGB(g[6],g[7],g[8]);im.setColorAt(n,col);n++}}
 im.count=n;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;if(GR.cell.size>2600)GR.cell.clear()}
@@ -2873,7 +2873,7 @@ float rn=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))))
 vec3 t=normalize(vec3(cos(rn),sin(rn),0.)-n*dot(vec3(cos(rn),sin(rn),0.),n)),bt=cross(n,t);
 for(int i=0;i<10;i++){float fi=float(i),a=fi*2.4,z=(fi+.5)/10.,rr=sqrt(1.-z*z*.8);vec3 s=(t*cos(a)*rr+bt*sin(a)*rr+n*(z*.9+.1))*rad*mix(.25,1.,z*z);vec3 sp=p+s;vec4 o=uP*vec4(sp,1.);vec2 suv=o.xy/o.w*.5+.5;
 float sz=vp(suv).z;occ+=step(sp.z+.03,sz)*smoothstep(0.,1.,rad/abs(p.z-sz));}
-float ao=1.-occ/10.;ao=mix(ao,1.,smoothstep(35.,55.,-p.z));gl_FragColor=vec4(ao,ao,ao,1.);}`});
+float ao=1.-occ/10.*.6;ao=mix(ao,1.,smoothstep(35.,55.,-p.z));gl_FragColor=vec4(ao,ao,ao,1.);}`});
 this.cM=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{tDiffuse:{value:null},tDepth:{value:null},tAO:{value:this.aoRT.texture},uIVP:{value:new THREE.Matrix4()},uPVP:{value:new THREE.Matrix4()},uNF:{value:new THREE.Vector2(.05,100)},uMB:{value:0},uAO:{value:1},uPx:{value:new THREE.Vector2(2/w,2/h)}},vertexShader:PPV,fragmentShader:`
 uniform sampler2D tDiffuse,tDepth,tAO;uniform mat4 uIVP,uPVP;uniform vec2 uNF,uPx;uniform float uMB,uAO;varying vec2 vUv;
 float lz(float d){return uNF.x*uNF.y/(uNF.y-d*(uNF.y-uNF.x));}
@@ -3079,7 +3079,7 @@ P.pitch=Math.max(-1.4,Math.min(1.4,P.pitch));
 const sk=sight(),inz=inZ(P.x,P.z),nearB=inz&&Math.hypot(P.x-BENCH.x,P.z-BENCH.z)<2.7;nb=nearB;ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS());
 // déplacement
 const f=ac.on?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=ac.on?0:(K.KeyD?1:0)-(K.KeyA?1:0);
-const spd=(ads?2.2:(K.ShiftLeft&&P.st===0&&HSPR()&&invSprintOK()?6.5:4)*(Math.abs(P.lean)>.5?.7:1))*PWADE*PSTUN*STS[P.st]*(P.air?.8:1)*HMV();
+const spd=(ads?2.2:(K.ShiftLeft&&P.st===0&&HSPR()&&invSprintOK()&&!mdown?6.5:4)*(Math.abs(P.lean)>.5?.7:1))*PWADE*PSTUN*STS[P.st]*(P.air?.8:1)*HMV();
 let dx=-Math.sin(P.yaw)*f+Math.cos(P.yaw)*r,dz=-Math.cos(P.yaw)*f-Math.sin(P.yaw)*r;const l=Math.hypot(dx,dz);
 if(l>0){dx/=l;dz/=l;P.x+=dx*spd*dt;P.z+=dz*spd*dt;bob+=dt*spd*2}
 P.x=Math.max(-MH+.6,Math.min(MH-.6,P.x));P.z=Math.max(-MH+.6,Math.min(MH-.6,P.z));
@@ -3098,7 +3098,7 @@ const hip={x:.2,y:-.21,z:-.42},t=SIGHT[sk];
 kick=Math.max(0,kick-dt*10);
 const rl=reloading>0?Math.sin(Math.min(1,(RT-reloading)/RT)*Math.PI):0;
 drawT-=dt;inspT-=dt;slideK=Math.max(0,slideK-dt*(WC[WSEL].cyc?1/WC[WSEL].rate:18));if(inspT>0&&(mdown||ads||reloading>0))inspT=0;
-const dr=Math.max(0,drawT)/.45+(plateT>0?Math.sin(Math.PI*Math.min(1,(1.6-plateT)/1.6))*1.4:0),ip=inspT>0?1-inspT/2.8:0,is=Math.sin(Math.PI*ip),spr=K.ShiftLeft&&l>0&&adsT<.1;sprA+=((spr?1:0)-sprA)*Math.min(1,dt*8);
+const dr=Math.max(0,drawT)/.45+(plateT>0?Math.sin(Math.PI*Math.min(1,(1.6-plateT)/1.6))*1.4:0),ip=inspT>0?1-inspT/2.8:0,is=Math.sin(Math.PI*ip),spr=K.ShiftLeft&&l>0&&adsT<.1&&!mdown&&!(kick>.08);sprA+=((spr?1:0)-sprA)*Math.min(1,dt*8);
 const ru=reloading>0?1-reloading/RT:0;let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];const WA=wAnim(WSEL,ru,ip,rl,is);
 if(reloading>0){const M=HB.zM,S=HB.zS,H=[HB.lx,HB.ly,HB.lz],tail=reloadEmpty?[[.78,[0,.02,S]],[.86,[0,.02,S-.02]],[.95,H],[1,H]]:[[.9,H],[1,H]];hp=kf([[0,H],[.1,[0,-.1,M]],[.18,[0,-.1,M]],[.3,[0,-.3,M]],[.38,[-.08,-.4,M]],[.5,[-.08,-.4,M]],[.58,[-.02,-.28,M]],[.66,[0,-.1,M]],[.72,[0,-.1,M]]].concat(tail),ru);mv=!(ru>=.38&&ru<.5);if((ru>=.18&&ru<.38)||(ru>=.5&&ru<.72)){mgx=hp[0];md=hp[1]+.1}
 if(WSEL<2&&ru>.17&&rlS<1){rlS=1;snd(200,.07,.2,'square')}if(WSEL<2&&ru>.6&&rlS<2){rlS=2;snd(260,.07,.25,'square')}if(WSEL<2&&reloadEmpty&&ru>.8&&rlS<3){rlS=3;snd(150,.1,.25,'square')}}else rlS=0;

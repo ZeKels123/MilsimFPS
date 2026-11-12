@@ -42,12 +42,12 @@ function mkEnv(r){try{const sc=new THREE.Scene();sc.add(new THREE.Mesh(envGeo(),
 const hemi=new THREE.HemisphereLight(0xbcd2ff,0x5a5238,.3);S.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d8,1.25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
 {const q=sun.shadow.camera;q.left=q.bottom=-28;q.right=q.top=28;q.near=1;q.far=170;q.updateProjectionMatrix()}
-sun.shadow.bias=-.0004;sun.shadow.normalBias=.04;
+sun.shadow.bias=-.0007;sun.shadow.normalBias=.09;
 sun.position.copy(SUND).multiplyScalar(80);S.add(sun,sun.target);
 // ombres en cascade : 2e lumière sans intensité qui ne sert que de carte d'ombre large (±110 m) ; le shader choisit la carte
 const sun2=new THREE.DirectionalLight(0xffffff,0);sun2.castShadow=true;sun2.shadow.mapSize.set(2048,2048);
 {const q=sun2.shadow.camera;q.left=q.bottom=-110;q.right=q.top=110;q.near=1;q.far=330;q.updateProjectionMatrix()}
-sun2.shadow.bias=-.0008;sun2.shadow.normalBias=.12;sun2.position.copy(SUND).multiplyScalar(80);S.add(sun2,sun2.target);
+sun2.shadow.bias=-.0012;sun2.shadow.normalBias=.22;sun2.position.copy(SUND).multiplyScalar(80);S.add(sun2,sun2.target);
 {const k=THREE.ShaderChunk.lights_fragment_begin,re=/directLight\.color \*= all\( bvec2\( directLight\.visible, receiveShadow \) \) \? getShadow\( directionalShadowMap\[ i \], directionalLightShadow\.shadowMapSize, directionalLightShadow\.shadowBias, directionalLightShadow\.shadowRadius, vDirectionalShadowCoord\[ i \] \) : 1\.0;/;
 if(re.test(k))THREE.ShaderChunk.lights_fragment_begin=k.replace(re,`
 #if NUM_DIR_LIGHT_SHADOWS > 1

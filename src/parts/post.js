@@ -14,7 +14,7 @@ float rn=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))))
 vec3 t=normalize(vec3(cos(rn),sin(rn),0.)-n*dot(vec3(cos(rn),sin(rn),0.),n)),bt=cross(n,t);
 for(int i=0;i<10;i++){float fi=float(i),a=fi*2.4,z=(fi+.5)/10.,rr=sqrt(1.-z*z*.8);vec3 s=(t*cos(a)*rr+bt*sin(a)*rr+n*(z*.9+.1))*rad*mix(.25,1.,z*z);vec3 sp=p+s;vec4 o=uP*vec4(sp,1.);vec2 suv=o.xy/o.w*.5+.5;
 float sz=vp(suv).z;occ+=step(sp.z+.03,sz)*smoothstep(0.,1.,rad/abs(p.z-sz));}
-float ao=1.-occ/10.;ao=mix(ao,1.,smoothstep(35.,55.,-p.z));gl_FragColor=vec4(ao,ao,ao,1.);}`});
+float ao=1.-occ/10.*.6;ao=mix(ao,1.,smoothstep(35.,55.,-p.z));gl_FragColor=vec4(ao,ao,ao,1.);}`});
 this.cM=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,uniforms:{tDiffuse:{value:null},tDepth:{value:null},tAO:{value:this.aoRT.texture},uIVP:{value:new THREE.Matrix4()},uPVP:{value:new THREE.Matrix4()},uNF:{value:new THREE.Vector2(.05,100)},uMB:{value:0},uAO:{value:1},uPx:{value:new THREE.Vector2(2/w,2/h)}},vertexShader:PPV,fragmentShader:`
 uniform sampler2D tDiffuse,tDepth,tAO;uniform mat4 uIVP,uPVP;uniform vec2 uNF,uPx;uniform float uMB,uAO;varying vec2 vUv;
 float lz(float d){return uNF.x*uNF.y/(uNF.y-d*(uNF.y-uNF.x));}
