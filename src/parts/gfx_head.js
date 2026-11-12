@@ -1,4 +1,4 @@
-const MH=150;
+const MH=175;
 const R=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});R.setSize(innerWidth,innerHeight);R.setPixelRatio(Math.min(devicePixelRatio,2));document.body.appendChild(R.domElement);
 R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.82;
 R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;

@@ -56,7 +56,7 @@ const fm=(t,k,o)=>{const m=std(0xffffff,Object.assign({map:t,alphaTest:.42,rough
 const fd=(t,k)=>{const m=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.42});windify(m,k);return m};
 const mf=std(0xffffff,{roughness:1,envMapIntensity:.4}),FAR_=(k)=>windify(mf.clone(),k);
 const tk=new THREE.CylinderGeometry(.16,.3,3,6),tkm=std(0x4a3a2a,{roughness:1});
-const TR=[],NP=560,NO=190,NBU=520;let np=0,no=0,t=0;
+const TR=[],NP=760,NO=260,NBU=710;let np=0,no=0,t=0;
 while((np<NP||no<NO)&&t++<26000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
 TR.forEach(q=>{const sc=q.ty?q.s*1.15:q.s,hh=q.ty?1.1:1,m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;S.add(m);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});

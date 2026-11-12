@@ -55,7 +55,7 @@ blk(.8,.5,.8,cx+W*.2,H+.57,cz-D*.15,darkM,{s:1});blk(.8,.06,.8,cx+W*.2,H+.85,cz-
 const an=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,3.6,6),darkM);an.position.set(cx-W*.3,H+2.1,cz+D*.2);an.castShadow=true;S.add(an);
 const dsh=new THREE.Mesh(new THREE.SphereGeometry(.28,10,6,0,6.283,0,1.4),steelM);dsh.position.set(cx-W*.3,H+.5,cz+D*.2);dsh.castShadow=true;S.add(dsh);
 }
-else if(o.up){const ha=si>0?hu-1.1:-hu,hb=si>0?hu:-hu+1.1,U0=-Lt/2-t/2,U1=Lt/2+t/2,slab=(u0,u1,v0,v1)=>{if(u1-u0<.01||v1-v0<.01)return;const r=rW(u0,u1,v0,v1);blkR(r,FT-.3,FT,floorM,{T:1.2,s:1});surfRect(r[0],r[1],r[2],r[3],FT)};
+else if(o.up){const ha=si>0?hu-1.1:-hu,hb=si>0?hu:-hu+1.1,U0=-Lt/2-t/2,U1=Lt/2+t/2,slab=(u0,u1,v0,v1)=>{if(u1-u0<.01||v1-v0<.01)return;const r=rW(u0,u1,v0,v1);blkR([r[0]+.04,r[1]-.04,r[2]+.04,r[3]-.04],FT-.3,FT,floorM,{T:1.2,s:1});surfRect(r[0],r[1],r[2],r[3],FT)};
 slab(U0,U1,-.2,vF+t/2);slab(U0,U1,vB-t/2,vT);if(si>0){slab(U0,ha,vT,-.2);slab(hu,U1,vT,-.2)}else{slab(hb,U1,vT,-.2);slab(U0,-hu,vT,-.2)}
 const uc=si*(hu-.55),sa=L_(uc,-.2),sb=L_(uc,vT);const sr=stairs(sa[0],sa[1],sb[0],sb[1],1,0,FT,furnM,{});
 // garde-corps du puits d'escalier

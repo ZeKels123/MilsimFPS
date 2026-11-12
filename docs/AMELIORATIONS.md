@@ -274,3 +274,6 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Crépi : coulures et saleté atténuées (la bande de la façade n'est plus soulignée par des traînées sombres).
 - Lumière intérieure : ne s'allume plus automatiquement ; touche 0 dans une pièce pour l'allumer/éteindre.
 - Ponts : rampes aux extrémités et tablier élargi pour ne plus tomber dans la rivière en entrant/sortant.
+- Carte agrandie : 300 → 350 m de côté (MH 150 → 175), végétation augmentée proportionnellement.
+- Fusil à pompe : visée relevée (iy) et main gauche abaissée → plus de grand pan plat devant l'écran en visée.
+- Façade : la dalle d'étage ne dépasse plus du mur (fin du scintillement de la bande de bois).

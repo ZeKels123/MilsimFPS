@@ -65,7 +65,7 @@ canvas{display:block}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),rnd=(a,b)=>a+Math.random()*(b-a);
-const MH=150;
+const MH=175;
 const R=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});R.setSize(innerWidth,innerHeight);R.setPixelRatio(Math.min(devicePixelRatio,2));document.body.appendChild(R.domElement);
 R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=.82;
 R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -397,7 +397,7 @@ blk(.8,.5,.8,cx+W*.2,H+.57,cz-D*.15,darkM,{s:1});blk(.8,.06,.8,cx+W*.2,H+.85,cz-
 const an=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,3.6,6),darkM);an.position.set(cx-W*.3,H+2.1,cz+D*.2);an.castShadow=true;S.add(an);
 const dsh=new THREE.Mesh(new THREE.SphereGeometry(.28,10,6,0,6.283,0,1.4),steelM);dsh.position.set(cx-W*.3,H+.5,cz+D*.2);dsh.castShadow=true;S.add(dsh);
 }
-else if(o.up){const ha=si>0?hu-1.1:-hu,hb=si>0?hu:-hu+1.1,U0=-Lt/2-t/2,U1=Lt/2+t/2,slab=(u0,u1,v0,v1)=>{if(u1-u0<.01||v1-v0<.01)return;const r=rW(u0,u1,v0,v1);blkR(r,FT-.3,FT,floorM,{T:1.2,s:1});surfRect(r[0],r[1],r[2],r[3],FT)};
+else if(o.up){const ha=si>0?hu-1.1:-hu,hb=si>0?hu:-hu+1.1,U0=-Lt/2-t/2,U1=Lt/2+t/2,slab=(u0,u1,v0,v1)=>{if(u1-u0<.01||v1-v0<.01)return;const r=rW(u0,u1,v0,v1);blkR([r[0]+.04,r[1]-.04,r[2]+.04,r[3]-.04],FT-.3,FT,floorM,{T:1.2,s:1});surfRect(r[0],r[1],r[2],r[3],FT)};
 slab(U0,U1,-.2,vF+t/2);slab(U0,U1,vB-t/2,vT);if(si>0){slab(U0,ha,vT,-.2);slab(hu,U1,vT,-.2)}else{slab(hb,U1,vT,-.2);slab(U0,-hu,vT,-.2)}
 const uc=si*(hu-.55),sa=L_(uc,-.2),sb=L_(uc,vT);const sr=stairs(sa[0],sa[1],sb[0],sb[1],1,0,FT,furnM,{});
 // garde-corps du puits d'escalier
@@ -732,7 +732,7 @@ const fm=(t,k,o)=>{const m=std(0xffffff,Object.assign({map:t,alphaTest:.42,rough
 const fd=(t,k)=>{const m=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.42});windify(m,k);return m};
 const mf=std(0xffffff,{roughness:1,envMapIntensity:.4}),FAR_=(k)=>windify(mf.clone(),k);
 const tk=new THREE.CylinderGeometry(.16,.3,3,6),tkm=std(0x4a3a2a,{roughness:1});
-const TR=[],NP=560,NO=190,NBU=520;let np=0,no=0,t=0;
+const TR=[],NP=760,NO=260,NBU=710;let np=0,no=0,t=0;
 while((np<NP||no<NO)&&t++<26000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
 TR.forEach(q=>{const sc=q.ty?q.s*1.15:q.s,hh=q.ty?1.1:1,m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;S.add(m);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});
@@ -1056,7 +1056,7 @@ const WC=[
 {n:'Fusil',rate:.09,rec:1,mag:30,res:120,dmg:34,pel:1,sp:.032,semi:0,rb:{scope:-.04,angled:-.2,holo:-.14,mg:-.02},hb:{ry:-.09,rz:.17,ly:-.075,lz:-.25,zM:.04,zS:-.02},iy:-.075,wz:0,mz:-.55,my:.012,gz:-.3,snd:[180,.12,.25],rt:1.9},
 {n:'MP9',rate:.055,rec:.7,mag:30,res:120,dmg:34,pel:1,sp:.032,semi:0,rb:{scope:-.16,angled:-.34,holo:-.3,mg:-.18},hb:{ry:-.1,rz:-.2,ly:-.06,lz:-.34,zM:-.21,zS:-.12},iy:-.055,wz:.16,mz:-.46,my:.011,gz:-.34,snd:[230,.1,.22],rt:1.9},
 {n:'Pistolet',rate:.16,rec:1.2,mag:15,res:75,dmg:36,pel:1,sp:.028,semi:1,rb:{scope:-.1,angled:-.12,holo:-.08,mg:.03},hb:{ry:-.07,rz:-.04,ly:-.08,lz:-.06,zM:-.04,zS:-.06},iy:-.048,wz:.22,mz:-.235,my:.015,gz:-.17,snd:[260,.09,.22],rt:1.5,amp:.03,lock:1},
-{n:'Fusil \u00e0 pompe',rate:.85,rec:2.8,mag:6,res:36,dmg:20,pel:9,sp:.07,semi:1,rb:{scope:-.05,angled:-.2,holo:-.1,mg:.02},hb:{ry:-.09,rz:.15,ly:-.05,lz:-.36,zM:0,zS:-.05},iy:-.05,wz:.06,mz:-.56,my:.022,gz:-.3,snd:[90,.3,.45],rt:2.6,cyc:1,amp:.07},
+{n:'Fusil \u00e0 pompe',rate:.85,rec:2.8,mag:6,res:36,dmg:20,pel:9,sp:.07,semi:1,rb:{scope:-.05,angled:-.2,holo:-.1,mg:.02},hb:{ry:-.09,rz:.15,ly:-.1,lz:-.36,zM:0,zS:-.05},iy:-.075,wz:.06,mz:-.56,my:.022,gz:-.3,snd:[90,.3,.45],rt:2.6,cyc:1,amp:.07},
 {n:'Fusil de pr\u00e9cision',rate:1.3,rec:3.2,mag:5,res:30,dmg:100,pel:1,sp:.05,semi:1,rb:{scope:-.04,angled:-.2,holo:-.14,mg:-.02},hb:{ry:-.1,rz:.2,ly:-.06,lz:-.3,zM:0,zS:-.05},iy:-.1,wz:.2,mz:-.76,my:.015,gz:-.35,snd:[70,.35,.5],rt:2.4,cyc:1,amp:.06}];
 const AMM=[30,30,15,6,5],RSV=[120,120,75,36,30],magMax=()=>WC[WSEL].mag+(A.ext?10:0);
 function toggleAtt(a){A[a]=!A[a];if(A[a]){if(['scope','angled','holo'].includes(a))sel=a;if(a==='supp')A.brake=false;if(a==='brake')A.supp=false}if(ammo>magMax()){reserve+=ammo-magMax();ammo=magMax()}if(bench)upBench()}
