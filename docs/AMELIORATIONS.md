@@ -253,4 +253,5 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - **Handicap par arme** : vitesse de marche ×0,96 fusil, ×1,00 MP9, ×1,03 pistolet, ×0,92 pompe, ×0,86 sniper (sprint un peu plus pénalisé pour les armes lourdes), appliqué aussi en visée.
 - **Jeter** : V jette le sac en vitesse (les poches gardent bandages, garrots, trousse et munitions de l'arme tenue) ; Retour arrière jette 30 munitions ; objets jetables depuis l'inventaire.
 - **Objets au sol** : F pour ramasser (sacs, munitions par calibre, soins, grenades, plaques). Butin sur les bots tués. Une trentaine d'objets et 5 sacs répartis sur la carte.
-- Non fait : glisser-déposer manuel dans la grille, perte du sac à la mort du joueur.
+- **Glisser-déposer** : on déplace les objets à la souris dans la grille ; les autres se rangent automatiquement.
+- **Mort du joueur** : tout l'équipement tombe dans un sac au sol à l'endroit de la mort ; on repart avec un sac moyen et le kit de départ.

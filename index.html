@@ -1482,7 +1482,7 @@ const ov=nadeLOS(n,g.x,g.y+1.1,g.z)?60*Math.pow(k,1.5):0;if(ov>3&&b.hp>0){const 
 return hit}
 // ================= INVENTAIRE (v10) : sac à dos à grille, poids du joueur, objets au sol =================
 // Le poids dépend du JOUEUR (capacité fixe), pas du sac : le sac ne limite que la place (cases).
-const INV={bag:'M',sel:null,open:false,gnd:[],init:false,CAP:32,lv:0,t:0};
+const INV={lay:{},bag:'M',sel:null,open:false,gnd:[],init:false,CAP:32,lv:0,t:0};
 const BAGS={0:{n:'Poches',w:4,h:2,kg:0},S:{n:'Petit sac',w:5,h:4,kg:.8,col:0x5a6040},M:{n:'Sac moyen',w:7,h:5,kg:1.4,col:0x46563a},L:{n:'Grand sac',w:9,h:6,kg:2.2,col:0x34452a}};
 const CALS=['5.56','9 mm','12/70','7.62'],CIDX=[0,1,1,2,3],CKG=[.012,.008,.04,.025],CST=[60,60,30,30];
 const WKG=[3.6,2.5,1,3.4,5.4],WSPD=[.96,1,1.03,.92,.86],WSPR=[.97,1,1.02,.93,.88],ARMKG=4;
@@ -1574,12 +1574,15 @@ const ivw=document.createElement('div');ivw.id='invw';document.body.appendChild(
 const CELL=46;
 function invRender(){const b=BAGS[INV.bag],st=invStacks().map(s=>({...s,d:invDef(s.id)})).sort((a,c)=>c.d.w*c.d.h-a.d.w*a.d.h);
 const used=invUsed(),cap=invCapC();$('ih').textContent=b.n.toUpperCase()+' · '+b.w+'×'+b.h+' · '+used+'/'+cap+' cases';
-const g=$('ig');g.style.width=b.w*CELL+'px';g.style.height=b.h*CELL+'px';const occ=[];for(let y=0;y<b.h+6;y++)occ.push(new Array(b.w).fill(0));let h='',over=0;for(let y=0;y<b.h;y++)for(let x=0;x<b.w;x++)h+='<div style="position:absolute;box-sizing:border-box;left:'+x*CELL+'px;top:'+y*CELL+'px;width:'+CELL+'px;height:'+CELL+'px;border:1px solid #2a3a22;background:#0d130b"></div>';
-for(const s of st){let left=s.q;const n=Math.ceil(s.q/s.d.st);for(let u=0;u<n;u++){const q=Math.min(left,s.d.st);left-=q;let f=null;
-for(let y=0;y<b.h+6&&!f;y++)for(let x=0;x+s.d.w<=b.w&&!f;x++){let ok=1;for(let j=0;j<s.d.h&&ok;j++)for(let i=0;i<s.d.w;i++)if(occ[y+j][x+i]){ok=0;break}if(ok)f=[x,y]}
-if(!f){over++;continue}for(let j=0;j<s.d.h;j++)for(let i=0;i<s.d.w;i++)occ[f[1]+j][f[0]+i]=1;
-h+='<div class="it'+(INV.sel===s.id?' sel':'')+'" data-id="'+s.id+'" title="'+s.d.n+'" style="left:'+f[0]*CELL+'px;top:'+f[1]*CELL+'px;width:'+s.d.w*CELL+'px;height:'+s.d.h*CELL+'px;background:#1b2418 url('+invIconUrl(s.id)+') center/100% 100% no-repeat">'+(s.d.st>1?q:'')+'</div>'}}
-g.innerHTML=h;$('io').innerHTML='<small>Clic : sélectionner · clic droit : jeter 1 · Tab / Échap : fermer · F : ramasser · V : jeter le sac</small>';
+const g=$('ig');g.style.width=b.w*CELL+'px';g.style.height=b.h*CELL+'px';const occ=[];for(let y=0;y<b.h+6;y++)occ.push(new Array(b.w).fill(0));
+let h='';for(let y=0;y<b.h;y++)for(let x=0;x<b.w;x++)h+='<div style="position:absolute;box-sizing:border-box;left:'+x*CELL+'px;top:'+y*CELL+'px;width:'+CELL+'px;height:'+CELL+'px;border:1px solid #2a3a22;background:#0d130b"></div>';
+const free=(x,y,d)=>{if(x<0||y<0||x+d.w>b.w||y+d.h>b.h+6)return 0;for(let j=0;j<d.h;j++)for(let i=0;i<d.w;i++)if(occ[y+j][x+i])return 0;return 1},take=(x,y,d)=>{for(let j=0;j<d.h;j++)for(let i=0;i<d.w;i++)occ[y+j][x+i]=1};
+const un=[];for(const s of st){let left=s.q;const n=Math.ceil(s.q/s.d.st);for(let u=0;u<n;u++){const q=Math.min(left,s.d.st);left-=q;un.push({s,q,key:s.id+'#'+u})}}
+const pos={};for(const o of un){const l=INV.lay[o.key];if(l&&free(l[0],l[1],o.s.d)&&l[1]<b.h){take(l[0],l[1],o.s.d);pos[o.key]=l}}
+let over=0;for(const o of un){if(pos[o.key])continue;let f=null;for(let y=0;y<b.h+6&&!f;y++)for(let x=0;x<b.w&&!f;x++)if(free(x,y,o.s.d))f=[x,y];if(!f){over++;continue}take(f[0],f[1],o.s.d);pos[o.key]=f}
+for(const o of un){const f=pos[o.key];if(!f)continue;const s=o.s;
+h+='<div class="it'+(INV.sel===s.id?' sel':'')+'" data-id="'+s.id+'" data-key="'+o.key+'" title="'+s.d.n+'" style="left:'+f[0]*CELL+'px;top:'+f[1]*CELL+'px;width:'+s.d.w*CELL+'px;height:'+s.d.h*CELL+'px;background:#1b2418 url('+invIconUrl(s.id)+') center/100% 100% no-repeat">'+(s.d.st>1?o.q:'')+'</div>'}
+g.innerHTML=h;$('io').innerHTML='<small>Glisser : ranger · clic : sélectionner · clic droit : jeter 1 · Tab / Échap : fermer · F : ramasser · V : jeter le sac</small>';
 const kg=invKg(),r=invLoad(),k=invSpdK(false),col=r<.5?'#6fbf5a':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';
 const eff=r<.5?'Aucun malus':r<.8?'Sprint légèrement réduit':r<=1?'Chargé : plus lent, endurance qui baisse vite':'SURCHARGÉ : très lent, sprint impossible';
 let rr='<h3>CHARGE</h3><div class="bar"><i style="width:'+Math.min(100,r*100)+'%;background:'+col+'"></i></div><b>'+kg.toFixed(1)+' / '+INV.CAP+' kg</b> <small>(capacité du joueur, indépendante du sac)</small><br><span style="color:'+col+'">'+eff+'</span><br>Vitesse de marche : ×'+k.toFixed(2)+'<h3 style="margin-top:12px">ARMES</h3>';
@@ -1599,6 +1602,12 @@ if(b&&INV.sel){const a=b.dataset.act,s=INV.sel,q=invGet(s);
 if(a==='d1')invDrop(s,s[0]==='a'?Math.min(q,30):1);else if(a==='dall')invDrop(s,q);else if(a==='use'){invOpen(false);
 if(s==='pl'){if(P.plates>0&&P.ar<150&&!plateT){plateT=1.6;snd(200,.2,.15,'sawtooth')}else hlMsg('Armure déjà pleine')}else if(s[0]==='g'){NADE.sel=+s[1]}else hlUse(s)}}
 else if(b&&b.dataset.act==='bag'){invDropBag()}});
+
+let DR=null;
+iv.addEventListener('mousedown',e=>{const t=e.target.closest('[data-key]');if(!t||e.button!==0)return;DR={key:t.dataset.key,id:t.dataset.id,x:e.clientX,y:e.clientY,mv:0,el:t}});
+addEventListener('mousemove',e=>{if(!DR)return;if(Math.abs(e.clientX-DR.x)+Math.abs(e.clientY-DR.y)>5)DR.mv=1;if(DR.mv){DR.el.style.transform='translate('+(e.clientX-DR.x)+'px,'+(e.clientY-DR.y)+'px)';DR.el.style.zIndex=9;DR.el.style.opacity=.8;DR.el.style.pointerEvents='none'}});
+addEventListener('mouseup',e=>{if(!DR)return;const d=DR;DR=null;if(!d.mv)return;const g=$('ig').getBoundingClientRect(),L=d.el.getBoundingClientRect();
+const cx=Math.round((L.left-g.left)/CELL),cy=Math.round((L.top-g.top)/CELL);INV.lay[d.key]=[cx,cy];invRender()});
 iv.addEventListener('contextmenu',e=>{const t=e.target.closest('[data-id]');if(t){const s=t.dataset.id;invDrop(s,s[0]==='a'?Math.min(invGet(s),30):1)}});
 addEventListener('keydown',e=>{if(e.repeat)return;
 if(INV.open){if(e.code==='Tab'||e.code==='Escape'||e.code==='KeyB'){e.preventDefault();invOpen(false)}else if(e.code==='KeyV')invDropBag();e.stopImmediatePropagation();return}
@@ -1615,6 +1624,10 @@ if(e.age>900&&e.id!=='B'&&Math.hypot(p.x-P.x,p.z-P.z)>40){S.remove(e.m);INV.gnd.
 const r=invLoad(),lv=r<.5?0:r<.8?1:r<=1?2:3;if(lv!==INV.lv){if(lv>INV.lv&&lv>=2)hlMsg(lv===3?'Surcharge : sprint impossible':'Vous êtes chargé');INV.lv=lv}
 INV.t+=dt;if(INV.t>.25){INV.t=0;const c=r<.5?'#cfe3c0':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';ivw.innerHTML='<span style="color:'+c+'">⚖ '+invKg().toFixed(1)+' / '+INV.CAP+' kg</span> <span style="opacity:.6">· Tab : sac</span>';
 const n=!INV.open&&!bench&&!nb&&!ndR?invNear():null;if(n){ivp.style.display='block';ivp.textContent='F — Ramasser : '+(n.id==='B'?BAGS[n.bag.kind].n:invDef(n.id).n+(n.q>1?' ×'+n.q:''))}else ivp.style.display='none'}}
+
+function invDeath(){const cont={};for(const x of invStacks())cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]=(cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]||0)+x.q;
+const kind=INV.bag===0?'S':INV.bag;if(Object.values(cont).some(v=>v>0))invSpawn('B',1,P.x,P.gy+.6,P.z,0,0,{kind,cont});
+INV.bag='M';INV.lay={};HM.inv={...HINV0};NADE.inv=[2,2,2];for(let k=0;k<2;k++)if(k!==slot)SLOTS[k].res=WC[SLOTS[k].w].res;INV.lv=0}
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
 const NS=.5,NGN=4*MH,NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
@@ -2995,7 +3008,7 @@ const end=h?h.point:V.clone().addScaledVector(W,60);dot.position.copy(end);
 const p=beamG.attributes.position;p.setXYZ(0,V.x,V.y,V.z);p.setXYZ(1,end.x,end.y,end.z);p.needsUpdate=true}
 // bots
 aiUpdate(dt,inz);nadeUpdate(dt,inz);
-if(P.hp<=0){P.hp=100;P.ar=50;P.plates=2;P.streak=0;P.deaths++;P.x=0;P.z=23;lvReset();nadeReset();repairGlass();ammo=magMax();reserve=WC[WSEL].res}
+if(P.hp<=0){P.hp=100;P.ar=50;P.plates=2;P.streak=0;P.deaths++;invDeath();P.x=0;P.z=23;lvReset();nadeReset();repairGlass();ammo=magMax();reserve=WC[WSEL].res}
 for(let i=sparks.length-1;i>=0;i--){sparks[i].t-=dt;if(sparks[i].t<=0){S.remove(sparks[i].s);sparks.splice(i,1)}}
 hitT-=dt;if(hitT<=0)$('hit').style.opacity=0;
 if(plateT>0){plateT-=dt;if(plateT<=0){plateT=0;P.ar=Math.min(150,P.ar+50);P.plates--;snd(300,.18,.2,'sawtooth');snd(900,.05,.15,'square')}}
