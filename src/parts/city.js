@@ -22,7 +22,7 @@ const GRID=[['apt','off','hotel','apt'],['shop','off','resto','shop'],['resto','
 BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.08,z1-z0),pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
 // --- modèles importés (cache de géométrie)
 const MG={};const mdl=n=>{if(!MG[n]){const m=mkMdl(n);MG[n]=[m.geometry,m.material]}const e=new THREE.Mesh(MG[n][0],MG[n][1]);e.castShadow=e.receiveShadow=true;return e};
-const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);if(hw)boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh});if(sol)solids.push(e);return e};
+const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);if(hw)boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh});if(sol&&hw){const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,Y+y+hh/2,z);px.visible=false;S.add(px);solids.push(px)}return e};
 // --- murs avec ouvertures ; fenêtres cassables
 const seg=(x0,x1,z0,z1,y0,y1,m)=>blk(x1-x0,y1-y0,z1-z0,(x0+x1)/2,Y+(y0+y1)/2,(z0+z1)/2,m,{T:3,s:1,c:1});
 function winG(ax,f,c,w,y0,y1,tt){const h=y1-y0,gm=new THREE.Mesh(new THREE.PlaneGeometry(w-.1,h-.1),glassM);gm.position.set(ax==='x'?c:f,Y+(y0+y1)/2,ax==='x'?f:c);if(ax==='z')gm.rotation.y=Math.PI/2;

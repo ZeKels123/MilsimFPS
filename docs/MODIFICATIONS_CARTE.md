@@ -37,6 +37,6 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - **Plan** : 3 rues nord-sud (x 224 / 330 / 420) × 3 rues est-ouest (z −420 / −525 / −630), 16 îlots (tours de bureaux, hôtels, immeubles, commerces, restaurants, un parc avec fontaine).
 - **Bâtiments** : étages réellement accessibles (bureaux/hôtels 4 niveaux, immeubles 3, commerces/restaurants 2), escaliers alternés avec trémie dans les dalles, cloison centrale avec portes, mobilier par type (bureaux + chaises, lits, armoires, tables de restaurant, rayonnages). Au-dessus, bloc plein à façade texturée pour les tours.
 - **Vitres** : toutes les fenêtres de tous les niveaux sont cassables (2 impacts, éclats, passage possible une fois cassées).
-- **Assets importés** (convertis en modèles légers à couleurs par sommet, `src/parts/models.js`) : table, chaise de bureau, Mustang, Mazda CX-7, vélo. Voitures garées (mélange Mustang/Mazda/caisses), vélos devant les îlots et dans le parc.
+- **Assets importés** (convertis en pleine résolution (triangles identiques dédupliqués uniquement), couleurs par sommet sans textures, `src/parts/models.js`) : table, chaise de bureau, Mustang, Mazda CX-7, vélo. Voitures garées (mélange Mustang/Mazda/caisses), vélos devant les îlots et dans le parc.
 - **Non utilisés** : herbe et iPhone (trop lourds / sans usage), tracteur et scène « volna » (pas de place dans la ville ; le tracteur peut aller dans les villages).
 - **Attention** : chargement plus long (≈ 200 s en test headless sur machine sans GPU).
