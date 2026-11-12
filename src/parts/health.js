@@ -54,7 +54,7 @@ const blocked=!nadeLOS(n,tx,P.gy+P.eh*.5,tz),ov=blocked?0:60*Math.pow(k,1.5);if(
 dmgDir(E.x,E.z);return hit}
 // ---- multiplicateurs d'effets
 function hlLegs(){return(hlLvl('ll')===2?1:0)+(hlLvl('rl')===2?1:0)}
-function HMV(){let p=0;['ll','rl'].forEach(z=>{const l=hlLvl(z);p+=l===1?.12:l===2?(HM.mor>0?.3:.45):0});if(HM.z.a<HMAX.a*.5)p+=.1;let m=Math.max(.22,1-p);if(HM.pain>.6&&HM.mor<=0)m*=.9;if(HM.bl<40)m*=.8;if(HM.act)m*=.6;return m*invSpdK(K.ShiftLeft&&!ads&&P.st===0)}
+function HMV(){let p=0;['ll','rl'].forEach(z=>{const l=hlLvl(z);p+=l===1?.12:l===2?(HM.mor>0?.3:.45):0});if(HM.z.a<HMAX.a*.5)p+=.1;let m=Math.max(.22,1-p);if(HM.pain>.6&&HM.mor<=0)m*=.9;if(HM.bl<40)m*=.8;if(HM.act)m*=.6;return m*invSpdK(K.ShiftLeft&&!ads&&P.st===0)*trapSpdK()}
 function HSPR(){return !HM.exh&&hlLegs()===0&&!HM.act&&HM.bl>35}
 function HJMP(){return hlLegs()===0&&HM.z.a>0}
 function hlRa(){return hlLvl('ra')}function hlLa(){return hlLvl('la')}

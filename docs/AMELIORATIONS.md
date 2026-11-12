@@ -255,3 +255,11 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - **Objets au sol** : F pour ramasser (sacs, munitions par calibre, soins, grenades, plaques). Butin sur les bots tués. Une trentaine d'objets et 5 sacs répartis sur la carte.
 - **Glisser-déposer** : on déplace les objets à la souris dans la grille ; les autres se rangent automatiquement.
 - **Mort du joueur** : tout l'équipement tombe dans un sac au sol à l'endroit de la mort ; on repart avec un sac moyen et le kit de départ.
+
+## v11 — Mines et pièges
+
+- **Pièges** : mine antipersonnelle, mine directionnelle (télécommande `9`), piège à fil (grenade), piège à ours. `B` change de piège, clic maintenu pour poser, `F` maintenu pour désamorcer. Ils sont dans l'inventaire (poids et cases) et se trouvent sur la carte et sur les bots.
+- **Détection** : les pièges ennemis ne se voient que de près (5,5 m le jour, 3,2 m la nuit) ; le fil passe au-dessus d'un joueur à plat ventre.
+- **IA** : un bot sur cinq est « génie » et pose des pièges ; les bots repèrent ceux du joueur (savoir partagé dans l'escouade), les évitent ou les désamorcent.
+- **Indices naturels** : 260 branches qui craquent sous les pas (son spatial 3D, bruit qui alerte bots et animaux, plus discret accroupi) ; les oiseaux qui s'envolent devant un bot s'entendent en 3D.
+- Correctifs : grésillement constant (bruit des bots sur les branches qui effrayait les oiseaux en boucle, sons limités en fréquence), caméra libre qui tournait quand l'inventaire était ouvert, indicateur à l'écran remplacé par un son spatial.
