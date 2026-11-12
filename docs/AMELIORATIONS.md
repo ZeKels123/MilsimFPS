@@ -1,11 +1,15 @@
 # MILSIM FPS — Changements et feuille de route
 
-## Ce qui a été changé (v8, en cours)
+## Ce qui a été changé (v8)
 
-Fait : arbres (pins en rameaux alpha, feuillus, buissons) au feuillage animé par le vent et transparent, niveaux de détail près/loin, troncs instanciés ; herbe générée autour du joueur seulement (cellules de 3 m, rayon 46 m) ; ombres à 2 cascades (près ±28 m, loin ±110 m, choix par shader) ; rivière d'un bord à l'autre de la carte (ouest vers est, via l'étang) avec 3 ponts en bois (relief relevé au niveau du tablier, garde-corps, routes d'accès) ; animaux touchables (lapins, chevreuils, canards, oiseaux, réapparition après 80 s).
+- **Arbres et buissons refaits** : pins en étages de rameaux alpha, feuillus en amas de feuilles, buissons en dôme de cartes. Feuillage transparent (les feuilles découpent la silhouette, y compris dans les ombres) et animé par le vent (balancement + frémissement des feuilles). Deux niveaux de détail (cartes près, volumes simples loin), troncs instanciés (beaucoup moins d'objets à dessiner).
+- **Herbe autour du joueur seulement** : réserve d'instances recentrée (rayon 46 m, cellules de 3 m mémorisées), au lieu de 30 000 brins sur toute la carte.
+- **Ombres en cascade** : 2 cartes d'ombre (près ±28 m, loin ±110 m, mélange dans le shader) ; la carte lointaine se met à jour 4 fois moins souvent.
+- **Rivière et ponts** : rivière d'un bord à l'autre (ouest vers est, via l'étang), relief aplani le long de l'eau, 3 ponts en bois (tablier au niveau du terrain, garde-corps en collision, routes d'accès), dont un sur le ruisseau. Les bots passent par les ponts, l'eau profonde leur est interdite.
+- **Animaux touchables** : lapins, chevreuils, canards et oiseaux se tirent, tombent et réapparaissent après 80 s.
+- **IA en escouade** (`src/parts/squad.js`) : 4 escouades. Appui (Mastodonte) : tir de suppression sur la dernière position connue, avec claquements et secousse si les balles passent près. Assaut : alerte partagée, convergence par deux côtés. Infirmier (Soldat) : rejoint et soigne un blessé ; sans infirmier, auto-soin à l'abri. Repli groupé vers un point commun quand l'escouade est réduite de moitié après des pertes ou très blessée.
 
-Pas encore fait : IA en escouade (rôles, tir de suppression, soin et repli en groupe).
-Non vérifié : tir sur un animal au sol (seul le tir sur oiseau est testé), performances sur GPU réelle, rendu des ponts vu de près.
+Limites : pas testé sur GPU réelle (performances), tir sur animal au sol vérifié seulement par le code (oiseau testé), sons non écoutés, équilibrage de l'escouade à affiner en jeu.
 
 ## Ce qui a été changé (v7)
 

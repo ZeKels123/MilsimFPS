@@ -72,7 +72,7 @@ for(const o of doors){if(o.dead||o.open>.85)continue;const q=Math.hypot(o.x-g.x,
 const sp=b.T.sp*b.spK*(b.hm||1)*(wDep(g.x,g.z)>.15?.6:1)*dt,nx=g.x+dx/d*sp,nz=g.z+dz/d*sp;
 if(nFree(nx,nz)){g.x=nx;g.z=nz;b.stuck=0}else if(nFree(nx,g.z)){g.x=nx;b.stuck+=dt*.5}else if(nFree(g.x,nz)){g.z=nz;b.stuck+=dt*.5}else b.stuck+=dt;if(b.stuck>.5){b.path=null;b.stuck=0;b.decT=0}}
 function botDie(b){if(b.dead)return;b.dead=b.T===BT[3]?6:3;botDeath(b,false)}
-function aiUpdate(dt,inz){dwUpdate(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45):1)*(.3+.7*Math.min(1,wcur[3]*1.4)),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
+function aiUpdate(dt,inz){dwUpdate(dt);AI.budget=2;sqTick(dt);AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45):1)*(.3+.7*Math.min(1,wcur[3]*1.4)),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
 if(NZ.n!==AI.nz){AI.nz=NZ.n;for(const b of bots){if(b.dead)continue;const d=Math.hypot(b.g.position.x-NZ.x,b.g.position.z-NZ.z);if(d<NZ.r&&!b.see){const e=1+d*.07;aiAlert(b,NZ.x+rnd(-e,e),NZ.z+rnd(-e,e),1.2)}}}
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*3|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
