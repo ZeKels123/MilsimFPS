@@ -182,7 +182,9 @@ const f2=new THREE.Group();f2.position.set(0,0,-len);f1.add(f2);f2.rotation.x=.8
 const f3=new THREE.Group();f3.position.set(0,0,-len*.86);f2.add(f3);f3.rotation.x=.8;bx(.0126,.0124,len*.7,0,0,-len*.35,SK,f3);bx(.0105,.0035,len*.34,0,.0075,-len*.52,NLm,f3)});
 const th=new THREE.Group();th.position.set(-sg*.034,.006,-.012);g.add(th);th.rotation.y=sg*.55;th.rotation.x=.25;bx(.019,.019,.036,0,0,-.018,SK,th);
 const th2=new THREE.Group();th2.position.set(0,0,-.036);th.add(th2);th2.rotation.x=.5;bx(.0175,.0175,.032,0,0,-.016,SK,th2);bx(.0125,.0035,.014,0,.009,-.026,NLm,th2);
-bx(.05,.034,.045,0,-.002,.063,SKd,g);bx(.07,.07,.05,0,0,.108,SLV,g);const f=bx(.066,.068,.3,r?.02:-.02,-.035,.26,SLV,g);f.rotation.x=.3;f.rotation.y=r?-.3:.3;(par||gun).add(g);return g}
+bx(.05,.034,.045,0,-.002,.063,SKd,g);bx(.058,.058,.05,0,0,.108,SLV,g);const f=bx(.052,.056,.3,r?.02:-.02,-.035,.26,SLV,g);f.rotation.x=.3;f.rotation.y=r?-.3:.3;
+if(!par){const h=new THREE.Group();g.children.slice(0,8).forEach(c=>h.add(c));h.rotation.y=r?1.5708:-1.5708;g.add(h)}
+(par||gun).add(g);return g}
 const handR=mkHand(true),handL=mkHand(false);
 function kf(a,u){for(let i=1;i<a.length;i++)if(u<=a[i][0]){const p=a[i-1],q=a[i],k=(u-p[0])/(q[0]-p[0]),e=k*k*(3-2*k);return[0,1,2].map(j=>p[1][j]+(q[1][j]-p[1][j])*e)}return a[a.length-1][1]}
 const stockP=new THREE.Group();stockP.position.set(.034,0,-.075);mp9g.add(stockP);stockP.add(mp9v.crosse);mp9v.crosse.position.set(-.034,0,.075);let stockF=0,stockT=0;

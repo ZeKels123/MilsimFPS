@@ -15,10 +15,10 @@ knHandL.position.set(-.16,-.22,-.32);knHandL.rotation.set(-.25,.35,-.2);
 let knClk=0;
 function knAtk(type){if(KNF.t>0||P.hp<=0||ac.on||bench)return;KNF.type=type;KNF.dur=type?.34:.42;KNF.t=KNF.dur;KNF.hit=0;snd(type?240:180,.07,.13,'sawtooth');noise(P.x,P.z,6)}
 function knStrike(){const o=C.getWorldPosition(new THREE.Vector3()),d=C.getWorldDirection(new THREE.Vector3());let best=null,bz='t',bd=9;
-for(const b of bots){if(b.dead>0||b.dead===true)continue;const g=b.g.position;if(Math.hypot(g.x-o.x,g.z-o.z)>3.2)continue;RC.set(o,d);RC.far=2.15;const ph=RC.intersectObjects(b.parts)[0];if(!ph||ph.distance>=bd)continue;RC.far=ph.distance;if(RC.intersectObjects(ray).find(q=>!q.object.userData.glass))continue;bd=ph.distance;best=b;bz=ph.object.userData.head?'h':(ph.object.userData.zone||'t')}
+for(const b of bots){if(b.dead>0||b.dead===true)continue;const g=b.g.position;if(Math.hypot(g.x-o.x,g.z-o.z)>3.2)continue;RC.set(o,d);RC.far=2.15;RC.far=2.6;let ph=RC.intersectObjects(b.parts)[0];if(!ph){const dx=g.x-o.x,dz=g.z-o.z,dl=Math.hypot(dx,dz)||1;if(dl>2.4||(dx*d.x+dz*d.z)/dl/(Math.hypot(d.x,d.z)||1)<.8||Math.abs(g.y+1-o.y)>1.4)continue;ph={distance:dl,object:{userData:{zone:'t'}}}}if(ph.distance>=bd)continue;RC.far=ph.distance;if(RC.intersectObjects(ray).find(q=>!q.object.userData.glass))continue;bd=ph.distance;best=b;bz=ph.object.userData.head?'h':(ph.object.userData.zone||'t')}
 if(!best){snd(120,.05,.08,'square');return}
 const b=best,fx=Math.sin(b.yaw),fz=Math.cos(b.yaw),behind=((P.x-b.g.position.x)*fx+(P.z-b.g.position.z)*fz)<0&&!b.see;
-let dm=KNF.type?(bz==='h'?95:70):(bz==='h'?75:48);if(behind)dm=300;b.pk=1;bhHit(b,bz,dm,'b');snd(90,.08,.2,'square');
+let dm=KNF.type?(bz==='h'?110:85):(bz==='h'?90:60);if(behind)dm=300;b.pk=1;bhHit(b,bz,dm,'b');snd(90,.08,.2,'square');
 if(b.hp>0||!behind)aiHit(b);FXP&&(FXP.shake=Math.max(FXP.shake||0,.25))}
 addEventListener('mousedown',e=>{if(!KNF.on||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open))return;if(e.button===0)knAtk(0);else if(e.button===2)knAtk(1)});
 addEventListener('keydown',e=>{if(e.code!=='KeyZ'||e.repeat||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open)||reloading>0)return;KNF.on=KNF.on?0:1;ads=false;hlMsg(KNF.on?'Couteau de combat · clic gauche : taillade · clic droit : estoc · Z : ranger':'Arme rangée le couteau')});
