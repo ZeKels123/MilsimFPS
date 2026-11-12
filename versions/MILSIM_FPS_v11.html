@@ -1162,7 +1162,7 @@ if(x-P.x>14)x-=28;else if(x-P.x<-14)x+=28;if(z-P.z>14)z-=28;else if(z-P.z<-14)z+
 // --- boucle graphique : ombres, ciel, effets, qualité adaptative
 const SR=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),LDIR).normalize(),SU=new THREE.Vector3().crossVectors(LDIR,SR);
 let aqN=0,aqT=0,aqF=0,aqPR=R.getPixelRatio();
-function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);auUpdate(dt);hlUpdate(dt);invUpdate(dt);trapUpdate(dt);foliageUpdate(dt);
+function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);auUpdate(dt);adUpdate(dt);hlUpdate(dt);invUpdate(dt);trapUpdate(dt);foliageUpdate(dt);
 const fx=ac.on?ac.tx:P.x,fz=ac.on?ac.tz:P.z,sn=56/2048,a=fx*SR.x+fz*SR.z,b=fx*SU.x+fz*SU.z,da=Math.round(a/sn)*sn-a,db=Math.round(b/sn)*sn-b,tx=fx+SR.x*da+SU.x*db,tz=fz+SR.z*da+SU.z*db,ty=SU.y*db;
 sun.target.position.set(tx,ty,tz);sun.position.set(tx+LDIR.x*80,ty+LDIR.y*80,tz+LDIR.z*80);{const s2=220/2048,a2=fx*SR.x+fz*SR.z,b2=fx*SU.x+fz*SU.z,da2=Math.round(a2/s2)*s2-a2,db2=Math.round(b2/s2)*s2-b2,x2=fx+SR.x*da2+SU.x*db2,z2=fz+SR.z*da2+SU.z*db2,y2=SU.y*db2;sun2.target.position.set(x2,y2,z2);sun2.position.set(x2+LDIR.x*150,y2+LDIR.y*150,z2+LDIR.z*150)}
 pUpdate(dt);shUpdate(dt);trUpdate(dt);dustUpdate(dt);
@@ -1330,6 +1330,17 @@ const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075],ks=Math.min(1,dt*3);AU.wH.gain.v
 if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);sfxFoot(P.x,P.gy,P.z,'step',vol);noise(P.x,P.z,[sp?13:7,2.8,1.1][P.st])}}}
 // pas des bots proches
 for(const b of bots){const g=b.g.position;if(b.dead>0){b.px=undefined;continue}if(b.px===undefined){b.px=g.x;b.pz=g.z;b.sa=0;continue}const mv=Math.hypot(g.x-b.px,g.z-b.pz);b.px=g.x;b.pz=g.z;if(mv>.6||mv<1e-4)continue;const d=Math.hypot(g.x-p.x,g.z-p.z);if(d>38)continue;b.sa+=mv;const str=b.spK>1.6?2.5:1.9;if(b.sa>=str){b.sa=0;sfxFoot(g.x,b.fy!==undefined?b.fy:g.y,g.z,surfKind(g.x,b.fy||0,g.z,null),(b.cr?.25:b.spK>1.6?.9:.55)*(b.ty===3?1.3:1),1)}}}
+// ---- diagnostic audio (F9) : niveaux des couches d'ambiance, énergie du signal, coupure couche par couche
+const AD={on:0,m:{},t:0,an:null,el:null};
+addEventListener('keydown',e=>{if(e.code==='F9'&&!e.repeat){e.preventDefault();AD.on=!AD.on;if(!AD.el){AD.el=document.createElement('div');AD.el.style.cssText='position:fixed;left:10px;top:60px;z-index:40;background:rgba(0,0,0,.82);color:#dfe8d4;font:12px monospace;padding:8px 10px;border:1px solid #3d5230;line-height:1.5';document.body.appendChild(AD.el)}AD.el.style.display=AD.on?'block':'none'}});
+function adUpdate(dt){if(!AD.on||!AC||!AU.ready||typeof AMST==='undefined'||!AMST)return;
+const M=AD.m,z=(n,g)=>{if(g)g.gain.value=0};
+if(M.rain){z(0,AU.rainOut);z(0,AU.rainRoof);z(0,AU.rainDeep);if(typeof rainG!=='undefined')z(0,rainG);if(AU.lg)AU.lg.gain.value=0}if(M.eau&&FA.amb)FA.amb.gain.value=0;if(M.vent)z(0,AU.wE);if(M.reverb){z(0,AU.wH);z(0,AU.wB)}
+AD.t+=dt;if(AD.t<.25)return;AD.t=0;if(!AD.an){AD.an=AC.createAnalyser();AD.an.fftSize=2048;AMST.connect(AD.an)}
+const d=new Uint8Array(2048);AD.an.getByteTimeDomainData(d);let s=0;for(const v of d){const x=(v-128)/128;s+=x*x}const f=x=>x===undefined||x===null?'-':(+x).toFixed(3),g=n=>n?n.gain.value:undefined;
+const b=(k,l)=>'<span data-k="'+k+'" style="cursor:pointer;color:'+(M[k]?'#e86a5a':'#c8f07a')+'">['+(M[k]?'coupé':'actif')+'] '+l+'</span>';
+AD.el.innerHTML='<b>AUDIO (F9)</b> · énergie '+f(Math.sqrt(s/2048))+' · état '+AC.state+'<br>'+b('rain','pluie')+' '+f(g(AU.rainOut))+' / '+f(g(AU.rainRoof))+' / '+f(g(AU.rainDeep))+'<br>'+b('eau','eau')+' '+f(FA.amb&&FA.amb.gain.value)+'<br>'+b('vent','vent/écho ext.')+' '+f(g(AU.wE))+'<br>'+b('reverb','réverbération')+' '+f(g(AU.wH))+' / '+f(g(AU.wB))+'<br>maître '+f(g(AMST))+'<br><small>clic sur une ligne pour couper la couche</small>';
+AD.el.querySelectorAll('[data-k]').forEach(n=>n.onclick=()=>{AD.m[n.dataset.k]=!AD.m[n.dataset.k]})}
 // ================= v7 : SANTÉ PAR ZONE (joueur et bots) =================
 // 7 zones : tête, thorax, ventre, bras gauche/droit, jambe gauche/droite.
 // Les impacts sont calculés par la géométrie : rayon de la balle contre les volumes du corps, couvert compris.

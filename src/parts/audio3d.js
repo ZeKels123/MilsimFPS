@@ -70,3 +70,14 @@ const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075],ks=Math.min(1,dt*3);AU.wH.gain.v
 if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);sfxFoot(P.x,P.gy,P.z,'step',vol);noise(P.x,P.z,[sp?13:7,2.8,1.1][P.st])}}}
 // pas des bots proches
 for(const b of bots){const g=b.g.position;if(b.dead>0){b.px=undefined;continue}if(b.px===undefined){b.px=g.x;b.pz=g.z;b.sa=0;continue}const mv=Math.hypot(g.x-b.px,g.z-b.pz);b.px=g.x;b.pz=g.z;if(mv>.6||mv<1e-4)continue;const d=Math.hypot(g.x-p.x,g.z-p.z);if(d>38)continue;b.sa+=mv;const str=b.spK>1.6?2.5:1.9;if(b.sa>=str){b.sa=0;sfxFoot(g.x,b.fy!==undefined?b.fy:g.y,g.z,surfKind(g.x,b.fy||0,g.z,null),(b.cr?.25:b.spK>1.6?.9:.55)*(b.ty===3?1.3:1),1)}}}
+// ---- diagnostic audio (F9) : niveaux des couches d'ambiance, énergie du signal, coupure couche par couche
+const AD={on:0,m:{},t:0,an:null,el:null};
+addEventListener('keydown',e=>{if(e.code==='F9'&&!e.repeat){e.preventDefault();AD.on=!AD.on;if(!AD.el){AD.el=document.createElement('div');AD.el.style.cssText='position:fixed;left:10px;top:60px;z-index:40;background:rgba(0,0,0,.82);color:#dfe8d4;font:12px monospace;padding:8px 10px;border:1px solid #3d5230;line-height:1.5';document.body.appendChild(AD.el)}AD.el.style.display=AD.on?'block':'none'}});
+function adUpdate(dt){if(!AD.on||!AC||!AU.ready||typeof AMST==='undefined'||!AMST)return;
+const M=AD.m,z=(n,g)=>{if(g)g.gain.value=0};
+if(M.rain){z(0,AU.rainOut);z(0,AU.rainRoof);z(0,AU.rainDeep);if(typeof rainG!=='undefined')z(0,rainG);if(AU.lg)AU.lg.gain.value=0}if(M.eau&&FA.amb)FA.amb.gain.value=0;if(M.vent)z(0,AU.wE);if(M.reverb){z(0,AU.wH);z(0,AU.wB)}
+AD.t+=dt;if(AD.t<.25)return;AD.t=0;if(!AD.an){AD.an=AC.createAnalyser();AD.an.fftSize=2048;AMST.connect(AD.an)}
+const d=new Uint8Array(2048);AD.an.getByteTimeDomainData(d);let s=0;for(const v of d){const x=(v-128)/128;s+=x*x}const f=x=>x===undefined||x===null?'-':(+x).toFixed(3),g=n=>n?n.gain.value:undefined;
+const b=(k,l)=>'<span data-k="'+k+'" style="cursor:pointer;color:'+(M[k]?'#e86a5a':'#c8f07a')+'">['+(M[k]?'coupé':'actif')+'] '+l+'</span>';
+AD.el.innerHTML='<b>AUDIO (F9)</b> · énergie '+f(Math.sqrt(s/2048))+' · état '+AC.state+'<br>'+b('rain','pluie')+' '+f(g(AU.rainOut))+' / '+f(g(AU.rainRoof))+' / '+f(g(AU.rainDeep))+'<br>'+b('eau','eau')+' '+f(FA.amb&&FA.amb.gain.value)+'<br>'+b('vent','vent/écho ext.')+' '+f(g(AU.wE))+'<br>'+b('reverb','réverbération')+' '+f(g(AU.wH))+' / '+f(g(AU.wB))+'<br>maître '+f(g(AMST))+'<br><small>clic sur une ligne pour couper la couche</small>';
+AD.el.querySelectorAll('[data-k]').forEach(n=>n.onclick=()=>{AD.m[n.dataset.k]=!AD.m[n.dataset.k]})}
