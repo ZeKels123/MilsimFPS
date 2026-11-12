@@ -11,6 +11,12 @@
 - Poursuite à vue puis fouille autour de la dernière position connue.
 - Réapparition à plus de 38 m du joueur. Traçantes sur les tirs ennemis et indicateur de direction des dégâts.
 
+**Modèles des bots (v5.1)**
+- Une arme modélisée par type : pistolet-mitrailleur (Recrue), fusil d'assaut avec optique (Soldat), fusil de précision à lunette et bipied (Tireur d'élite), mitrailleuse à boîte de munitions (Mastodonte).
+- Tenue de l'arme : crosse à l'épaule, main droite sur la poignée, main gauche sur le garde-main. Les bras sont calculés (cinématique inverse) pour atteindre l'arme dans toutes les poses. Le Mastodonte tire à la hanche.
+- Postures : visée (buste de biais, tête penchée sur l'arme, arme qui suit la hauteur de la cible), arme basse en patrouille, rechargement (la main gauche va au chargeur), genou à terre à couvert.
+- Corps refait : bassin et ceinture, torse en deux volumes, épaules, gilet avec poches et plaque dorsale, sac à dos, genouillères, bottes, gants, cagoule, casque antibruit, chapeau de brousse.
+
 **Grenades (C pour lancer, molette sans viser ou U pour changer de type)**
 - Frag : dégâts de zone (7,5 m) sur les bots et le joueur, atténués derrière un mur ; casse les vitres, abîme les portes.
 - Flash : écran blanc pour le joueur selon la distance et la direction du regard ; les bots touchés sont aveuglés 2 à 6 s (main sur les yeux, plus de tir).
@@ -154,7 +160,7 @@
 3. Escaliers, étages, toits accessibles ; fenêtres brisées utilisables comme passage (joueur et bots).
 4. Modes de jeu : points de contrôle, vagues, objectifs ; écran de fin de partie.
 5. IA en escouade : rôles coordonnés, tir de suppression, bots qui se soignent ou se replient ensemble.
-6. Bras et mains des bots (pose de tir), animations de mort variées.
+6. Bots : visages, doigts, animations de mort variées, arme qui tombe au sol.
 7. Animaux touchables, pont sur le ruisseau, rivière qui traverse la carte.
 8. Ombres en cascade, LOD des arbres, herbe générée autour du joueur seulement.
 

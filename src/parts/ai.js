@@ -76,16 +76,16 @@ b.decT-=dt;if(b.decT<=0)aiThink(b);
 if(b.stun>0||b.blind>0){b.path=null;const a=b.tm*1.3+i,sp=bt.sp*.35*dt,nx=g.x+Math.sin(a)*sp,nz=g.z+Math.cos(a*1.3)*sp;if(nFree(nx,nz)){g.x=nx;g.z=nz}}else if(b.thr<=0)aiMove(b,dt);
 for(let k=i+1;k<bots.length;k++){const o=bots[k];if(o.dead)continue;const ox=o.g.position.x-g.x,oz=o.g.position.z-g.z,od=Math.hypot(ox,oz);if(od<.75&&od>.01){const p=(.75-od)*.5/od;if(nFree(g.x-ox*p,g.z-oz*p)){g.x-=ox*p;g.z-=oz*p}if(nFree(o.g.position.x+ox*p,o.g.position.z+oz*p)){o.g.position.x+=ox*p;o.g.position.z+=oz*p}}}
 const mvx=g.x-bx0,mvz=g.z-bz0,mv=Math.hypot(mvx,mvz)>1e-4;if(mv)b.cr=0;b.crA+=((b.cr&&!mv?1:0)-b.crA)*Math.min(1,dt*6);
-g.y=GH(g.x,g.z)-b.crA*.3*bt.sc;
+g.y=GH(g.x,g.z)-b.crA*.34*bt.sc;
 // orientation
 let ty_=b.yaw;if(b.stun>0||b.blind>0)ty_=b.yaw+Math.sin(b.tm*2.3+i)*.9;else if(b.see||(b.alert&&b.seenT<4&&b.st!=='fle'&&b.st!=='cov'))ty_=Math.atan2(b.lk.x-g.x,b.lk.z-g.z);else if(mv)ty_=Math.atan2(mvx,mvz);else if(b.alert)ty_=Math.atan2(b.lk.x-g.x,b.lk.z-g.z);else ty_=b.yaw+Math.sin(b.tm*.5+i)*.5*dt;
 let dy=ty_-b.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));b.yaw+=Math.sign(dy)*Math.min(Math.abs(dy),dt*(b.see?7:4.5));g_rot(b);
-botAnim(b,dt,mv,mvx,mvz);
+b.aimT=(b.see||(b.alert&&b.seenT<5&&b.st!=='fle'))&&b.stun<=0&&b.blind<=0&&b.thr<=0?1:0;b.pit=Math.atan2(P.gy+1.5-(g.y+1.45*bt.sc),Math.max(2,pd));botAnim(b,dt,mv,mvx,mvz);
 // poses : accroupi, lancer, aveuglé, sonné
-if(b.crA>.02){const c=b.crA;b.L.hip.rotation.x=-1.25*c;b.Rg.hip.rotation.x=-.5*c;b.L.kn.rotation.x=1.5*c;b.Rg.kn.rotation.x=1.9*c;b.up.position.y-=.12*c;b.up.rotation.x+=.12*c}
-if(b.thr>0){const k=Math.sin(Math.PI*(1-b.thr/.55));b.aR.p.rotation.set(b.aR.rx-1.9*k,b.aR.ry+.5*k,0);b.aR.el.rotation.x=-.25-.9*k}
-if(b.blind>0){b.aL.p.rotation.set(-2.5,.9,0);b.aL.el.rotation.x=-1.9;b.aR.p.rotation.x=-.5;b.hd.rotation.x=.45;b.up.rotation.x+=.2}
-else if(b.stun>0){b.up.rotation.x+=.45+Math.sin(b.tm*3)*.12;b.up.rotation.z+=Math.sin(b.tm*2.1)*.22;b.aR.p.rotation.x=-.4;b.aL.p.rotation.x=-.5;b.hd.rotation.x=.4}
+if(b.crA>.02){const c=b.crA;b.L.hip.rotation.x=-1.35*c;b.Rg.hip.rotation.x=-.25*c;b.L.kn.rotation.x=1.55*c;b.Rg.kn.rotation.x=1.85*c;b.up.position.y-=.1*c;b.up.rotation.x+=.1*c}
+if(b.thr>0){const k=Math.sin(Math.PI*(1-b.thr/.55));b.aR.p.rotation.set(-.6-2.3*k,0,-.3*k);b.aR.el.rotation.set(-1.5+1.1*k,0,0)}
+if(b.blind>0){b.aL.p.rotation.set(-1.5,0,-.75);b.aL.el.rotation.set(-2.2,0,0);b.hd.rotation.x=.4;b.up.rotation.x+=.2}
+else if(b.stun>0){b.up.rotation.x+=.45+Math.sin(b.tm*3)*.12;b.up.rotation.z+=Math.sin(b.tm*2.1)*.22;b.hd.rotation.x=.4}
 // tir
 b.cd-=dt;if(b.relT>0){b.relT-=dt;if(b.relT<=0)b.mag=[12,24,4,70][b.ty]}if(b.see)b.react-=dt;
 if(b.see&&tgt&&b.react<=0&&b.cd<=0&&b.relT<=0&&b.thr<=0&&pd<bt.rng*1.15&&Math.abs(dy)<.45&&b.st!=='fle'){b.cd=rnd(bt.cd[0],bt.cd[1])*(b.burst>0?1:1);if(b.ty<2){if(--b.burst<=0){b.burst=3+(Math.random()*4|0);b.cd+=rnd(.35,.9)}}
