@@ -31,7 +31,7 @@ vec2 dp=mvPosition.xz-uWp;float pd=length(dp);mvPosition.xz+=dp/max(pd,.05)*(1.-
 #endif
 mvPosition=modelViewMatrix*mvPosition;gl_Position=projectionMatrix*mvPosition;`)};return m}
 // ================= RELIEF JOUABLE (v4) : GH(x,z) est utilisée par le joueur, les bots, les tirs et les props =================
-const AR=75,GN=141,GSP=2*AR/(GN-1),GHg=new Float32Array(GN*GN);
+const AR=MH,GN=2*MH-19,GSP=2*AR/(GN-1),GHg=new Float32Array(GN*GN);
 function GH(x,z){if(x<=-AR||x>=AR||z<=-AR||z>=AR)return 0;const fx=(x+AR)/GSP,fz=(z+AR)/GSP,i=Math.min(GN-2,fx|0),j=Math.min(GN-2,fz|0),a=fx-i,b=fz-j,k=j*GN+i;return(GHg[k]*(1-a)+GHg[k+1]*a)*(1-b)+(GHg[k+GN]*(1-a)+GHg[k+GN+1]*a)*b}
 // eau (v5) : étang + ruisseau à niveau constant WL ; wDist = distance signée à l'eau (<0 dedans)
 const POND={x:40,z:40,rx:10,rz:6.8,rot:.5},BROOK=[[12,61],[17,56.5],[23,56],[27.5,51],[32,46.5],[35,43.5]];let WL=0;
@@ -44,7 +44,7 @@ const wDep=(x,z)=>Math.max(0,WL-GH(x,z));
 nz=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),a=x-i,b=z-j,u=a*a*(3-2*a),v=b*b*(3-2*b),h=(p,q)=>hsh(p+991,q+313);return(h(i,j)*(1-u)+h(i+1,j)*u)*(1-v)+(h(i,j+1)*(1-u)+h(i+1,j+1)*u)*v},
 fb=(x,z)=>{let s=0,a=1,f=1/46,t=0;for(let o=0;o<5;o++){s+=a*(nz(x*f+o*17.3,z*f+o*9.1)-.5);t+=a;a*=.5;f*=2.05}return s/t*2},
 mound=(x,z,cx,cz,r,h)=>h*Math.exp(-((x-cx)*(x-cx)+(z-cz)*(z-cz))/(r*r)),
-rel=(x,z)=>{const w=fb(x*.6+40,z*.6-20)*7,e=fb(x+w,z+w*.6),r=1-Math.abs(fb(x*1.3+90,z*1.3+10)*1.6);return 5.4*e+.8*Math.max(0,r-.55)*2.2+mound(x,z,-8,14,5,1.1)+mound(x,z,50,-30,14,3.6)+mound(x,z,-52,10,12,3.2)+mound(x,z,20,-48,10,2.6)+mound(x,z,-30,50,11,2.8)+mound(x,z,40,40,9,-1.6)};
+rel=(x,z)=>{const w=fb(x*.6+40,z*.6-20)*7,e=fb(x+w,z+w*.6),r=1-Math.abs(fb(x*1.3+90,z*1.3+10)*1.6);return 5.4*e+.8*Math.max(0,r-.55)*2.2+mound(x,z,-8,14,5,1.1)+mound(x,z,50,-30,14,3.6)+mound(x,z,-52,10,12,3.2)+mound(x,z,20,-48,10,2.6)+mound(x,z,-30,50,11,2.8)+mound(x,z,40,40,9,-1.6)+mound(x,z,-110,-92,18,4.6)+mound(x,z,100,-112,20,5.2)+mound(x,z,-122,100,16,4)+mound(x,z,118,122,18,4.4)+mound(x,z,5,-122,22,5.2)+mound(x,z,-8,128,20,4.6)+mound(x,z,-136,0,16,4)+mound(x,z,138,12,18,4.4)+mound(x,z,-70,-130,12,3)+mound(x,z,75,60,10,2.4)+mound(x,z,-95,60,12,2.8)+mound(x,z,70,-75,12,3)};
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;let d=99;
 for(const r of obs){const dx=Math.max(r[0]-x,0,x-r[2]),dz=Math.max(r[1]-z,0,z-r[3]),q=dx*dx+dz*dz;if(q<d*d)d=Math.sqrt(q)}
 const m=sstep(.3,2.2,d)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),Math.abs(z)));GHg[j*GN+i]=rel(x,z)*m}

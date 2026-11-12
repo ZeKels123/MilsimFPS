@@ -14,14 +14,14 @@ function mkBot(){
 const g=new THREE.Group(),m=L(0x7a3b2e,{roughness:.85,map:T_camo,envMapIntensity:.5}),b={g,hp:100,dead:0,tx:0,tz:0,t:0,cd:rnd(1,2),ph:rnd(0,6.28),fl:0,fall:0,mvA:0,rec:0,flinch:0,tm:rnd(0,50),parts:[],aimA:0,aimT:0,pit:0,relA:0,wi:0};
 g.rotation.order='YXZ';
 const skin=L([0xb98660,0xc99a74,0x8a5a3c,0xd8a986][Math.random()*4|0],{roughness:.7}),blk=L(0x15171a,{roughness:.5,metalness:.4,envMapIntensity:1}),bootM=L(0x17140f,{roughness:.8}),glv=L(0x1c1d1a,{roughness:.9}),BG=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
-const add=(par,geo,mat,x,y,z,hit)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);o.castShadow=true;par.add(o);if(hit){o.userData.bot=b;botParts.push(o);b.parts.push(o)}return o};
+const add=(par,geo,mat,x,y,z,hit)=>{const o=new THREE.Mesh(geo,mat);o.position.set(x,y,z);o.castShadow=true;par.add(o);if(hit){o.userData.bot=b;o.userData.zone=hit===1?'t':hit;botParts.push(o);b.parts.push(o)}return o};
 // bassin, ceinture, jambes
-add(g,BG(.4,.2,.25),m,0,.86,0,1);add(g,BG(.42,.05,.27),blk,0,.95,0);add(g,BG(.1,.14,.08),blk,.2,.84,.06);
-const leg=x=>{const hip=new THREE.Group();hip.position.set(x,.82,0);g.add(hip);add(hip,BG(.18,.4,.21),m,0,-.2,0,1);const kn=new THREE.Group();kn.position.y=-.4;hip.add(kn);add(kn,BG(.15,.36,.17),m,0,-.18,0,1);const kp=add(kn,BG(.13,.11,.05),blk,0,-.03,.1);add(kn,BG(.16,.13,.2),bootM,0,-.33,.0);add(kn,BG(.16,.08,.3),bootM,0,-.38,.05);return{hip,kn,kp}};
+add(g,BG(.4,.2,.25),m,0,.86,0,'a');add(g,BG(.42,.05,.27),blk,0,.95,0);add(g,BG(.1,.14,.08),blk,.2,.84,.06);
+const leg=x=>{const hip=new THREE.Group();hip.position.set(x,.82,0);g.add(hip);add(hip,BG(.18,.4,.21),m,0,-.2,0,x<0?'ll':'rl');const kn=new THREE.Group();kn.position.y=-.4;hip.add(kn);add(kn,BG(.15,.36,.17),m,0,-.18,0,x<0?'ll':'rl');const kp=add(kn,BG(.13,.11,.05),blk,0,-.03,.1);add(kn,BG(.16,.13,.2),bootM,0,-.33,.0);add(kn,BG(.16,.08,.3),bootM,0,-.38,.05);return{hip,kn,kp}};
 b.L=leg(-.11);b.Rg=leg(.11);
 // torse (pivot à la taille)
 const up=new THREE.Group();up.position.y=.9;up.rotation.order='YXZ';g.add(up);b.up=up;
-add(up,BG(.36,.2,.22),m,0,.14,0,1);add(up,BG(.44,.34,.26),m,0,.4,0,1);add(up,BG(.5,.1,.24),m,0,.56,0);
+add(up,BG(.36,.2,.22),m,0,.14,0,'a');add(up,BG(.44,.34,.26),m,0,.4,0,1);add(up,BG(.5,.1,.24),m,0,.56,0);
 b.vest=add(up,BG(.47,.36,.31),L(0x3b4a5a,{roughness:.9}),0,.38,.005);
 b.vestX=new THREE.Mesh(bgeo([[.1,.13,.06,-.13,-.09,.18,0x9a9a9a],[.1,.13,.06,0,-.09,.18,0x9a9a9a],[.1,.13,.06,.13,-.09,.18,0x9a9a9a],[.07,.12,.05,-.17,.1,.17,0x555555],[.03,.16,.03,-.17,.2,.16,0x111111],[.34,.3,.1,0,0,-.19,0xaaaaaa],[.3,.08,.07,0,-.2,-.17,0x777777]]),std(0xffffff,{vertexColors:true,roughness:.9}));b.vestX.castShadow=true;b.vest.add(b.vestX);
 b.pack=add(up,BG(.3,.34,.15),L(0x4a4a38,{roughness:1}),0,.36,-.26);
@@ -47,7 +47,7 @@ b.paint=new THREE.Group();hd.add(b.paint);const fp=L(0x1a2a14,{roughness:1});[-1
 b.ears=new THREE.Group();[-.135,.135].forEach(x=>add(b.ears,BG(.04,.1,.09),blk,x,.12,0));hd.add(b.ears);
 b.pads=new THREE.Group();[-.3,.3].forEach(x=>add(b.pads,BG(.15,.09,.2),blk,x,.6,0));up.add(b.pads);
 // bras : épaule → coude → main (longueurs a, b)
-const arm=(x,rx,ry)=>{const p=new THREE.Group();p.position.set(x,.54,0);up.add(p);add(p,BG(.12,.12,.14),m,0,-.02,0);add(p,BG(.1,.28,.11),m,0,-.15,0,1);const el=new THREE.Group();el.position.y=-.29;p.add(el);add(el,BG(.085,.24,.095),m,0,-.12,0,1);const hand=new THREE.Group();hand.position.set(0,-.275,0);el.add(hand);add(hand,BG(.082,.074,.04),glv,0,0,0);add(hand,BG(.086,.02,.046),glv,0,.04,0);const fing=[];
+const arm=(x,rx,ry)=>{const p=new THREE.Group();p.position.set(x,.54,0);up.add(p);add(p,BG(.12,.12,.14),m,0,-.02,0);add(p,BG(.1,.28,.11),m,0,-.15,0,x<0?'la':'ra');const el=new THREE.Group();el.position.y=-.29;p.add(el);add(el,BG(.085,.24,.095),m,0,-.12,0,x<0?'la':'ra');const hand=new THREE.Group();hand.position.set(0,-.275,0);el.add(hand);add(hand,BG(.082,.074,.04),glv,0,0,0);add(hand,BG(.086,.02,.046),glv,0,.04,0);const fing=[];
 for(let k=0;k<4;k++){const f1=new THREE.Group();f1.position.set(-.03+k*.02,-.037,0);hand.add(f1);add(f1,BG(.017,.034,.017),glv,0,-.017,0);const f2=new THREE.Group();f2.position.y=-.034;f1.add(f2);add(f2,BG(.016,.028,.016),glv,0,-.014,0);const f3=new THREE.Group();f3.position.y=-.028;f2.add(f3);add(f3,BG(.014,.02,.014),glv,0,-.01,0);fing.push([f1,f2,f3])}
 const t1=new THREE.Group();t1.position.set(x>0?-.043:.043,-.01,.004);t1.rotation.z=x>0?.5:-.5;hand.add(t1);add(t1,BG(.02,.036,.02),glv,0,-.018,0);const t2=new THREE.Group();t2.position.y=-.036;t1.add(t2);add(t2,BG(.017,.028,.017),glv,0,-.014,0);
 return{p,el,rx,ry,a:.29,b:.275,fing,th:[t1,t2],sg:x>0?1:-1}};
@@ -87,7 +87,7 @@ const R=b.aR,Lh=b.aL,i=b.wi,fire=b.fl>0;fingers(R,1.25,fire||!b.aimT?1.25:.15,.5
 const DK=['arrière','avant','genoux','pirouette','tête','assis','souffle'],DW=[];
 function botDeath(b,head){b.fall=0;const g=b.g.position,dx=P.x-g.x,dz=P.z-g.z,yw=b.g.rotation.y,fx=Math.sin(yw),fz=Math.cos(yw),front=(dx*fx+dz*fz)/(Math.hypot(dx,dz)||1),dist=Math.hypot(dx,dz);let k;
 if(b.bl){k=6;const bx=g.x-b.bl.x,bz=g.z-b.bl.z,bd=Math.hypot(bx,bz)||1;b.dv=[bx/bd*(4+Math.random()*3),2.6+Math.random()*1.6,bz/bd*(4+Math.random()*3)];b.bl=null}
-else if(head)k=Math.random()<.75?4:3;else if(front<-.2)k=1;else{const r=Math.random();k=r<.32?0:r<.55?2:r<.75?5:r<.88?3:0}
+else if(b.bout)k=Math.random()<.5?2:5;else if(head)k=Math.random()<.75?4:3;else if(front<-.2)k=1;else{const r=Math.random();k=r<.32?0:r<.55?2:r<.75?5:r<.88?3:0}
 b.dk=k;b.ds=Math.random()<.5?1:-1;b.dyaw=b.g.rotation.y;b.dy=0;b.dfx=Math.sin(b.g.rotation.y);b.dfz=Math.cos(b.g.rotation.y);if(k===1||k===2||k===5){b.dsl=k===1?1.6:.5}else b.dsl=k===0?.9:0;
 if(b.thr>0)b.thr=0;dropWeapon(b,k)}
 function dropWeapon(b,k){const o=b.wps[b.wi];if(!o||!b.wp.visible)return;b.g.updateMatrixWorld(true);const m=new THREE.Mesh(o.geometry,BWM);m.castShadow=true;o.getWorldPosition(m.position);o.getWorldQuaternion(m.quaternion);S.add(m);

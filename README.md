@@ -13,6 +13,6 @@ python3 src/build.py
 ```
 
 ## Touches principales
-WASD/ZQSD se déplacer · Maj sprint · clic gauche/droit tirer/viser · Ctrl posture (accroupi, couché) · P couché · Espace saut / enjamber une vitre cassée · R recharger · C grenade (molette ou U : type) · F porte/établi · G plaque · T changer d'arme · N heure · M météo · L lampe · O qualité graphique.
+WASD/ZQSD se déplacer · Maj sprint · clic gauche/droit tirer/viser · Ctrl posture (accroupi, couché) · P couché · Espace saut / enjamber une vitre cassée · R recharger · C grenade (molette ou U : type) · F porte/établi · G plaque · T changer d'arme · N heure · M météo · L lampe · O qualité graphique · J bandage · Y garrot · I attelle · , morphine · . trousse de soins.
 
 Le post-traitement intègre des fichiers des exemples de three.js r128 (licence MIT, © three.js authors) : `src/parts/three_post.js`.

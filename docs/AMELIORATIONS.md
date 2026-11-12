@@ -1,5 +1,22 @@
 # MILSIM FPS — Changements et feuille de route
 
+## Ce qui a été changé (v7)
+
+**Carte doublée : 300 × 300 m** (constante `MH=150`, au lieu de 75). Relief, navigation des bots, arbres, rochers, herbe, flaques, murs d'enceinte et collines extérieures suivent. 18 maisons supplémentaires dans l'anneau extérieur (7 à étage avec escalier intérieur jusqu'au toit), 2 bunkers avant-postes, chemins qui les relient aux routes existantes, 18 bots. Vue de dessus : `docs/captures/v7/vue_dessus.png`.
+
+**Système de santé par zone (joueur et bots)**
+- 7 zones : tête, thorax, ventre, bras gauche/droit, jambe gauche/droite, chacune avec ses PV. Mort si tête ou thorax à 0, ou par hémorragie (sang à 0).
+- **La zone touchée n'est jamais tirée au sort** : la balle d'un bot est un rayon (point visé = centre du torse, dispersion selon sa précision), testé contre les volumes du corps du joueur (debout, accroupi, couché, penché) et contre les murs, couverts et vitres. Un couvert bas protège les jambes, un tir de profil touche un bras.
+- Effets déterministes : saignement léger si dégât net ≥ 4, fort si ≥ 18 ; fracture d'un membre si coup ≥ 20 ou PV du membre à 0 ; casque (30) absorbe 70 % des dégâts à la tête, gilet absorbe thorax/ventre.
+- Jambes : blessée = plus lent, brisée = très lent, ni sprint ni saut, deux jambes brisées = ramper seulement. Bras droit (arme) : dispersion, recul et rechargement dégradés, pas de visée avec une arme longue s'il est brisé. Bras gauche : visée et rechargement plus lents. Ventre : hémorragie interne à 0 PV. Douleur, tremblements, vision rouge/floue, endurance.
+- Soins : **J** bandage, **Y** garrot (membre, rappuyer pour le retirer), **I** attelle, **,** morphine, **.** trousse. Soigner bloque le tir et ralentit ; bouger ou tirer annule. La zone sûre fait office d'infirmerie et réapprovisionne. +1 bandage / 3 éliminations, +1 morphine / 5.
+- Grenades : l'éclatement lance des rayons d'éclats répartis sur le corps (bloqués par les murs), plus une surpression (jambes fracturées de près). Mêmes règles pour les bots, avec effets : jambe touchée = boite, bras droit brisé = arme lâchée ou tir dégradé, saignement = mort par hémorragie.
+- HUD : silhouette colorée par zone, gouttes de sang, croix de fracture, bande de garrot, sang, casque, endurance, stocks.
+
+Fichiers : `src/parts/health.js` (module), crochets dans `build.py`, `ai.js`, `nades.js`, `levels.js`, `bots.js`.
+
+Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 brins d'herbe), sons non écoutés, équilibrage à affiner en jeu.
+
 ## Ce qui a été changé (v6)
 
 **Étages, escaliers, toits, fenêtres**

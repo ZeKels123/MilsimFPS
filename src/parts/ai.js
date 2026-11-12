@@ -1,13 +1,13 @@
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
-const NS=.5,NGN=300,NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
-const nIdx=(x,z)=>{const i=Math.floor((x+75)/NS),j=Math.floor((z+75)/NS);return i<0||j<0||i>=NGN||j>=NGN?-1:j*NGN+i},nFree=(x,z)=>{const k=nIdx(x,z);return k>=0&&!NAVB[k]},nX=k=>-75+(k%NGN+.5)*NS,nZ=k=>-75+((k/NGN|0)+.5)*NS;
+const NS=.5,NGN=4*MH,NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
+const nIdx=(x,z)=>{const i=Math.floor((x+MH)/NS),j=Math.floor((z+MH)/NS);return i<0||j<0||i>=NGN||j>=NGN?-1:j*NGN+i},nFree=(x,z)=>{const k=nIdx(x,z);return k>=0&&!NAVB[k]},nX=k=>-MH+(k%NGN+.5)*NS,nZ=k=>-MH+((k/NGN|0)+.5)*NS;
 function navBuild(){NAVB.fill(0);NAVC.fill(0);const db=new Set(doors.map(d=>d.box)),m=.3;
-for(const o of boxes){if(db.has(o)||o.y0>1.7)continue;const i0=Math.max(0,Math.ceil((o.x0-m+75)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+75)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+75)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+75)/NS-.5));for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++)NAVB[j*NGN+i]=1}
-for(let k=0;k<NGN*NGN;k++){const x=nX(k),z=nZ(k);if(Math.abs(x)>73.6||Math.abs(z)>73.6||(x>ZN.x0-2.6&&x<ZN.x1+2.6&&z>ZN.z0-2.6))NAVB[k]=1;else if(!NAVB[k]){const d=wDep(x,z);if(d>.6)NAVB[k]=1;else if(d>.04)NAVC[k]=2.5}}
+for(const o of boxes){if(db.has(o)||o.y0>1.7)continue;const i0=Math.max(0,Math.ceil((o.x0-m+MH)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+MH)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+MH)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+MH)/NS-.5));for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++)NAVB[j*NGN+i]=1}
+for(let k=0;k<NGN*NGN;k++){const x=nX(k),z=nZ(k);if(Math.abs(x)>MH-1.4||Math.abs(z)>MH-1.4||(x>ZN.x0-2.6&&x<ZN.x1+2.6&&z>ZN.z0-2.6))NAVB[k]=1;else if(!NAVB[k]){const d=wDep(x,z);if(d>.6)NAVB[k]=1;else if(d>.04)NAVC[k]=2.5}}
 for(let j=1;j<NGN-1;j++)for(let i=1;i<NGN-1;i++){const k=j*NGN+i;if(!NAVB[k]&&(NAVB[k-1]||NAVB[k+1]||NAVB[k-NGN]||NAVB[k+NGN]))NAVC[k]+=.7}}
 function navWin(m){const q=m.userData.glass.nv;if(!q)return;const ax=q.ax==='x',hw=q.w/2-.05;for(let a=-hw;a<=hw+.01;a+=.25)for(let b=-.8;b<=.8;b+=.25){const x=ax?q.c+a:q.f+b,z=ax?q.f+b:q.c+a,k=nIdx(x,z);if(k>=0){NAVB[k]=0;NAVC[k]=Math.abs(b)<.4?2.6:1.2}}}
-function nSnap(x,z){const k=nIdx(Math.max(-74.7,Math.min(74.7,x)),Math.max(-74.7,Math.min(74.7,z)));if(!NAVB[k])return k;const ci=k%NGN,cj=k/NGN|0;for(let r=1;r<14;r++)for(let j=cj-r;j<=cj+r;j++)for(let i=ci-r;i<=ci+r;i++){if(Math.max(Math.abs(i-ci),Math.abs(j-cj))!==r||i<0||j<0||i>=NGN||j>=NGN)continue;if(!NAVB[j*NGN+i])return j*NGN+i}return -1}
+function nSnap(x,z){const k=nIdx(Math.max(-MH+.3,Math.min(MH-.3,x)),Math.max(-MH+.3,Math.min(MH-.3,z)));if(!NAVB[k])return k;const ci=k%NGN,cj=k/NGN|0;for(let r=1;r<14;r++)for(let j=cj-r;j<=cj+r;j++)for(let i=ci-r;i<=ci+r;i++){if(Math.max(Math.abs(i-ci),Math.abs(j-cj))!==r||i<0||j<0||i>=NGN||j>=NGN)continue;if(!NAVB[j*NGN+i])return j*NGN+i}return -1}
 function navLine(x0,z0,x1,z1){const d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/.22);for(let i=1;i<n;i++){const t=i/n,k=nIdx(x0+(x1-x0)*t,z0+(z1-z0)*t);if(k<0||NAVB[k]||NAVC[k]>2)return false}return true}
 const aG=new Float32Array(NGN*NGN),aP=new Int32Array(NGN*NGN),aS=new Uint16Array(NGN*NGN);let aGen=0;const hK=[],hF=[];
 function hPush(k,f){let i=hK.length;hK.push(k);hF.push(f);while(i>0){const p=(i-1)>>1;if(hF[p]<=f)break;hK[i]=hK[p];hF[i]=hF[p];i=p}hK[i]=k;hF[i]=f}
@@ -23,10 +23,10 @@ while(i<raw.length-1){let j=Math.min(raw.length-1,i+40);while(j>i+1&&!navLine(nX
 if(!out.length)out.push([nX(end),nZ(end)]);return out}
 const _la=new THREE.Vector3(),_lb=new THREE.Vector3();
 function losClear(ax,ay,az,bx,by,bz){_la.set(ax,ay,az);_lb.set(bx-ax,by-ay,bz-az);const d=_lb.length();if(d<.05)return true;_lb.multiplyScalar(1/d);RC.set(_la,_lb);RC.far=d;const hs=RC.intersectObjects(ray);for(const h of hs)if(!h.object.userData.glass)return false;return true}
-function aiInit(){navBuild();const P_=AI.poi;PATHS.forEach(p=>p.forEach(q=>P_.push([q[0],q[1]])));HS.slice(0,8).forEach(r=>{const cx=(r[0]+r[2])/2,cz=(r[1]+r[3])/2;[[r[0]-3,cz],[r[2]+3,cz],[cx,r[1]-3],[cx,r[3]+3]].forEach(q=>P_.push(q))});
-[[50,-30],[-52,10],[20,-48],[-30,50],[-8,14],[30,34],[48,48],[22,60],[-60,-55],[60,60],[-62,58],[62,-58],[0,-60],[-35,-5],[38,12]].forEach(q=>P_.push(q));AI.poi=P_.filter(q=>nSnap(q[0],q[1])>=0&&!(Math.abs(q[0])<11&&q[1]>14))}
+function aiInit(){navBuild();const P_=AI.poi;PATHS.forEach(p=>p.forEach(q=>P_.push([q[0],q[1]])));HS.filter((r,i)=>i!==8).forEach(r=>{const cx=(r[0]+r[2])/2,cz=(r[1]+r[3])/2;[[r[0]-3,cz],[r[2]+3,cz],[cx,r[1]-3],[cx,r[3]+3]].forEach(q=>P_.push(q))});
+[[-110,-110],[110,-110],[110,110],[-110,110],[0,-130],[0,130],[-130,0],[130,0],[-70,-70],[70,70],[-70,70],[70,-70],[50,-30],[-52,10],[20,-48],[-30,50],[-8,14],[30,34],[48,48],[22,60],[-60,-55],[60,60],[-62,58],[62,-58],[0,-60],[-35,-5],[38,12]].forEach(q=>P_.push(q));AI.poi=P_.filter(q=>nSnap(q[0],q[1])>=0&&!(Math.abs(q[0])<11&&q[1]>14))}
 function aiSpawnOk(x,z){try{return nFree(x,z)&&Math.hypot(x-P.x,z-P.z)>38}catch(e){return true}}
-function aiReset(b,ty){b.ty=ty;b.st='pat';b.path=null;b.pi=0;b.spK=1;b.lk={x:0,z:0};b.seenT=99;b.alert=0;b.see=false;b.seeT=rnd(0,.3);b.decT=rnd(0,1);b.react=0;b.mag=[12,24,4,70][ty];b.relT=0;b.shots=0;b.burst=0;b.nadeCd=rnd(6,14);b.stun=0;b.blind=0;b.fleeT=0;b.cr=0;b.crA=0;b.stuck=0;b.srch=0;b.ran=0;b.thr=0;b.lvl=0;b.route=null;b.after=null;b.hold=0;b.down=0;b.onv=0;b.wp.visible=true;b.bl=null;b.dair=0;b.dv=null;b.g.rotation.z=0;b.fy=GH(b.g.position.x,b.g.position.z);b.yaw=rnd(0,6.28);b.wait=0;b.g.rotation.y=b.yaw}
+function aiReset(b,ty){b.ty=ty;b.st='pat';b.path=null;b.pi=0;b.spK=1;b.lk={x:0,z:0};b.seenT=99;b.alert=0;b.see=false;b.seeT=rnd(0,.3);b.decT=rnd(0,1);b.react=0;b.mag=[12,24,4,70][ty];b.relT=0;b.shots=0;b.burst=0;b.nadeCd=rnd(6,14);b.stun=0;b.blind=0;b.fleeT=0;b.cr=0;b.crA=0;b.stuck=0;b.srch=0;b.ran=0;b.thr=0;b.lvl=0;b.route=null;b.after=null;b.hold=0;b.down=0;b.onv=0;b.wp.visible=true;b.bl=null;b.dair=0;b.dv=null;b.g.rotation.z=0;b.fy=GH(b.g.position.x,b.g.position.z);b.yaw=rnd(0,6.28);b.wait=0;b.g.rotation.y=b.yaw;bhInit(b)}
 function goTo(b,x,z,spK,st){if(AI.budget<=0){b.decT=.06;return false}AI.budget--;const g=b.g.position,p=navPath(g.x,g.z,x,z);if(!p){b.path=null;return false}b.path=p;b.pi=0;b.spK=spK;b.st=st;b.cr=0;b.stuck=0;return true}
 function aiAlert(b,x,z,t){if(b.dead||b.blind>0)return;b.lk.x=x;b.lk.z=z;if(!b.alert||b.seenT>t){b.seenT=t;b.srch=0;if(!b.alert){b.alert=1;b.decT=Math.min(b.decT,rnd(.15,.5));b.react=rnd(.3,.7)}}}
 function aiHit(b){if(b.dead)return;aiAlert(b,P.x,P.z,.4);b.seenT=Math.min(b.seenT,.4);b.decT=Math.min(b.decT,.2);const g=b.g.position;for(const o of bots)if(o!==b&&!o.dead&&Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z)<20)aiAlert(o,P.x+rnd(-3,3),P.z+rnd(-3,3),1.5)}
@@ -64,12 +64,12 @@ if(!bp||bq<.1)return false;const route=roof?[bh.iA,bh.iB,bh.rA,bh.rB,bh.rL].conc
 if(!goTo(b,F[0],F[1],2.2,'ups'))return false;b.after={route:route.map(q=>[q[0],q[1]]),post:bp,lvl:roof?2:1,h:bh,F:[F[0],F[1]]};bh.occ=(bh.occ||0)+1;bp.occ=1;return true}
 function aiHold(b,pd){b.decT=rnd(.6,1.1);b.hold+=b.decT;b.cr=b.see?0:1;const idle=!b.alert||b.seenT>11;
 if(b.hp<b.T.hp*.4||(idle&&b.hold>14)||b.hold>70){b.route=b.upr.slice(0,-1).reverse().concat([b.fdn]);b.ri=0;b.down=1;b.cr=0;b.st='clb'}}
-function aiRoute(b,dt){const g=b.g.position,w=b.route[b.ri],dx=w[0]-g.x,dz=w[1]-g.z,d=Math.hypot(dx,dz),sp=b.T.sp*1.45*dt*(b.stun>0?.4:1);
+function aiRoute(b,dt){const g=b.g.position,w=b.route[b.ri],dx=w[0]-g.x,dz=w[1]-g.z,d=Math.hypot(dx,dz),sp=b.T.sp*1.45*dt*(b.stun>0?.4:1)*(b.hm||1);
 if(d<=sp+.04){g.x=w[0];g.z=w[1];if(++b.ri>=b.route.length){b.route=null;if(b.down){b.lvl=0;b.down=0;b.st='pat';b.alert=0;b.path=null;b.decT=.5;const h=b.hh;if(h)h.occ=Math.max(0,(h.occ||1)-1);if(b.rp)b.rp.occ=0;b.hh=null;b.rp=null}else{b.st='hold';b.hold=0;b.yaw=b.rp[2];b.cr=1;b.decT=.3}}}else{g.x+=dx/d*sp;g.z+=dz/d*sp}}
 function aiMove(b,dt){const g=b.g.position;if(!b.path)return;let wp=b.path[b.pi],dx=wp[0]-g.x,dz=wp[1]-g.z,d=Math.hypot(dx,dz);
 if(d<.35){if(++b.pi>=b.path.length){b.path=null;if(b.st==='ups'&&b.after){b.route=b.after.route;b.upr=b.after.route;b.ri=0;b.lvl=b.after.lvl;b.rp=b.after.post;b.hh=b.after.h;b.fdn=b.after.F;b.after=null;b.st='clb';return}if(b.st==='cov'||b.st==='pos')b.cr=1;if(b.st==='pat')b.decT=Math.max(b.decT,b.wait);return}wp=b.path[b.pi];dx=wp[0]-g.x;dz=wp[1]-g.z;d=Math.hypot(dx,dz)||1}
 for(const o of doors){if(o.dead||o.open>.85)continue;const q=Math.hypot(o.x-g.x,o.z-g.z);if(q<1.5){if(!o.tgt){if(o.max>200)continue;o.tgt=1;if(Math.hypot(o.x-P.x,o.z-P.z)<25)sndAt(o.x,1.2,o.z,170,.22,.12,'sawtooth',{ref:3})}if(q<1.15&&o.open<.6)return}}
-const sp=b.T.sp*b.spK*(wDep(g.x,g.z)>.15?.6:1)*dt,nx=g.x+dx/d*sp,nz=g.z+dz/d*sp;
+const sp=b.T.sp*b.spK*(b.hm||1)*(wDep(g.x,g.z)>.15?.6:1)*dt,nx=g.x+dx/d*sp,nz=g.z+dz/d*sp;
 if(nFree(nx,nz)){g.x=nx;g.z=nz;b.stuck=0}else if(nFree(nx,g.z)){g.x=nx;b.stuck+=dt*.5}else if(nFree(g.x,nz)){g.z=nz;b.stuck+=dt*.5}else b.stuck+=dt;if(b.stuck>.5){b.path=null;b.stuck=0;b.decT=0}}
 function botDie(b){if(b.dead)return;b.dead=b.T===BT[3]?6:3;botDeath(b,false)}
 function aiUpdate(dt,inz){dwUpdate(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45):1)*(.3+.7*Math.min(1,wcur[3]*1.4)),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
@@ -77,7 +77,7 @@ if(NZ.n!==AI.nz){AI.nz=NZ.n;for(const b of bots){if(b.dead)continue;const d=Math
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*3|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
 const g=b.g.position,bx0=g.x,bz0=g.z,bt=b.T,px=P.x-g.x,pz=P.z-g.z,pd=Math.hypot(px,pz);
-b.stun=Math.max(0,b.stun-dt);b.blind=Math.max(0,b.blind-dt);b.thr=Math.max(0,b.thr-dt);b.nadeCd-=dt;b.seenT+=dt;
+b.stun=Math.max(0,b.stun-dt);b.blind=Math.max(0,b.blind-dt);b.thr=Math.max(0,b.thr-dt);b.nadeCd-=dt;b.seenT+=dt;bhUpdate(b,dt);if(b.dead>0)continue;
 // perception
 b.seeT-=dt;if(b.seeT<=0){b.seeT=rnd(.18,.3);let s=false;if(tgt&&b.blind<=0&&b.stun<=0){const rg=Math.min(95,bt.rng*1.5)*vis;if(pd<rg){let da=Math.atan2(px,pz)-b.yaw;da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da)));if(pd<7||da<1.75||b.alert)s=losClear(g.x,g.y+1.55*bt.sc-b.crA*.4,g.z,P.x,P.gy+P.bh,P.z)}}
 if(s&&!b.see){if(!b.alert||b.seenT>3)b.react=rnd(.35,.8)*(b.ty===2?1.5:1);b.decT=Math.min(b.decT,.1);b.alert=1}b.see=s;
@@ -101,10 +101,9 @@ if(b.blind>0){b.aL.p.rotation.set(-1.5,0,-.75);b.aL.el.rotation.set(-2.2,0,0);b.
 else if(b.stun>0){b.up.rotation.x+=.45+Math.sin(b.tm*3)*.12;b.up.rotation.z+=Math.sin(b.tm*2.1)*.22;b.hd.rotation.x=.4}
 // tir
 b.cd-=dt;if(b.relT>0){b.relT-=dt;if(b.relT<=0)b.mag=[12,24,4,70][b.ty]}if(b.see)b.react-=dt;
-if(b.see&&tgt&&b.react<=0&&b.cd<=0&&b.relT<=0&&b.thr<=0&&pd<bt.rng*1.15&&Math.abs(dy)<.45&&b.st!=='fle'){b.cd=rnd(bt.cd[0],bt.cd[1])*(b.burst>0?1:1);if(b.ty<2){if(--b.burst<=0){b.burst=3+(Math.random()*4|0);b.cd+=rnd(.35,.9)}}
+if(b.see&&tgt&&!b.unarm&&b.react<=0&&b.cd<=0&&b.relT<=0&&b.thr<=0&&pd<bt.rng*1.15&&Math.abs(dy)<.45&&b.st!=='fle'){b.cd=rnd(bt.cd[0],bt.cd[1])*(b.burst>0?1:1);if(b.ty<2){if(--b.burst<=0){b.burst=3+(Math.random()*4|0);b.cd+=rnd(.35,.9)}}
 V.set(g.x,g.y+1.6*bt.sc-b.crA*.1,g.z);W.set(px,P.gy+P.bh+.05-V.y,pz);const pdd=W.length();W.normalize();
-if(!losBlock(V,W,pdd)){b.fl=.07;b.rec=1;b.mag--;b.shots++;sfxShot(g.x,g.y+1.4,g.z,b.ty,1);AI.heat=Math.min(9,(AI.heat||0)+1);const hit=Math.random()<.85*(AI.heat>4?.55:1)*bt.acc*(pd>25?.7:1)*(mv?.6:1)*(sprint?.75:1)*(b.crA>.5?1.15:1);
-_la.copy(V).addScaledVector(W,.5);_lb.set(P.x,P.gy+P.bh-.05,P.z);if(!hit)_lb.x+=rnd(-1,1)*1.2,_lb.y+=rnd(-.6,.9),_lb.z+=rnd(-1,1)*1.2;tracer(_la,_lb);
-if(hit){hurtP(bt.dmg*(.8+Math.random()*.4));dmgDir(g.x,g.z)}if(b.mag<=0){b.relT=b.ty===3?3.6:b.ty===2?2.8:2.1;b.decT=Math.min(b.decT,.1)}}else{b.see=false;b.seeT=.1}}}}
+if(!losBlock(V,W,pdd)){b.fl=.07;b.rec=1;b.mag--;b.shots++;sfxShot(g.x,g.y+1.4,g.z,b.ty,1);AI.heat=Math.min(9,(AI.heat||0)+1);const pr=.85*(AI.heat>4?.55:1)*bt.acc*(pd>25?.7:1)*(mv?.6:1)*(sprint?.75:1)*(b.crA>.5?1.15:1)/(b.aimM||1);
+_lb.set(P.x,P.gy+P.eh*.68,P.z);hlBullet(V,_lb,pr,bt.dmg*(.8+Math.random()*.4),b);if(b.mag<=0){b.relT=b.ty===3?3.6:b.ty===2?2.8:2.1;b.decT=Math.min(b.decT,.1)}}else{b.see=false;b.seeT=.1}}}}
 function g_rot(b){b.g.rotation.y=b.yaw}
 aiInit();

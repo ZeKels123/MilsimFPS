@@ -7,7 +7,7 @@ const groups=new Map(),list=[];
 (function walk(o,ok){if(dyn.has(o)||!o.visible)return;if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o!==floor){const m=o.material,g=o.geometry;
 if(!Array.isArray(m)&&!m.transparent&&!m.onBeforeCompile.toString().includes('sh')&&(m.isMeshStandardMaterial||m.isMeshBasicMaterial)&&!m.aoMap&&!m.lightMap&&!m.alphaMap&&!o.userData.glass&&!o.userData.door&&!o.userData.keep&&o.renderOrder===0&&g.attributes.position&&g.attributes.normal&&g.attributes.position.count<4000&&!g.morphAttributes.position)list.push(o)}
 for(const c of o.children)walk(c)})(S);
-for(const o of list){const e=o.matrixWorld.elements,k=sg(o.material)+'|'+(o.castShadow?1:0)+(o.receiveShadow?1:0)+'|'+Math.floor((e[12]+75)/50)+','+Math.floor((e[14]+75)/50);let q=groups.get(k);if(!q)groups.set(k,q=[]);q.push(o)}
+for(const o of list){const e=o.matrixWorld.elements,k=sg(o.material)+'|'+(o.castShadow?1:0)+(o.receiveShadow?1:0)+'|'+Math.floor((e[12]+MH)/50)+','+Math.floor((e[14]+MH)/50);let q=groups.get(k);if(!q)groups.set(k,q=[]);q.push(o)}
 const v=new THREE.Vector3(),nm=new THREE.Matrix3();
 groups.forEach(q=>{if(q.length<2)return;const mat=q[0].material,vc=mat.vertexColors;let n=0;const gs=q.map(o=>{const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry;n+=g.attributes.position.count;return g});
 const P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2),C_=vc?new Float32Array(n*3):null;let k=0;
