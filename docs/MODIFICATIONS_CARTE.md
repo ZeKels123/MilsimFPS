@@ -40,3 +40,4 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - **Assets importés** (convertis en pleine résolution (triangles identiques dédupliqués), matériaux PBR par pièce (carrosserie, chrome, caoutchouc, vitres) ; texture image sur la table, `src/parts/models.js`) : table, chaise de bureau, Mustang, Mazda CX-7, vélo. Voitures garées (mélange Mustang/Mazda/caisses), vélos devant les îlots et dans le parc.
 - **Non utilisés** : herbe et iPhone (trop lourds / sans usage), tracteur et scène « volna » (pas de place dans la ville ; le tracteur peut aller dans les villages).
 - **Attention** : chargement plus long (≈ 200 s en test headless sur machine sans GPU).
+- **Voitures (v13b)** : jantes chromées + pneus noirs sur la Mustang et la Mazda, vitres teintées sur la Mazda, 8 couleurs de carrosserie (rouge, bleu, blanc, noir, gris, vert, jaune, orange) tirées au hasard pour les voitures garées.

@@ -21,7 +21,7 @@ const BX=[[150,217],[231,324],[336,414],[426,500]],BZ=[[-700,-636],[-624,-532],[
 const GRID=[['apt','off','hotel','apt'],['shop','off','resto','shop'],['resto','off','off','park'],['apt','shop','apt','resto']];
 BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.08,z1-z0),pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
 // --- modèles importés (cache de géométrie)
-const MG={};const mdl=n=>{if(!MG[n])MG[n]=mkMdl(n);return MG[n].clone()};
+const MG={},CV=[[.55,.02,.02],[.02,.08,.45],[.8,.8,.8],[.01,.01,.012],[.45,.46,.5],[.02,.25,.08],[.75,.55,.03],[.7,.2,.02]];const mdl=n=>{const[nm,ci]=n.split(':');if(!MG[n])MG[n]=mkMdl(nm,ci!==undefined?CV[ci|0]:undefined);return MG[n].clone()};
 const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);if(hw)boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh});if(sol&&hw){const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,Y+y+hh/2,z);px.visible=false;S.add(px);solids.push(px)}return e};
 // --- murs avec ouvertures ; fenêtres cassables
 const seg=(x0,x1,z0,z1,y0,y1,m)=>blk(x1-x0,y1-y0,z1-z0,(x0+x1)/2,Y+(y0+y1)/2,(z0+z1)/2,m,{T:3,s:1,c:1});
@@ -84,7 +84,7 @@ for(let k=0;k<2;k++)if(rn()<.8){const bx=x0+4+rn()*(x1-x0-8),bz=rn()<.5?z0+2.2:z
 const COL=[0x8a1f1f,0x1f3a6a,0xb8b8b8,0x222222,0x6a6a2a,0x2a5a3a];
 const cars=(vert,f,half)=>{const a0=vert?-692:158,a1=vert?-358:492;for(let u=a0;u<=a1;u+=17+((rn()*14)|0)){const side=(rn()<.5?-1:1)*(half-1.5),px=vert?f+side:u,pz=vert?u:f+side;
 if(rn()<.35)continue;if((vert?SZ:SX).some(([g,w])=>Math.abs(u-g)<w/2+5))continue;
-if(rn()<.5){const e=mdlAt(rn()<.5?'car':'mazda',px,0,pz,vert?(side>0?0:Math.PI):(side>0?Math.PI/2:-Math.PI/2),vert?1.15:2.3,vert?2.3:1.15,1.4,1);continue}
+if(rn()<.5){const e=mdlAt((rn()<.5?'car:':'mazda:')+((rn()*8)|0),px,0,pz,vert?(side>0?0:Math.PI):(side>0?Math.PI/2:-Math.PI/2),vert?1.15:2.3,vert?2.3:1.15,1.4,1);continue}
 const cl=std(COL[(rn()*6)|0],{roughness:.4,metalness:.4}),lw=vert?1.8:4.2,ld=vert?4.2:1.8;blk(lw,.9,ld,px,Y+.65,pz,cl,{s:1,c:1});blk(vert?1.6:2.2,.7,vert?2.2:1.6,px,Y+1.45,pz,std(0x141b22,{roughness:.1,metalness:.3}),{s:1,c:1});blk(lw-.1,.3,ld-.1,px,Y+.2,pz,std(0x111111),{ns:1})}};
 SX.forEach(([x,w])=>cars(1,x,w/2));SZ.forEach(([z,w])=>cars(0,z,w/2));
 const lampM2=new THREE.MeshBasicMaterial({color:0xfff0c8,toneMapped:false}),polM=std(0x3a3f44,{roughness:.6,metalness:.4});
