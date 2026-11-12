@@ -59,8 +59,8 @@ const g=nz(q[3],q[0],q[1]*rnd(.85,1.15),q[2],q[4]*vol*.5,out,rnd(.85,1.2));if(!b
 function rainMix(rn,ind,y){try{AC=AC||new AudioContext();auInit();if(!AU.ready)return;if(!AU.rainOut){const mk=(hz,q,type)=>{const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=AU.nb;s.loop=true;f.type=type;f.frequency.value=hz;f.Q.value=q;g.gain.value=0;s.connect(f);f.connect(g);g.connect(AOUT());s.start();return g};
 AU.rainOut=mk(3200,.35,'bandpass');AU.rainRoof=mk(1250,.9,'bandpass');AU.rainDeep=mk(240,.7,'lowpass');
 // crépitement : modulation d'amplitude irrégulière
-const lf=AC.createOscillator(),lg=AC.createGain();lf.type='square';lf.frequency.value=14;lg.gain.value=.5;lf.connect(lg);lg.connect(AU.rainRoof.gain);lf.start();AU.rl=lf}
-const up=ind&&y>2.9,tr=[rn*(ind?.012:.17),ind?rn*(up?.2:.13):0,ind?rn*(up?.14:.07):0];for(let i=0;i<3;i++)AU.rg[i]+=(tr[i]-AU.rg[i])*.06;AU.rainOut.gain.value=AU.rg[0];AU.rainRoof.gain.value=AU.rg[1];AU.rainDeep.gain.value=AU.rg[2];if(AU.rl)AU.rl.frequency.value=10+rn*14+Math.sin(performance.now()*.003)*3}catch(e){}}
+const lf=AC.createOscillator(),lg=AC.createGain();lf.type='square';lf.frequency.value=14;lg.gain.value=0;AU.lg=lg;lf.connect(lg);lg.connect(AU.rainRoof.gain);lf.start();AU.rl=lf}
+const up=ind&&y>2.9,tr=[rn*(ind?.012:.17),ind?rn*(up?.2:.13):0,ind?rn*(up?.14:.07):0];for(let i=0;i<3;i++)AU.rg[i]+=(tr[i]-AU.rg[i])*.06;AU.rainOut.gain.value=AU.rg[0];AU.rainRoof.gain.value=AU.rg[1];AU.rainDeep.gain.value=AU.rg[2];if(AU.rl)AU.rl.frequency.value=10+rn*14+Math.sin(performance.now()*.003)*3;if(AU.lg)AU.lg.gain.value=AU.rg[1]*.8}catch(e){}}
 function auUpdate(dt){if(!AC)return;auInit();if(!AU.ready)return;AU.occB=7;
 const l=AC.listener,p=C.position;_la.set(0,0,-1).applyQuaternion(C.quaternion);_lb.set(0,1,0).applyQuaternion(C.quaternion);
 if(l.positionX){l.positionX.value=p.x;l.positionY.value=p.y;l.positionZ.value=p.z;l.forwardX.value=_la.x;l.forwardY.value=_la.y;l.forwardZ.value=_la.z;l.upX.value=_lb.x;l.upY.value=_lb.y;l.upZ.value=_lb.z}else{l.setPosition(p.x,p.y,p.z);l.setOrientation(_la.x,_la.y,_la.z,_lb.x,_lb.y,_lb.z)}
