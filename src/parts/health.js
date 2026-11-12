@@ -54,7 +54,7 @@ const blocked=!nadeLOS(n,tx,P.gy+P.eh*.5,tz),ov=blocked?0:60*Math.pow(k,1.5);if(
 dmgDir(E.x,E.z);return hit}
 // ---- multiplicateurs d'effets
 function hlLegs(){return(hlLvl('ll')===2?1:0)+(hlLvl('rl')===2?1:0)}
-function HMV(){let p=0;['ll','rl'].forEach(z=>{const l=hlLvl(z);p+=l===1?.12:l===2?(HM.mor>0?.3:.45):0});if(HM.z.a<HMAX.a*.5)p+=.1;let m=Math.max(.22,1-p);if(HM.pain>.6&&HM.mor<=0)m*=.9;if(HM.bl<40)m*=.8;if(HM.act)m*=.6;return m}
+function HMV(){let p=0;['ll','rl'].forEach(z=>{const l=hlLvl(z);p+=l===1?.12:l===2?(HM.mor>0?.3:.45):0});if(HM.z.a<HMAX.a*.5)p+=.1;let m=Math.max(.22,1-p);if(HM.pain>.6&&HM.mor<=0)m*=.9;if(HM.bl<40)m*=.8;if(HM.act)m*=.6;return m*invSpdK(K.ShiftLeft&&!ads&&P.st===0)}
 function HSPR(){return !HM.exh&&hlLegs()===0&&!HM.act&&HM.bl>35}
 function HJMP(){return hlLegs()===0&&HM.z.a>0}
 function hlRa(){return hlLvl('ra')}function hlLa(){return hlLvl('la')}
@@ -95,8 +95,8 @@ if(bl>0)HM.bl-=bl*dt;
 let base=0;for(const z of HZ){const l=hlLvl(z);base+=l===1?.06:l===2?.2:0}HM.pain=Math.max(Math.min(1,base),HM.pain-dt*.05);if(HM.mor>0)HM.mor-=dt;
 if(HM.conc>0)HM.conc=Math.max(0,HM.conc-dt);
 // endurance
-const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&HSPR();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
-if(spr)HM.sta=Math.max(0,HM.sta-dt*.1*dis);else HM.sta=Math.min(1,HM.sta+dt*.22/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.3)HM.exh=0;
+const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
+if(spr)HM.sta=Math.max(0,HM.sta-dt*.1*dis*(1+Math.max(0,invLoad()-.5)*1.4));else HM.sta=Math.min(1,HM.sta+dt*.22/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.3)HM.exh=0;
 // jambes brisées : on ne peut plus que ramper
 if(hlLegs()===2&&P.st<2&&!P.mant)P.st=2;if(hlLegs()>=1&&P.vy>0&&P.air&&!HJMP())P.vy=0;
 // soins en cours

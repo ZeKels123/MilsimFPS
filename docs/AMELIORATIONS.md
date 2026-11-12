@@ -245,3 +245,12 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 8. À chaque modification de la carte (bâtiments, relief, chemins, végétation, eau) : générer et envoyer une vue de dessus annotée de la carte (`vue_dessus.png`).
 9. Pousser la version sur GitHub (`ZeKels123/MilsimFPS`) : jeu, sources, ce fichier, et les captures dans un dossier par version (`docs/captures/vN/`).
 10. Mettre à jour cette liste (changements + pistes restantes).
+
+## v10 — Sac à dos et poids
+
+- **Sac à dos à grille** (Tab) : poches 4×2, petit sac 5×4, moyen 7×5, grand 9×6. Les objets ont des icônes texturées (munitions, soins, plaques, grenades). Rangement automatique, clic pour sélectionner, clic droit pour jeter 1.
+- **Poids indépendant du sac** : capacité du joueur fixe à 32 kg ; le sac ne limite que le nombre de cases. Paliers : < 50 % aucun malus, 50–80 % sprint réduit, 80–100 % chargé (plus lent, endurance qui baisse plus vite), > 100 % surcharge (très lent, sprint impossible).
+- **Handicap par arme** : vitesse de marche ×0,96 fusil, ×1,00 MP9, ×1,03 pistolet, ×0,92 pompe, ×0,86 sniper (sprint un peu plus pénalisé pour les armes lourdes), appliqué aussi en visée.
+- **Jeter** : V jette le sac en vitesse (les poches gardent bandages, garrots, trousse et munitions de l'arme tenue) ; Retour arrière jette 30 munitions ; objets jetables depuis l'inventaire.
+- **Objets au sol** : F pour ramasser (sacs, munitions par calibre, soins, grenades, plaques). Butin sur les bots tués. Une trentaine d'objets et 5 sacs répartis sur la carte.
+- Non fait : glisser-déposer manuel dans la grille, perte du sac à la mort du joueur.
