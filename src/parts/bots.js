@@ -30,7 +30,7 @@ add(up,new THREE.CylinderGeometry(.06,.07,.08,8),skin,0,.63,0);
 const hd=new THREE.Group();hd.position.set(0,.66,0);hd.rotation.order='YXZ';up.add(hd);b.hd=hd;
 const head=add(hd,new THREE.SphereGeometry(.132,14,12),skin,0,.12,.005);head.scale.set(.9,1.1,1);head.userData={bot:b,head:true};botParts.push(head);b.parts.push(head);
 add(hd,BG(.03,.04,.03),skin,0,.1,.13);[-.05,.05].forEach(x=>add(hd,BG(.04,.02,.02),blk,x,.145,.115));
-b.mask=add(hd,BG(.215,.11,.17),blk,0,.055,.05);
+b.mask=add(hd,BG(.15,.072,.1),blk,0,.036,.052);
 b.helm=add(hd,new THREE.SphereGeometry(.158,14,10,0,Math.PI*2,0,Math.PI*.47),L(0x3a4a3a,{roughness:.7,side:THREE.DoubleSide}),0,.15,0);
 b.brim=add(hd,new THREE.CylinderGeometry(.25,.25,.014,16),L(0x5a4f2a),0,.185,0);
 b.visM=L(0x0a0a0a,{roughness:.2,metalness:.8});b.visor=add(hd,BG(.23,.065,.05),b.visM,0,.15,.115);

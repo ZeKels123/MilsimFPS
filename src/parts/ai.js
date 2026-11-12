@@ -60,7 +60,7 @@ function aiPost(b,ty){if(!UPH.length||b.lvl||b.route)return false;const g=b.g.po
 for(const h of UPH){const d=Math.hypot(h.cx-g.x,h.cz-g.z);if(d>48||(h.occ||0)>=2)continue;const dl=Math.hypot(h.cx-b.lk.x,h.cz-b.lk.z);if(dl<9||dl>75)continue;const sc=d+rnd(0,14);if(sc<bs){bs=sc;bh=h}}
 if(!bh)return false;const roof=ty===2?Math.random()<.65:Math.random()<.2,list=roof?bh.roofPosts:bh.posts;let bp=null,bq=-9;
 for(const p of list){const dx=b.lk.x-p[0],dz=b.lk.z-p[1],d=Math.hypot(dx,dz)||1,q=(dx*Math.sin(p[2])+dz*Math.cos(p[2]))/d+rnd(0,.35);if(q>bq&&!(p.occ>0)){bq=q;bp=p}}
-if(!bp||bq<.1)return false;const route=roof?[bh.rA,bh.rB,bh.rL,bh.rM,bp]:[bh.iA,bh.iB,bh.iL,bh.iM].concat(bp[3]?[bh.iN]:[],[bp]),F=roof?bh.rF:bh.iF;
+if(!bp||bq<.1)return false;const route=roof?[bh.iA,bh.iB,bh.rA,bh.rB,bh.rL].concat(bp[3]?[bh.rM]:[],[bp]):[bh.iA,bh.iB,bh.iL,bh.iM].concat(bp[3]?[bh.iN]:[],[bp]),F=bh.iF;
 if(!goTo(b,F[0],F[1],2.2,'ups'))return false;b.after={route:route.map(q=>[q[0],q[1]]),post:bp,lvl:roof?2:1,h:bh,F:[F[0],F[1]]};bh.occ=(bh.occ||0)+1;bp.occ=1;return true}
 function aiHold(b,pd){b.decT=rnd(.6,1.1);b.hold+=b.decT;b.cr=b.see?0:1;const idle=!b.alert||b.seenT>11;
 if(b.hp<b.T.hp*.4||(idle&&b.hold>14)||b.hold>70){b.route=b.upr.slice(0,-1).reverse().concat([b.fdn]);b.ri=0;b.down=1;b.cr=0;b.st='clb'}}

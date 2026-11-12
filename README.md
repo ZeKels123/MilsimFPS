@@ -5,7 +5,7 @@ FPS en un seul fichier HTML (three.js r128). Ouvrir `MILSIM_FPS.html` dans un na
 - `MILSIM_FPS.html` / `index.html` : dernière version du jeu (v6).
 - `versions/` : versions précédentes.
 - `docs/AMELIORATIONS.md` : changements par version, pistes d'amélioration, checklist.
-- `docs/captures/` : captures en jeu et vue de dessus de la carte.
+- `docs/captures/v4/`, `v5/`, `v6/` : captures en jeu et vue de dessus de la carte, un dossier par version.
 - `src/` : sources. `orig.html` est le jeu d'origine, `parts/*.js` les modules ajoutés, `build.py` les assemble :
 
 ```

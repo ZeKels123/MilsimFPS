@@ -66,26 +66,25 @@ rail(rW(ui-.02,ui+.02,vT+.8,-.2));rail(rW(ha,hb,-.22,-.18));
 YO=FT;const opsU=q=>q===side?[wn(lat-hu*.62),wn(lat+hu*.62)]:ops(q);
 run('x',z0,x0-t/2,x1+t/2,-1,opsU('N'));run('x',z1,x0-t/2,x1+t/2,1,opsU('S'));run('z',x0,z0+t/2,z1-t/2,-1,opsU('W'));run('z',x1,z0+t/2,z1-t/2,1,opsU('E'));YO=0;
 // toit plat + acrotère
-{const r=rW(U0-.2,U1+.2,vB-t/2-.2,vF+t/2+.2);blkR(r,RT-.28,RT,concM2,{T:3,s:1});surfRect(r[0],r[1],r[2],r[3],RT);
-const se=-si,ue=se*(Lt/2+t/2+.1+.55),vt2=vF-1.4,vs=vt2-6.6,ex0=L_(ue,vs),ex1=L_(ue,vt2),ax_=dfx;
-const sx=stairs(ex0[0],ex0[1],ex1[0],ex1[1],1.1,0,RT,concM2,{rail:ax_?se*uz:se*ux});
-const lr=rW(se>0?Lt/2:-Lt/2-1.45-t/2,se>0?Lt/2+1.45+t/2:-Lt/2,vt2,vt2+1.3);blkR(lr,RT-.2,RT,concM2,{T:3,s:1});surfRect(lr[0],lr[1],lr[2],lr[3],RT);
-const lo=se*(Lt/2+t/2+1.4);[[lo,vt2+.05],[lo,vt2+1.25]].forEach(q=>{const c=rW(q[0]-.08,q[0]+.08,q[1]-.08,q[1]+.08);blkR(c,0,RT-.2,concM2,{s:1,c:1})});
+{const se=-si,vcs=vB+2.2,ua=si*(hu-1.3),ub=ua-si*3.6,uhs=ua-si*1.23,um0=Math.min(uhs,ub),um1=Math.max(uhs,ub),hw=.7,PU0=U0-.2,PU1=U1+.2,PV0_=vB-t/2-.2,PV1_=vF+t/2+.2;
+const rs_=(u0,u1,v0,v1)=>{const r=rW(u0,u1,v0,v1);blkR(r,RT-.28,RT,concM2,{T:3,s:1});surfRect(r[0],r[1],r[2],r[3],RT)};
+rs_(PU0,um0,PV0_,PV1_);rs_(um1,PU1,PV0_,PV1_);rs_(um0,um1,PV0_,vcs-hw);rs_(um0,um1,vcs+hw,PV1_);
+// volée vers le toit (à l'intérieur) + garde-corps de la trappe
+const A_=L_(ua,vcs),B_=L_(ub,vcs);stairs(A_[0],A_[1],B_[0],B_[1],1,FT,RT,furnM,{});
+[vcs-hw,vcs+hw].forEach(v=>{const q=rW(um0,um1,v-.03,v+.03);blkR(q,RT,RT+.95,steelM,{c:1,ns:1})});{const q=rW(uhs-.03,uhs+.03,vcs-hw,vcs+hw);blkR(q,RT,RT+.95,steelM,{c:1,ns:1})}
+const vt2=vcs;
 const pr=(u0,u1,v0,v1,y=RT,h=.78)=>{const q=rW(u0,u1,v0,v1);blkR(q,y,y+h,concM2,{T:3,s:1,c:1})},pt=.22,PU=U1+.2,PV0=vB-t/2-.2,PV1=vF+t/2+.2;
 pr(-PU,PU,PV0,PV0+pt);pr(-PU,PU,PV1-pt,PV1);
-// côtés : ouverture côté escalier
-if(se>0){pr(-PU,-PU+pt,PV0,PV1);pr(PU-pt,PU,PV0,vt2-.1);pr(PU-pt,PU,vt2+1.4,PV1)}else{pr(PU-pt,PU,PV0,PV1);pr(-PU,-PU+pt,PV0,vt2-.1);pr(-PU,-PU+pt,vt2+1.4,PV1)}
-// garde-corps du palier
-{const fo=se>0?lo+.08:lo-.08;const q=rW(fo-.03,fo+.03,vt2,vt2+1.3);blkR(q,RT,RT+.95,steelM,{c:1,ns:1});const q2=rW(se>0?Lt/2:lo-.02,se>0?lo+.02:-Lt/2,vt2+1.3,vt2+1.34);blkR(q2,RT,RT+.95,steelM,{c:1,ns:1})}
+pr(-PU,-PU+pt,PV0,PV1);pr(PU-pt,PU,PV0,PV1);
 // mobilier de toit (couvert)
 const rc=(u,v,du_,dv_,hh,m)=>{const q=rW(u-du_/2,u+du_/2,v-dv_/2,v+dv_/2);blkR(q,RT,RT+hh,m,{T:1.2,s:1,c:1})};
-rc(-se*1.3,-2.3,1.3,.8,.9,steelM);rc(-se*1.5,.6,.9,.9,.6,slabM);rc(se*.4,-4.3,.7,.7,.5,surf(0x6a5a3c));
-{const tk=L_(-se*1.3,-4.6);const cy=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,1.1,14),steelM);cy.position.set(tk[0],RT+.55,tk[1]);cy.castShadow=true;S.add(cy);boxes.push({x0:tk[0]-.55,x1:tk[0]+.55,z0:tk[1]-.55,z1:tk[1]+.55,y0:RT,y1:RT+1.1});solids.push(cy)}
+rc(-se*1.3,-2.3,1.3,.8,.9,steelM);rc(-se*1.5,.6,.9,.9,.6,slabM);rc(si*.9,-5.9,.7,.7,.5,surf(0x6a5a3c));
+{const tk=L_(si*2.2,-4.0);const cy=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,1.1,14),steelM);cy.position.set(tk[0],RT+.55,tk[1]);cy.castShadow=true;S.add(cy);boxes.push({x0:tk[0]-.55,x1:tk[0]+.55,z0:tk[1]-.55,z1:tk[1]+.55,y0:RT,y1:RT+1.1});solids.push(cy)}
 // données pour l'IA
 const wp=(u,v)=>L_(u,v),pv=[],pr_=[];[[-.62*hu,vF-.5,0,1],[.62*hu,vF-.5,0,1],[0,vB+.5,0,-1],[hu-.5,0,1,0],[-hu+.5,0,-1,0],[hu-.5,-Df/2-Dr/2,1,0],[-hu+.5,-Df/2-Dr/2,-1,0]].forEach(q=>{if(si>0&&q[2]>0&&q[1]<0&&q[1]>vT-.5)return;if(si<0&&q[2]<0&&q[1]<0&&q[1]>vT-.5)return;const w_=wp(q[0],q[1]);pv.push([w_[0],w_[1],yawL(q[2],q[3]),q[1]>vT?1:0])});
-[[-hu+.6,vF-.3,0,1],[hu-.6,vF-.3,0,1],[-hu+.6,vB+.5,0,-1],[hu-.6,vB+.5,0,-1],[hu-.2,-1.5,1,0],[-hu+.2,-1.5,-1,0],[hu-.2,1,1,0],[-hu+.2,1,-1,0]].forEach(q=>{if((q[2]===se&&q[1]>vt2-1.2&&q[1]<vt2+1.8))return;const w_=wp(q[0],q[1]);pr_.push([w_[0],w_[1],yawL(q[2],q[3])])});
-const iF=L_(uc,.7),iA=sa,iB=sb,iL=L_(uc-si*1.0,vT+.3),rF=L_(ue,vs-.9),rL=L_(ue-se*1.2,vt2+.65);
-UPH.push({cx,cz,FT,RT,iF,iA,iB,iL:[iL[0],iL[1]],iM:L_(-si*.8,vT+.3),iN:L_(-si*.8,.3),posts:pv,rF,rA:ex0,rB:ex1,rL:[...L_(se*(Lt/2+.7),vt2+.65)],rM:L_(-se*.6,vt2+.65),roofPosts:pr_,rect:[x0,x1,z0,z1],hole:rW(ha,hb,vT,-.2),floor:rW(U0,U1,vB-t/2,vF+t/2)})}
+[[-hu+.6,vF-.3,0,1],[hu-.6,vF-.3,0,1],[-hu+.6,vB+.5,0,-1],[hu-.6,vB+.5,0,-1],[hu-.2,-1.5,1,0],[-hu+.2,-1.5,-1,0],[hu-.2,1,1,0],[-hu+.2,1,-1,0]].forEach(q=>{const w_=wp(q[0],q[1]);pr_.push([w_[0],w_[1],yawL(q[2],q[3]),q[0]*si>0?1:0])});
+const iF=L_(uc,.7),iA=sa,iB=sb,iL=L_(uc-si*1.0,vT+.3),rF=L_(ua,vcs),rA=L_(ua,vcs),rB=L_(ub,vcs),rL=L_(-si*2.6,vcs),rM=L_(-si*2.5,vF-1.2);
+UPH.push({cx,cz,FT,RT,iF,iA,iB,iL:[iL[0],iL[1]],iM:L_(-si*.8,vT+.3),iN:L_(-si*.8,.3),posts:pv,rF,rA,rB,rL,rM,roofPosts:pr_,rect:[x0,x1,z0,z1],hole:rW(ha,hb,vT,-.2),floor:rW(U0,U1,vB-t/2,vF+t/2)})}
 }
 else{const RW=dfx?W:D,RD=dfx?D:W,rot=!dfx;
 const oh=.5,og=.4,tn=.62,an=Math.atan(tn),b=RD/2+oh,yr=H+RD/2*tn,ye=H-oh*tn,sl=Math.hypot(b,yr-ye),rg=new THREE.Group();rg.position.set(cx,0,cz);rg.rotation.y=rot?Math.PI/2:0;S.add(rg);

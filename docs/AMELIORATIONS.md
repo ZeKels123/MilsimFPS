@@ -4,7 +4,7 @@
 
 **Étages, escaliers, toits, fenêtres**
 - 4 maisons sur 8 ont un étage : (16,5 ; 3,5), (-16,5 ; -12), (-48 ; 38), (50 ; -10). Escalier intérieur dans la pièce principale, trémie avec garde-corps, étage avec 2 fenêtres par côté et mobilier.
-- Toit plat avec parapet et abris (caisses, citerne), accessible par un escalier extérieur (30 marches, palier, ouverture dans le parapet). Les maisons de plain-pied n'ont pas de toit accessible.
+- Toit plat avec parapet fermé et abris (caisses, citerne), accessible par une seconde volée à l'intérieur (15 marches, de l'étage au toit) et une trappe dans la dalle, avec garde-corps. Il n'y a plus d'escalier extérieur. Les maisons de plain-pied n'ont pas de toit accessible.
 - Hauteur du sol par surface (`groundAt`) : marches, étage et toit sont marchables pour le joueur, les bots et les grenades. Collisions des murs et meubles limitées à leur hauteur.
 - Vitres brisées : passage utilisable. Joueur : Espace près d'une fenêtre cassée pour enjamber (position accroupie sur le rebord). Bots : ils franchissent la fenêtre ; la grille de navigation est recalculée quand une vitre éclate ou se répare.
 - Chute : dégâts au-delà de 9 m/s de vitesse verticale.
@@ -25,14 +25,15 @@
 - Mains : 4 doigts à 3 phalanges et pouce, qui se referment sur l'arme.
 - 7 morts : en arrière, en avant, à genoux, pirouette, tir à la tête, assis contre le mur, projeté par une explosion.
 - L'arme tombe au sol (rebonds avec sons, repos, 14 armes au maximum, disparition après 22 s).
-- Les bots occupent les étages et les toits (tireurs d'élite en priorité), y restent postés et redescendent s'ils sont blessés ou inactifs.
+- Les bots occupent les étages et les toits (tireurs d'élite en priorité), y restent postés et redescendent s'ils sont blessés ou inactifs. Simulation : les 4 maisons, montée jusqu'au toit en 4 à 9 s, descente complète.
+- Cagoule des bots réduite et collée au visage (elle dépassait).
+- L'invite « F — Ouvrir la porte » n'apparaît plus depuis un autre niveau que la porte.
 
 **Limites connues (v6)**
 - Non testé sur un vrai GPU ni à l'oreille : le son n'a été vérifié que sans erreur, pas écouté. Les images par seconde réelles et l'équilibrage restent à vérifier en jouant.
 - Poses de mort vérifiées sur une planche fixe, pas en combat. Doigts et pouce vérifiés grossièrement.
 - Bots qui franchissent des fenêtres brisées : non simulé en test dédié.
 - Le joueur à l'étage ignore les portes du rez-de-chaussée.
-- L'escalier du toit est à l'extérieur ; une version intérieure par trappe est possible.
 
 ## Ce qui a été changé (v5)
 
@@ -205,5 +206,5 @@
 6. Mesurer les FPS sur un PC modeste dans chaque qualité (touche O) ; si < 40 en Moyen, réduire ombres / herbe / résolution.
 7. Prendre 5 captures de référence et les comparer à la version précédente.
 8. À chaque modification de la carte (bâtiments, relief, chemins, végétation, eau) : générer et envoyer une vue de dessus annotée de la carte (`vue_dessus.png`).
-9. Pousser la version sur GitHub (`ZeKels123/MilsimFPS`) : jeu, sources, captures, ce fichier.
+9. Pousser la version sur GitHub (`ZeKels123/MilsimFPS`) : jeu, sources, ce fichier, et les captures dans un dossier par version (`docs/captures/vN/`).
 10. Mettre à jour cette liste (changements + pistes restantes).

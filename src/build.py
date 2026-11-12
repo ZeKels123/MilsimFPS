@@ -19,6 +19,7 @@ css='''#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradien
 #cross i{box-shadow:0 0 2px #000}
 '''
 rep('</style>',css+'</style>')
+rep('const q=Math.hypot(P.x-d.x,P.z-d.z);if(q<nds){nds=q;nd=d}','const q=Math.hypot(P.x-d.x,P.z-d.z)+(Math.abs(P.gy-GH(d.x,d.z))>1.6?99:0);if(q<nds){nds=q;nd=d}')
 rep('<div id="atts" class="h"></div>','<div id="vig"></div><div id="grain"></div><div id="atts" class="h"></div>')
 # 2. rendu / ciel / textures / sol
 a=s.index('const R=new THREE.WebGLRenderer({antialias:true});');e='floor.rotation.x=-Math.PI/2;S.add(floor);'
