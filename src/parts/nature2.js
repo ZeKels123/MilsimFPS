@@ -1,8 +1,9 @@
 
 // ================= EAU (v5) : étang + ruisseau, roseaux, nénuphars =================
 const WAT={uT:{value:0},uRain:{value:0},uSunC:{value:new THREE.Color(1,1,1)},uPl:{value:new THREE.Vector3(0,0,-9)}};
-{const st=.75,x0=8,x1=54,z0=30,z1=66,nx=Math.round((x1-x0)/st),nz=Math.round((z1-z0)/st),pos=[],dep=[],flw=[],idx=[],id=new Int32Array((nx+1)*(nz+1)).fill(-1);
-const flow=(x,z)=>{let bd=9,fx=0,fz=0;for(let i=0;i<BROOK.length-1;i++){const p=BROOK[i],q=BROOK[i+1],ex=q[0]-p[0],ez=q[1]-p[1],l=Math.hypot(ex,ez),t=Math.max(0,Math.min(1,((x-p[0])*ex+(z-p[1])*ez)/(l*l))),d=Math.hypot(p[0]+ex*t-x,p[1]+ez*t-z);if(d<bd){bd=d;fx=ex/l;fz=ez/l}}const k=1-sstep(1.5,3.5,bd);return[fx*k,fz*k]};
+{const st=.9,x0=-MH,x1=MH,z0=-MH,z1=MH,nx=Math.round((x1-x0)/st),nz=Math.round((z1-z0)/st),pos=[],dep=[],flw=[],idx=[],id=new Int32Array((nx+1)*(nz+1)).fill(-1);
+const SEG=[];for(let i=0;i<BROOK.length-1;i++)SEG.push([BROOK[i],BROOK[i+1]]);RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++)SEG.push([rv[i],rv[i+1]])});
+const flow=(x,z)=>{let bd=9,fx=0,fz=0;for(const sg of SEG){const p=sg[0],q=sg[1],ex=q[0]-p[0],ez=q[1]-p[1],l=Math.hypot(ex,ez),t=Math.max(0,Math.min(1,((x-p[0])*ex+(z-p[1])*ez)/(l*l))),d=Math.hypot(p[0]+ex*t-x,p[1]+ez*t-z);if(d<bd){bd=d;fx=ex/l;fz=ez/l}}const k=1-sstep(2.5,5,bd);return[fx*k,fz*k]};
 const vid=(i,j)=>{const k=j*(nx+1)+i;if(id[k]<0){const x=x0+i*st,z=z0+j*st;id[k]=pos.length/3;pos.push(x,WL,z);dep.push(WL-GH(x,z));const f=flow(x,z);flw.push(f[0],f[1])}return id[k]};
 for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const x=x0+i*st,z=z0+j*st;if(Math.min(wDist(x,z),wDist(x+st,z),wDist(x,z+st),wDist(x+st,z+st))>.9)continue;const a=vid(i,j),b=vid(i+1,j),c=vid(i+1,j+1),d=vid(i,j+1);idx.push(a,d,b,b,d,c)}
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aDep',new THREE.Float32BufferAttribute(dep,1));g.setAttribute('aFlow',new THREE.Float32BufferAttribute(flw,2));g.setIndex(idx);
@@ -36,12 +37,19 @@ const w=new THREE.Mesh(g,m);w.renderOrder=2;w.frustumCulled=true;g.computeBoundi
 const o=new THREE.Object3D(),col=new THREE.Color(),rp=[],ru=[],rn=[],ri=[];
 [0,1.05,2.1].forEach(r=>{const b=rp.length/3,c=Math.cos(r),s=Math.sin(r);[[-.035,0],[.035,0],[.014,1],[-.014,1]].forEach(q=>{rp.push(q[0]*c,q[1],q[0]*s);ru.push(q[0]>0?1:0,q[1]);rn.push(0,1,0)});ri.push(b,b+1,b+2,b,b+2,b+3,b,b+2,b+1,b,b+3,b+2)});
 const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(ru,2));rg.setAttribute('normal',new THREE.Float32BufferAttribute(rn,3));rg.setIndex(ri);
-const NR=420,rd_=new THREE.InstancedMesh(rg,windify(std(0xffffff,{roughness:1,envMapIntensity:.4}),5),NR);let n=0,t=0;
-while(n<NR&&t++<60000){const x=rnd(x0,x1),z=rnd(z0,z1),d=wDist(x,z);if(d>.9||d<-1.1||vn2(x*.3,z*.3)<.42)continue;o.position.set(x,GH(x,z)-.05,z);o.rotation.set(rnd(-.08,.08),rnd(0,6),rnd(-.08,.08));const s=rnd(.9,1.9);o.scale.set(1.3,s,1.3);o.updateMatrix();rd_.setMatrixAt(n,o.matrix);col.setHSL(rnd(.2,.28),rnd(.35,.5),rnd(.2,.34));rd_.setColorAt(n,col);n++}
+const NR=700,rd_=new THREE.InstancedMesh(rg,windify(std(0xffffff,{roughness:1,envMapIntensity:.4}),5),NR);let n=0,t=0;
+while(n<NR&&t++<60000){let x,z;if(t%2){const k=(Math.random()*RPTS.length)|0;x=RPTS[k][0]+rnd(-6,6);z=RPTS[k][1]+rnd(-6,6)}else{x=rnd(8,54);z=rnd(30,66)}const d=wDist(x,z);if(d>.9||d<-1.1||vn2(x*.3,z*.3)<.42)continue;o.position.set(x,GH(x,z)-.05,z);o.rotation.set(rnd(-.08,.08),rnd(0,6),rnd(-.08,.08));const s=rnd(.9,1.9);o.scale.set(1.3,s,1.3);o.updateMatrix();rd_.setMatrixAt(n,o.matrix);col.setHSL(rnd(.2,.28),rnd(.35,.5),rnd(.2,.34));rd_.setColorAt(n,col);n++}
 rd_.count=n;rd_.receiveShadow=true;S.add(rd_);
 const NL=46,ll=new THREE.InstancedMesh(new THREE.CircleGeometry(.3,9,.35,5.6),std(0xffffff,{roughness:.6,side:THREE.DoubleSide}),NL);n=0;t=0;
 while(n<NL&&t++<9000){const x=rnd(POND.x-11,POND.x+11),z=rnd(POND.z-9,POND.z+9),d=wDist(x,z);if(d>-.8||d<-4||Math.hypot(x-35,z-43.5)<3)continue;o.position.set(x,WL+.012,z);o.rotation.set(-Math.PI/2,0,rnd(0,6));o.scale.setScalar(rnd(.6,1.3));o.updateMatrix();ll.setMatrixAt(n,o.matrix);col.setHSL(rnd(.26,.33),.5,rnd(.2,.3));ll.setColorAt(n,col);n++}
 ll.count=n;ll.receiveShadow=true;ll.renderOrder=3;S.add(ll);
+// ponts : pont en bois à garde-corps (le terrain est relevé au niveau du tablier, collisions par boîtes)
+{const wm=std(0x7a5c3a,{roughness:1,envMapIntensity:.3}),dm=std(0x4d3a26,{roughness:1,envMapIntensity:.3}),ub=new THREE.BoxGeometry(1,1,1),oo=new THREE.Object3D();
+const inst=(m,L)=>{const iq=new THREE.InstancedMesh(ub,m,L.length);L.forEach((q,i)=>{oo.position.set(q[0],q[1],q[2]);oo.scale.set(q[3],q[4],q[5]);oo.rotation.set(0,0,0);oo.updateMatrix();iq.setMatrixAt(i,oo.matrix)});iq.castShadow=iq.receiveShadow=true;S.add(iq)};
+BRG.forEach(b=>{const L1=[],L2=[],Y=b.y,hl=b.hl,hw=1.6;for(let z=b.z-hl;z<b.z+hl-.1;z+=.34)L1.push([b.x,Y+.03,z+.17,hw*2,.1,.3]);
+[-1,1].forEach(s=>{L2.push([b.x+s*1.2,Y-.12,b.z,.16,.24,hl*2+.3]);L2.push([b.x+s*(hw-.05),Y+1.0,b.z,.09,.09,hl*2]);L2.push([b.x+s*(hw-.05),Y+.55,b.z,.07,.07,hl*2]);for(let z=b.z-hl+.2;z<=b.z+hl;z+=1.6)L2.push([b.x+s*(hw-.05),Y+.5,z,.1,1.05,.1]);
+const bx={x0:b.x+s*(hw-.05)-.06,x1:b.x+s*(hw-.05)+.06,z0:b.z-hl,z1:b.z+hl,y0:Y,y1:Y+1.1};boxes.push(bx);const rm=new THREE.Mesh(new THREE.BoxGeometry(.12,1.1,hl*2),dm);rm.position.set(b.x+s*(hw-.05),Y+.55,b.z);rm.visible=false;S.add(rm);solids.push(rm)});
+inst(wm,L1);inst(dm,L2);const dk=new THREE.Mesh(new THREE.BoxGeometry(hw*2,.2,hl*2),dm);dk.position.set(b.x,Y-.05,b.z);dk.visible=false;S.add(dk);solids.push(dk)})}
 // source : rochers
 const sr=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1,0),std(0x7d7b72,{roughness:.95,flatShading:true}),14);for(let i=0;i<14;i++){const a=i/14*6.28+rnd(-.2,.2),r=i<9?rnd(2,2.9):rnd(.3,1.2),x=BROOK[0][0]+Math.cos(a)*r-(i<9?.8:0),z=BROOK[0][1]+Math.sin(a)*r+(i<9?.8:0),s=i<9?rnd(.5,1.1):rnd(.2,.4);o.position.set(x,GH(x,z)+s*.2,z);o.rotation.set(rnd(0,3),rnd(0,3),rnd(0,3));o.scale.set(s*rnd(.9,1.4),s*rnd(.6,.9),s*rnd(.9,1.3));o.updateMatrix();sr.setMatrixAt(i,o.matrix)}
 sr.castShadow=sr.receiveShadow=true;S.add(sr)}
@@ -52,7 +60,7 @@ function bgeo(parts){const P_=[],N_=[],C_=[],I_=[];let o=0;const c=new THREE.Col
 parts.forEach(a=>{const g=new THREE.BoxGeometry(a[0],a[1],a[2]);m.compose(new THREE.Vector3(a[3],a[4],a[5]),q.setFromEuler(e.set(a[7]||0,0,a[8]||0)),one);g.applyMatrix4(m);c.setHex(a[6]);const p=g.attributes.position,nn=g.attributes.normal;
 for(let i=0;i<p.count;i++){P_.push(p.getX(i),p.getY(i),p.getZ(i));N_.push(nn.getX(i),nn.getY(i),nn.getZ(i));C_.push(c.r,c.g,c.b)}for(let i=0;i<g.index.count;i++)I_.push(g.index.array[i]+o);o+=p.count});
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P_,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N_,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C_,3));g.setIndex(I_);return g}
-const FA={birds:[],rab:[],deer:[],ducks:[],fish:[],nz:0,scare:0,sx:0,sz:0,sr:0,chT:3,spT:0,amb:null};
+const FA={hit:[],birds:[],rab:[],deer:[],ducks:[],fish:[],nz:0,scare:0,sx:0,sz:0,sr:0,chT:3,spT:0,amb:null};
 const furM=std(0xffffff,{vertexColors:true,roughness:.95,envMapIntensity:.3});
 {// oiseaux : un seul InstancedMesh, battement d'ailes dans le shader
 const bp=[0,0,.16, .05,0,-.06, -.05,0,-.06, 0,0,-.2,  .04,0,.06, .04,0,-.07, .42,0,-.04,  -.04,0,.06, -.42,0,-.04, -.04,0,-.07],aw=[0,0,0,0,0,0,1,0,1,0],bi=[0,1,2,1,3,2,4,6,5,7,9,8];
@@ -80,10 +88,16 @@ const mkPts=(n,size,add)=>{const g=new THREE.BufferGeometry();g.setAttribute('po
 FA.bf=mkPts(80,.11,0);FA.bfd=[];for(let i=0;i<80;i++){let x,z,k=0;do{x=rnd(-MH+7,MH-7);z=rnd(-MH+7,MH-7)}while((!okPos(x,z,1)||Math.abs(x)<9&&z>16)&&k++<30);const c=new THREE.Color().setHSL([.12,.08,.0,.58,.15][i%5],.9,i%5===2?.92:.6);FA.bfd.push({x,z,ph:rnd(0,6),c})}
 FA.ff=mkPts(140,.09,1);FA.ffd=[];for(let i=0;i<140;i++){let x,z,k=0;do{if(i<40){x=POND.x+rnd(-17,17);z=POND.z+rnd(-14,14)}else{x=rnd(-MH+7,MH-7);z=rnd(-MH+7,MH-7)}}while(!okPos(x,z,.5)&&wDist(x,z)>0&&k++<20);FA.ffd.push({x,z,ph:rnd(0,6),sp:rnd(.6,1.4)})}
 }
+// animaux touchables : pièces enregistrées pour les tirs, mort puis réapparition
+FA.rab.forEach(r=>{r.hp=14;r.m.userData.an=r;FA.hit.push(r.m)});FA.deer.forEach(d=>{d.hp=70;d.g.traverse(q=>{if(q.isMesh){q.userData.an=d;FA.hit.push(q)}})});FA.ducks.forEach(k=>{k.hp=10;k.m.userData.an=k;FA.hit.push(k.m)});FA.birds.forEach(b=>{b.hp=5});
+function faHit(a,pt,dm){if(a.dead)return false;a.hp-=dm;for(let i=0;i<7;i++)emit(pt,_fv.set(rnd(-1,1),rnd(.2,1.2),rnd(-1,1)).multiplyScalar(2.2),{color:0x9a1010,size:.05,life:.5,g:9});snd(rnd(420,640),.12,.08,'triangle');FA.scare=1.5;FA.sx=P.x;FA.sz=P.z;FA.sr=40;
+if(a.hp<=0){a.dead=1;a.dt=80;if(a.g){a.g.rotation.set(0,a.yaw||0,1.5);a.g.position.y=GH(a.x,a.z)+.38}else if(a.m){if(FA.ducks.includes(a))a.m.rotation.set(0,0,3.14);else{a.m.rotation.set(0,a.yaw||0,1.5);a.m.position.y=GH(a.x,a.z)+.1}}}return true}
+function faShotBirds(o,d,far,dm){let hit=false;for(const b of FA.birds){if(b.dead)continue;_fv.subVectors(b.p,o);const t=_fv.dot(d);if(t<0||t>far)continue;_fv2.copy(d).multiplyScalar(t).add(o);if(_fv2.distanceTo(b.p)<.45){b.hp-=dm;hit=true;if(b.hp<=0){b.dead=1;b.dt=80;for(let i=0;i<6;i++)emit(b.p,_fv.set(rnd(-1,1),rnd(-.5,1),rnd(-1,1)).multiplyScalar(2),{color:0x7a1010,size:.05,life:.5,g:9})}FA.scare=1.5;FA.sx=P.x;FA.sz=P.z;FA.sr=40;break}}return hit}
+function faTick(dt){for(const a of FA.rab.concat(FA.deer,FA.ducks,FA.birds)){if(!a.dead)continue;a.dt-=dt;if(a.dt<=0){a.dead=0;a.hp=a.g?70:a.m?(FA.ducks.includes(a)?10:14):5;if(a.g){a.g.rotation.z=0;faSpot(a,4,14,a.x,a.z);a.x=a.tx;a.z=a.tz}else if(a.m){a.m.rotation.z=0;if(!FA.ducks.includes(a)){faSpot(a,6,60,0,0);a.x=a.tx;a.z=a.tz}}}}}
 function faSpot(o,r0,r1,cx,cz){for(let k=0;k<25;k++){const a=rnd(0,6.28),r=rnd(r0,r1),x=Math.max(-MH+4,Math.min(MH-4,cx+Math.cos(a)*r)),z=Math.max(-MH+4,Math.min(MH-4,cz+Math.sin(a)*r));if(free_(x,z)&&wDist(x,z)>1&&!(Math.abs(x)<10&&z>15)){o.tx=x;o.tz=z;return}}o.tx=cx;o.tz=cz}
 function faThreat(x,z,r){let bx=0,bz=0,bd=r;const q=(px,pz)=>{const d=Math.hypot(px-x,pz-z);if(d<bd){bd=d;bx=px;bz=pz}};q(P.x,P.z);for(const b of bots)if(!b.dead)q(b.g.position.x,b.g.position.z);if(FA.scare>0){const d=Math.hypot(FA.sx-x,FA.sz-z);if(d<FA.sr&&bd>=r){bd=0;bx=FA.sx;bz=FA.sz}}return bd<r?[bx,bz]:null}
 function faMove(o,sp,dt){const dx=o.tx-o.x,dz=o.tz-o.z,d=Math.hypot(dx,dz);if(d<.3)return true;const nx=o.x+dx/d*sp*dt,nz=o.z+dz/d*sp*dt;if(!free_(nx,nz)||wDist(nx,nz)<.3){return true}o.x=nx;o.z=nz;let dy=Math.atan2(dx,dz)-o.yaw;dy=Math.atan2(Math.sin(dy),Math.cos(dy));o.yaw+=dy*Math.min(1,dt*9);return false}
-const _fm=new THREE.Matrix4(),_fq=new THREE.Quaternion(),_fe=new THREE.Euler(0,0,0,'YXZ'),_fs=new THREE.Vector3(),_fv=new THREE.Vector3();let faInit=false;
+const _fm=new THREE.Matrix4(),_fq=new THREE.Quaternion(),_fe=new THREE.Euler(0,0,0,'YXZ'),_fs=new THREE.Vector3(),_fv=new THREE.Vector3(),_fv2=new THREE.Vector3();let faInit=false;
 function natureUpdate(dt){const T=WND.t.value+=dt,rn=wcur[2],e=SUND.y,day=TOD.t>6.2&&TOD.t<19.5,night=TOD.t>20.3||TOD.t<5;
 WND.s.value+=((.22+wcur[6]*.75)-WND.s.value)*Math.min(1,dt*.5);WND.p.value.set(P.x,P.z);
 WAT.uT.value=T;WAT.uRain.value=rn;WAT.uSunC.value.copy(sun.color).multiplyScalar(Math.min(1.3,sun.intensity)+.06);
@@ -93,7 +107,7 @@ PWADE=pdp>.2?Math.max(.5,1-pdp*.55):1;if(pdp>.08&&mvg){FA.spT-=dt;if(FA.spT<=0){
 if(!faInit){faInit=true;FA.rab.forEach((r,i)=>{faSpot(r,6,60,0,0);r.x=r.tx;r.z=r.tz});FA.deer.forEach((d,i)=>{faSpot(d,4,14,[-40,48,-20][i],[-45,20,55][i]);d.x=d.tx;d.z=d.tz})}
 if(NZ.n!==FA.nz){FA.nz=NZ.n;FA.scare=1.2;FA.sx=NZ.x;FA.sz=NZ.z;FA.sr=NZ.r}else FA.scare=Math.max(0,FA.scare-dt);
 // oiseaux
-const birdsOn=rn<.5;FA.birds.forEach((b,i)=>{if(b.st===1){// posé
+const birdsOn=rn<.5;FA.birds.forEach((b,i)=>{if(b.dead){_fm.compose(b.p,_fq.set(0,0,0,1),_fs.set(0,0,0));FA.bm.setMatrixAt(i,_fm);return}if(b.st===1){// posé
 const th=Math.hypot(P.x-b.perch.x,P.z-b.perch.z)<9||(FA.scare>0&&Math.hypot(FA.sx-b.perch.x,FA.sz-b.perch.z)<Math.min(FA.sr,45));if(th){b.st=0;b.t=rnd(18,30);b.v.set(rnd(-2,2),4,rnd(-2,2))}else{b.yaw+=Math.sin(T*.7+i)*dt*.3;_fe.set(0,b.yaw,0);_fq.setFromEuler(_fe);_fm.compose(b.perch,_fq,_fs.set(.55,.55,.55));FA.bm.setMatrixAt(i,_fm);return}}
 const k=b.f,ct=T*.045*(k?-1.3:1)+k*2.4,cx=Math.cos(ct)*(k?34:46)+(k?-12:8),cz=Math.sin(ct*1.31)*(k?40:30),cy=(k?19:15)+Math.sin(T*.11+k)*3+(FA.scare>0?6:0);
 let tx=cx+b.o.x+Math.sin(T*.6+i)*2,ty=cy+b.o.y,tz=cz+b.o.z+Math.cos(T*.5+i*2)*2;
@@ -101,17 +115,17 @@ if(b.perch){b.t-=dt;if(b.t<=0){tx=b.perch.x;ty=b.perch.y+.3;tz=b.perch.z;if(b.p.
 _fv.set(tx-b.p.x,ty-b.p.y,tz-b.p.z);const d=_fv.length()||1,sp=(FA.scare>0?11:7.5)*(birdsOn?1:.6);b.v.addScaledVector(_fv,dt*2.2*sp/d);const vl=b.v.length();if(vl>sp)b.v.multiplyScalar(sp/vl);b.p.addScaledVector(b.v,dt);
 _fe.set(-Math.atan2(b.v.y,Math.hypot(b.v.x,b.v.z))*.6,Math.atan2(b.v.x,b.v.z),0);_fq.setFromEuler(_fe);_fm.compose(b.p,_fq,_fs.set(1,1,1));FA.bm.setMatrixAt(i,_fm)});FA.bm.instanceMatrix.needsUpdate=true;
 // lapins
-FA.rab.forEach(r=>{const th=faThreat(r.x,r.z,8.5);if(th&&r.st!==2){r.st=2;r.t=rnd(1.6,2.8);const a=Math.atan2(r.x-th[0],r.z-th[1])+rnd(-.5,.5);r.tx=Math.max(-MH+4,Math.min(MH-4,r.x+Math.sin(a)*16));r.tz=Math.max(-MH+4,Math.min(MH-4,r.z+Math.cos(a)*16))}
+faTick(dt);FA.rab.forEach(r=>{if(r.dead)return;const th=faThreat(r.x,r.z,8.5);if(th&&r.st!==2){r.st=2;r.t=rnd(1.6,2.8);const a=Math.atan2(r.x-th[0],r.z-th[1])+rnd(-.5,.5);r.tx=Math.max(-MH+4,Math.min(MH-4,r.x+Math.sin(a)*16));r.tz=Math.max(-MH+4,Math.min(MH-4,r.z+Math.cos(a)*16))}
 r.t-=dt;let mv=false;if(r.st===0){if(r.t<=0){r.st=1;r.t=rnd(1.5,3.5);faSpot(r,2.5,7,r.x,r.z)}}else{const done=faMove(r,r.st===2?7.5:2.6,dt);mv=!done;if(done||r.t<=0){if(r.st===2&&done&&r.t>0)faSpot(r,6,14,r.x,r.z);else{r.st=0;r.t=rnd(2,6)}}}
 r.hop=mv?r.hop+dt*(r.st===2?13:8):0;const hy=mv?Math.abs(Math.sin(r.hop)):0;r.m.position.set(r.x,GH(r.x,r.z)+hy*(r.st===2?.22:.14),r.z);r.m.rotation.set(mv?-Math.cos(r.hop*2)*.25:(r.st===0?Math.max(0,Math.sin(T*1.3+r.home))*.5-.1:0)*-1,r.yaw,0)});
 // chevreuils
-FA.deer.forEach((d,i)=>{const th=faThreat(d.x,d.z,17);if(th&&d.st!==2){d.st=2;d.t=rnd(3,4.5);const a=Math.atan2(d.x-th[0],d.z-th[1])+rnd(-.4,.4);d.tx=Math.max(-MH+4,Math.min(MH-4,d.x+Math.sin(a)*34));d.tz=Math.max(-MH+4,Math.min(MH-4,d.z+Math.cos(a)*34))}
+FA.deer.forEach((d,i)=>{if(d.dead)return;const th=faThreat(d.x,d.z,17);if(th&&d.st!==2){d.st=2;d.t=rnd(3,4.5);const a=Math.atan2(d.x-th[0],d.z-th[1])+rnd(-.4,.4);d.tx=Math.max(-MH+4,Math.min(MH-4,d.x+Math.sin(a)*34));d.tz=Math.max(-MH+4,Math.min(MH-4,d.z+Math.cos(a)*34))}
 d.t-=dt;let mv=false;if(d.st===0){if(d.t<=0){d.st=1;d.t=rnd(6,12);faSpot(d,8,18,d.x,d.z)}}else{const done=faMove(d,d.st===2?9.5:1.5,dt);mv=!done;if(done||d.t<=0){if(d.st===2&&done&&d.t>0)faSpot(d,10,22,d.x,d.z);else{d.st=0;d.t=rnd(4,10)}}}
 d.ph+=dt*(d.st===2?15:5)*(mv?1:0);const s=Math.sin(d.ph),am=mv?(d.st===2?.9:.42):0;d.lg[0].rotation.x=s*am;d.lg[3].rotation.x=s*am;d.lg[1].rotation.x=-s*am;d.lg[2].rotation.x=-s*am;
 d.hd+=((d.st===0&&Math.sin(T*.25+i*2)>-.2?1:0)-d.hd)*Math.min(1,dt*2);d.nk.rotation.x=d.hd*1.35+(mv?Math.sin(d.ph*2)*.04:0);
 const gy=GH(d.x,d.z),sl=Math.atan2(GH(d.x-Math.sin(d.yaw)*.5,d.z-Math.cos(d.yaw)*.5)-GH(d.x+Math.sin(d.yaw)*.5,d.z+Math.cos(d.yaw)*.5),1);d.g.position.set(d.x,gy+(d.st===2&&mv?Math.abs(s)*.12:0),d.z);d.g.rotation.set(sl,d.yaw,0)});
 // canards
-FA.ducks.forEach((k,i)=>{const pd=Math.hypot(P.x-k.x,P.z-k.z),fl=pd<8;k.a+=dt*(fl?.55:k.sp)*(i%2?1:-1);if(fl){const away=Math.atan2(k.z-P.z,k.x-P.x),da=Math.atan2(Math.sin(away-k.a),Math.cos(away-k.a));k.a+=da*dt*.8}
+FA.ducks.forEach((k,i)=>{if(k.dead)return;const pd=Math.hypot(P.x-k.x,P.z-k.z),fl=pd<8;k.a+=dt*(fl?.55:k.sp)*(i%2?1:-1);if(fl){const away=Math.atan2(k.z-P.z,k.x-P.x),da=Math.atan2(Math.sin(away-k.a),Math.cos(away-k.a));k.a+=da*dt*.8}
 const c=Math.cos(POND.rot),s=Math.sin(POND.rot),u=Math.cos(k.a)*POND.rx*k.r,v=Math.sin(k.a)*POND.rz*k.r,x=POND.x+u*c-v*s,z=POND.z+u*s+v*c;k.yaw=Math.atan2(x-k.x,z-k.z)||k.yaw;k.x=x;k.z=z;k.m.position.set(x,WL-.02+Math.sin(T*2+i)*.012,z);k.m.rotation.set(Math.sin(T*1.7+i)*.04,k.yaw,0)});
 FA.fish.forEach((f,i)=>{f.a+=dt*f.sp;const c=Math.cos(POND.rot),s=Math.sin(POND.rot),rr=f.r+Math.sin(T*.3+f.o)*.1,u=Math.cos(f.a)*POND.rx*rr,v=Math.sin(f.a*1.0+f.o*.2)*POND.rz*rr,x=POND.x+u*c-v*s,z=POND.z+u*s+v*c,m=f.m;m.rotation.y=Math.atan2(x-m.position.x,z-m.position.z)+Math.sin(T*9+i)*.25;m.position.set(x,WL-.22,z)});
 // papillons / lucioles

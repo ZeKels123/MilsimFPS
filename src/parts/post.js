@@ -45,9 +45,9 @@ try{PP.comp.render(dt)}catch(e){console.warn(e);PP.on=false;R.setRenderTarget(nu
 // ---- qualité graphique : Auto (descend si le jeu rame) / Bas / Moyen / Élevé / Ultra — touche O
 const GQ={mode:0,lvl:2,names:['Bas','Moyen','Élevé','Ultra'],fT:0,fN:0,fps:60,fr:0,shN:2,warm:0,grassN:0};
 function setQuality(l){GQ.lvl=l;const q=[{pr:.75,sh:1024,ss:0,mb:0,bl:0,g:.4,n:3,post:0},{pr:1,sh:1536,ss:0,mb:0,bl:1,g:.7,n:2,post:1},{pr:1.5,sh:2048,ss:1,mb:1,bl:1,g:1,n:2,post:1},{pr:2,sh:4096,ss:1,mb:1,bl:1,g:1,n:1,post:1}][l];
-R.setPixelRatio(Math.min(devicePixelRatio||1,q.pr));R.setSize(innerWidth,innerHeight);if(sun.shadow.mapSize.x!==q.sh){sun.shadow.mapSize.set(q.sh,q.sh);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
-PP.ssao=!!q.ss;PP.mb=!!q.mb;PP.bl=!!q.bl;PP.on=!!q.post;GQ.shN=q.n;if(GRASS){if(!GQ.grassN)GQ.grassN=GRASS.count;GRASS.count=Math.floor(GQ.grassN*q.g)}if(q.post)ppInit();GQ.warm=0;GQ.fT=GQ.fN=0}
-function gqFrame(dt){GQ.fr++;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=GQ.fr%GQ.shN===0;GQ.fT+=dt;GQ.fN++;if(GQ.fN>=45){const a=GQ.fT/GQ.fN;GQ.fps=Math.round(1/a);GQ.fT=GQ.fN=0;if(GQ.warm<4)GQ.warm++;else if(GQ.mode===0&&a>.026&&GQ.lvl>0&&document.visibilityState==='visible'){setQuality(GQ.lvl-1);feed('Qualité graphique : '+GQ.names[GQ.lvl]+' (auto)')}}}
+R.setPixelRatio(Math.min(devicePixelRatio||1,q.pr));R.setSize(innerWidth,innerHeight);if(sun2.shadow.mapSize.x!==Math.min(q.sh,2048)){sun2.shadow.mapSize.set(Math.min(q.sh,2048),Math.min(q.sh,2048));if(sun2.shadow.map){sun2.shadow.map.dispose();sun2.shadow.map=null}}if(sun.shadow.mapSize.x!==q.sh){sun.shadow.mapSize.set(q.sh,q.sh);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
+PP.ssao=!!q.ss;PP.mb=!!q.mb;PP.bl=!!q.bl;PP.on=!!q.post;GQ.shN=q.n;window.GRQ=q.g;if(q.post)ppInit();GQ.warm=0;GQ.fT=GQ.fN=0}
+function gqFrame(dt){GQ.fr++;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=GQ.fr%GQ.shN===0;sun2.shadow.autoUpdate=false;sun2.shadow.needsUpdate=GQ.fr%(GQ.shN*4)===1;GQ.fT+=dt;GQ.fN++;if(GQ.fN>=45){const a=GQ.fT/GQ.fN;GQ.fps=Math.round(1/a);GQ.fT=GQ.fN=0;if(GQ.warm<4)GQ.warm++;else if(GQ.mode===0&&a>.026&&GQ.lvl>0&&document.visibilityState==='visible'){setQuality(GQ.lvl-1);feed('Qualité graphique : '+GQ.names[GQ.lvl]+' (auto)')}}}
 addEventListener('keydown',e=>{if(e.code==='KeyO'&&!e.repeat){GQ.mode=(GQ.mode+1)%5;setQuality(GQ.mode?GQ.mode-1:2);feed('Qualité graphique : '+(GQ.mode?GQ.names[GQ.lvl]:'Auto'))}});
 addEventListener('resize',()=>{if(PP.on)ppInit()});
 // HUD : ne réécrit le DOM que si le texte change

@@ -44,4 +44,19 @@ const sun=new THREE.DirectionalLight(0xfff0d8,1.25);sun.castShadow=true;sun.shad
 {const q=sun.shadow.camera;q.left=q.bottom=-28;q.right=q.top=28;q.near=1;q.far=170;q.updateProjectionMatrix()}
 sun.shadow.bias=-.0004;sun.shadow.normalBias=.04;
 sun.position.copy(SUND).multiplyScalar(80);S.add(sun,sun.target);
+// ombres en cascade : 2e lumière sans intensité qui ne sert que de carte d'ombre large (±110 m) ; le shader choisit la carte
+const sun2=new THREE.DirectionalLight(0xffffff,0);sun2.castShadow=true;sun2.shadow.mapSize.set(2048,2048);
+{const q=sun2.shadow.camera;q.left=q.bottom=-110;q.right=q.top=110;q.near=1;q.far=330;q.updateProjectionMatrix()}
+sun2.shadow.bias=-.0008;sun2.shadow.normalBias=.12;sun2.position.copy(SUND).multiplyScalar(80);S.add(sun2,sun2.target);
+{const k=THREE.ShaderChunk.lights_fragment_begin,re=/directLight\.color \*= all\( bvec2\( directLight\.visible, receiveShadow \) \) \? getShadow\( directionalShadowMap\[ i \], directionalLightShadow\.shadowMapSize, directionalLightShadow\.shadowBias, directionalLightShadow\.shadowRadius, vDirectionalShadowCoord\[ i \] \) : 1\.0;/;
+if(re.test(k))THREE.ShaderChunk.lights_fragment_begin=k.replace(re,`
+#if NUM_DIR_LIGHT_SHADOWS > 1
+if(UNROLLED_LOOP_INDEX==0){vec3 q0=vDirectionalShadowCoord[0].xyz/vDirectionalShadowCoord[0].w;float e0=max(abs(q0.x-.5),abs(q0.y-.5))*2.;
+float f0=getShadow(directionalShadowMap[0],directionalLightShadows[0].shadowMapSize,directionalLightShadows[0].shadowBias,directionalLightShadows[0].shadowRadius,vDirectionalShadowCoord[0]);
+float f1=getShadow(directionalShadowMap[1],directionalLightShadows[1].shadowMapSize,directionalLightShadows[1].shadowBias,directionalLightShadows[1].shadowRadius,vDirectionalShadowCoord[1]);
+directLight.color*=all(bvec2(directLight.visible,receiveShadow))?mix(f0,f1,smoothstep(.8,.97,e0)):1.;}
+else if(UNROLLED_LOOP_INDEX==1){directLight.color*=0.;}
+else
+#endif
+directLight.color *= all( bvec2( directLight.visible, receiveShadow ) ) ? getShadow( directionalShadowMap[ i ], directionalLightShadow.shadowMapSize, directionalLightShadow.shadowBias, directionalLightShadow.shadowRadius, vDirectionalShadowCoord[ i ] ) : 1.0;`);else console.warn('cascade patch KO')}
 S.environment=mkEnv(R);

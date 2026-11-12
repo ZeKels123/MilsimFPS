@@ -1,5 +1,12 @@
 # MILSIM FPS — Changements et feuille de route
 
+## Ce qui a été changé (v8, en cours)
+
+Fait : arbres (pins en rameaux alpha, feuillus, buissons) au feuillage animé par le vent et transparent, niveaux de détail près/loin, troncs instanciés ; herbe générée autour du joueur seulement (cellules de 3 m, rayon 46 m) ; ombres à 2 cascades (près ±28 m, loin ±110 m, choix par shader) ; rivière d'un bord à l'autre de la carte (ouest vers est, via l'étang) avec 3 ponts en bois (relief relevé au niveau du tablier, garde-corps, routes d'accès) ; animaux touchables (lapins, chevreuils, canards, oiseaux, réapparition après 80 s).
+
+Pas encore fait : IA en escouade (rôles, tir de suppression, soin et repli en groupe).
+Non vérifié : tir sur un animal au sol (seul le tir sur oiseau est testé), performances sur GPU réelle, rendu des ponts vu de près.
+
 ## Ce qui a été changé (v7)
 
 **Carte doublée : 300 × 300 m** (constante `MH=150`, au lieu de 75). Relief, navigation des bots, arbres, rochers, herbe, flaques, murs d'enceinte et collines extérieures suivent. 18 maisons supplémentaires dans l'anneau extérieur (7 à étage avec escalier intérieur jusqu'au toit), 2 bunkers avant-postes, chemins qui les relient aux routes existantes, 18 bots. Vue de dessus : `docs/captures/v7/vue_dessus.png`.
