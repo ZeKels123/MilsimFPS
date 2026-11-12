@@ -58,8 +58,8 @@ R.toneMappingExposure=k.exp*(1+gr*.08);
 fog0.color.copy(k.hor).multiplyScalar(.92+fz*.6);fog0.near=24*fN*(e<0?.7:1);fog0.far=120*fF*(e<0?.8:1);if(!ac.on){S.fog=fog0}
 // pluie
 rainU.uCam.value.copy(C.position);rainU.uT.value+=dt;rainU.uAmt.value=rn;rainU.uWind.value=wd;rainU.uLum.value=Math.max(.25,lf);rain.visible=rn>.02&&!ac.on;
-const ri=inRoom(C.position.x,C.position.z),ind=ri>=0&&C.position.y<2.9;rainU.uIn.value+=((ind?1:0)-rainU.uIn.value)*Math.min(1,dt*6);
-rainAudio(rn*(ind?.04:.17));
+const ri=inRoom(C.position.x,C.position.z),ind=ri>=0&&C.position.y<roofTop(C.position.x,C.position.z);rainU.uIn.value+=((ind?1:0)-rainU.uIn.value)*Math.min(1,dt*6);
+rainMix(rn,ind,C.position.y);
 floor.material.roughness=1-.55*Math.min(1,rn*1.3);floor.material.color.setScalar(1-.28*Math.min(1,rn*1.2));
 // lumières intérieures
 const night=Math.max(0,Math.min(1,.5-e*4)),I=(.3+.95*night)*(ind?1:0);

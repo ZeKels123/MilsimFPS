@@ -64,7 +64,7 @@ if(x-P.x>14)x-=28;else if(x-P.x<-14)x+=28;if(z-P.z>14)z-=28;else if(z-P.z<-14)z+
 // --- boucle graphique : ombres, ciel, effets, qualité adaptative
 const SR=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),LDIR).normalize(),SU=new THREE.Vector3().crossVectors(LDIR,SR);
 let aqN=0,aqT=0,aqF=0,aqPR=R.getPixelRatio();
-function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);
+function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);auUpdate(dt);
 const fx=ac.on?ac.tx:P.x,fz=ac.on?ac.tz:P.z,sn=56/2048,a=fx*SR.x+fz*SR.z,b=fx*SU.x+fz*SU.z,da=Math.round(a/sn)*sn-a,db=Math.round(b/sn)*sn-b,tx=fx+SR.x*da+SU.x*db,tz=fz+SR.z*da+SU.z*db,ty=SU.y*db;
 sun.target.position.set(tx,ty,tz);sun.position.set(tx+LDIR.x*80,ty+LDIR.y*80,tz+LDIR.z*80);
 pUpdate(dt);shUpdate(dt);trUpdate(dt);dustUpdate(dt);

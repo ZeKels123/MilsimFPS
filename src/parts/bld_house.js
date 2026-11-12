@@ -5,12 +5,12 @@ fz=side==='S'?1:side==='N'?-1:0,fx=side==='E'?1:side==='W'?-1:0,ux=fz,uz=-fx,dfx
 W=W0+(fx?Dr:0),D=D0+(fz?Dr:0),cx=cxF-fx*Dr/2,cz=czF-fz*Dr/2,x0=cx-W/2,x1=cx+W/2,z0=cz-D/2,z1=cz+D/2,
 wm=pm(bun?T_conc:T_plas,st.w,{roughness:.95}),sm=pm(T_wood,st.s,{roughness:.7}),
 Df=dfx?W0:D0,Lt=dfx?D:W,hf=Df/2-t/2,hu=Lt/2-t/2,hb=Dr/2-t/2,OV=Dr/2,fd=dfx?fx:fz;
-const grp=(ax,f,c,out)=>{const g=new THREE.Group();g.position.set(ax==='x'?c:f,0,ax==='x'?f:c);g.rotation.y=ax==='x'?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2);S.add(g);return g};
+const grp=(ax,f,c,out)=>{const g=new THREE.Group();g.position.set(ax==='x'?c:f,YO,ax==='x'?f:c);g.rotation.y=ax==='x'?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2);S.add(g);return g};
 const winD=(ax,f,o,out)=>{const g=grp(ax,f,o.c,out),w=o.w,h=o.y1-o.y0,yc=(o.y0+o.y1)/2,fm=bun?darkM:frameM;
 gb(g,w,.06,t+.04,0,o.y1-.03,0,fm);gb(g,w,.06,t+.04,0,o.y0+.03,0,fm);gb(g,.06,h,t+.04,-w/2+.03,yc,0,fm);gb(g,.06,h,t+.04,w/2-.03,yc,0,fm);
 if(o.slit){for(let k=-3;k<=3;k++)gb(g,.03,h,.05,k*w/7,yc,0,darkM);gb(g,w+.3,.12,.3,0,o.y0-.06,t/2+.1,concM2)}
 else{gb(g,.04,h,.05,0,yc,0,fm);gb(g,w,.04,.05,0,yc+.15,0,fm);
-const gp=new THREE.PlaneGeometry(w-.1,h-.1),gl=new THREE.Mesh(gp,glassM);gl.position.set(0,yc,0);gl.userData.glass={hp:2,w:w-.1,h:h-.1};gl.userData.home=g;g.add(gl);solids.push(gl);GLASS.push(gl);
+const gp=new THREE.PlaneGeometry(w-.1,h-.1),gl=new THREE.Mesh(gp,glassM);gl.position.set(0,yc,0);gl.userData.glass={hp:2,w:w-.1,h:h-.1};gl.userData.home=g;g.add(gl);solids.push(gl);GLASS.push(gl);{const sy=YO+o.y0,hw=w/2-.05,dp=t/2+.3,vs=ax==='x'?surfRect(o.c-hw,o.c+hw,f-dp,f+dp,sy,{gl}):surfRect(f-dp,f+dp,o.c-hw,o.c+hw,sy,{gl});gl.userData.glass.vs=vs;gl.userData.glass.nv={ax,c:o.c,f,w,y:sy}}
 gb(g,w+.24,.05,.2,0,o.y0-.025,t/2+.07,stoneM,1.2);
 [-1,1].forEach(s=>{gb(g,.55,h+.08,.04,s*(w/2+.3),yc,t/2+.03,sm,1.1);gb(g,.5,.03,.05,s*(w/2+.3),yc+.35,t/2+.035,darkM);gb(g,.5,.03,.05,s*(w/2+.3),yc-.35,t/2+.035,darkM)})}};
 const doorD=(ax,f,c,out)=>{const g=grp(ax,f,c,out);gb(g,.1,2.36,t+.06,-.65,1.18,0,beamM,1.2);gb(g,.1,2.36,t+.06,.65,1.18,0,beamM,1.2);gb(g,1.4,.1,t+.06,0,2.37,0,beamM,1.2);
@@ -24,7 +24,7 @@ const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.09,2.
 const run=(ax,f,a,b,out,ops,ib)=>{ops.sort((p,q)=>p.c-q.c);let cur=a;
 const piece=(u0,u1,y0,y1,col)=>{if(u1-u0<.01||y1-y0<.01)return;const w=u1-u0,h=y1-y0,m=(u0+u1)/2,y=(y0+y1)/2;
 ax==='x'?blk(w,h,t,m,y,f,wm,{T:3,s:1,c:col}):blk(t,h,w,f,y,m,wm,{T:3,s:1,c:col});
-if(y0===0&&!ib&&!bun)ax==='x'?blk(w,.42,t+.1,m,.21,f,stoneM,{T:1.2}):blk(t+.1,.42,w,f,.21,m,stoneM,{T:1.2})};
+if(y0===0&&!ib&&!bun&&!YO)ax==='x'?blk(w,.42,t+.1,m,.21,f,stoneM,{T:1.2}):blk(t+.1,.42,w,f,.21,m,stoneM,{T:1.2})};
 ops.forEach(q=>{const l=q.c-q.w/2,r=q.c+q.w/2;piece(cur,l,0,H,1);if(q.door){piece(l,r,2.3,H,0);q.int?doorI(ax,f,q.c,out):(bun?doorB:doorD)(ax,f,q.c,out)}else{piece(l,r,0,q.y0,1);piece(l,r,q.y1,H,0);winD(ax,f,q,out)}cur=r});piece(cur,b,0,H,1)};
 const lat=dfx?cz:cx,dcF=(dfx?cx:cz)+fd*Dr/2,dcB=(dfx?cx:cz)-fd*Df/2,opp={N:'S',S:'N',E:'W',W:'E'}[side];
 const wn=q=>bun?{c:q,w:1.5,y0:1.55,y1:1.95,slit:1}:{c:q,w:1.1,y0:.95,y1:2.05};
@@ -42,13 +42,50 @@ const FL=bun?slabM:(lay===1||lay===3)?matTile:floorM,BFL=bun?slabM:[matTile,floo
 const fcx=cx+(dfx?fx:0)*Dr/2,fcz=cz+(dfx?0:fz)*Dr/2,bcx=cx-(dfx?fx:0)*Df/2,bcz=cz-(dfx?0:fz)*Df/2;
 {const bw=dfx?Dr-t:Lt-t,bd=dfx?Lt-t:Dr-t,T_=BFL===floorM?1.2:2,g=new THREE.PlaneGeometry(bw,bd);scaleUV(g,bw/T_,bd/T_);const m=new THREE.Mesh(g,BFL);m.rotation.x=-Math.PI/2;m.position.set(bcx,.022,bcz);m.receiveShadow=true;S.add(m)}
 ROOMS.push({x:fcx,z:fcz,hx:(dfx?Df:Lt)/2,hz:(dfx?Lt:Df)/2,bun},{x:bcx,z:bcz,hx:(dfx?Dr:Lt)/2,hz:(dfx?Lt:Dr)/2,bun});
-if(!bun){blk(W-t,.1,D-t,cx,H+.05,cz,furnM,{fit:1.2,s:1});for(let k=-1;k<2;k++)blk(.12,.14,D-t,cx+k*W*.27,H-.07,cz,beamM,{fit:1.2})}
+if(!bun&&!o.up){blk(W-t,.1,D-t,cx,H+.05,cz,furnM,{fit:1.2,s:1});for(let k=-1;k<2;k++)blk(.12,.14,D-t,cx+k*W*.27,H-.07,cz,beamM,{fit:1.2})}
+// ---- v6 : étage, escalier intérieur, toit plat accessible (o.up) ----
+const FT=H+.1,UDU=o.du!==undefined?o.du:FDU[o.fl!==undefined?o.fl:lay],si=UDU>0?-1:1,ci=-si,vB=-Df/2-Dr,vF=Df/2,vT=-Df/2+.2,RT=FT+H+.28;
+const L_=(u,v)=>[cx+u*ux+(v+OV)*fx,cz+u*uz+(v+OV)*fz],rW=(u0,u1,v0,v1)=>{const a=L_(u0,v0),b=L_(u1,v1);return[Math.min(a[0],b[0]),Math.max(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[1],b[1])]};
+const yawL=(du_,dv_)=>Math.atan2(du_*ux+dv_*fx,du_*uz+dv_*fz);
+const blkR=(r,y0,y1,m,q)=>{q=q||{};const w=Math.max(.04,r[1]-r[0]),d=Math.max(.04,r[3]-r[2]),e=new THREE.Mesh(new THREE.BoxGeometry(w,y1-y0,d),m);e.position.set((r[0]+r[1])/2,(y0+y1)/2,(r[2]+r[3])/2);if(q.T)wuv(e.geometry,e.position.x,e.position.y,e.position.z,q.T,q.T);e.castShadow=!q.ns;e.receiveShadow=true;S.add(e);if(q.s)solids.push(e);if(q.c)boxes.push({x0:r[0],x1:r[1],z0:r[2],z1:r[3],y0,y1});return e};
 // toit
 if(bun){const cm=concM2,py=H+.32+.25;blk(W+.5,.32,D+.5,cx,H+.16,cz,cm,{T:3,s:1});
 blk(W+.5,.5,.3,cx,py,z0-.1,cm,{T:3,s:1});blk(W+.5,.5,.3,cx,py,z1+.1,cm,{T:3,s:1});blk(.3,.5,D-.1,x0-.1,py,cz,cm,{T:3,s:1});blk(.3,.5,D-.1,x1+.1,py,cz,cm,{T:3,s:1});
 blk(.8,.5,.8,cx+W*.2,H+.57,cz-D*.15,darkM,{s:1});blk(.8,.06,.8,cx+W*.2,H+.85,cz-D*.15,steelM);
 const an=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,3.6,6),darkM);an.position.set(cx-W*.3,H+2.1,cz+D*.2);an.castShadow=true;S.add(an);
 const dsh=new THREE.Mesh(new THREE.SphereGeometry(.28,10,6,0,6.283,0,1.4),steelM);dsh.position.set(cx-W*.3,H+.5,cz+D*.2);dsh.castShadow=true;S.add(dsh);
+}
+else if(o.up){const ha=si>0?hu-1.1:-hu,hb=si>0?hu:-hu+1.1,U0=-Lt/2-t/2,U1=Lt/2+t/2,slab=(u0,u1,v0,v1)=>{if(u1-u0<.01||v1-v0<.01)return;const r=rW(u0,u1,v0,v1);blkR(r,FT-.3,FT,floorM,{T:1.2,s:1});surfRect(r[0],r[1],r[2],r[3],FT)};
+slab(U0,U1,-.2,vF+t/2);slab(U0,U1,vB-t/2,vT);if(si>0){slab(U0,ha,vT,-.2);slab(hu,U1,vT,-.2)}else{slab(hb,U1,vT,-.2);slab(U0,-hu,vT,-.2)}
+const uc=si*(hu-.55),sa=L_(uc,-.2),sb=L_(uc,vT);const sr=stairs(sa[0],sa[1],sb[0],sb[1],1,0,FT,furnM,{});
+// garde-corps du puits d'escalier
+{const ui=si>0?ha:hb,rail=(r)=>{blkR(r,FT+.92,FT+.98,steelM,{ns:1});boxes.push({x0:r[0]-.03,x1:r[1]+.03,z0:r[2]-.03,z1:r[3]+.03,y0:FT,y1:FT+1});};
+rail(rW(ui-.02,ui+.02,vT+.8,-.2));rail(rW(ha,hb,-.22,-.18));
+[[ui,vT+.8],[ui,-.2],[si>0?hb:ha,-.2],[ui,(vT+.8-.2)/2]].forEach(q=>{const r=rW(q[0]-.025,q[0]+.025,q[1]-.025,q[1]+.025);blkR(r,FT,FT+.95,steelM,{ns:1})})}
+// étage : murs, fenêtres
+YO=FT;const opsU=q=>q===side?[wn(lat-hu*.62),wn(lat+hu*.62)]:ops(q);
+run('x',z0,x0-t/2,x1+t/2,-1,opsU('N'));run('x',z1,x0-t/2,x1+t/2,1,opsU('S'));run('z',x0,z0+t/2,z1-t/2,-1,opsU('W'));run('z',x1,z0+t/2,z1-t/2,1,opsU('E'));YO=0;
+// toit plat + acrotère
+{const r=rW(U0-.2,U1+.2,vB-t/2-.2,vF+t/2+.2);blkR(r,RT-.28,RT,concM2,{T:3,s:1});surfRect(r[0],r[1],r[2],r[3],RT);
+const se=-si,ue=se*(Lt/2+t/2+.1+.55),vt2=vF-1.4,vs=vt2-6.6,ex0=L_(ue,vs),ex1=L_(ue,vt2),ax_=dfx;
+const sx=stairs(ex0[0],ex0[1],ex1[0],ex1[1],1.1,0,RT,concM2,{rail:ax_?se*uz:se*ux});
+const lr=rW(se>0?Lt/2:-Lt/2-1.45-t/2,se>0?Lt/2+1.45+t/2:-Lt/2,vt2,vt2+1.3);blkR(lr,RT-.2,RT,concM2,{T:3,s:1});surfRect(lr[0],lr[1],lr[2],lr[3],RT);
+const lo=se*(Lt/2+t/2+1.4);[[lo,vt2+.05],[lo,vt2+1.25]].forEach(q=>{const c=rW(q[0]-.08,q[0]+.08,q[1]-.08,q[1]+.08);blkR(c,0,RT-.2,concM2,{s:1,c:1})});
+const pr=(u0,u1,v0,v1,y=RT,h=.78)=>{const q=rW(u0,u1,v0,v1);blkR(q,y,y+h,concM2,{T:3,s:1,c:1})},pt=.22,PU=U1+.2,PV0=vB-t/2-.2,PV1=vF+t/2+.2;
+pr(-PU,PU,PV0,PV0+pt);pr(-PU,PU,PV1-pt,PV1);
+// côtés : ouverture côté escalier
+if(se>0){pr(-PU,-PU+pt,PV0,PV1);pr(PU-pt,PU,PV0,vt2-.1);pr(PU-pt,PU,vt2+1.4,PV1)}else{pr(PU-pt,PU,PV0,PV1);pr(-PU,-PU+pt,PV0,vt2-.1);pr(-PU,-PU+pt,vt2+1.4,PV1)}
+// garde-corps du palier
+{const fo=se>0?lo+.08:lo-.08;const q=rW(fo-.03,fo+.03,vt2,vt2+1.3);blkR(q,RT,RT+.95,steelM,{c:1,ns:1});const q2=rW(se>0?Lt/2:lo-.02,se>0?lo+.02:-Lt/2,vt2+1.3,vt2+1.34);blkR(q2,RT,RT+.95,steelM,{c:1,ns:1})}
+// mobilier de toit (couvert)
+const rc=(u,v,du_,dv_,hh,m)=>{const q=rW(u-du_/2,u+du_/2,v-dv_/2,v+dv_/2);blkR(q,RT,RT+hh,m,{T:1.2,s:1,c:1})};
+rc(-se*1.3,-2.3,1.3,.8,.9,steelM);rc(-se*1.5,.6,.9,.9,.6,slabM);rc(se*.4,-4.3,.7,.7,.5,surf(0x6a5a3c));
+{const tk=L_(-se*1.3,-4.6);const cy=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,1.1,14),steelM);cy.position.set(tk[0],RT+.55,tk[1]);cy.castShadow=true;S.add(cy);boxes.push({x0:tk[0]-.55,x1:tk[0]+.55,z0:tk[1]-.55,z1:tk[1]+.55,y0:RT,y1:RT+1.1});solids.push(cy)}
+// données pour l'IA
+const wp=(u,v)=>L_(u,v),pv=[],pr_=[];[[-.62*hu,vF-.5,0,1],[.62*hu,vF-.5,0,1],[0,vB+.5,0,-1],[hu-.5,0,1,0],[-hu+.5,0,-1,0],[hu-.5,-Df/2-Dr/2,1,0],[-hu+.5,-Df/2-Dr/2,-1,0]].forEach(q=>{if(si>0&&q[2]>0&&q[1]<0&&q[1]>vT-.5)return;if(si<0&&q[2]<0&&q[1]<0&&q[1]>vT-.5)return;const w_=wp(q[0],q[1]);pv.push([w_[0],w_[1],yawL(q[2],q[3]),q[1]>vT?1:0])});
+[[-hu+.6,vF-.3,0,1],[hu-.6,vF-.3,0,1],[-hu+.6,vB+.5,0,-1],[hu-.6,vB+.5,0,-1],[hu-.2,-1.5,1,0],[-hu+.2,-1.5,-1,0],[hu-.2,1,1,0],[-hu+.2,1,-1,0]].forEach(q=>{if((q[2]===se&&q[1]>vt2-1.2&&q[1]<vt2+1.8))return;const w_=wp(q[0],q[1]);pr_.push([w_[0],w_[1],yawL(q[2],q[3])])});
+const iF=L_(uc,.7),iA=sa,iB=sb,iL=L_(uc-si*1.0,vT+.3),rF=L_(ue,vs-.9),rL=L_(ue-se*1.2,vt2+.65);
+UPH.push({cx,cz,FT,RT,iF,iA,iB,iL:[iL[0],iL[1]],iM:L_(-si*.8,vT+.3),iN:L_(-si*.8,.3),posts:pv,rF,rA:ex0,rB:ex1,rL:[...L_(se*(Lt/2+.7),vt2+.65)],rM:L_(-se*.6,vt2+.65),roofPosts:pr_,rect:[x0,x1,z0,z1],hole:rW(ha,hb,vT,-.2),floor:rW(U0,U1,vB-t/2,vF+t/2)})}
 }
 else{const RW=dfx?W:D,RD=dfx?D:W,rot=!dfx;
 const oh=.5,og=.4,tn=.62,an=Math.atan(tn),b=RD/2+oh,yr=H+RD/2*tn,ye=H-oh*tn,sl=Math.hypot(b,yr-ye),rg=new THREE.Group();rg.position.set(cx,0,cz);rg.rotation.y=rot?Math.PI/2:0;S.add(rg);
@@ -61,9 +98,9 @@ const v=new THREE.Mesh(new THREE.BoxGeometry(.06,.4,.4),darkM);v.position.set(X+
 const F=(u,v,y,du,h,dv,m,q)=>{v+=OV;return blk(dfx?dv:du,h,dfx?du:dv,cx+u*ux+v*fx,y,cz+u*uz+v*fz,m,q)};
 const BO=(Df+Dr)/2,F2=(u,v,y,du,h,dv,m,q)=>F(u,v-BO,y,du,h,dv,m,q);
 const C_=(c,q)=>std(c,Object.assign({roughness:.8},q));
-const colF=(u,v,du,dv)=>{v+=OV;const X=cx+u*ux+v*fx,Z=cz+u*uz+v*fz,w=dfx?dv:du,d=dfx?du:dv;boxes.push({x0:X-w/2,x1:X+w/2,z0:Z-d/2,z1:Z+d/2})};
+const colF=(u,v,du,dv)=>{v+=OV;const X=cx+u*ux+v*fx,Z=cz+u*uz+v*fz,w=dfx?dv:du,d=dfx?du:dv;boxes.push({x0:X-w/2,x1:X+w/2,z0:Z-d/2,z1:Z+d/2,y0:YO,y1:YO+2.4})};
 const col2=(u,v,du,dv)=>colF(u,v-BO,du,dv);
-const cylF=(u,v,y,r,h,m,c)=>{v+=OV;const X=cx+u*ux+v*fx,Z=cz+u*uz+v*fz,e=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,16),m);e.position.set(X,y,Z);e.castShadow=e.receiveShadow=true;S.add(e);if(c){solids.push(e);boxes.push({x0:X-r,x1:X+r,z0:Z-r,z1:Z+r})}return e};
+const cylF=(u,v,y,r,h,m,c)=>{v+=OV;const X=cx+u*ux+v*fx,Z=cz+u*uz+v*fz,e=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,16),m);e.position.set(X,y,Z);e.castShadow=e.receiveShadow=true;S.add(e);if(c){solids.push(e);boxes.push({x0:X-r,x1:X+r,z0:Z-r,z1:Z+r,y0:YO,y1:YO+2.4})}return e};
 const table=(tu,tv,du,dv)=>{F(tu,tv,.74,du,.05,dv,furnM,{c:1,s:1,fit:1.2});[-1,1].forEach(a=>[-1,1].forEach(c=>F(tu+a*(du/2-.07),tv+c*(dv/2-.07),.36,.06,.72,.06,furnM)))};
 const chair=(u,v,s,au)=>{F(u,v,.45,.42,.04,.42,furnM,{fit:1.2});au?F(u+s*.19,v,.72,.04,.5,.42,furnM,{fit:1.2}):F(u,v+s*.19,.72,.42,.5,.04,furnM,{fit:1.2});[-.18,.18].forEach(a=>[-.18,.18].forEach(c=>F(u+a,v+c,.22,.04,.44,.04,furnM)))};
 const rug=(u,v,du,dv)=>{v+=OV;const m=new THREE.Mesh(new THREE.PlaneGeometry(dfx?dv:du,dfx?du:dv),new THREE.MeshStandardMaterial({map:rugT,color:st.w,roughness:1,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.rotation.x=-Math.PI/2;m.position.set(cx+u*ux+v*fx,.03,cz+u*uz+v*fz);m.receiveShadow=true;S.add(m)};
@@ -131,7 +168,11 @@ for(let k=-4;k<=0;k++)screen(k*.9-.2,-hf+.1,1.7,.7,.12);F(-hu+.3,.3,.95,.4,1.9,1
 // 9 — bunker d'apparition : armurerie + établi central
 ()=>{for(let k=0;k<5;k++)locker(-hu+.35+k*.55,-hf+.3,1);[-1,1].forEach(s=>{F(s*(hu-.2),.3,1,.3,2,3.2,stM,{c:1,s:1});for(let k=0;k<5;k++){const gz=-1.1+k*.6+.3;F(s*(hu-.4),gz,1.15,.1,.1,.55,darkM);F(s*(hu-.4),gz,1.15,.06,.06,.2,C_(0x6a4a2c,{roughness:.7}))}});
 table(-2.6,.9,2.4,1.1);F(-2.6,.9,.78,2.3,.012,1,mapM,{ns:1});colF(-2.6,.9,2.4,1.1);chair(-2.6,1.8,1);chair(-3.5,.9,1,1);chair(-1.7,.9,-1,1);crate(hu-1.2,hf-.8,.6);crate(-hu+1.2,hf-.8,.6);crate(hu-1.2,hf-1.45,.5);F(2.6,.5,.4,.6,.8,.6,redM,{c:1,s:1});rug(0,-.2,3.4,2.2)}
-][o.fl!==undefined?o.fl:lay]();
+
+,()=>{table(ci*.9,.7,1.4,.8);chair(ci*.9,1.45,1);chair(ci*.9,-.05,-1);rug(ci*.9,.7,2.4,1.8);F(ci*(hu-.3),1.9,.9,.4,1.8,1.2,furnM,{c:1,s:1,fit:1.2});
+YO=FT;F(ci*(hu-.55),-hf+1.1,.18,1,.36,2,beamM,{c:1,s:1,fit:1.2});F(ci*(hu-.55),-hf+1.1,.44,.92,.16,1.9,clothM);F(ci*(hu-.55),-hf+.4,.56,.6,.1,.35,C_(0xffffff,{roughness:1}));
+table(ci*.5,1.5,1.3,.75);chair(ci*.5,2.2,1);crate(ci*1.7,2.2,.7);crate(0,vB+1.0-OV,.9);crate(.9,vB+1.0-OV,.6);crate(-.8,vB+.9-OV,.7);crate(ci*.2,-1.8,.6);YO=0}
+][o.up?4:(o.fl!==undefined?o.fl:lay)]();
 // pièce arrière (u latéral, v<0 vers le fond ; hb = demi-profondeur)
 [
 // 0 — salle de bain
@@ -166,4 +207,4 @@ const lampAt=(X,Z)=>{const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),l
 if(bun){const sh=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.2,8,1,true),darkM);sh.position.set(X,H-.6,Z);S.add(sh)}else{const sh=new THREE.Mesh(new THREE.ConeGeometry(.24,.2,14,1,true),std(st.s,{roughness:.8,side:THREE.DoubleSide}));sh.position.set(X,H-.52,Z);S.add(sh)}
 const c=new THREE.Mesh(new THREE.BoxGeometry(.015,.5,.015),darkM);c.position.set(X,H-.3,Z);S.add(c)};
 lampAt(fcx,fcz);lampAt(bcx,bcz);
-HS.push([x0-.6,z0-.6,x1+.6,z1+.6])}
+HS.push(o.up?[x0-2.6,z0-2.6,x1+2.6,z1+2.6]:[x0-.6,z0-.6,x1+.6,z1+.6])}

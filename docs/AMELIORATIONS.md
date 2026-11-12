@@ -1,5 +1,39 @@
 # MILSIM FPS — Changements et feuille de route
 
+## Ce qui a été changé (v6)
+
+**Étages, escaliers, toits, fenêtres**
+- 4 maisons sur 8 ont un étage : (16,5 ; 3,5), (-16,5 ; -12), (-48 ; 38), (50 ; -10). Escalier intérieur dans la pièce principale, trémie avec garde-corps, étage avec 2 fenêtres par côté et mobilier.
+- Toit plat avec parapet et abris (caisses, citerne), accessible par un escalier extérieur (30 marches, palier, ouverture dans le parapet). Les maisons de plain-pied n'ont pas de toit accessible.
+- Hauteur du sol par surface (`groundAt`) : marches, étage et toit sont marchables pour le joueur, les bots et les grenades. Collisions des murs et meubles limitées à leur hauteur.
+- Vitres brisées : passage utilisable. Joueur : Espace près d'une fenêtre cassée pour enjamber (position accroupie sur le rebord). Bots : ils franchissent la fenêtre ; la grille de navigation est recalculée quand une vitre éclate ou se répare.
+- Chute : dégâts au-delà de 9 m/s de vitesse verticale.
+
+**Postures du joueur**
+- Ctrl : debout → accroupi → couché → debout. P : couché / debout. Espace : saut, se relever, enjamber.
+- Hauteur des yeux 1,7 / 1,1 / 0,5 m ; vitesse ×1 / ×0,5 / ×0,2 ; pas de sprint hors position debout. Les bots visent la hauteur réelle du corps.
+
+**Sons spatialisés**
+- Panoramique HRTF selon la direction, atténuation par la distance et absorption de l'air.
+- Réverbération de maison et de bunker, écho en extérieur ; sons étouffés derrière les murs (lancer de rayon, budget limité par image).
+- Pas selon le sol (terre, herbe, béton, bois, eau, métal, gravier) ; coups de feu différents par arme ; portes, verre et grenades positionnés.
+- Pluie : bruit extérieur, crépitement sur le toit au-dessus de la tête, grondement sourd dans le bunker.
+- Les pas du joueur sont entendus par les bots : rayon 13 m en sprint, 7 m en marche, 2,8 m accroupi, 1,1 m couché.
+
+**Bots**
+- Visages : yeux qui clignent, sourcils (froncés en visée), bouche (s'ouvre au tir ou au choc), oreilles ; peinture de camouflage pour le tireur d'élite ; visage masqué pour le Mastodonte, lunettes relevées pour le Soldat.
+- Mains : 4 doigts à 3 phalanges et pouce, qui se referment sur l'arme.
+- 7 morts : en arrière, en avant, à genoux, pirouette, tir à la tête, assis contre le mur, projeté par une explosion.
+- L'arme tombe au sol (rebonds avec sons, repos, 14 armes au maximum, disparition après 22 s).
+- Les bots occupent les étages et les toits (tireurs d'élite en priorité), y restent postés et redescendent s'ils sont blessés ou inactifs.
+
+**Limites connues (v6)**
+- Non testé sur un vrai GPU ni à l'oreille : le son n'a été vérifié que sans erreur, pas écouté. Les images par seconde réelles et l'équilibrage restent à vérifier en jouant.
+- Poses de mort vérifiées sur une planche fixe, pas en combat. Doigts et pouce vérifiés grossièrement.
+- Bots qui franchissent des fenêtres brisées : non simulé en test dédié.
+- Le joueur à l'étage ignore les portes du rez-de-chaussée.
+- L'escalier du toit est à l'extérieur ; une version intérieure par trappe est possible.
+
 ## Ce qui a été changé (v5)
 
 **IA des bots**
@@ -155,17 +189,15 @@
 - Suppression d'un script externe inconnu (cdn.discordapp.com) présent dans l'en-tête du fichier.
 
 ## Pistes d'amélioration (par ordre de valeur)
-1. Équilibrage après essai réel : précision, portée et nombre de bots, fréquence des grenades.
-2. Sons spatialisés (stéréo selon la direction, échos dans les maisons, pas selon le sol, pluie sur les toits).
-3. Escaliers, étages, toits accessibles ; fenêtres brisées utilisables comme passage (joueur et bots).
-4. Modes de jeu : points de contrôle, vagues, objectifs ; écran de fin de partie.
-5. IA en escouade : rôles coordonnés, tir de suppression, bots qui se soignent ou se replient ensemble.
-6. Bots : visages, doigts, animations de mort variées, arme qui tombe au sol.
-7. Animaux touchables, pont sur le ruisseau, rivière qui traverse la carte.
-8. Ombres en cascade, LOD des arbres, herbe générée autour du joueur seulement.
+1. Équilibrage après essai réel : précision, portée et nombre de bots, fréquence des grenades, postes en hauteur.
+2. Modes de jeu : points de contrôle, vagues, objectifs ; écran de fin de partie.
+3. IA en escouade : rôles coordonnés, tir de suppression, bots qui se soignent ou se replient ensemble.
+4. Escalier du toit à l'intérieur (trappe), portes de l'étage, plus d'étages et de toits accessibles.
+5. Animaux touchables, pont sur le ruisseau, rivière qui traverse la carte.
+6. Ombres en cascade, LOD des arbres, herbe générée autour du joueur seulement.
 
 ## À faire à chaque nouvelle version (checklist)
-1. Garder une copie de la version précédente (nom versionné : MILSIM_FPS_v5.html).
+1. Garder une copie de la version précédente (nom versionné : MILSIM_FPS_v6.html).
 2. Appliquer les changements sur la copie, jamais sur l'original.
 3. Ouvrir la console du navigateur : zéro erreur rouge.
 4. Test visuel : vue d'ensemble de la carte, extérieur et intérieur d'un bâtiment, nuit, pluie, étang, un ennemi de près, un tir, une grenade de chaque type, l'AC-130.
