@@ -60,7 +60,8 @@ mound=(x,z,cx,cz,r,h)=>h*Math.exp(-((x-cx)*(x-cx)+(z-cz)*(z-cz))/(r*r)),
 rel=(x,z)=>{const w=fb(x*.6+40,z*.6-20)*7,e=fb(x+w,z+w*.6),r=1-Math.abs(fb(x*1.3+90,z*1.3+10)*1.6);return 5.4*e+.8*Math.max(0,r-.55)*2.2+mound(x,z,-8,14,5,1.1)+mound(x,z,50,-30,14,3.6)+mound(x,z,-52,10,12,3.2)+mound(x,z,20,-48,10,2.6)+mound(x,z,-30,50,11,2.8)+mound(x,z,40,40,9,-1.6)+mound(x,z,-110,-92,18,4.6)+mound(x,z,100,-112,20,5.2)+mound(x,z,-122,100,16,4)+mound(x,z,118,122,18,4.4)+mound(x,z,5,-122,22,5.2)+mound(x,z,-8,128,20,4.6)+mound(x,z,-136,0,16,4)+mound(x,z,138,12,18,4.4)+mound(x,z,-70,-130,12,3)+mound(x,z,75,60,10,2.4)+mound(x,z,-95,60,12,2.8)+mound(x,z,70,-75,12,3)};
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;let d=99;
 for(const r of obs){const dx=Math.max(r[0]-x,0,x-r[2]),dz=Math.max(r[1]-z,0,z-r[3]),q=dx*dx+dz*dz;if(q<d*d)d=Math.sqrt(q)}
-const m=sstep(.3,2.2,d)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),Math.abs(z)));GHg[j*GN+i]=rel(x,z)*m*(.2+.8*sstep(5,36,wDist(x,z)))}
+let dh=99;for(const r of HS){const dx=Math.max(r[0]-x,0,x-r[2]),dz=Math.max(r[1]-z,0,z-r[3]),q=dx*dx+dz*dz;if(q<dh*dh)dh=Math.sqrt(q)}
+const m=sstep(.3,2.2,d)*sstep(1.2,15,dh)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),Math.abs(z)));GHg[j*GN+i]=rel(x,z)*m*(.2+.8*sstep(5,36,wDist(x,z)))}
 {let mn=9;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(wDist(x,z))<1.2)mn=Math.min(mn,GHg[j*GN+i])}WL=mn-.12;
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,w=wDist(x,z);if(w>9)continue;const k=j*GN+i,h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
 for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(x-b.x)<=1.5&&Math.abs(z-b.z)<=b.hl+.6)GHg[j*GN+i]=b.y}}}

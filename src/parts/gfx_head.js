@@ -22,7 +22,7 @@ c=mix(c,uHor*.7,1.-smoothstep(-.25,0.,y));
 float cl=0.;
 if(y>0.){vec2 p=d.xz/(y+.18)*1.3+vec2(uT*.012,uT*.005);cl=smoothstep(.62-.42*uCov,.88-.38*uCov,fbm(p))*smoothstep(0.,.22,y);}
 float up=smoothstep(-.04,.04,y);
-float star=step(.9935,h21(floor(d.xz/(abs(y)+.35)*80.)))*smoothstep(.04,.3,y)*uStar*(.6+.4*sin(uT*3.+h21(floor(d.xz*60.))*40.))*(1.-cl);
+vec2 sq=d.xz/(abs(y)+.35)*110.;float star=step(.991,h21(floor(sq)))*smoothstep(.3,.08,length(fract(sq)-.5))*smoothstep(.04,.3,y)*uStar*(.6+.4*sin(uT*3.+h21(floor(d.xz*60.))*40.))*(1.-cl);
 c+=vec3(.85,.9,1.)*star;
 float s=max(dot(d,uSunD),0.);
 c+=uSunC*(.2*pow(s,6.)+.55*pow(s,90.)+3.*smoothstep(.9992,.9998,s)*up)*(1.-.85*uCov);

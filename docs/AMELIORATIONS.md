@@ -1,5 +1,14 @@
 # MILSIM FPS — Changements et feuille de route
 
+## Ce qui a été changé (v9, partiel)
+
+- **Bruitages refaits** (`audio3d.js`) : `snd()`/`sndAt()` synthétisent selon le type (clic mécanique, tintement métallique, choc/explosion, souffle, signal) au lieu d'un oscillateur brut ; tir du joueur par arme (claquement, corps, coup sourd, mécanique, queue réverbérée, version silencieux) ; explosion de grenade (détonation, souffle, grondement, débris) ; tirs des bots enrichis.
+- **Carte** : pente douce sur 15 m autour des maisons (plus de fosses à pentes en escalier) ; arbres lointains en cartes de feuillage (plus de gros cônes), distance de détail adaptée au zoom ; étoiles rondes.
+- **Buissons** : texture dédiée (tiges, feuilles nervurées par paires, baies), modèle en gerbe partant du pied.
+
+Reste à faire : modèles et textures des armes (`src/parts/wtex.js` est prêt mais pas encore branché), modèles de grenades et animation de lancer.
+Non vérifié : les sons n'ont pas été écoutés (seulement exécutés sans erreur), performances sur GPU réelle.
+
 ## Ce qui a été changé (v8)
 
 - **Arbres et buissons refaits** : pins en étages de rameaux alpha, feuillus en amas de feuilles, buissons en dôme de cartes. Feuillage transparent (les feuilles découpent la silhouette, y compris dans les ombres) et animé par le vent (balancement + frémissement des feuilles). Deux niveaux de détail (cartes près, volumes simples loin), troncs instanciés (beaucoup moins d'objets à dessiner).

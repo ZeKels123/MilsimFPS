@@ -140,6 +140,9 @@ rep("C.rotation.set(P.pitch,P.yaw,-P.lean*.3)}","C.rotation.set(P.pitch,P.yaw,-P
 assert s.count("const s=C.fov/75*.0022;")==2;s=s.replace("const s=C.fov/75*.0022;","const s=C.fov/75*.0022*SENS;")
 # 12. v8 : animaux touchables
 rep("const h=castShot(o,d);if(n<3)tracer(MZ,h?h.point:_p2.copy(o).addScaledVector(d,60));","const h=castShot(o,d);if(n<3)tracer(MZ,h?h.point:_p2.copy(o).addScaledVector(d,60));if(h&&h.object.userData.an){if(faHit(h.object.userData.an,h.point,c.dmg)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}else if(faShotBirds(o,d,h?h.distance:80,c.dmg)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}")
+# 13. v9 : bruitages
+rep("let AC;function snd(f,d,v,type){try{","let AC;function snd(f,d,v,type){if(typeof sfx==='function'){sfx(f,d,v,type);return}try{")
+rep("{const s=c.snd;snd(s[0]*(A.supp?.6:1),s[1],s[2]*(A.supp?.35:1))}","sfxGun(WSEL,A.supp);")
 # 11. v7 : sante par zone
 rep("function hurtP(d){if(ac.on)return;","function hurtP(d){if(ac.on)return;hlHurt(d);return;")
 rep("P.hp=Math.min(100,P.hp+(head?15:10));snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350);","hlKill(head);")
