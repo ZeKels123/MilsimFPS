@@ -263,3 +263,4 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - **IA** : un bot sur cinq est « génie » et pose des pièges ; les bots repèrent ceux du joueur (savoir partagé dans l'escouade), les évitent ou les désamorcent.
 - **Indices naturels** : 260 branches qui craquent sous les pas (son spatial 3D, bruit qui alerte bots et animaux, plus discret accroupi) ; les oiseaux qui s'envolent devant un bot s'entendent en 3D.
 - Correctifs : grésillement constant (le crépitement de la pluie était modulé même par temps clair : sa profondeur suit maintenant le volume de pluie ; sons de branches et d'oiseaux aussi limités en fréquence), caméra libre qui tournait quand l'inventaire était ouvert, indicateur à l'écran remplacé par un son spatial.
+- **F8** : désactive / réactive tous les ennemis (test et exploration). **F9** : panneau de diagnostic audio.

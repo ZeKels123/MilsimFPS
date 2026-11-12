@@ -35,7 +35,7 @@ addEventListener('keydown',e=>{if(e.repeat||bench||ac.on||$('ov').style.display!
 if(e.code==='KeyB'){e.preventDefault();trapCycle()}
 else if(e.code==='Digit9'||e.code==='Numpad9'){const mine=TRP.list.filter(t=>t.ty==='xc'&&t.owner==='p'&&t.arm<=0);if(!mine.length)hlMsg('Aucune mine directionnelle posée');else{hlMsg('Détonation à distance');mine.forEach(trapClaymore)}}
 else if(e.code==='KeyF'&&!TRP.dis){const t=trapNear();if(t)TRP.dis={t,p:0}}},true);
-function trapUpdate(dt){if(P.gy===undefined||HM.z.t===undefined||HM.dead)return;
+function trapUpdate(dt){enmTick();if(P.gy===undefined||HM.z.t===undefined||HM.dead)return;
 if(TRP.snare>0)TRP.snare-=dt;
 const det=trapDetR();for(const t of TRP.list){const d=Math.hypot(t.x-P.x,t.z-P.z);t.m.visible=t.owner==='p'||d<det||t.arm>0&&t.owner==='p'}
 // pose
@@ -90,3 +90,8 @@ if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90)continue;for(const w of wk){if(Mat
 // oiseaux effrayés par un bot
 FA.birds.forEach((q,i)=>{const was=BRN.prev[i];BRN.prev[i]=q.st;if(was===1&&q.st===0&&!q.dead&&q.perch){const d=Math.hypot(q.perch.x-P.x,q.perch.z-P.z);if(d>8&&d<80){wingSnd(q.perch.x,q.perch.y||8,q.perch.z)}}})}
 if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='none'}else{const dx=c.x-P.x,dz=c.z-P.z,fa=dx*-Math.sin(P.yaw)+dz*-Math.cos(P.yaw),ra=dx*Math.cos(P.yaw)+dz*-Math.sin(P.yaw),ang=Math.atan2(ra,fa)*57.3;bce.style.display='block';bce.style.opacity=Math.min(1,c.t);bce.innerHTML='<span style="display:inline-block;transform:rotate('+ang.toFixed(0)+'deg);font-size:20px">▲</span><br>'+c.txt+' · '+Math.round(Math.hypot(dx,dz))+' m'}}}
+
+// ---------- F8 : désactiver / réactiver les ennemis (test, exploration) ----------
+const ENM={off:0};
+addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();ENM.off=!ENM.off;if(!ENM.off)bots.forEach(b=>{if(b.dead>50)b.dead=.3});hlMsg(ENM.off?'Ennemis désactivés (F8 pour les réactiver)':'Ennemis réactivés')}});
+function enmTick(){if(!ENM.off)return;for(const b of bots){b.dead=99;b.g.visible=false}}

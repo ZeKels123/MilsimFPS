@@ -160,6 +160,7 @@ rep('<tr><td>ZQSD / WASD</td>','<tr><td>Tab</td><td>Sac \u00e0 dos \u00b7 V : je
 rep("P.deaths++;","P.deaths++;invDeath();")
 rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode)return;if(ammo<=0)")
 rep("<tr><td>Tab</td>","<tr><td>B</td><td>Poser un piège (clic maintenu) · 9 : télécommande · F maintenu : désamorcer</td></tr><tr><td>Tab</td>")
+rep("<tr><td>B</td><td>Poser","<tr><td>F8</td><td>Activer / d\u00e9sactiver les ennemis (test)</td></tr><tr><td>B</td><td>Poser")
 open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
 open(P+'../index.html','w',encoding='utf-8').write(s)
 print('ok',len(s))
