@@ -1,20 +1,31 @@
 # Modifications de la carte (v12)
 
-Rappel des changements de la carte, avec la photo de dessus `captures/v12/carte_dessus.png`.
+Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trait blanc = route nord-sud).
 
-| Avant | Après |
-|---|---|
-| 300 × 300 m (MH 150) | **700 × 700 m (MH 350)** |
-| 25 bâtiments environ (maisons + 2 bunkers) | **100 bâtiments** : les mêmes + environ 75 maisons isolées et petits hameaux dans l'anneau extérieur (au-delà de 150 m du centre) |
-| Végétation : 560 pins, 190 arbres, 520 buissons | 1800 pins, 620 arbres, 1700 buissons (densité plus faible sur la surface) |
+| | Avant | Après |
+|---|---|---|
+| Taille | 300 × 300 m | **1500 × 1500 m** |
+| Bâtiments | environ 25 | **108 hors ville** + 1 ville de 250 × 250 m |
+| Rivières | s'arrêtaient à ±150 m | prolongées jusqu'au bord de la carte |
+| Ponts | 3 | 4 (nouveau pont sur la route nord-sud, vers x = 224, z = −20) |
+| Végétation | 560 pins, 190 arbres, 520 buissons | 5400 pins, 1860 arbres, 5100 buissons (esprit campagne : beaucoup de prairie) |
 
-## Détails
-- Les nouvelles maisons reprennent les 4 modèles existants (avec ou sans étage), orientées au hasard, et sont reliées au réseau de sentiers existant.
-- Les rivières, la mare, les 3 ponts et le bunker de départ n'ont pas bougé : ils restent au centre.
-- Les zones où passent les rivières près du bord sont évitées pour les nouvelles maisons.
-- Les ponts ont désormais des rampes à leurs extrémités et plus d'herbe sur le tablier.
+## La ville (x 100..348, z −348..−100)
+- Plateforme plane (le relief est aplani autour), grille de 4 × 4 îlots séparés par 3 rues nord-sud et 3 rues est-ouest ; deux avenues de 14 m se croisent au centre (224, −224).
+- Îlots : immeubles d'habitation (5-6 étages), tours de bureaux (7-9 étages) au centre, hôtels, commerces (2-3 étages), restaurants, et un parc avec fontaine, bancs et arbres.
+- Rez-de-chaussée accessible (porte côté rue, porte arrière, vitrines vitrées pour commerces/restaurants) avec mobilier : étagères (commerces), tables et chaises (restaurants), bureaux et canapés (autres). Les étages et le toit ne sont pas accessibles.
+- Voitures garées, lampadaires le long des avenues. Les bots ont des points de patrouille dans la ville.
+
+## Route nord-sud
+- Bande d'asphalte de 8 m à x = 224, de la ville jusqu'aux deux bords de la carte, qui suit le terrain. Pas de maisons posées sur son tracé.
+
+## Villages de campagne
+- Maisons isolées et petits groupes de 1-2 maisons tous les ~120 m environ, reliées aux sentiers, en évitant les rivières, la route et la ville.
+
+## Changements techniques
+- Grille du relief plafonnée à 1000 × 1000 (relief un peu plus grossier, environ 1,5 m par case) ; grille de navigation des bots à 0,75 m ; texture du sol et plan lointain adaptés à la nouvelle taille.
 
 ## Points à surveiller
-- Le temps de chargement est plus long (grille de navigation 1400 × 1400, relief 681 × 681).
-- La forêt dense reste concentrée autour du centre : l'anneau extérieur est surtout de la prairie avec des maisons.
-- Les bots, les caisses de butin et les points d'intérêt de l'IA sont encore concentrés vers le centre.
+- Chargement long (environ 2 min 30 dans mon environnement de test sans carte graphique ; probablement plus court chez toi, non mesuré).
+- Le jeu est surtout testé sur la zone centrale ; je n'ai pas parcouru la ville à pied ni la route.
+- Les bots, le butin et les points d'intérêt restent concentrés vers le centre, hors points ajoutés dans la ville.

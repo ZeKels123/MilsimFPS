@@ -40,13 +40,13 @@ vec2 dp=mvPosition.xz-uWp;float pd=length(dp);mvPosition.xz+=dp/max(pd,.05)*(1.-
 #endif
 mvPosition=modelViewMatrix*mvPosition;gl_Position=projectionMatrix*mvPosition;`)};return m}
 // ================= RELIEF JOUABLE (v4) : GH(x,z) est utilisée par le joueur, les bots, les tirs et les props =================
-const AR=MH,GN=2*MH-19,GSP=2*AR/(GN-1),GHg=new Float32Array(GN*GN);
+const AR=MH,GN=Math.min(2*MH-19,1000),GSP=2*AR/(GN-1),GHg=new Float32Array(GN*GN);
 function GH(x,z){if(x<=-AR||x>=AR||z<=-AR||z>=AR)return 0;const fx=(x+AR)/GSP,fz=(z+AR)/GSP,i=Math.min(GN-2,fx|0),j=Math.min(GN-2,fz|0),a=fx-i,b=fz-j,k=j*GN+i;return(GHg[k]*(1-a)+GHg[k+1]*a)*(1-b)+(GHg[k+GN]*(1-a)+GHg[k+GN+1]*a)*b}
 // eau (v5) : étang + ruisseau à niveau constant WL ; wDist = distance signée à l'eau (<0 dedans)
 const POND={x:40,z:40,rx:10,rz:6.8,rot:.5},BROOK=[[12,61],[17,56.5],[23,56],[27.5,51],[32,46.5],[35,43.5]],
 // v8 : rivière d'un bord à l'autre (amont rejoint le ruisseau, aval part de l'étang) et 3 ponts orientés nord-sud
-RIVER=[[[-150,102],[-122,93],[-92,87],[-62,80],[-36,73],[-12,67],[12,61]],[[40,40],[58,33],[76,22],[96,10],[122,-2],[150,-10]]],
-BRG=[{x:-36,z:73,hl:6.4},{x:25.2,z:53.5,hl:5.4},{x:96,z:10,hl:6.4}],RPTS=[];RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++){const p=rv[i],q=rv[i+1],n=Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1])/4);for(let k=0;k<n;k++)RPTS.push([p[0]+(q[0]-p[0])*k/n,p[1]+(q[1]-p[1])*k/n])}});let WL=0;
+RIVER=[[[-750,150],[-500,130],[-300,115],[-150,102],[-122,93],[-92,87],[-62,80],[-36,73],[-12,67],[12,61]],[[40,40],[58,33],[76,22],[96,10],[122,-2],[150,-10],[300,-30],[500,-50],[750,-60]]],
+BRG=[{x:-36,z:73,hl:6.4},{x:25.2,z:53.5,hl:5.4},{x:96,z:10,hl:6.4},{x:224,z:-20,hl:7}],RPTS=[];RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++){const p=rv[i],q=rv[i+1],n=Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1])/4);for(let k=0;k<n;k++)RPTS.push([p[0]+(q[0]-p[0])*k/n,p[1]+(q[1]-p[1])*k/n])}});let WL=0;
 function wDist(x,z){const c=Math.cos(POND.rot),s=Math.sin(POND.rot),dx=x-POND.x,dz=z-POND.z,u=(dx*c+dz*s)/POND.rx,v=(-dx*s+dz*c)/POND.rz,a=Math.atan2(v,u);
 let d=(Math.hypot(u,v)-(1+.13*Math.sin(a*3+1)+.07*Math.sin(a*5+.4)))*POND.rz;
 for(let i=0;i<BROOK.length-1;i++){const p=BROOK[i],q=BROOK[i+1],ex=q[0]-p[0],ez=q[1]-p[1],t=Math.max(0,Math.min(1,((x-p[0])*ex+(z-p[1])*ez)/(ex*ex+ez*ez))),l=Math.hypot(p[0]+ex*t-x,p[1]+ez*t-z)-(1.15+.3*Math.sin(i*2.1+t*3));if(l<d)d=l}
@@ -65,9 +65,13 @@ const m=sstep(.3,2.2,d)*sstep(1.2,15,dh)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),M
 {let mn=9;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(wDist(x,z))<1.2)mn=Math.min(mn,GHg[j*GN+i])}WL=mn-.12;
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,w=wDist(x,z);if(w>9)continue;const k=j*GN+i,h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
 for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;const dz=Math.abs(z-b.z)-b.hl;if(Math.abs(x-b.x)<=1.9&&dz<=.9)GHg[j*GN+i]=b.y;else if(Math.abs(x-b.x)<=3.4&&dz<=4.2&&dz>.9){const t=sstep(.9,4.2,dz),q=Math.abs(x-b.x)<=1.9?1:1-sstep(1.9,3.4,Math.abs(x-b.x));GHg[j*GN+i]=GHg[j*GN+i]+(Math.max(GHg[j*GN+i],b.y)-GHg[j*GN+i])*(1-t)*q}}}}
+// v12 : plateforme plane pour la ville (coin nord-est, 250 x 250 m)
+window.CITYH=1;{const q0=100,q1=348,r0=-348,r1=-100,bl=26;let sm=0,n=0;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(x>=q0&&x<=q1&&z>=r0&&z<=r1){sm+=GHg[j*GN+i];n++}}
+CITYH=0;
+for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,d=Math.max(q0-x,x-q1,r0-z,z-r1);if(d<bl){const t=d<=0?1:1-sstep(0,bl,d),k=j*GN+i;GHg[k]+=(CITYH-GHg[k])*t}}}
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
-scaleUV(g,25,25);g.computeVertexNormals();const nn=g.attributes.normal;
+scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.normal;
 for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),h=p.getZ(i),sl=1-nn.getZ(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2),k=1+.09*Math.max(-1,Math.min(1.5,h)),
 d=sstep(.03,.16,sl)*.8+sstep(.5,1.6,h)*.25*(1-sstep(.1,.2,sl))+(nz(X*.15,Y*.15)-.5)*.35-.14,dr=Math.max(0,Math.min(1,d));
 const wv=wDist(X,-Y),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1;c[i*3]=(((.8+.22*n)*.8*(1-dr)+.9*dr)*k*(1-mu)+.62*mu)*ku;c[i*3+1]=(((.84+.16*n)*1.05*(1-dr)+.74*dr)*k*(1-mu)+.55*mu)*ku;c[i*3+2]=(((.74+.2*n)*.74*(1-dr)+.6*dr)*k*(1-mu)+.42*mu)*ku}

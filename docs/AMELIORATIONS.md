@@ -283,3 +283,4 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Mains : nouveau modèle (paume, 4 doigts à 3 phalanges, pouce, ongles, poignet, manchette).
 - Couteau de combat : touche Z, clic gauche = taillade, clic droit = estoc ; attaque par derrière sur un bot qui ne vous voit pas = mort silencieuse.
 - Lumière/ombre : voir plus haut.
+- Carte 1500 × 1500 m, ville de 250 × 250 m (immeubles, bureaux, commerces, restaurants, parc, voitures) et route nord-sud : voir `docs/MODIFICATIONS_CARTE.md`.

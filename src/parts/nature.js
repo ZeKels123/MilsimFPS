@@ -56,8 +56,8 @@ const fm=(t,k,o)=>{const m=std(0xffffff,Object.assign({map:t,alphaTest:.42,rough
 const fd=(t,k)=>{const m=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.42});windify(m,k);return m};
 const mf=std(0xffffff,{roughness:1,envMapIntensity:.4}),FAR_=(k)=>windify(mf.clone(),k);
 const tk=new THREE.CylinderGeometry(.16,.3,3,6),tkm=std(0x4a3a2a,{roughness:1});
-const TR=[],NP=1800,NO=620,NBU=1700;let np=0,no=0,t=0;
-while((np<NP||no<NO)&&t++<26000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
+const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;
+while((np<NP||no<NO)&&t++<120000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
 TR.forEach(q=>{const sc=q.ty?q.s*1.15:q.s,hh=q.ty?1.1:1,m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;S.add(m);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});
 const tki=new THREE.InstancedMesh(new THREE.CylinderGeometry(.14,.3,1,6),std(0x4a3a2a,{roughness:1,envMapIntensity:.3}),TR.length),oo=new THREE.Object3D();
@@ -65,7 +65,7 @@ TR.forEach((q,i)=>{const hh=q.ty?4.6:6.4,sc=q.ty?q.s*1.1:q.s*.9;oo.position.set(
 // --- LOD : listes d'instances reconstruites quand le joueur bouge
 function lodSet(geoN,matN,geoF,matF,dN,cap,wkd,wkf){const a=new THREE.InstancedMesh(geoN,matN,cap),b=new THREE.InstancedMesh(geoF,matF,cap);[a,b].forEach(m=>m.setColorAt(0,new THREE.Color(1,1,1)));a.count=b.count=0;[a,b].forEach(m=>{m.castShadow=m.receiveShadow=true;m.frustumCulled=false;S.add(m)});if(wkd)a.customDepthMaterial=wkd;if(wkf)b.customDepthMaterial=wkf;return{a,b,dN,cap}}
 const LP=lodSet(GPN,fm(pineT,6),GPF,fm(pineT,6),64,NP,fd(pineT,6),fd(pineT,6)),LB=lodSet(GBN,fm(leafT,7),GBF,fm(leafT,7),64,NO,fd(leafT,7),fd(leafT,7));
-const BU=[];t=0;while(BU.length<NBU&&t++<40000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2)||(Math.abs(x)<9&&z>16))continue;BU.push({x,z,y:GH(x,z),s:rnd(.8,1.7),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)})}
+const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2)||(Math.abs(x)<9&&z>16))continue;BU.push({x,z,y:GH(x,z),s:rnd(.8,1.7),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)})}
 const LS=lodSet(GSN,fm(bushT,8),GSF,fm(bushT,8),38,NBU,fd(bushT,8),fd(bushT,8));
 const col=new THREE.Color(),M4=new THREE.Matrix4(),SM=new THREE.Matrix4();let last={x:1e9,z:1e9,t:0};
 function put(L,q,hue,near,idx){const m=near?L.a:L.b;oo.position.set(q.x,q.y,q.z);oo.rotation.set(0,q.r,0);oo.scale.set(q.s,q.s*(q.sc||1),q.s);oo.updateMatrix();m.setMatrixAt(idx,oo.matrix);

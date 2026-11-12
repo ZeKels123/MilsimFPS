@@ -121,5 +121,5 @@ const floor=new THREE.Mesh(fg,pm(T_grd,0xffffff,{roughness:1,vertexColors:true})
 let NOL=false;
 const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
 function terrainH(x,z){const d=Math.max(Math.abs(x),Math.abs(z)),k=sstep(95,165,d);return k*Math.max(0,5+5*Math.sin(x*.045+1.3)*Math.cos(z*.04)+2.5*Math.sin(x*.11)*Math.sin(z*.09+.7)+1.2*Math.sin(x*.27+z*.21))}
-{const og=new THREE.PlaneGeometry(1200,1200,240,240);og.rotateX(-Math.PI/2);const p=og.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,Math.max(Math.abs(p.getX(i)),Math.abs(p.getZ(i)))<=MH-3?-9:terrainH(p.getX(i),p.getZ(i))-.03);scaleUV(og,115,115);og.computeVertexNormals();
+{const og=new THREE.PlaneGeometry(3600,3600,600,600);og.rotateX(-Math.PI/2);const p=og.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,Math.max(Math.abs(p.getX(i)),Math.abs(p.getZ(i)))<=MH-3?-9:terrainH(p.getX(i),p.getZ(i))-.03);scaleUV(og,345,345);og.computeVertexNormals();
 const o=new THREE.Mesh(og,pm(T_grd,0xd8dccc,{roughness:1,envMapIntensity:.5}));o.receiveShadow=true;S.add(o)}
