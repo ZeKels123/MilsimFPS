@@ -20,7 +20,7 @@ gb(g,.1,.16,.1,.95,2.0,t/2+.06,darkM);gb(g,.07,.1,.07,.95,1.98,t/2+.06,lampM)};
 const doorB=(ax,f,c,out)=>{const g=grp(ax,f,c,out);gb(g,.24,2.55,t+.14,-.74,1.27,0,concM2);gb(g,.24,2.55,t+.14,.74,1.27,0,concM2);gb(g,1.72,.34,t+.14,0,2.52,0,concM2);
 gb(g,2.5,.18,1.0,0,2.86,t/2+.5,concM2);gb(g,.1,.16,.1,1.05,2.0,t/2+.06,darkM);gb(g,.07,.1,.07,1.05,1.98,t/2+.06,lampM);
 for(let k=0;k<5;k++){const b=gb(g,.14,.4,.01,-.6+k*.3,.2,t/2+.02,k%2?darkM:std(0xd8b020,{roughness:.6}));b.rotation.z=.6}};
-const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.09,2.34,t+.04,-.65,1.17,0,m,1.2);gb(g,.09,2.34,t+.04,.65,1.17,0,m,1.2);gb(g,1.4,.09,t+.04,0,2.33,0,m,1.2)};
+const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.14,2.34,t+.05,-.66,1.17,0,m,1.2);gb(g,.14,2.34,t+.05,.66,1.17,0,m,1.2);gb(g,1.5,.1,t+.05,0,2.33,0,m,1.2)};
 const run=(ax,f,a,b,out,ops,ib)=>{ops.sort((p,q)=>p.c-q.c);let cur=a;
 const piece=(u0,u1,y0,y1,col)=>{if(u1-u0<.01||y1-y0<.01)return;const w=u1-u0,h=y1-y0,m=(u0+u1)/2,y=(y0+y1)/2;
 ax==='x'?blk(w,h,t,m,y,f,wm,{T:3,s:1,c:col}):blk(t,h,w,f,y,m,wm,{T:3,s:1,c:col});

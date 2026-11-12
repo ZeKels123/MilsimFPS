@@ -62,7 +62,7 @@ function HAIM(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return[1,1.35,3][hlRa()]*[
 function HKCK(){return 1+[0,.25,.6][hlRa()]}
 function HRLD(){return[1,1.25,2.2][hlRa()]*[1,1.15,1.5][hlLa()]}
 function HADS(){return[1,.7,.4][hlLa()]}
-function HNOADS(){return(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3||WSEL===4))}
+function HNOADS(){return KNF.on||(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3||WSEL===4))}
 function hlTremor(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
 function hlCam(dt){if(ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001,tr=hlTremor();if(tr>.02){C.rotation.x+=(Math.sin(t*9.1)*.004+Math.sin(t*23.3)*.002)*tr;C.rotation.y+=(Math.sin(t*7.7+1)*.004+Math.sin(t*19.1)*.002)*tr}
 if(HM.hurtK>0){C.rotation.z+=HM.hurtS*HM.hurtK*.07;HM.hurtK=Math.max(0,HM.hurtK-dt*4)}if(HM.bl<35)C.rotation.z+=Math.sin(t*1.3)*.03*(1-HM.bl/35)}

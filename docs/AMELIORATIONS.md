@@ -279,3 +279,7 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Façade : la dalle d'étage ne dépasse plus du mur (fin du scintillement de la bande de bois).
 - Carte doublée : 350 → 700 m de côté (MH 175 → 350), végétation ×2,4. Le temps de chargement augmente (grille de navigation 1400², relief 681²).
 - Furtivité : à l'ombre (abri du soleil ou pièce sombre sans lumière allumée), la portée de vue des bots est réduite à 62 %.
+- Carte : 75 maisons ajoutées dans l'anneau extérieur (voir `docs/MODIFICATIONS_CARTE.md` et `captures/v12/carte_dessus.png`).
+- Mains : nouveau modèle (paume, 4 doigts à 3 phalanges, pouce, ongles, poignet, manchette).
+- Couteau de combat : touche Z, clic gauche = taillade, clic droit = estoc ; attaque par derrière sur un bot qui ne vous voit pas = mort silencieuse.
+- Lumière/ombre : voir plus haut.

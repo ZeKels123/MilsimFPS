@@ -76,7 +76,7 @@ rep("hit=1;hitT=.2;","hit=1;hitT=.2;hitFx(h,hitA,brk,u.head,b);")
 rep("if(n<4){const s=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.MeshBasicMaterial({color:0xffdd88}));s.position.copy(h.point);S.add(s);sparks.push({s,t:.25})}","if(n<4)impact(h,!!u.door);")
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
-rep("// ---- Bots\n",rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('ai.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('melee.js')+rd('ai.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -160,7 +160,7 @@ rep("if(u.head)b.hp-=dm*3;else if(b.ar>0){hitA=1;b.ar-=dm;if(b.ar<=0){b.hp+=b.ar
 rep("function onKill(b,head){","function onKill(b,head){invLoot(b);")
 rep('<tr><td>ZQSD / WASD</td>','<tr><td>Tab</td><td>Sac \u00e0 dos \u00b7 V : jeter le sac \u00b7 Retour : jeter des munitions \u00b7 F : ramasser</td></tr><tr><td>ZQSD / WASD</td>')
 rep("P.deaths++;","P.deaths++;invDeath();")
-rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode)return;if(ammo<=0)")
+rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode||KNF.on)return;if(ammo<=0)")
 rep("<tr><td>Tab</td>","<tr><td>B</td><td>Poser un piège (clic maintenu) · 9 : télécommande · F maintenu : désamorcer</td></tr><tr><td>Tab</td>")
 rep("<tr><td>B</td><td>Poser","<tr><td>F8</td><td>Activer / d\u00e9sactiver les ennemis (test)</td></tr><tr><td>B</td><td>Poser")
 open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)

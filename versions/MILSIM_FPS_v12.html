@@ -362,7 +362,7 @@ gb(g,.1,.16,.1,.95,2.0,t/2+.06,darkM);gb(g,.07,.1,.07,.95,1.98,t/2+.06,lampM)};
 const doorB=(ax,f,c,out)=>{const g=grp(ax,f,c,out);gb(g,.24,2.55,t+.14,-.74,1.27,0,concM2);gb(g,.24,2.55,t+.14,.74,1.27,0,concM2);gb(g,1.72,.34,t+.14,0,2.52,0,concM2);
 gb(g,2.5,.18,1.0,0,2.86,t/2+.5,concM2);gb(g,.1,.16,.1,1.05,2.0,t/2+.06,darkM);gb(g,.07,.1,.07,1.05,1.98,t/2+.06,lampM);
 for(let k=0;k<5;k++){const b=gb(g,.14,.4,.01,-.6+k*.3,.2,t/2+.02,k%2?darkM:std(0xd8b020,{roughness:.6}));b.rotation.z=.6}};
-const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.09,2.34,t+.04,-.65,1.17,0,m,1.2);gb(g,.09,2.34,t+.04,.65,1.17,0,m,1.2);gb(g,1.4,.09,t+.04,0,2.33,0,m,1.2)};
+const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.14,2.34,t+.05,-.66,1.17,0,m,1.2);gb(g,.14,2.34,t+.05,.66,1.17,0,m,1.2);gb(g,1.5,.1,t+.05,0,2.33,0,m,1.2)};
 const run=(ax,f,a,b,out,ops,ib)=>{ops.sort((p,q)=>p.c-q.c);let cur=a;
 const piece=(u0,u1,y0,y1,col)=>{if(u1-u0<.01||y1-y0<.01)return;const w=u1-u0,h=y1-y0,m=(u0+u1)/2,y=(y0+y1)/2;
 ax==='x'?blk(w,h,t,m,y,f,wm,{T:3,s:1,c:col}):blk(t,h,w,f,y,m,wm,{T:3,s:1,c:col});
@@ -557,6 +557,11 @@ const NEWH=[];const nh=(x,z,side,k,lay,o)=>{house(x,z,7,6,side,HSTY[k],lay,lay,o
 nh(-95,-95,'E',0,0,{up:1});nh(-108,-78,'W',1,1);nh(-80,-110,'E',2,2);nh(-30,-105,'W',3,3,{up:1});nh(40,-118,'E',0,1);nh(88,-100,'W',1,2,{up:1});
 nh(115,-72,'W',2,3);nh(118,-110,'W',3,0);nh(100,-5,'W',0,1,{up:1});nh(122,35,'W',1,0);nh(104,94,'W',2,2);nh(112,110,'W',3,3,{up:1});
 nh(40,105,'E',0,0);nh(-22,118,'E',1,1);nh(-92,108,'E',2,2,{up:1});nh(-118,62,'E',3,3);nh(-104,-8,'E',0,0);nh(-122,-42,'E',1,1,{up:1});
+// v12 : villages et maisons isolées sur la carte agrandie (anneau extérieur)
+{let sd=7919;const rn=()=>(sd=(Math.imul(sd,1664525)+1013904223)>>>0)/4294967296;let n=0;
+for(let gx=-300;gx<=300;gx+=62)for(let gz=-300;gz<=300;gz+=62){if(Math.max(Math.abs(gx),Math.abs(gz))<150)continue;const x=Math.round(gx+(rn()-.5)*30),z=Math.round(gz+(rn()-.5)*30);if(rn()<.3||Math.abs(x)>MH-30||Math.abs(z)>MH-30)continue;if(Math.abs(Math.abs(x)-150)<40&&(Math.abs(z-102)<28||(x>0&&Math.abs(z+10)<28)))continue;
+const k=n%4;nh(x,z,rn()<.5?'E':'W',k,k,rn()<.4?{up:1}:undefined);
+if(rn()<.5)nh(x+(rn()<.5?-1:1)*(12+rn()*8),z+(rn()-.5)*14,rn()<.5?'E':'W',(k+1)%4,(k+1)%4);n++}}
 [[-100,-60,8],[100,60,7]].forEach(q=>{house(q[0],q[1],14,5.4,'N',BSTY,q[2],4,{bun:1,Dr:3});doors[doors.length-2].tgt=1;doors[doors.length-2].open=1;NEWH.push([q[0],q[1]+3.2])});
 const RMS=HS;
 const okPos=(x,z,m)=>wDist(x,z)>m+.5&&!boxes.some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!RMS.some(r=>x>r[0]-m&&x<r[2]+m&&z>r[1]-m&&z<r[3]+m)&&!(x>-8&&x<8&&z>20&&z<30);
@@ -977,7 +982,15 @@ MP9D.forEach(p=>{const q=b64(p.p,Int16Array),f=new Float32Array(q.length);for(le
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(f,3));g.setIndex(new THREE.BufferAttribute(b64(p.i,Uint16Array),1));
 const m=new THREE.Mesh(g,std(p.c,{flatShading:true,roughness:.42,metalness:.5,envMapIntensity:1}));mp9g.add(m);mp9v[p.n]=m});
 const gl=L(0x2b3027),HB={rx:0,ry:-.09,rz:.17,lx:0,ly:-.075,lz:-.25,zM:.04,zS:-.02};
-function mkHand(r){const g=new THREE.Group();bx(.05,.05,.085,0,0,0,gl,g);bx(.052,.02,.05,0,.03,-.01,gl,g);const f=bx(.05,.055,.3,r?.02:-.02,-.035,.2,gl,g);f.rotation.x=.3;f.rotation.y=r?-.3:.3;gun.add(g);return g}
+const SK=L(0xc99b7a),SKd=L(0xb58560),SLV=L(0x3a4634),NLm=L(0xe6cdb8);
+function mkHand(r,par){const g=new THREE.Group(),sg=r?1:-1;
+bx(.062,.03,.085,0,0,0,SK,g);bx(.058,.012,.03,0,.02,.012,SKd,g);bx(.066,.014,.018,0,.002,-.04,SKd,g);
+[.032,.036,.034,.028].forEach((len,i)=>{const f1=new THREE.Group();f1.position.set((i-1.5)*.0165,.004,-.043);g.add(f1);f1.rotation.x=.45;bx(.0148,.015,len,0,0,-len/2,SK,f1);
+const f2=new THREE.Group();f2.position.set(0,0,-len);f1.add(f2);f2.rotation.x=.85;bx(.0138,.0138,len*.86,0,0,-len*.43,SK,f2);
+const f3=new THREE.Group();f3.position.set(0,0,-len*.86);f2.add(f3);f3.rotation.x=.8;bx(.0126,.0124,len*.7,0,0,-len*.35,SK,f3);bx(.0105,.0035,len*.34,0,.0075,-len*.52,NLm,f3)});
+const th=new THREE.Group();th.position.set(-sg*.034,.006,-.012);g.add(th);th.rotation.y=sg*.55;th.rotation.x=.25;bx(.019,.019,.036,0,0,-.018,SK,th);
+const th2=new THREE.Group();th2.position.set(0,0,-.036);th.add(th2);th2.rotation.x=.5;bx(.0175,.0175,.032,0,0,-.016,SK,th2);bx(.0125,.0035,.014,0,.009,-.026,NLm,th2);
+bx(.05,.034,.045,0,-.002,.063,SKd,g);bx(.07,.07,.05,0,0,.108,SLV,g);const f=bx(.066,.068,.3,r?.02:-.02,-.035,.26,SLV,g);f.rotation.x=.3;f.rotation.y=r?-.3:.3;(par||gun).add(g);return g}
 const handR=mkHand(true),handL=mkHand(false);
 function kf(a,u){for(let i=1;i<a.length;i++)if(u<=a[i][0]){const p=a[i-1],q=a[i],k=(u-p[0])/(q[0]-p[0]),e=k*k*(3-2*k);return[0,1,2].map(j=>p[1][j]+(q[1][j]-p[1][j])*e)}return a[a.length-1][1]}
 const stockP=new THREE.Group();stockP.position.set(.034,0,-.075);mp9g.add(stockP);stockP.add(mp9v.crosse);mp9v.crosse.position.set(-.034,0,.075);let stockF=0,stockT=0;
@@ -1162,7 +1175,7 @@ if(x-P.x>14)x-=28;else if(x-P.x<-14)x+=28;if(z-P.z>14)z-=28;else if(z-P.z<-14)z+
 // --- boucle graphique : ombres, ciel, effets, qualité adaptative
 const SR=new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0),LDIR).normalize(),SU=new THREE.Vector3().crossVectors(LDIR,SR);
 let aqN=0,aqT=0,aqF=0,aqPR=R.getPixelRatio();
-function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);auUpdate(dt);adUpdate(dt);hlUpdate(dt);invUpdate(dt);trapUpdate(dt);foliageUpdate(dt);
+function fxFrame(dt){sky.position.copy(C.position);skyU.uT.value+=dt;todUpdate(dt);natureUpdate(dt);auUpdate(dt);adUpdate(dt);hlUpdate(dt);invUpdate(dt);trapUpdate(dt);knUpdate(dt);foliageUpdate(dt);
 const fx=ac.on?ac.tx:P.x,fz=ac.on?ac.tz:P.z,sn=56/2048,a=fx*SR.x+fz*SR.z,b=fx*SU.x+fz*SU.z,da=Math.round(a/sn)*sn-a,db=Math.round(b/sn)*sn-b,tx=fx+SR.x*da+SU.x*db,tz=fz+SR.z*da+SU.z*db,ty=SU.y*db;
 sun.target.position.set(tx,ty,tz);sun.position.set(tx+LDIR.x*80,ty+LDIR.y*80,tz+LDIR.z*80);{const s2=220/2048,a2=fx*SR.x+fz*SR.z,b2=fx*SU.x+fz*SU.z,da2=Math.round(a2/s2)*s2-a2,db2=Math.round(b2/s2)*s2-b2,x2=fx+SR.x*da2+SU.x*db2,z2=fz+SR.z*da2+SU.z*db2,y2=SU.y*db2;sun2.target.position.set(x2,y2,z2);sun2.position.set(x2+LDIR.x*150,y2+LDIR.y*150,z2+LDIR.z*150)}
 pUpdate(dt);shUpdate(dt);trUpdate(dt);dustUpdate(dt);
@@ -1405,7 +1418,7 @@ function HAIM(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return[1,1.35,3][hlRa()]*[
 function HKCK(){return 1+[0,.25,.6][hlRa()]}
 function HRLD(){return[1,1.25,2.2][hlRa()]*[1,1.15,1.5][hlLa()]}
 function HADS(){return[1,.7,.4][hlLa()]}
-function HNOADS(){return(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3||WSEL===4))}
+function HNOADS(){return KNF.on||(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3||WSEL===4))}
 function hlTremor(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
 function hlCam(dt){if(ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001,tr=hlTremor();if(tr>.02){C.rotation.x+=(Math.sin(t*9.1)*.004+Math.sin(t*23.3)*.002)*tr;C.rotation.y+=(Math.sin(t*7.7+1)*.004+Math.sin(t*19.1)*.002)*tr}
 if(HM.hurtK>0){C.rotation.z+=HM.hurtS*HM.hurtK*.07;HM.hurtK=Math.max(0,HM.hurtK-dt*4)}if(HM.bl<35)C.rotation.z+=Math.sin(t*1.3)*.03*(1-HM.bl/35)}
@@ -1740,6 +1753,36 @@ if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='n
 const ENM={off:0};
 addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();ENM.off=!ENM.off;if(!ENM.off)bots.forEach(b=>{if(b.dead>50)b.dead=.3});hlMsg(ENM.off?'Ennemis désactivés (F8 pour les réactiver)':'Ennemis réactivés')}});
 function enmTick(){if(!ENM.off)return;for(const b of bots){b.dead=99;b.g.visible=false}}
+// ================= COUTEAU DE COMBAT (v12) : touche Z, clic gauche = taillade, clic droit = estoc =================
+const KNF={on:0,s:0,t:0,dur:.4,type:0,hit:0,alt:0};
+const KN=new THREE.Group();C.add(KN);KN.visible=false;
+const knSteel=L(0xbfc7cf),knEdge=L(0xe8eef2),knDark=L(0x1c1d1f),knBlack=L(0x111214);
+const knHandR=mkHand(true,KN),knHandL=mkHand(false,KN);
+const knArm=(h,rx,ry)=>{const f=h.children[h.children.length-1];f.rotation.set(rx,ry,0);f.position.set(0,-.07,.2);f.scale.set(.85,.8,.9)};knArm(knHandR,.1,-1.0);knHandR.children[knHandR.children.length-1].position.set(-.13,-.03,.2);knArm(knHandL,.5,.25);
+// couteau : tenu dans la main droite, axe de poignée = x local de la main (la main est tournée pour que la lame monte)
+{const k=new THREE.Group();knHandR.add(k);k.position.set(0,.02,-.075);
+bx(.115,.025,.025,0,0,0,knBlack,k);for(let i=-2;i<=2;i++)bx(.006,.027,.027,i*.02,0,0,knDark,k);
+bx(.012,.03,.045,.062,0,0,knSteel,k);bx(.012,.05,.012,.062,0,0,knSteel,k);
+bx(.13,.034,.0045,.13,.0,0,knSteel,k);bx(.13,.006,.006,.13,-.017,0,knEdge,k);bx(.1,.012,.003,.115,.012,0,knDark,k);
+const tp=bx(.04,.03,.0045,.215,.0,0,knSteel,k);tp.scale.y=.7;bx(.02,.015,.0045,.24,-.005,0,knEdge,k);bx(.018,.03,.03,-.067,0,0,knSteel,k)}
+knHandR.rotation.set(-.55,0,1.5708);knHandR.position.set(.11,-.17,-.36);
+knHandL.position.set(-.16,-.22,-.32);knHandL.rotation.set(-.25,.35,-.2);
+let knClk=0;
+function knAtk(type){if(KNF.t>0||P.hp<=0||ac.on||bench)return;KNF.type=type;KNF.dur=type?.34:.42;KNF.t=KNF.dur;KNF.hit=0;snd(type?240:180,.07,.13,'sawtooth');noise(P.x,P.z,6)}
+function knStrike(){const o=C.getWorldPosition(new THREE.Vector3()),d=C.getWorldDirection(new THREE.Vector3());let best=null,bz='t',bd=9;
+for(const b of bots){if(b.dead>0||b.dead===true)continue;const g=b.g.position;if(Math.hypot(g.x-o.x,g.z-o.z)>3.2)continue;RC.set(o,d);RC.far=2.15;const ph=RC.intersectObjects(b.parts)[0];if(!ph||ph.distance>=bd)continue;RC.far=ph.distance;if(RC.intersectObjects(ray).find(q=>!q.object.userData.glass))continue;bd=ph.distance;best=b;bz=ph.object.userData.head?'h':(ph.object.userData.zone||'t')}
+if(!best){snd(120,.05,.08,'square');return}
+const b=best,fx=Math.sin(b.yaw),fz=Math.cos(b.yaw),behind=((P.x-b.g.position.x)*fx+(P.z-b.g.position.z)*fz)<0&&!b.see;
+let dm=KNF.type?(bz==='h'?95:70):(bz==='h'?75:48);if(behind)dm=300;b.pk=1;bhHit(b,bz,dm,'b');snd(90,.08,.2,'square');
+if(b.hp>0||!behind)aiHit(b);FXP&&(FXP.shake=Math.max(FXP.shake||0,.25))}
+addEventListener('mousedown',e=>{if(!KNF.on||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open))return;if(e.button===0)knAtk(0);else if(e.button===2)knAtk(1)});
+addEventListener('keydown',e=>{if(e.code!=='KeyZ'||e.repeat||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open)||reloading>0)return;KNF.on=KNF.on?0:1;ads=false;hlMsg(KNF.on?'Couteau de combat · clic gauche : taillade · clic droit : estoc · Z : ranger':'Arme rangée le couteau')});
+function knUpdate(dt){const on=KNF.on&&!bench&&!ac.on&&P.hp>0;if(!on&&KNF.on&&P.hp<=0)KNF.on=0;KNF.s+=((on?1:0)-KNF.s)*Math.min(1,dt*9);KN.visible=KNF.s>.03;gun.scale.setScalar(on||KNF.s>.5?.0001:1);if(!KN.visible)return;
+let px=0,py=0,pz=0,rx=0,ry=0,rz=0;const ph=KNF.t>0?1-KNF.t/KNF.dur:0,sw=Math.sin(Math.PI*ph);
+if(KNF.t>0){KNF.t-=dt;if(!KNF.hit&&ph>.38){KNF.hit=1;knStrike()}
+if(KNF.type){pz=-.26*sw;py=.03*sw;rx=-.35*sw}else{const a=(ph-.5)*2;px=-.3*a;ry=-.9*a;rz=.5*a;py=.04*sw;pz=-.1*sw}}
+const bob=Math.sin(Date.now()*.0026)*.004;
+KN.position.set(px,py-.5*(1-KNF.s)+bob,pz);KN.rotation.set(rx-.05,ry,rz);}
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
 const NS=.5,NGN=4*MH,NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
@@ -3042,7 +3085,7 @@ let AC;function snd(f,d,v,type){if(typeof sfx==='function'){sfx(f,d,v,type);retu
 let ammo=30,reserve=120,cd=0,reloading=0,kick=0,flashT=0,adsT=0,bob=0,hitT=0;const sparks=[];
 function reload(){if(reloading||ammo>=magMax()||reserve<=0)return;reloading=RT;reloadEmpty=ammo===0;snd(300,.15,.2,'square')}
 function fire(){
-if(reloading||plateT>0||ac.on||HM.act||TRP.mode)return;if(ammo<=0){reload();return}
+if(reloading||plateT>0||ac.on||HM.act||TRP.mode||KNF.on)return;if(ammo<=0){reload();return}
 const c=WC[WSEL];ammo--;slideK=1;cd=c.rate;kick=HKCK();flashT=A.supp?0:.04;sfxGun(WSEL,A.supp);
 const moving=K.KeyW||K.KeyA||K.KeyS||K.KeyD;
 const sp=((ads?c.sp*.07:c.sp*((A.laser||A.grip)?.44:1))+(moving?.012:0))*HAIM();
