@@ -66,7 +66,7 @@ const m=sstep(.3,2.2,d)*sstep(1.2,15,dh)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),M
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,w=wDist(x,z);if(w>9)continue;const k=j*GN+i,h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
 for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;const dz=Math.abs(z-b.z)-b.hl;if(Math.abs(x-b.x)<=1.9&&dz<=.9)GHg[j*GN+i]=b.y;else if(Math.abs(x-b.x)<=3.4&&dz<=4.2&&dz>.9){const t=sstep(.9,4.2,dz),q=Math.abs(x-b.x)<=1.9?1:1-sstep(1.9,3.4,Math.abs(x-b.x));GHg[j*GN+i]=GHg[j*GN+i]+(Math.max(GHg[j*GN+i],b.y)-GHg[j*GN+i])*(1-t)*q}}}}
 // v12 : plateforme plane pour la ville (coin nord-est, 250 x 250 m)
-window.CITYH=1;{const q0=100,q1=348,r0=-348,r1=-100,bl=26;let sm=0,n=0;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(x>=q0&&x<=q1&&z>=r0&&z<=r1){sm+=GHg[j*GN+i];n++}}
+window.CITYH=1;{const q0=150,q1=500,r0=-700,r1=-350,bl=26;let sm=0,n=0;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(x>=q0&&x<=q1&&z>=r0&&z<=r1){sm+=GHg[j*GN+i];n++}}
 CITYH=0;
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,d=Math.max(q0-x,x-q1,r0-z,z-r1);if(d<bl){const t=d<=0?1:1-sstep(0,bl,d),k=j*GN+i;GHg[k]+=(CITYH-GHg[k])*t}}}
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
