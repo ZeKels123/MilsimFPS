@@ -315,3 +315,6 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 
 ## Véhicules et passages d'avions (v17)
 Tracteurs dans les fermes, convoi Ural/Centauro sur la route, passages aléatoires de F-14 et F-15 avec son Doppler. Détail dans MODIFICATIONS_CARTE.md.
+
+## Signal 50 (v18)
+Le fusil de précision est remplacé par le Signal 50 importé de signal_50.blend : bullpup semi-automatique, chargeur de 5 balles calibre .50, 125 dégâts, cadence 0,5 s, culasse qui recule à chaque tir (plus de manœuvre de verrou). Lunette intégrée (vue à travers la lunette en visée). Avec le silencieux, la pièce « compensater » est retirée du modèle. Mains repositionnées (poignée pistolet et dessous du canon).
