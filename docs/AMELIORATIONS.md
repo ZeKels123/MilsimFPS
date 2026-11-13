@@ -312,3 +312,6 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Réactions en chaîne : une explosion à moins de 4,4 m enflamme les barils rouges voisins. Les barils bleus et verts restent inertes.
 - Les flammes infligent des dégâts : environ 20 PV/s au joueur (qui brûle encore 2,5 s après être sorti du feu), 28 PV/s aux bots.
 - Les bots ne tirent pas sur les barils. Détail : `docs/MODIFICATIONS_CARTE.md`.
+
+## Véhicules et passages d'avions (v17)
+Tracteurs dans les fermes, convoi Ural/Centauro sur la route, passages aléatoires de F-14 et F-15 avec son Doppler. Détail dans MODIFICATIONS_CARTE.md.

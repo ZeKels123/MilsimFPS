@@ -49,7 +49,7 @@ pr=pr+rd('nature.js')[rd('nature.js').index('// arbres'):]+rd('nature2.js')
 for a_,b_ in [("const N=110,rk=","const N=1000,rk="),("std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5})","windify(std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5}),0)"),("std(0xffffff,{roughness:1,flatShading:true,envMapIntensity:.4}),NB)","windify(std(0xffffff,{roughness:1,flatShading:true,envMapIntensity:.4}),1),NB)"),("new THREE.ConeGeometry(2.1,6.5,8),mt,N)","new THREE.ConeGeometry(2.1,6.5,8),windify(mt.clone(),2),N)"),("new THREE.ConeGeometry(1.5,4.5,8),mt,N)","new THREE.ConeGeometry(1.5,4.5,8),windify(mt.clone(),3),N)"),("rnd(-29,29),z=rnd(-29,29);if(!okPos(x,z,.4))","rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.4)||nearPath(x,z,2))"),("const NB=46,","const NB=0,"),("let x=rnd(-28.2,28.2),z=rnd(-28.2,28.2);if(n%2){if(Math.random()<.5)x=Math.sign(x)*rnd(27.2,28.5);else z=Math.sign(z)*rnd(27.2,28.5)}","let x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(n%2){if(Math.random()<.5)x=Math.sign(x)*rnd(MH-3,MH-1.5);else z=Math.sign(z)*rnd(MH-3,MH-1.5)}"),("while(n<7){const x=rnd(-26,26),z=rnd(-26,16)","while(n<56){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,16)"),("const N=1400,im=","const N=9000,im="),("const x=rnd(-29.5,29.5),z=rnd(-29.5,29.5);if(!okPos(x,z,.3))","break;const x=0,z=0;if(0)"),("r=rnd(48,105)","r=rnd(MH+23,MH+95)"),("[[-33,-33],[33,-33],[-33,33],[33,33]]","[[-MH-3,-MH-3],[MH+3,-MH-3],[-MH-3,MH+3],[MH+3,MH+3]]"),("o.position.set(x,s*.35,z);","o.position.set(x,s*.35+GH(x,z),z);"),("o.position.set(x,s*.38,z);","o.position.set(x,s*.38+GH(x,z),z);"),("p.position.set(x,.016,z);","p.position.set(x,.016+GH(x,z),z);"),("o.position.set(x,0,z);o.rotation.y=rnd(0,6.3)","o.position.set(x,GH(x,z),z);o.rotation.y=rnd(0,6.3)")]:
     assert pr.count(a_)==1,a_; pr=pr.replace(a_,b_)
 rep("room(-25,-4,8,8,'E',-4);room(25,-4,8,8,'W',-4);room(-25,-14,8,6,'E',-14);room(25,-14,8,6,'W',-14);room(0,-24,10,6,'S',0);",
-    rd('bld_head.js')+rd('bld_house.js')+rd('bld_calls.js')+rd('models.js')+rd('hyd_data.js')+rd('city.js')+rd('extra.js')+pr)
+    rd('bld_head.js')+rd('bld_house.js')+rd('bld_calls.js')+rd('models.js')+rd('models2.js')+rd('hyd_data.js')+rd('city.js')+rd('extra.js')+pr)
 # 4. explosions
 a=s.index("function boom(x,z,r){");b=s.index("function startAC()")
 s=s[:a]+s[b:]
@@ -77,7 +77,7 @@ rep("if(n<4){const s=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.
 rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.barrel,h,c.dmg);if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));")
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -180,7 +180,7 @@ rep("{const og=new THREE.PlaneGeometry(3600,3600,600,600);",HELPER+"{const og=ne
 rep("o.receiveShadow=true;S.add(o)}","o.receiveShadow=true;window.RINGM=o}")
 rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}")
 # ---- v15 : champs, forêt
-rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=7070,NBU=9400;let np=0,no=0,t=0;"+rd('forest.js'))
+rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=7070,NBU=9400;window.TRE=TR;let np=0,no=0,t=0;"+rd('forest.js'))
 rep("if(Math.random()>p||!okPos(x,z,2.2)","if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)")
 rep("const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)","const BU=[];t=0;"+"{let c=0,tt=0;while(c<4200&&tt++<90000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2))continue;BU.push({x,z,y:GH(x,z),s:rnd(1.2,2.3),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)});c++}}\nwhile(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(nzSkip(x,z)||!okPos(x,z,.9)")
 # ---- menu : hooks de jeu

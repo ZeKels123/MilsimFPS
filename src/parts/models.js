@@ -4,11 +4,12 @@ if(d.tex){const im=new Image();map=new THREE.Texture(im);map.encoding=THREE.sRGB
 for(const q of d.parts){const pa=new Int16Array(b(q.p).buffer),P=new Float32Array(pa.length);for(let i=0;i<pa.length;i++)P[i]=pa[i]/1000;
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));const ib=b(q.i).buffer;g.setIndex(new THREE.BufferAttribute(q.w===4?new Uint32Array(ib):new Uint16Array(ib),1));
 if(q.uv){const ua=new Int16Array(b(q.uv).buffer),U=new Float32Array(ua.length);for(let i=0;i<ua.length;i++)U[i]=ua[i]/4000;g.setAttribute('uv',new THREE.BufferAttribute(U,2))}
+if(q.c){const ca=b(q.c),CC=new Float32Array(ca.length);for(let i=0;i<ca.length;i++)CC[i]=Math.pow(ca[i]/255,2.2);g.setAttribute('color',new THREE.BufferAttribute(CC,3))}
 g.computeVertexNormals();const[r0,g0,b0,mt,rg,op,bd]=q.m,r=bd&&col?col[0]:r0,gg=bd&&col?col[1]:g0,bb=bd&&col?col[2]:b0,veh=n==='car'||n==='mazda',glass=veh&&op<.95,body=veh&&bd&&!glass;let mat;
 if(body){mat=new THREE.MeshPhysicalMaterial({color:new THREE.Color().setRGB(r,gg,bb),metalness:.55,roughness:.34,clearcoat:.7,clearcoatRoughness:.16,envMapIntensity:1.4,vertexColors:true});
 const pp=g.attributes.position,cc=new Float32Array(pp.count*3);for(let i=0;i<pp.count;i++){const y=pp.getY(i),t=Math.min(1,Math.max(0,(y-.1)/.5)),k=.5+.5*t*t*(3-2*t),h=Math.sin(pp.getX(i)*37.1+pp.getZ(i)*91.7+y*53.3)*43758.5,nz_=0;cc[i*3]=k+nz_+(1-k)*.22;cc[i*3+1]=k+nz_+(1-k)*.16;cc[i*3+2]=k+nz_+(1-k)*.08}g.setAttribute('color',new THREE.BufferAttribute(cc,3))}
 else if(glass)mat=new THREE.MeshStandardMaterial({color:0x0a1014,metalness:.85,roughness:.04,envMapIntensity:2.2,transparent:true,opacity:.62,depthWrite:false});
-else{mat=new THREE.MeshStandardMaterial({color:new THREE.Color().setRGB(map&&q.uv?1:r,map&&q.uv?1:gg,map&&q.uv?1:bb),map:map&&q.uv?map:null,metalness:mt,roughness:Math.max(.08,rg),flatShading:!!d.flat,envMapIntensity:veh?1.6:1.3});
+else{mat=new THREE.MeshStandardMaterial({vertexColors:!!q.c,color:new THREE.Color().setRGB(map&&q.uv?1:r,map&&q.uv?1:gg,map&&q.uv?1:bb),map:map&&q.uv?map:null,metalness:mt,roughness:Math.max(.08,rg),flatShading:!!d.flat,envMapIntensity:veh?1.6:1.3});
 if(veh&&mt>.9){mat.roughness=.12;mat.color.setRGB(.82,.83,.85)}if(veh&&mt===0&&rg>=.89&&r<.05){mat.color.setRGB(.022,.022,.024);mat.roughness=.95;mat.envMapIntensity=.3}
 if(op<.95){mat.transparent=true;mat.opacity=op;mat.depthWrite=false}}
 const m=new THREE.Mesh(g,mat);m.castShadow=op>.95;m.receiveShadow=true;G.add(m)}return G}

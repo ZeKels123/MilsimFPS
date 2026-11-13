@@ -34,7 +34,7 @@ for(let j=0;j<h;j++)for(let i=0;i<w;i++){const n=j*w+i,X=-AR+(i0+i)*GSP,Z=-AR+(j
 const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(Pp,3));G.setAttribute('uv',new THREE.BufferAttribute(Uu,2));G.setIndex(Ii);G.computeVertexNormals();
 const gm=new THREE.Mesh(G,mat);gm.receiveShadow=true;gm.userData.keep=1;S.add(gm)};
 const yardM=std(0x7b6a48,{roughness:1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});cells.forEach(c=>FCELL.push(c));cells.forEach((c,ci)=>{const[x0,z0,x1,z1]=c,cx=(x0+x1)/2,cz=(z0+z1)/2;RMS.push([x0-1,z0-1,x1+1,z1+1]);
-if(rn()<.08){const gy=Math.min(GH(cx-16,cz-5),GH(cx,cz-5),GH(cx-16,cz+5),GH(cx,cz+5),GH(cx+8,cz+4))-.4;gnd(x0,z0,x1,z1,yardM);fbox(17,1.2,11,cx-8,gy-.6,cz,roofM);fbox(6.4,1.2,6.4,cx+8,gy-.6,cz+4,roofM);fbox(16,6,10,cx-8,gy,cz,redM);for(const sg of[-1,1]){const rf=new THREE.Mesh(new THREE.BoxGeometry(17,.3,6.4),roofM);rf.position.set(cx-8,gy+7.1,cz+sg*2.5);rf.rotation.x=sg*.5;rf.castShadow=true;S.add(rf)}
+if(rn()<.08){const gy=Math.min(GH(cx-16,cz-5),GH(cx,cz-5),GH(cx-16,cz+5),GH(cx,cz+5),GH(cx+8,cz+4))-.4;gnd(x0,z0,x1,z1,yardM);(window.FYARD=window.FYARD||[]).push([cx,cz]);fbox(17,1.2,11,cx-8,gy-.6,cz,roofM);fbox(6.4,1.2,6.4,cx+8,gy-.6,cz+4,roofM);fbox(16,6,10,cx-8,gy,cz,redM);for(const sg of[-1,1]){const rf=new THREE.Mesh(new THREE.BoxGeometry(17,.3,6.4),roofM);rf.position.set(cx-8,gy+7.1,cz+sg*2.5);rf.rotation.x=sg*.5;rf.castShadow=true;S.add(rf)}
 fbox(5.4,11,5.4,cx+8,gy,cz+4,silM);const dm=new THREE.Mesh(new THREE.SphereGeometry(2.7,10,6,0,6.283,0,1.57),silM);dm.position.set(cx+8,gy+11,cz+4);S.add(dm);
 for(let k=0;k<6;k++)bales.push([cx+rn()*30-15,cz+14+rn()*6,rn()*3]);return}
 const k=pool[(ci*7+((rn()*12)|0))%pool.length],K=KIND[k],o=rn()<.5?1:0;

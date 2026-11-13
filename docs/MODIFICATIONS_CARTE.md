@@ -78,3 +78,9 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Brûlure : dans le rayon des flammes (baril en feu ou feu au sol), le joueur perd environ 20 PV/s (jambes et ventre) et continue de brûler 2,5 s après en être sorti ; les bots perdent 28 PV/s.
 - Un point lumineux orange suit le baril en feu le plus proche (pas de lumière ajoutée en cours de partie, donc pas de saccade).
 - Captures : `docs/captures/v12/baril_en_feu.png`, `baril_explosion.png`.
+
+## Véhicules et avions (v17)
+- Modèles GLB convertis en maillages basse définition avec couleurs de sommets (`parts/models2.js`, ≈2,8 Mo) : tracteur Lambo, camion Ural, blindé Centauro, F-14, F-15EX.
+- Tracteurs Lambo garés dans les cours de ferme ; convoi de camions Ural et blindés Centauro le long de la route nord-sud (x≈224), posés sur sol plat, hors arbres et hors étang. Collisions (boîtes) et arrêt des balles actifs.
+- Passages d'avions : F-14 ou F-15 traversent la carte à 170–240 m/s, à 110–220 m d'altitude, premier passage 50–100 s après le début puis toutes les 150–300 s. Flamme de postcombustion, son avec effet Doppler, panoramique et filtrage selon la distance. Pause quand le menu est ouvert.
+- Non intégrés : tracteur avec remorque et tracteur rouillé (maillages ouverts inutilisables), camion 18 roues, AH-6, pistolet Grach, soldat et animations (en attente).
