@@ -20,7 +20,7 @@ put(isC?'centauro':'ural',x,z,side>0?0:Math.PI,hw,hd,3);used.push(z);if(isC)nC++
 // --- passages d'avions
 const AIR={t:50+vr()*50,on:null,list:['f14','f15','f15','f14']},T0=performance.now();
 function jetGlow(g,y,zz,xs){xs.forEach(x=>{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flareT,color:0xff9a50,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,toneMapped:false,fog:false}));s.scale.set(3.2,3.2,1);s.position.set(x,y,zz);g.add(s)})}
-function airSpawn(force){const nm=AIR.list[(vr()*AIR.list.length)|0],g=mdl(nm),th=vr()*Math.PI*2,sp=170+vr()*70,alt=(P.gy||0)+110+vr()*110,off=(vr()-.5)*420,R=1500;
+function airSpawn(force){const nm=typeof force==="string"?force:AIR.list[(vr()*AIR.list.length)|0],g=mdl(nm),th=vr()*Math.PI*2,sp=170+vr()*70,alt=(P.gy||0)+110+vr()*110,off=(vr()-.5)*420,R=1500;
 const dx=Math.sin(th),dz=Math.cos(th),px=P.x+off*dz-dx*R,pz=P.z-off*dx-dz*R;g.position.set(px,alt,pz);g.rotation.y=th;g.rotation.z=(vr()-.5)*.25;
 g.traverse(m=>{if(m.isMesh){m.castShadow=false;m.receiveShadow=false;m.frustumCulled=false}});
 if(nm==='f14')jetGlow(g,1.9,-9.4,[-1.1,1.1]);else jetGlow(g,2.0,-9.6,[-1,1]);
