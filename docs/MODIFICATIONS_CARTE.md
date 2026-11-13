@@ -57,3 +57,4 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Ville agrandie : x 150..738, z −738..−350 (588×388 m), rangée nord en parcs.
 - Voitures : plus de « caisses » ; uniquement les modèles Mustang et Mazda fournis (8 couleurs).
 - Lampadaires : projecteurs coniques orientés vers le sol la nuit (18 h 42 – 6 h 18). Les 10 plus proches (< 350 m) éclairent, les 2 plus proches projettent des ombres ; halo lumineux sur chaque lanterne + halo chaud au sol.
+- Bouches à incendie : modèle importé de `borne_hydrante.blend` (3 pièces, ~1 m de haut, rouge) à la place du modèle fait à la main ; collision conservée.

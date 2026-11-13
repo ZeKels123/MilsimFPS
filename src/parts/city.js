@@ -26,9 +26,8 @@ const MG={},CV=[[.55,.02,.02],[.02,.08,.45],[.8,.8,.8],[.01,.01,.012],[.45,.46,.
 const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);if(hw)boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh});if(sol&&hw){const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,Y+y+hh/2,z);px.visible=false;S.add(px);solids.push(px)}return e};
 // --- bouche d'incendie
 const hydM=std(0xb3201a,{roughness:.5,metalness:.3}),hydC=std(0xc9c9c4,{roughness:.4,metalness:.7});
-const hydrant=(x,z)=>{const a=(g,m,py,px,rz)=>{const e=new THREE.Mesh(g,m);e.position.set(x+(px||0),Y+py,z);if(rz)e.rotation.z=rz;e.castShadow=true;S.add(e);solids.push(e)};
-a(new THREE.CylinderGeometry(.2,.22,.08,10),hydM,.12);a(new THREE.CylinderGeometry(.13,.15,.62,10),hydM,.45);a(new THREE.CylinderGeometry(.17,.17,.06,10),hydM,.74);a(new THREE.SphereGeometry(.14,10,6,0,6.283,0,1.57),hydM,.77);a(new THREE.CylinderGeometry(.04,.04,.08,6),hydC,.94);
-a(new THREE.CylinderGeometry(.06,.06,.14,8),hydC,.52,.19,1.5708);a(new THREE.CylinderGeometry(.06,.06,.14,8),hydC,.52,-.19,1.5708);boxes.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2,y0:Y,y1:Y+.95})};
+const HYG=HYDD.map(d=>{const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(Float32Array.from(d.p,v=>v/1000),3));G.setAttribute('normal',new THREE.BufferAttribute(Float32Array.from(d.q,v=>v/100),3));return G});
+const hydrant=(x,z)=>{HYG.forEach((G,k)=>{const e=new THREE.Mesh(G,k===1?hydC:hydM);e.position.set(x,Y,z);e.castShadow=true;S.add(e);if(k===0)solids.push(e)});boxes.push({x0:x-.27,x1:x+.27,z0:z-.27,z1:z+.27,y0:Y,y1:Y+.95})};window.HYDRANT=hydrant;
 // --- murs avec ouvertures ; fenêtres cassables (linteau, appui, volets)
 const trimM=std(0x5b5f63,{roughness:.8}),trimL=std(0xcfc9bb,{roughness:.9}),railM=std(0x2c3034,{roughness:.5,metalness:.6}),inM=std(0xe6e1d6,{roughness:.95});
 const seg=(x0,x1,z0,z1,y0,y1,m)=>blk(x1-x0,y1-y0,z1-z0,(x0+x1)/2,Y+(y0+y1)/2,(z0+z1)/2,m,{T:3,s:1,c:1});
