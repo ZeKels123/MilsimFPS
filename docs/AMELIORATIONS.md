@@ -318,3 +318,6 @@ Tracteurs dans les fermes, convoi Ural/Centauro sur la route, passages aléatoir
 
 ## Signal 50 (v18)
 Le fusil de précision est remplacé par le Signal 50 importé de signal_50.blend : bullpup semi-automatique, chargeur de 5 balles calibre .50, 125 dégâts, cadence 0,5 s, culasse qui recule à chaque tir (plus de manœuvre de verrou). Lunette intégrée (vue à travers la lunette en visée). Avec le silencieux, la pièce « compensater » est retirée du modèle. Mains repositionnées (poignée pistolet et dessous du canon).
+
+## Grenades : modèle flash et animation de lancer (v19)
+Modèle de la grenade flash importé de flash.blend (corps, bande, cuillère, goupille), utilisé aussi pour les grenades à fragmentation et assourdissantes avec une autre couleur. Animation de lancer à la première personne (1,25 s) : l'arme se baisse, la grenade monte dans la main droite, la main gauche arrache la goupille, bras en arrière, lancer, la cuillère s'écarte puis l'arme remonte. La grenade part au moment du lâcher (et non plus au clic) ; recharge/visée interrompues, délai de 1,5 s entre deux lancers. Les grenades lancées utilisent le même modèle.

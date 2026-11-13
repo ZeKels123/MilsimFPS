@@ -77,7 +77,7 @@ rep("if(n<4){const s=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.
 rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.barrel,h,c.dmg);if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));")
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -99,6 +99,7 @@ rep('Fusil de précision <em></em></button>','Signal 50 <em></em></button><butto
 rep("let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];","let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];const WA=wAnim(WSEL,ru,ip,rl,is);")
 rep("-rl*.04-is*.12-sprA*.06","+WA.x-sprA*.06")
 rep("-rl*.2-dr*.3-sprA*.07+is*.04+","+WA.y-dr*.3-sprA*.07+")
+rep("+WA.y-dr*.3-sprA*.07+","+WA.y-dr*.3-THR.g*.6-sprA*.07+")
 rep("+kick*.04+rl*.05);","+kick*.04+WA.z);")
 rep("gun.rotation.set(kick*.04+rl*.45+dr*.7+sprA*.25-is*.2,rl*.15+is*1.1+sprA*.55,t.roll*adsT+P.lean*.12+rl*.35+is*Math.sin(ip*12.6)*.5);","gun.rotation.set(kick*.04+WA.rx+dr*.7+sprA*.25,WA.ry+sprA*.55,t.roll*adsT+P.lean*.12+WA.rz);")
 rep("rifleParts[4].visible=!WSEL&&mv;","if(reloading>0&&WSEL>1){const q=wHand(WSEL,ru,[HB.lx,HB.ly,HB.lz]);hp=q.h;mv=q.mv}rifleParts[4].visible=!WSEL&&mv;")

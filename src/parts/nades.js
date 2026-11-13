@@ -7,13 +7,12 @@ FXP.elF=mk('inset:0;background:#fff;opacity:0;z-index:6');FXP.elS=mk('inset:0;op
 FXP.elN=mk('right:18px;bottom:74px;font:13px monospace;color:#dfe8d0;text-align:right;text-shadow:0 1px 3px #000;z-index:5;line-height:1.5');
 FXP.elW=mk('left:50%;top:62%;transform:translateX(-50%);font:bold 15px monospace;color:#ff5a3a;text-shadow:0 0 8px #000;z-index:5;letter-spacing:.08em;display:none');
 FXP.elD=mk('left:50%;top:50%;width:0;height:0;z-index:5;opacity:0;transition:opacity .5s','<div style="position:absolute;left:-46px;top:-150px;width:92px;height:26px;border-top:5px solid #ff3a20;border-radius:50%/100% 100% 0 0;filter:drop-shadow(0 0 6px #f20)"></div>');
-const gg=new THREE.CylinderGeometry(.045,.045,.13,8);for(let i=0;i<10;i++){const m=new THREE.Mesh(gg,std(0x3f4d2c,{roughness:.5,metalness:.5}));m.castShadow=true;m.visible=false;S.add(m);NADE.pool.push(m)}}
+for(let t=0;t<3;t++)for(let i=0;i<5;i++){const m=mkNade(t);m.userData.ty=t;m.scale.setScalar(1.15);m.visible=false;S.add(m);NADE.pool.push(m)}}
 const nfL=new THREE.PointLight(0xffffff,0,60);S.add(nfL);const nfS=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));nfS.visible=false;S.add(nfS);
 function dmgDir(x,z){const a=Math.atan2(x-P.x,z-P.z)-P.yaw+Math.PI;FXP.elD.style.transform='rotate('+(-a)+'rad)';FXP.elD.style.opacity=1;clearTimeout(FXP.dT);FXP.dT=setTimeout(()=>FXP.elD.style.opacity=0,700)}
 function nadeReset(){NADE.inv=[2,2,2];FXP.flash=0;FXP.stun=0;FXP.shake=0}
-function throwNade(type,pos,vel,owner){const m=NADE.pool.find(q=>!q.visible);if(!m)return;m.material.color.setHex(NT[type].col);m.position.copy(pos);m.visible=true;NADE.list.push({type,p:m.position,v:vel,m,t:NT[type].fuse+(owner?.3:0),owner,rest:false,wet:false})}
-function playerThrow(){const k=NADE.sel;if(NADE.inv[k]<=0||NADE.cd>0||bench||ac.on||plateT>0)return;NADE.inv[k]--;NADE.cd=.9;drawT=.45;cd=Math.max(cd,.5);inspT=0;C.updateMatrixWorld();const d=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion),p=C.position.clone().addScaledVector(d,.45);p.y-=.12;
-throwNade(k,p,d.multiplyScalar(17).add(new THREE.Vector3(0,3.6,0)),null);snd(420,.09,.12,'triangle')}
+function throwNade(type,pos,vel,owner){const m=NADE.pool.find(q=>!q.visible&&q.userData.ty===type);if(!m)return;m.userData.lev.rotation.z=-1.2;m.position.copy(pos);m.visible=true;NADE.list.push({type,p:m.position,v:vel,m,t:NT[type].fuse+(owner?.3:0),owner,rest:false,wet:false})}
+function playerThrow(){const k=NADE.sel;if(NADE.inv[k]<=0||NADE.cd>0||THR.on||bench||ac.on||plateT>0)return;NADE.inv[k]--;NADE.cd=1.5;cd=Math.max(cd,1.3);inspT=0;ads=false;reloading=0;thrSet(k);Object.assign(THR,{on:true,t:0,rel:false,pin:false})}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none')return;if(e.code==='KeyC'&&!inZ(P.x,P.z))playerThrow();if(e.code==='KeyU')NADE.sel=(NADE.sel+1)%3});
 addEventListener('wheel',e=>{if(!ads&&!bench&&!ac.on)NADE.sel=(NADE.sel+(e.deltaY>0?1:2))%3});
 const _nn=new THREE.Vector3(),_nd=new THREE.Vector3(),_no=new THREE.Vector3();
@@ -42,7 +41,7 @@ for(let i=0;i<12;i++){const a=i/12*6.28;emit(_no.set(x,y+.15,z),_e.set(Math.cos(
 if(!pz_&&pd<R_){const k=(1-pd/R_)*(nadeLOS(n,P.x,P.gy+P.bh-.1,P.z)?1:.5);stunPlayer(Math.min(1,.25+k),2+4.2*k);if(k>.3)hlApply('h',9*k,'o',null)}
 for(const b of bots){if(b.dead)continue;const g=b.g.position,d=Math.hypot(g.x-x,g.z-z);if(d>R_)continue;const k=(1-d/R_)*(nadeLOS(n,g.x,g.y+1.2,g.z)?1:.5);b.stun=Math.max(b.stun,2.2+3.8*k);b.see=false;b.path=null;b.cr=0;b.flinch=1;if(mine)b.lk.x=x,b.lk.z=z}
 GLASS.forEach(m=>{const q=m.userData.glass;if(q&&!q.dead){m.getWorldPosition(_no);if(_no.distanceTo(n.p)<4){_nd.subVectors(_no,n.p).normalize();glassHit(m,_no.clone(),_nd)}}})}}
-function nadeUpdate(dt,inz){NADE.cd-=dt;if(inz&&(NADE.inv[0]<2||NADE.inv[1]<2||NADE.inv[2]<2)){NADE.inv=NADE.inv.map(v=>Math.max(2,v));feed('Grenades réapprovisionnées')}
+function nadeUpdate(dt,inz){thrTick(dt);NADE.cd-=dt;if(inz&&(NADE.inv[0]<2||NADE.inv[1]<2||NADE.inv[2]<2)){NADE.inv=NADE.inv.map(v=>Math.max(2,v));feed('Grenades réapprovisionnées')}
 let wd=99,wa=0;for(let i=NADE.list.length-1;i>=0;i--){const n=NADE.list[i];nadeStep(n,dt*.5);nadeStep(n,dt*.5);n.t-=dt;if(n.type===0){const d=Math.hypot(n.p.x-P.x,n.p.z-P.z);if(d<wd){wd=d;wa=Math.atan2(n.p.x-P.x,n.p.z-P.z)}}
 if(n.type===0&&n.t<1&&(n.t*8|0)%2===0)emit(n.p,_e.set(0,.3,0),{color:0xff4020,size:.05,life:.08,add:1});if(n.t<=0){NADE.list.splice(i,1);nadeBoom(n)}}
 if(wd<9&&!ac.on){let a=wa-P.yaw+Math.PI;a=Math.atan2(Math.sin(a),Math.cos(a));FXP.elW.style.display='block';FXP.elW.textContent='⚠ GRENADE '+(Math.abs(a)<.6?'DEVANT':Math.abs(a)>2.5?'DERRIÈRE':a>0?'À GAUCHE':'À DROITE')+' · '+wd.toFixed(0)+' m'}else if(FXP.elW.style.display!=='none')FXP.elW.style.display='none';
