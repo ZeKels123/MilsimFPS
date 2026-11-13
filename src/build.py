@@ -179,7 +179,7 @@ rep("{const og=new THREE.PlaneGeometry(3600,3600,600,600);",HELPER+"{const og=ne
 rep("o.receiveShadow=true;S.add(o)}","o.receiveShadow=true;window.RINGM=o}")
 rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}")
 # ---- v15 : champs, forêt
-rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=13200,NO=4800,NBU=9400;let np=0,no=0,t=0;"+rd('forest.js'))
+rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=7070,NBU=9400;let np=0,no=0,t=0;"+rd('forest.js'))
 rep("if(Math.random()>p||!okPos(x,z,2.2)","if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)")
 rep("const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)","const BU=[];t=0;"+"{let c=0,tt=0;while(c<4200&&tt++<90000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2))continue;BU.push({x,z,y:GH(x,z),s:rnd(1.2,2.3),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)});c++}}\nwhile(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(nzSkip(x,z)||!okPos(x,z,.9)")
 # ---- menu : hooks de jeu

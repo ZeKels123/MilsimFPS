@@ -1,7 +1,7 @@
 // ================= CHAMPS AGRICOLES (nord-ouest) + FORÊT (sud-ouest) (v15) =================
 const FARM={x0:-750,x1:-227,z0:-750,z1:-290},FOR={x0:-750,x1:40,z0:408,z1:750};
 const inFarm=(x,z)=>x>FARM.x0&&x<FARM.x1&&z>FARM.z0&&z<FARM.z1,inFor=(x,z)=>x>FOR.x0&&x<FOR.x1&&z>FOR.z0&&z<FOR.z1;
-const FCELL=[];const nzSkip=(x,z)=>Math.max(Math.abs(x),Math.abs(z))>MH-9||inFor(x,z)||(inFarm(x,z)&&(Math.random()<.9||FCELL.some(c=>x>c[0]-4&&x<c[2]+4&&z>c[1]-4&&z<c[3]+4)));
+const TYP=()=>{const r=Math.random();return r<.4?1:r<.65?2:r<.83?3:4};const FCELL=[];const nzSkip=(x,z)=>Math.max(Math.abs(x),Math.abs(z))>MH-9||inFor(x,z)||(inFarm(x,z)&&(Math.random()<.9||FCELL.some(c=>x>c[0]-4&&x<c[2]+4&&z>c[1]-4&&z<c[3]+4)));
 {let sd=777;const rn=()=>(sd=(Math.imul(sd,1664525)+1013904223)>>>0)/4294967296;
 const KIND=[{n:'ble',g:'#7a6238',c:['#d8b85c','#c9a646','#e6cc78'],h:.95,sp:1.3},{n:'mais',g:'#5e4a2c',c:['#4f8a2e','#5f9c38','#3f7426'],h:2.1,sp:1.6},{n:'pousses',g:'#5a4429',c:['#7fc04a','#6cae3e','#95d05c'],h:.34,sp:1.2},{n:'labour',g:'#4f3a26',c:0,h:0,sp:1.4},{n:'colza',g:'#5d5a2c',c:['#e6cf1c','#f2de3a','#d4bb12'],h:1.15,sp:1.3},{n:'prairie',g:'#6f9a3c',c:0,h:0,sp:0}];
 const gT={},gM={};const gTex=(k,o)=>{const id=k+'_'+o;if(gT[id])return gT[id];const N=256,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d'),K=KIND[k];g.fillStyle=K.g;g.fillRect(0,0,N,N);
