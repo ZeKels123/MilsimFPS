@@ -330,3 +330,10 @@ Révision (v19b) : mains du lancer refaites — doigts à trois phalanges qui se
 - dans le navigateur : ouvrir `MILSIM_FPS.html?selftest` (résultats affichés en vert/rouge) ;
 - en ligne de commande : `python tests/run_tests.py` (nécessite playwright), qui mesure aussi le temps de chargement, relit la sauvegarde après rechargement de la page et renvoie un code d'erreur en cas d'échec.
 Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si elle est cassée.
+
+## v21 — Reclamer 12 (fusil à pompe)
+- Nouveau modèle importé de `reclamer_12.blend` (remplace l'ancien fusil à pompe, arme n°1 de la touche 4) : corps, canon, tube magasin, pompe mobile (objet `Cube`), 4 cartouches latérales (visibles tant qu'il reste de la réserve).
+- Caractéristiques : 6 coups, 9 plombs, rechargement **2 cartouches à la fois** (3 cycles pour un chargeur vide, ~2,2 s), les munitions entrent cycle après cycle ; tirer interrompt le rechargement si au moins un coup est chambré.
+- Animation : main gauche qui monte à la fenêtre de chargement avec 2 cartouches en main, pompe finale.
+- Données : `src/parts/reclamer_data.js` (généré), `src/parts/reclamer.js` (lissage par angle des normales). Test automatique ajouté (21 tests).
+- Captures : `docs/captures/v21/`.

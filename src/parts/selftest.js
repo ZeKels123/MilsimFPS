@@ -9,6 +9,8 @@ T('Bots présents (18)',()=>bots.length>=10?'':bots.length+' bots');
 T('6 armes définies',()=>WC.length===6?'':WC.length+' armes');
 T('Chaque arme : sélection et tir consomme une balle',()=>{const bad=[];const sv=[WSEL,ammo,reserve];for(let i=0;i<WC.length;i++){setWeapon(i);reloading=0;if(HM)HM.act=null;cd=0;const a0=ammo=WC[i].mag;fire();if(ammo!==a0-1)bad.push(WC[i].n)}equip(sv[0],sv[1],sv[2]);return bad.length?'tir sans effet : '+bad.join(', '):''});
 T('Rechargement démarre',()=>{setWeapon(0);reloading=0;ammo=1;reserve=60;reload();const ok=reloading>0;reloading=0;ammo=30;return ok?'':'reload() sans effet'});
+T('Reclamer 12 : modèle, 6 coups, rechargement 2 par 2',()=>{if(WC[3].n!=='Reclamer 12'||WC[3].mag!==6||!rcM.corps||!rcM.Cube)return'incorrect';const sw=WSEL,sa=ammo,sr=reserve;setWeapon(3);ammo=0;reserve=36;reload();const N=SGR.N;SGR.d=0;reloading=.01;SGR.d=0;
+let ok=N===3;ammo=0;reserve=36;reloading=0;SGR.N=3;SGR.d=0;ok=ok&&RT>1.9&&RT<2.4;ammo=sa;reserve=sr;reloading=0;setWeapon(sw);return ok?'':'N='+N+' RT='+RT});
 T('Signal 50 : modèle et caractéristiques',()=>WC[4].n==='Signal 50'&&WC[4].mag===5&&typeof sigM==='object'&&sigM.compensater&&sigM.compensater.length?'':'incorrect');
 T('Silencieux et frein de bouche s’excluent',()=>{const sv=[A.supp,A.brake];A.supp=false;A.brake=true;toggleAtt('supp');const ok=A.supp&&!A.brake;A.supp=sv[0];A.brake=sv[1];return ok?'':'silencieux et frein actifs ensemble'});
 T('Santé : dégâts puis réinitialisation',()=>{hlReset();const z0=HM.z.t;hlApply('t',20,'b',null);const z1=HM.z.t;hlReset();return z1<z0&&HM.z.t===z0?'':'zone '+z0+' → '+z1+' → '+HM.z.t});

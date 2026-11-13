@@ -18,7 +18,7 @@ const pMag=wg[2].children.find(c=>c.geometry&&c.geometry.parameters&&c.geometry.
 bx(.036,.036,.02,0,.022,-.565,mtl,g);bx(.026,.026,.012,0,-.014,-.54,brs,g);bx(.012,.012,.012,0,.044,-.55,rdM,g);bx(.02,.02,.1,0,-.014,-.43,mtl,g);bx(.044,.026,.08,0,-.052,-.02,dk,g);bx(.01,.05,.01,0,-.07,.04,dk,g);
 for(let k=0;k<5;k++){const sh=bx(.018,.018,.045,.0285,.006,-.1+k*.05,rdM,g);sh.rotation.y=0;bx(.018,.018,.012,.0285,.006,-.1+k*.05+.026,brs,g)}
 bx(.052,.006,.2,0,-.034,-.06,mtl,g);bx(.006,.03,.06,.0265,.012,-.03,dk,g);bx(.045,.015,.04,0,.03,.3,dk,g)}
-const shl=new THREE.Group();bx(.02,.02,.05,0,0,0,rdM,shl);bx(.021,.021,.012,0,0,.028,brs,shl);gun.add(shl);shl.visible=false;
+const shl=new THREE.Group();[-.013,.013].forEach(x=>{bx(.02,.02,.05,x,0,0,rdM,shl);bx(.021,.021,.012,x,0,.028,brs,shl)});gun.add(shl);shl.visible=false;
 // --- fusil de précision
 {const g=wg[4];for(let k=0;k<6;k++)bx(.027,.027,.01,0,.015,-.3-k*.07,mtl,g);bx(.034,.034,.09,0,.015,-.74,mtl,g);for(let k=0;k<3;k++)bx(.044,.006,.07,0,.015,-.8+k*0,dk,g).visible=false;
 bx(.046,.046,.075,0,.015,-.84,dk,g);for(let k=0;k<3;k++){bx(.048,.014,.012,0,.015,-.82-k*.02,mtl,g)}bx(.05,.005,.05,0,.015,-.84,mtl,g);
@@ -34,8 +34,8 @@ else if(i===1){rx=rl*.4-is*.2;rz=rl*.3+is*Math.sin(ip*9.4)*.45}
 else if(i===2){x=-rl*.05-is*.05;y=-rl*.03+is*.05;z=rl*.1;rx=rl*.8-is*.3;ry=rl*.12+is*2.5;rz=rl*.45+is*Math.sin(ip*6.28)*.3;O.cyc=pls(ip,.58,.78)+(reloadEmpty?0:0);
  const d=ru<.22?0:ru<.38?(ru-.22)/.16:ru<.58?1:ru<.72?1-(ru-.58)/.14:0;pMag.position.y=pMagY-.2*d;pMag.visible=!(ru>.38&&ru<.58);
  if(ru>.2&&wsd<1){wsd=1;snd(240,.05,.2,'square')}if(ru>.68&&wsd<2){wsd=2;snd(300,.06,.25,'square')}if(reloadEmpty&&ru>.84&&wsd<3){wsd=3;snd(190,.07,.3,'square')}}
-else if(i===3){x=rl*.03;y=-rl*.1;z=rl*.04;rx=rl*.18-is*.15;ry=rl*.1+is*.9;rz=rl*.95+is*Math.sin(ip*6.28)*.25;O.cyc=pls(ru,.88,.99)+pls(ip,.28,.42)+pls(ip,.5,.64);
- if(ru>.88&&wsd<9){wsd=9;snd(110,.12,.3,'square')}}
+else if(i===3){x=rl*.03;y=-rl*.1;z=rl*.04;rx=rl*.18-is*.15;ry=rl*.1+is*.9;rz=rl*.95+is*Math.sin(ip*6.28)*.25;O.cyc=pls(ru,1-.14/RT,.995)+pls(ip,.28,.42)+pls(ip,.5,.64);
+ if(ru>1-.14/RT&&wsd<9){wsd=9;snd(110,.12,.3,'square')}}
 else if(i===4){x=rl*.02;rx=rl*.3-is*.35;ry=rl*.08+is*1.4;rz=rl*.55+is*Math.sin(ip*6.28)*.2;O.cyc=pls(ru,.04,.2)+pls(ru,.8,.97)+pls(ip,.4,.7);
  const d=ru<.3?0:ru<.45?(ru-.3)/.15:ru<.58?1:ru<.7?1-(ru-.58)/.12:0;sMag.position.y=sMagY-.18*d;sMag.visible=!(ru>.45&&ru<.58);
  if(ru>.06&&wsd<1){wsd=1;snd(130,.08,.3,'square')}if(ru>.32&&wsd<2){wsd=2;snd(220,.06,.2,'square')}if(ru>.62&&wsd<3){wsd=3;snd(280,.07,.25,'square')}if(ru>.83&&wsd<4){wsd=4;snd(150,.1,.3,'square')}}
@@ -46,8 +46,8 @@ if(i!==5){hmgBox.position.y=0;hmgBox.visible=true}if(i!==2)pMag.visible=true;if(
 O.x=x;O.y=y;O.z=z;O.rx=rx;O.ry=ry;O.rz=rz;return O}
 function wHand(i,ru,H){const R_={h:H,mv:true};
 if(i===2)R_.h=kf([[0,H],[.1,[0,-.1,-.02]],[.22,[0,-.15,-.03]],[.38,[0,-.34,-.03]],[.5,[-.08,-.42,.04]],[.6,[-.02,-.26,0]],[.72,[0,-.13,-.03]],[.82,[0,-.11,-.04]],[.9,[.02,-.04,-.14]],[1,H]],ru);
-else if(i===3){if(ru<.88){const u=Math.min(.999,ru/.88)*6,f=u%1,n=Math.floor(u);R_.h=kf([[0,[-.1,-.36,.03]],[.45,[0,-.095,-.03]],[.62,[0,-.09,-.04]],[1,[-.1,-.36,.03]]],f);
+else if(i===3){const t_=ru*RT-.15;if(t_<SGR.N*.62){const u=Math.max(0,t_)/.62,f=u%1,n=Math.floor(u);R_.h=kf([[0,[-.1,-.36,-.05]],[.45,[0,-.1,-.17]],[.62,[0,-.095,-.17]],[1,[-.1,-.36,-.05]]],f);
  shl.visible=f<.62;shl.position.set(R_.h[0],R_.h[1]+.025,R_.h[2]-.03);shl.rotation.x=f<.45?-.5:0;if(f>.5&&n!==shF){shF=n;snd(180,.05,.18,'square')}}
- else{shl.visible=false;R_.h=kf([[.88,[0,-.09,-.04]],[1,H]],ru)}}
+ else{shl.visible=false;R_.h=kf([[0,[0,-.09,-.17]],[1,H]],Math.min(1,(t_-SGR.N*.62)/.14))}}
 else if(i===4)R_.h=kf([[0,H],[.12,[0,-.12,.05]],[.28,[0,-.2,.05]],[.42,[-.1,-.42,.05]],[.56,[-.05,-.26,.05]],[.7,[0,-.11,.03]],[.82,[0,-.1,.02]],[.95,H],[1,H]],ru);
 return R_}
