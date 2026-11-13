@@ -17,7 +17,7 @@ const OUT=[{id:'std',n:'Treillis standard',z:{},sl:0x3a4634,gl:0xc99b7a},
 [WSK,OUT].forEach(l=>l.forEach(o=>{o.pro=[];o.con=[];ZN_.forEach(([k,n])=>{const f=o.z[k];if(!f)return;const pc=Math.round(Math.abs(1-f)*100);if(f<1)o.pro.push(n+' : détecté '+pc+' % moins loin');else o.con.push(n+' : détecté '+pc+' % plus loin')})}));
 function zoneNow(){const x=P.x,z=P.z;if(typeof inRoom==='function'&&inRoom(x,z)>=0)return'int';if(x>150&&x<744&&z>-744&&z<-350)return'vil';if(x>-750&&x<40&&z>408&&z<750)return'for';if(x>-750&&x<-227&&z>-750&&z<-290)return'pla';try{if(NZT(x*.032+3,z*.032-5)>.5)return'for'}catch(e){}return'pla'}
 const CAM={z:'pla',k:1,t:0};
-function skStealth(){const w=WSK.find(s=>s.id===SET.wsk)||WSK[0],o=OUT.find(s=>s.id===SET.out)||OUT[0],night=TOD.t>20.2||TOD.t<5.2;CAM.z=zoneNow();let k=(w.z[CAM.z]||1)*(o.z[CAM.z]||1);if(night)k*=(w.z.nui||1)*(o.z.nui||1);return CAM.k=k}
+function skStealth(){const w=WSK.find(s=>s.id===SET.wsk)||WSK[0],o=OUT.find(s=>s.id===SET.out)||OUT[0],night=TOD.t>20.2||TOD.t<5.2;CAM.z=zoneNow();let k=(w.z[CAM.z]||1)*(o.z[CAM.z]||1)*(CAM.z==='for'?.72:1);if(night)k*=(w.z.nui||1)*(o.z.nui||1);return CAM.k=k}
 const SK0=[SK.color.getHex(),SKd.color.getHex(),NLm.color.getHex()],wskC={};
 function wskCanvas(w,n){n=n||128;const k=w.id+n;if(wskC[k])return wskC[k];const c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d');
 if(w.t){x.fillStyle=w.t[0];x.fillRect(0,0,n,n);let sd=w.id.charCodeAt(0)*7+3;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;for(let i=0;i<46;i++){x.fillStyle=w.t[1+i%3];x.beginPath();x.ellipse(r()*n,r()*n,n*(.05+r()*.12),n*(.03+r()*.07),r()*3,0,6.3);x.fill()}}

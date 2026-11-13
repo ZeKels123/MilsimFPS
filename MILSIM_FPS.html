@@ -978,9 +978,9 @@ setInterval(()=>{if(typeof P==='undefined')return;for(const im of FARMI){const c
 if(hed.length){const im=new THREE.InstancedMesh(bg,std(0x35602c,{roughness:1}),hed.length);hed.forEach((q,i)=>{const y=GH(q[0],q[1]);dm_.position.set(q[0],y+.75,q[1]);dm_.scale.set(8.2,1.6,1.5);dm_.updateMatrix();im.setMatrixAt(i,dm_.matrix);boxes.push({x0:q[0]-4.1,x1:q[0]+4.1,z0:q[1]-.75,z1:q[1]+.75,y0:y,y1:y+1.6})});im.frustumCulled=false;S.add(im)}
 if(bales.length){const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(.95,.95,1.3,12),std(0xcdb25a,{roughness:1}),bales.length);bales.forEach((q,i)=>{const y=GH(q[0],q[1]);dm_.position.set(q[0],y+.95,q[1]);dm_.rotation.set(0,q[2],1.5708);dm_.scale.set(1,1,1);dm_.updateMatrix();im.setMatrixAt(i,dm_.matrix);boxes.push({x0:q[0]-1,x1:q[0]+1,z0:q[1]-1,z1:q[1]+1,y0:y,y1:y+1.9})});im.castShadow=true;im.frustumCulled=false;S.add(im)}
 window.FARMN=cells.length;window.FARMC=cells}
-const TR=[],NP=9700,NO=3560,NBU=6800;let np=0,no=0,t=0;// forêt dense (sud-ouest) : arbres plantés avant le semis général, avec des clairières
-{let c=0,tt=0;const FN=6000;while(c<FN&&tt++<120000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1),d=nzt(x*.05+11,z*.05+3);if(d<.32&&Math.random()<.9)continue;if(Math.max(Math.abs(x),Math.abs(z))>MH-9)continue;if(!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4))continue;
-const s=rnd(.9,1.7),pine=Math.random()<.72;if(pine)np++;else no++;c++;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}}
+const TR=[],NP=13200,NO=4800,NBU=9400;let np=0,no=0,t=0;// forêt dense (sud-ouest) : arbres plantés avant le semis général, avec des clairières
+{let c=0,tt=0;const FN=9500;while(c<FN&&tt++<120000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1),d=nzt(x*.05+11,z*.05+3);if(d<.17&&Math.random()<.85)continue;if(Math.max(Math.abs(x),Math.abs(z))>MH-9)continue;if(!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4))continue;
+const s=rnd(1.5,2.2),pine=Math.random()<.75;if(pine)np++;else no++;c++;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}}
 
 while((np<NP||no<NO)&&t++<120000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:1,r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
@@ -990,7 +990,7 @@ TR.forEach((q,i)=>{const hh=q.ty?4.6:6.4,sc=q.ty?q.s*1.1:q.s*.9;oo.position.set(
 // --- LOD : listes d'instances reconstruites quand le joueur bouge
 function lodSet(geoN,matN,geoF,matF,dN,cap,wkd,wkf){const a=new THREE.InstancedMesh(geoN,matN,cap),b=new THREE.InstancedMesh(geoF,matF,cap);[a,b].forEach(m=>m.setColorAt(0,new THREE.Color(1,1,1)));a.count=b.count=0;[a,b].forEach(m=>{m.castShadow=m.receiveShadow=true;m.frustumCulled=false;S.add(m)});if(wkd)a.customDepthMaterial=wkd;if(wkf)b.customDepthMaterial=wkf;return{a,b,dN,cap}}
 const LP=lodSet(GPN,fm(pineT,6),GPF,fm(pineT,6),64,NP,fd(pineT,6),fd(pineT,6)),LB=lodSet(GBN,fm(leafT,7),GBF,fm(leafT,7),64,NO,fd(leafT,7),fd(leafT,7));
-const BU=[];t=0;{let c=0,tt=0;while(c<1700&&tt++<40000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2))continue;BU.push({x,z,y:GH(x,z),s:rnd(.9,1.8),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)});c++}}
+const BU=[];t=0;{let c=0,tt=0;while(c<4200&&tt++<90000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2))continue;BU.push({x,z,y:GH(x,z),s:rnd(1.2,2.3),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)});c++}}
 while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(nzSkip(x,z)||!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2)||(Math.abs(x)<9&&z>16))continue;BU.push({x,z,y:GH(x,z),s:rnd(.8,1.7),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)})}
 const LS=lodSet(GSN,fm(bushT,8),GSF,fm(bushT,8),38,NBU,fd(bushT,8),fd(bushT,8));
 const col=new THREE.Color(),M4=new THREE.Matrix4(),SM=new THREE.Matrix4();let last={x:1e9,z:1e9,t:0};
@@ -3279,7 +3279,7 @@ const OUT=[{id:'std',n:'Treillis standard',z:{},sl:0x3a4634,gl:0xc99b7a},
 [WSK,OUT].forEach(l=>l.forEach(o=>{o.pro=[];o.con=[];ZN_.forEach(([k,n])=>{const f=o.z[k];if(!f)return;const pc=Math.round(Math.abs(1-f)*100);if(f<1)o.pro.push(n+' : détecté '+pc+' % moins loin');else o.con.push(n+' : détecté '+pc+' % plus loin')})}));
 function zoneNow(){const x=P.x,z=P.z;if(typeof inRoom==='function'&&inRoom(x,z)>=0)return'int';if(x>150&&x<744&&z>-744&&z<-350)return'vil';if(x>-750&&x<40&&z>408&&z<750)return'for';if(x>-750&&x<-227&&z>-750&&z<-290)return'pla';try{if(NZT(x*.032+3,z*.032-5)>.5)return'for'}catch(e){}return'pla'}
 const CAM={z:'pla',k:1,t:0};
-function skStealth(){const w=WSK.find(s=>s.id===SET.wsk)||WSK[0],o=OUT.find(s=>s.id===SET.out)||OUT[0],night=TOD.t>20.2||TOD.t<5.2;CAM.z=zoneNow();let k=(w.z[CAM.z]||1)*(o.z[CAM.z]||1);if(night)k*=(w.z.nui||1)*(o.z.nui||1);return CAM.k=k}
+function skStealth(){const w=WSK.find(s=>s.id===SET.wsk)||WSK[0],o=OUT.find(s=>s.id===SET.out)||OUT[0],night=TOD.t>20.2||TOD.t<5.2;CAM.z=zoneNow();let k=(w.z[CAM.z]||1)*(o.z[CAM.z]||1)*(CAM.z==='for'?.72:1);if(night)k*=(w.z.nui||1)*(o.z.nui||1);return CAM.k=k}
 const SK0=[SK.color.getHex(),SKd.color.getHex(),NLm.color.getHex()],wskC={};
 function wskCanvas(w,n){n=n||128;const k=w.id+n;if(wskC[k])return wskC[k];const c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d');
 if(w.t){x.fillStyle=w.t[0];x.fillRect(0,0,n,n);let sd=w.id.charCodeAt(0)*7+3;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;for(let i=0;i<46;i++){x.fillStyle=w.t[1+i%3];x.beginPath();x.ellipse(r()*n,r()*n,n*(.05+r()*.12),n*(.03+r()*.07),r()*3,0,6.3);x.fill()}}
