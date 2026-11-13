@@ -58,3 +58,11 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Voitures : plus de « caisses » ; uniquement les modèles Mustang et Mazda fournis (8 couleurs).
 - Lampadaires : projecteurs coniques orientés vers le sol la nuit (18 h 42 – 6 h 18). Les 10 plus proches (< 350 m) éclairent, les 2 plus proches projettent des ombres ; halo lumineux sur chaque lanterne + halo chaud au sol.
 - Bouches à incendie : modèle importé de `borne_hydrante.blend` (3 pièces, ~1 m de haut, rouge) à la place du modèle fait à la main ; collision conservée.
+
+## v16 — Textures des champs, corrections terrain/arbres, optimisation
+- Champs : cultures en plans texturés (blé, maïs, jeunes pousses, colza dessinés tige par tige) à la place des blocs ; sol des parcelles calé exactement sur le maillage du terrain (plus de terrain qui traverse) ; cours de ferme qui suivent le relief.
+- Terrain : couleurs du sol lissées (plus de taches à bords nets) ; anneau extérieur raccordé au terrain jouable (écart au bord 11,5 m → 0,5 m).
+- Arbres : plus aucun arbre dans une parcelle ni collé au mur d'enceinte ; troncs affichés seulement à moins de 190 m.
+- Optimisation : terrain découpé en 256 morceaux + anneau en 100 morceaux (seuls ceux à l'écran sont dessinés), anneau 720k → 259k triangles, champs masqués au-delà de 300 m, ombres des lampadaires recalculées 9 fois/s. Triangles par image : ville jour 3,67 M → 0,50 M ; ville nuit 5,88 M → 1,46 M ; champs 3,55 M → 0,39 M ; forêt 4,05 M → 1,22 M.
+- Voitures : peinture métallisée vernie, salissure en bas de caisse, vitres teintées (elles prenaient la couleur de la carrosserie), jantes chromées, pneus mats ; nouvelle palette de 8 teintes.
+- Divers : touches J, Y, I, virgule, point réservées (soins) dans le changement de touches ; texte des skins sans effet corrigé.

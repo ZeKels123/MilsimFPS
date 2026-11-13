@@ -77,6 +77,7 @@ scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.no
 for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),h=p.getZ(i),sl=1-nn.getZ(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2),k=1+.09*Math.max(-1,Math.min(1.5,h)),
 d=sstep(.03,.16,sl)*.8+sstep(.5,1.6,h)*.25*(1-sstep(.1,.2,sl))+(nz(X*.15,Y*.15)-.5)*.35-.14,dr=Math.max(0,Math.min(1,d));
 const wv=wDist(X,-Y),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1;c[i*3]=(((.8+.22*n)*.8*(1-dr)+.9*dr)*k*(1-mu)+.62*mu)*ku;c[i*3+1]=(((.84+.16*n)*1.05*(1-dr)+.74*dr)*k*(1-mu)+.55*mu)*ku;c[i*3+2]=(((.74+.2*n)*.74*(1-dr)+.6*dr)*k*(1-mu)+.42*mu)*ku}
+for(let ps=0;ps<2;ps++){const t=c.slice();for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*3;for(let k=0;k<3;k++)c[n+k]=(t[n+k]*4+2*(t[n-3+k]+t[n+3+k]+t[n-GN*3+k]+t[n+GN*3+k])+t[n-GN*3-3+k]+t[n-GN*3+3+k]+t[n+GN*3-3+k]+t[n+GN*3+3+k])/16}}
 g.setAttribute('color',new THREE.BufferAttribute(c,3));g.computeBoundingSphere();g.computeBoundingBox();floor.geometry.dispose();floor.geometry=g}
 
 // optimisation : le rayon contre le sol marche sur le champ de hauteur au lieu de tester ~40 000 triangles

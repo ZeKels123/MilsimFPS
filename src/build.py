@@ -166,6 +166,18 @@ rep("P.deaths++;","P.deaths++;invDeath();")
 rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode||KNF.on)return;if(ammo<=0)")
 rep("<tr><td>Tab</td>","<tr><td>B</td><td>Poser un piège (clic maintenu) · 9 : télécommande · F maintenu : désamorcer</td></tr><tr><td>Tab</td>")
 rep("<tr><td>B</td><td>Poser","<tr><td>F8</td><td>Activer / d\u00e9sactiver les ennemis (test)</td></tr><tr><td>B</td><td>Poser")
+HELPER=r'''function chunkPlane(m,NC,add0){const g=m.geometry,gx=g.parameters.widthSegments,gy=g.parameters.heightSegments,g1=gx+1,p=g.attributes.position,out=[],sx=Math.ceil(gx/NC),sy=Math.ceil(gy/NC),v=new THREE.Vector3();
+for(let cy=0;cy<gy;cy+=sy)for(let cx=0;cx<gx;cx+=sx){const x1=Math.min(gx,cx+sx),y1=Math.min(gy,cy+sy),I=new Uint32Array((x1-cx)*(y1-cy)*6),bb=new THREE.Box3();let n=0;
+for(let iy=cy;iy<y1;iy++)for(let ix=cx;ix<x1;ix++){const a=ix+g1*iy,b=ix+g1*(iy+1),c=ix+1+g1*(iy+1),d=ix+1+g1*iy;I[n++]=a;I[n++]=b;I[n++]=d;I[n++]=b;I[n++]=c;I[n++]=d}
+for(let iy=cy;iy<=y1;iy++)for(let ix=cx;ix<=x1;ix++){v.fromBufferAttribute(p,ix+g1*iy);bb.expandByPoint(v)}
+const cg=new THREE.BufferGeometry();for(const k in g.attributes)cg.setAttribute(k,g.attributes[k]);cg.setIndex(new THREE.BufferAttribute(I,1));cg.boundingBox=bb;cg.boundingSphere=bb.getBoundingSphere(new THREE.Sphere());
+const e=new THREE.Mesh(cg,m.material);e.position.copy(m.position);e.rotation.copy(m.rotation);e.receiveShadow=m.receiveShadow;e.castShadow=m.castShadow;e.userData.keep=1;e.userData.chunk=1;e.updateMatrix();e.matrixAutoUpdate=false;S.add(e);out.push(e)}
+g.setDrawRange(0,0);return out}
+'''
+# ---- v16 : terrain découpé en morceaux (culling), anneau extérieur allégé
+rep("{const og=new THREE.PlaneGeometry(3600,3600,600,600);",HELPER+"{const og=new THREE.PlaneGeometry(3600,3600,360,360);")
+rep("o.receiveShadow=true;S.add(o)}","o.receiveShadow=true;window.RINGM=o}")
+rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}")
 # ---- v15 : champs, forêt
 rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=3560,NBU=6800;let np=0,no=0,t=0;"+rd('forest.js'))
 rep("if(Math.random()>p||!okPos(x,z,2.2)","if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)")

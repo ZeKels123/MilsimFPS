@@ -22,7 +22,7 @@ const BX=[[150,217],[231,324],[336,414],[426,500],[516,606],[624,738]],BZ=[[-738
 const GRID=[['park','park','park','park','park','park'],['apt','off','hotel','apt','shop','resto'],['shop','off','resto','shop','apt','off'],['resto','off','off','park','hotel','apt'],['apt','shop','apt','resto','off','shop']];
 BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.08,z1-z0),pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
 // --- modèles importés (cache de géométrie)
-const MG={},CV=[[.55,.02,.02],[.02,.08,.45],[.8,.8,.8],[.01,.01,.012],[.45,.46,.5],[.02,.25,.08],[.75,.55,.03],[.7,.2,.02]];const mdl=n=>{const[nm,ci]=n.split(':');if(!MG[n])MG[n]=mkMdl(nm,ci!==undefined?CV[ci|0]:undefined);return MG[n].clone()};
+const MG={},CV=[[.42,.025,.03],[.025,.07,.26],[.78,.78,.76],[.012,.012,.015],[.36,.37,.4],[.03,.13,.07],[.46,.38,.24],[.5,.16,.03]];const mdl=n=>{const[nm,ci]=n.split(':');if(!MG[n])MG[n]=mkMdl(nm,ci!==undefined?CV[ci|0]:undefined);return MG[n].clone()};window.mdl=mdl;
 const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);if(hw)boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh});if(sol&&hw){const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,Y+y+hh/2,z);px.visible=false;S.add(px);solids.push(px)}return e};
 // --- bouche d'incendie
 const hydM=std(0xb3201a,{roughness:.5,metalness:.3}),hydC=std(0xc9c9c4,{roughness:.4,metalness:.7});
@@ -142,9 +142,10 @@ const glowT=(()=>{const[c,g]=mkC(64,64),gr=g.createRadialGradient(32,32,1,32,32,
 const glowM=new THREE.SpriteMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,fog:false});
 const poolM=new THREE.MeshBasicMaterial({map:poolT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
 setInterval(()=>{if(typeof TOD==='undefined')return;const n=TOD.t<6.3||TOD.t>18.7;poolM.opacity=n?.6:0;glowM.opacity=n?.9:0;lampM2.color.setHex(n?0xfff0c8:0x8f8a7c)},1500);
-const LAMPS=[],LPL=[];for(let i=0;i<10;i++){const l=new THREE.SpotLight(0xffd9a0,0,48,1.15,.7,1.4);l.visible=false;if(i<2){l.castShadow=true;l.shadow.mapSize.set(512,512);l.shadow.bias=-.0015;l.shadow.camera.near=1;l.shadow.camera.far=50}l.target=new THREE.Object3D();S.add(l);S.add(l.target);LPL.push(l)}
+const LAMPS=[],LPL=[];for(let i=0;i<10;i++){const l=new THREE.SpotLight(0xffd9a0,0,48,1.15,.7,1.4);l.visible=false;if(i<2){l.castShadow=true;l.shadow.mapSize.set(512,512);l.shadow.bias=-.0015;l.shadow.camera.near=1;l.shadow.camera.far=50;l.shadow.autoUpdate=false}l.target=new THREE.Object3D();S.add(l);S.add(l.target);LPL.push(l)}
 setInterval(()=>{if(typeof TOD==='undefined'||typeof P==='undefined')return;const n=TOD.t<6.3||TOD.t>18.7;if(!n){LPL.forEach(l=>{l.visible=false});return}
-const d=LAMPS.map(q=>[(q[0]-P.x)**2+(q[2]-P.z)**2,q]).filter(a=>a[0]<122500).sort((a,b)=>a[0]-b[0]);LPL.forEach((l,i)=>{const e=d[i];if(!e){l.visible=false;return}l.visible=true;l.position.set(e[1][0],e[1][1],e[1][2]);l.target.position.set(e[1][0],Y,e[1][2]);l.target.updateMatrixWorld();l.intensity=i<2?4.5:3.5})},400);
+const d=LAMPS.map(q=>[(q[0]-P.x)**2+(q[2]-P.z)**2,q]).filter(a=>a[0]<122500).sort((a,b)=>a[0]-b[0]);if(!d.length){LPL.forEach(l=>{l.visible=false});return}LPL.forEach((l,i)=>{const e=d[i];l.visible=true;if(!e){l.intensity=0;return}l.position.set(e[1][0],e[1][1],e[1][2]);l.target.position.set(e[1][0],Y,e[1][2]);l.target.updateMatrixWorld();l.intensity=i<2?4.5:3.5})},400);
+setInterval(()=>{for(let i=0;i<2;i++)if(LPL[i].visible)LPL[i].shadow.needsUpdate=true},110);
 const lamp=(x,z,dx,dz)=>lazy([x,x,z,z],()=>lamp0(x,z,dx,dz)),lamp0=(x,z,dx,dz)=>{const add=(g,m,px,py,pz,rz,rx)=>{const e=new THREE.Mesh(g,m);e.position.set(x+px,Y+py,z+pz);if(rz)e.rotation.z=rz;if(rx)e.rotation.x=rx;e.castShadow=true;S.add(e);return e};
 add(new THREE.CylinderGeometry(.2,.24,.5,8),polM,0,.25,0);add(new THREE.CylinderGeometry(.06,.11,7.2,8),polM,0,3.9,0);
 add(new THREE.BoxGeometry(dx?1.9:.09,.09,dz?1.9:.09),polM,dx*.85,7.75,dz*.85,dx?dx*.28:0,dz?-dz*.28:0);
