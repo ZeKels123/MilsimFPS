@@ -289,3 +289,8 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Modèle importé depuis `hmg.blend` (4 pièces : corps, caisse de munitions, canon, bouton d armement), converti en géométrie embarquée (`src/parts/hmg_data.js`, `hmg.js`), échelle ~0,85 m.
 - 6e arme : 100 coups (+300 en réserve), cadence 800 coups/min, dégâts 30, calibre 7.62, poids 9,5 kg (vitesse ×0,78), rechargement long (4,4 s) avec la caisse qui descend.
 - Sélection : établi (bouton « Mitrailleuse HMG »). Couleurs : gris métal / vert, le .blend ne contenait que des couleurs par défaut.
+
+## Menu principal (v15)
+- Écran d accueil à 3 boutons : **Jouer** (carte complète ou zone d entraînement), **Paramètres** (volume général, qualité graphique, sensibilité, remappage de 19 touches, enregistrés dans le navigateur), **Équipement** (6 skins d armes et 6 tenues, chacun avec avantages et inconvénients : dégâts, recul, rechargement, vitesse, armure de départ, détection par les ennemis, dégâts reçus).
+- Zone d entraînement : champ de tir dégagé à (20, 122), 9 mannequins de 10 à 75 m dont 2 mobiles, aucun ennemi, munitions illimitées, statistiques (tirs, précision, têtes, éliminations, dernier impact). Le bouton ☰ MENU PRINCIPAL est dans l écran de pause.
+- Fichiers : `src/parts/menu0.js` (réglages, volume, touches), `src/parts/menu.js` (interface, mannequins, skins).
