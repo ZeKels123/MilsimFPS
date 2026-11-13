@@ -1,4 +1,4 @@
-const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS,[[146,-704,504,-346]]);
+const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS,[[146,-744,744,-346]]);
 const okPos=(x,z,m)=>!boxes.some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!RMS.some(r=>x>r[0]-m&&x<r[2]+m&&z>r[1]-m&&z<r[3]+m)&&!(x>-8&&x<8&&z>20&&z<30);
 // pad de la zone sûre
 {const pg=new THREE.PlaneGeometry(14,8.4);scaleUV(pg,7,4.2);const pd=new THREE.Mesh(pg,matTile);pd.rotation.x=-Math.PI/2;pd.position.set(0,.014,25.2);pd.receiveShadow=true;S.add(pd)}

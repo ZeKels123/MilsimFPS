@@ -1,5 +1,5 @@
-// ================= VILLE (v13) : 350 x 350 m (x 150..500, z -700..-350), étages accessibles, vitres cassables =================
-const CT={x0:150,x1:500,z0:-700,z1:-350,y:0,ax:224,az:-525};
+// ================= VILLE (v15) : 588 x 388 m (x 150..738, z -738..-350), étages accessibles, vitres cassables =================
+const CT={x0:150,x1:738,z0:-738,z1:-350,y:0,ax:224,az:-525};
 const LZ={q:[],built:[],t:0,n:0,k:0};function lazy(r,fn){LZ.q.push({r,fn})}
 (()=>{const Y=CT.y,FH=3.4,t=.35;let sd=4242;const rn=()=>(sd=(Math.imul(sd,1664525)+1013904223)>>>0)/4294967296;
 const mkC=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return[c,c.getContext('2d')]};
@@ -15,11 +15,11 @@ const L=(x,y,w,ht)=>h?g.fillRect(y,x,ht,w):g.fillRect(x,y,w,ht);g.fillStyle='#e7
 const rdN=roadC(0),rdE=roadC(1);
 const asphN=len=>std(0xffffff,{map:cvT(rdN,1,len/16),roughness:.95}),asphE=len=>std(0xffffff,{map:cvT(rdE,len/16,1),roughness:.95,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
 const pavM=std(0x8d8d88,{roughness:1}),roofM=std(0x3b3d40,{roughness:.9}),concM=std(0x9a9a94,{roughness:.95});
-const SX=[[224,14],[330,12],[420,12]],SZ=[[-420,12],[-525,14],[-630,12]];
-SX.forEach(([x,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(w,.06,350),asphN(350));e.position.set(x,Y+.03,-525);e.receiveShadow=true;S.add(e)});
-SZ.forEach(([z,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(350,.06,w),asphE(350));e.position.set(325,Y+.035,z);e.receiveShadow=true;S.add(e)});
-const BX=[[150,217],[231,324],[336,414],[426,500]],BZ=[[-700,-636],[-624,-532],[-518,-426],[-414,-350]];
-const GRID=[['apt','off','hotel','apt'],['shop','off','resto','shop'],['resto','off','off','park'],['apt','shop','apt','resto']];
+const SX=[[224,14],[330,12],[420,12],[508,14],[615,14]],SZ=[[-420,12],[-525,14],[-630,12],[-706,12]];
+SX.forEach(([x,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(w,.06,388),asphN(388));e.position.set(x,Y+.03,-544);e.receiveShadow=true;S.add(e)});
+SZ.forEach(([z,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(588,.06,w),asphE(588));e.position.set(444,Y+.035,z);e.receiveShadow=true;S.add(e)});
+const BX=[[150,217],[231,324],[336,414],[426,500],[516,606],[624,738]],BZ=[[-738,-712],[-700,-636],[-624,-532],[-518,-426],[-414,-350]];
+const GRID=[['park','park','park','park','park','park'],['apt','off','hotel','apt','shop','resto'],['shop','off','resto','shop','apt','off'],['resto','off','off','park','hotel','apt'],['apt','shop','apt','resto','off','shop']];
 BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.08,z1-z0),pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
 // --- modèles importés (cache de géométrie)
 const MG={},CV=[[.55,.02,.02],[.02,.08,.45],[.8,.8,.8],[.01,.01,.012],[.45,.46,.5],[.02,.25,.08],[.75,.55,.03],[.7,.2,.02]];const mdl=n=>{const[nm,ci]=n.split(':');if(!MG[n])MG[n]=mkMdl(nm,ci!==undefined?CV[ci|0]:undefined);return MG[n].clone()};
@@ -132,10 +132,9 @@ for(let k=0;k<2;k++)if(rn()<.8){const bx=x0+4+rn()*(x1-x0-8),bz=rn()<.5?z0+2.2:z
 [[x0+1.3,z0+7],[x1-1.3,z1-7]].forEach(q=>lazy([q[0],q[0],q[1],q[1]],()=>hydrant(q[0],q[1])))}));
 // --- voitures garées (Mustang importée ou caisse) + lampadaires
 const COL=[0x8a1f1f,0x1f3a6a,0xb8b8b8,0x222222,0x6a6a2a,0x2a5a3a];
-const cars=(vert,f,half)=>{const a0=vert?-692:158,a1=vert?-358:492;for(let u=a0;u<=a1;u+=17+((rn()*14)|0)){const side=(rn()<.5?-1:1)*(half-1.5),px=vert?f+side:u,pz=vert?u:f+side;
+const cars=(vert,f,half)=>{const a0=vert?-730:158,a1=vert?-358:730;for(let u=a0;u<=a1;u+=17+((rn()*14)|0)){const side=(rn()<.5?-1:1)*(half-1.5),px=vert?f+side:u,pz=vert?u:f+side;
 if(rn()<.35)continue;if((vert?SZ:SX).some(([g,w])=>Math.abs(u-g)<w/2+5))continue;
-if(rn()<.5){const e=mdlAtL((rn()<.5?'car:':'mazda:')+((rn()*8)|0),px,0,pz,vert?(side>0?0:Math.PI):(side>0?Math.PI/2:-Math.PI/2),vert?1.15:2.3,vert?2.3:1.15,1.4,1);continue}
-const cl=std(COL[(rn()*6)|0],{roughness:.4,metalness:.4}),lw=vert?1.8:4.2,ld=vert?4.2:1.8;blk(lw,.9,ld,px,Y+.65,pz,cl,{s:1,c:1});blk(vert?1.6:2.2,.7,vert?2.2:1.6,px,Y+1.45,pz,std(0x141b22,{roughness:.1,metalness:.3}),{s:1,c:1});blk(lw-.1,.3,ld-.1,px,Y+.2,pz,std(0x111111),{ns:1})}};
+mdlAtL((rn()<.5?'car:':'mazda:')+((rn()*8)|0),px,0,pz,vert?(side>0?0:Math.PI):(side>0?Math.PI/2:-Math.PI/2),vert?1.15:2.3,vert?2.3:1.15,1.4,1)}};
 SX.forEach(([x,w])=>cars(1,x,w/2));SZ.forEach(([z,w])=>cars(0,z,w/2));
 // --- lampadaires (mât conique, crosse, lanterne, halo au sol la nuit)
 const lampM2=new THREE.MeshBasicMaterial({color:0xfff0c8,toneMapped:false}),polM=std(0x2f3438,{roughness:.5,metalness:.6});
@@ -148,6 +147,6 @@ add(new THREE.BoxGeometry(dx?1.9:.09,.09,dz?1.9:.09),polM,dx*.85,7.75,dz*.85,dx?
 add(new THREE.BoxGeometry(dx?.9:.36,.14,dz?.9:.36),polM,dx*1.9,8.05,dz*1.9);const h=add(new THREE.BoxGeometry(dx?.7:.26,.05,dz?.7:.26),lampM2,dx*1.9,7.96,dz*1.9);h.castShadow=false;
 const p=new THREE.Mesh(new THREE.CircleGeometry(8,20),poolM);p.rotation.x=-Math.PI/2;p.position.set(x+dx*1.9,Y+.13,z+dz*1.9);p.renderOrder=2;S.add(p);
 boxes.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2,y0:Y,y1:Y+3})};
-SX.forEach(([x,w])=>{for(let z=-692;z<=-358;z+=34){if(SZ.some(([g,ww])=>Math.abs(z-g)<ww/2+3))continue;lamp(x-w/2-1.4,z,1,0);lamp(x+w/2+1.4,z+17,-1,0)}});
-SZ.forEach(([z,w])=>{for(let x=158;x<=492;x+=34){if(SX.some(([g,ww])=>Math.abs(x-g)<ww/2+3))continue;lamp(x,z-w/2-1.4,0,1);lamp(x+17,z+w/2+1.4,0,-1)}});
+SX.forEach(([x,w])=>{for(let z=-730;z<=-358;z+=34){if(SZ.some(([g,ww])=>Math.abs(z-g)<ww/2+3))continue;lamp(x-w/2-1.4,z,1,0);lamp(x+w/2+1.4,z+17,-1,0)}});
+SZ.forEach(([z,w])=>{for(let x=158;x<=730;x+=34){if(SX.some(([g,ww])=>Math.abs(x-g)<ww/2+3))continue;lamp(x,z-w/2-1.4,0,1);lamp(x+17,z+w/2+1.4,0,-1)}});
 })();

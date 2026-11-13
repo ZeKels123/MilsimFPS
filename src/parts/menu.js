@@ -15,7 +15,7 @@ const OUT=[{id:'std',n:'Treillis standard',z:{},sl:0x3a4634,gl:0xc99b7a},
 {id:'nui',n:'Opérateur de nuit',z:{nui:.55,int:.8,pla:1.3,for:1.1,vil:1.1},sl:0x1d2024,gl:0x111111},
 {id:'vif',n:'Tenue de sport rouge',z:{for:1.5,pla:1.5,vil:1.4,int:1.4,nui:1.3},sl:0xa63a2e,gl:0xc99b7a}];
 [WSK,OUT].forEach(l=>l.forEach(o=>{o.pro=[];o.con=[];ZN_.forEach(([k,n])=>{const f=o.z[k];if(!f)return;const pc=Math.round(Math.abs(1-f)*100);if(f<1)o.pro.push(n+' : détecté '+pc+' % moins loin');else o.con.push(n+' : détecté '+pc+' % plus loin')})}));
-function zoneNow(){const x=P.x,z=P.z;if(typeof inRoom==='function'&&inRoom(x,z)>=0)return'int';if(x>150&&x<500&&z>-700&&z<-350)return'vil';try{if(NZT(x*.032+3,z*.032-5)>.5)return'for'}catch(e){}return'pla'}
+function zoneNow(){const x=P.x,z=P.z;if(typeof inRoom==='function'&&inRoom(x,z)>=0)return'int';if(x>150&&x<744&&z>-744&&z<-350)return'vil';if(x>-750&&x<40&&z>408&&z<750)return'for';if(x>-750&&x<-227&&z>-750&&z<-290)return'pla';try{if(NZT(x*.032+3,z*.032-5)>.5)return'for'}catch(e){}return'pla'}
 const CAM={z:'pla',k:1,t:0};
 function skStealth(){const w=WSK.find(s=>s.id===SET.wsk)||WSK[0],o=OUT.find(s=>s.id===SET.out)||OUT[0],night=TOD.t>20.2||TOD.t<5.2;CAM.z=zoneNow();let k=(w.z[CAM.z]||1)*(o.z[CAM.z]||1);if(night)k*=(w.z.nui||1)*(o.z.nui||1);return CAM.k=k}
 const SK0=[SK.color.getHex(),SKd.color.getHex(),NLm.color.getHex()],wskC={};

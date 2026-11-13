@@ -166,6 +166,10 @@ rep("P.deaths++;","P.deaths++;invDeath();")
 rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode||KNF.on)return;if(ammo<=0)")
 rep("<tr><td>Tab</td>","<tr><td>B</td><td>Poser un piège (clic maintenu) · 9 : télécommande · F maintenu : désamorcer</td></tr><tr><td>Tab</td>")
 rep("<tr><td>B</td><td>Poser","<tr><td>F8</td><td>Activer / d\u00e9sactiver les ennemis (test)</td></tr><tr><td>B</td><td>Poser")
+# ---- v15 : champs, forêt
+rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=3560,NBU=6800;let np=0,no=0,t=0;"+rd('forest.js'))
+rep("if(Math.random()>p||!okPos(x,z,2.2)","if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)")
+rep("const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)","const BU=[];t=0;"+"{let c=0,tt=0;while(c<1700&&tt++<40000){const x=rnd(FOR.x0,FOR.x1),z=rnd(FOR.z0,FOR.z1);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2))continue;BU.push({x,z,y:GH(x,z),s:rnd(.9,1.8),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)});c++}}\nwhile(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(nzSkip(x,z)||!okPos(x,z,.9)")
 # ---- menu : hooks de jeu
 rep("c.dmg*(A.supp?.9:1)","c.dmg*SKM.dmg*(A.supp?.9:1)",2)
 rep("...FA.hit.filter(q=>!q.userData.an.dead)])[0];if(h&&h.object.userData.glass)","...FA.hit.filter(q=>!q.userData.an.dead),...MQP])[0];if(h&&h.object.userData.glass)")

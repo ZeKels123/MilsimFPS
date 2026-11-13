@@ -50,3 +50,9 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - **Lampadaires** refaits (mât conique, crosse, lanterne, halo au sol la nuit, éteints le jour), en quinconce.
 - **Bouches d'incendie** : 2 par îlot sur les trottoirs.
 - **Chargement à la demande** (`src/parts/stream.js`) : bâtiments, voitures, lampadaires, arbres et bouches d'incendie de la ville ne sont construits que lorsque le joueur est à moins de 160 m, puis masqués au-delà de 200 m ; les secteurs fusionnés du reste de la carte sont masqués de la même façon. Chargement initial mesuré : 30 s en test sans GPU (≈ 200 s avant), après accélération du calcul du relief (grille spatiale des obstacles, cache de la distance à l'eau).
+
+## v15 — Champs agricoles, forêt, ville agrandie, voitures
+- Zone jaune (NO, x −750..−227, z −750..−290) : champs agricoles (34 parcelles 66×48 m : blé, maïs, pousses, labour, colza, prairie), haies, balles de foin, fermes avec silo. Rangées de tiges courtes et irrégulières, sol texturé.
+- Zone bleue (SO, x −750..40, z 408..750) : forêt dense (6 000 arbres, clairières).
+- Ville agrandie : x 150..738, z −738..−350 (588×388 m), rangée nord en parcs.
+- Voitures : plus de « caisses » ; uniquement les modèles Mustang et Mazda fournis (8 couleurs).
