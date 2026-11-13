@@ -13,7 +13,7 @@ const w=1.45+.35*Math.sin(i*.7+p[0][0]);[-1,1].forEach(s=>{const X=q[0]-tz*s*w,Z
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,pmat);m.receiveShadow=true;m.renderOrder=1;S.add(m)})}
 // arbres
 // ================= v8 : arbres et buissons à feuillage en cartes alpha, LOD, herbe autour du joueur =================
-{const nzt=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),a=x-i,b=z-j,u=a*a*(3-2*a),v=b*b*(3-2*b),h=(p,q)=>hsh(p+51,q+777);return(h(i,j)*(1-u)+h(i+1,j)*u)*(1-v)+(h(i,j+1)*(1-u)+h(i+1,j+1)*u)*v};
+{const nzt=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),a=x-i,b=z-j,u=a*a*(3-2*a),v=b*b*(3-2*b),h=(p,q)=>hsh(p+51,q+777);return(h(i,j)*(1-u)+h(i+1,j)*u)*(1-v)+(h(i,j+1)*(1-u)+h(i+1,j+1)*u)*v};window.NZT=nzt;
 // --- textures de feuillage (canvas) : rameau de pin et amas de feuilles, fond transparent
 const cvs=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 const tex=c=>{const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=AN;t.generateMipmaps=true;t.minFilter=THREE.LinearMipmapLinearFilter;return t};

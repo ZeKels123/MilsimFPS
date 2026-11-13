@@ -291,6 +291,6 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Sélection : établi (bouton « Mitrailleuse HMG »). Couleurs : gris métal / vert, le .blend ne contenait que des couleurs par défaut.
 
 ## Menu principal (v15)
-- Écran d accueil à 3 boutons : **Jouer** (carte complète ou zone d entraînement), **Paramètres** (volume général, qualité graphique, sensibilité, remappage de 19 touches, enregistrés dans le navigateur), **Équipement** (6 skins d armes et 6 tenues, chacun avec avantages et inconvénients : dégâts, recul, rechargement, vitesse, armure de départ, détection par les ennemis, dégâts reçus).
+- Écran d accueil à 3 boutons : **Jouer** (carte complète ou zone d entraînement), **Paramètres** (volume général, qualité graphique, sensibilité, remappage de 19 touches, enregistrés dans le navigateur), **Équipement** (6 skins d armes et 6 tenues = camouflage uniquement : chaque skin réduit ou augmente la distance à laquelle les ennemis te voient selon la zone (forêt, plaine, ville, intérieur, nuit). Aucun effet sur le tir. Un indicateur de zone s affiche en jeu.)
 - Zone d entraînement : champ de tir dégagé à (20, 122), 9 mannequins de 10 à 75 m dont 2 mobiles, aucun ennemi, munitions illimitées, statistiques (tirs, précision, têtes, éliminations, dernier impact). Le bouton ☰ MENU PRINCIPAL est dans l écran de pause.
 - Fichiers : `src/parts/menu0.js` (réglages, volume, touches), `src/parts/menu.js` (interface, mannequins, skins).
