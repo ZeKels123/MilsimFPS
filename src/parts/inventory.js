@@ -2,8 +2,8 @@
 // Le poids dépend du JOUEUR (capacité fixe), pas du sac : le sac ne limite que la place (cases).
 const INV={lay:{},bag:'M',sel:null,open:false,gnd:[],init:false,CAP:32,lv:0,t:0};
 const BAGS={0:{n:'Poches',w:4,h:2,kg:0},S:{n:'Petit sac',w:5,h:4,kg:.8,col:0x5a6040},M:{n:'Sac moyen',w:7,h:5,kg:1.4,col:0x46563a},L:{n:'Grand sac',w:9,h:6,kg:2.2,col:0x34452a}};
-const CALS=['5.56','9 mm','12/70','7.62'],CIDX=[0,1,1,2,3],CKG=[.012,.008,.04,.025],CST=[60,60,30,30];
-const WKG=[3.6,2.5,1,3.4,5.4],WSPD=[.96,1,1.03,.92,.86],WSPR=[.97,1,1.02,.93,.88],ARMKG=4;
+const CALS=['5.56','9 mm','12/70','7.62'],CIDX=[0,1,1,2,3,3],CKG=[.012,.008,.04,.025],CST=[60,60,30,30];
+const WKG=[3.6,2.5,1,3.4,5.4,9.5],WSPD=[.96,1,1.03,.92,.86,.78],WSPR=[.97,1,1.02,.93,.88,.8],ARMKG=4;
 const IT={bd:{n:'Bandage',kg:.05,w:1,h:1,st:5,col:'#cfc8ae'},tq:{n:'Garrot',kg:.15,w:1,h:1,st:3,col:'#9a3f2c'},sp:{n:'Attelle',kg:.3,w:1,h:2,st:2,col:'#6f8190'},mo:{n:'Morphine',kg:.05,w:1,h:1,st:4,col:'#cdc545'},kit:{n:'Trousse',kg:.8,w:2,h:1,st:1,col:'#bb3d3d'},pl:{n:'Plaque',kg:1.1,w:2,h:2,st:1,col:'#7d848c'},xm:{n:'Mine antipersonnel',kg:1.2,w:1,h:1,st:3,col:'#4a5230'},xc:{n:'Mine directionnelle',kg:1.6,w:2,h:1,st:2,col:'#6a7a44'},xw:{n:'Piège à fil',kg:.7,w:1,h:1,st:3,col:'#8a8a7a'},xb:{n:'Piège à ours',kg:2,w:2,h:1,st:2,col:'#6a6a6a'}};
 const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','g0','g1','g2'];
 const invWpn=k=>k===slot?WSEL:SLOTS[k].w;

@@ -284,3 +284,8 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Couteau de combat : touche Z, clic gauche = taillade, clic droit = estoc ; attaque par derrière sur un bot qui ne vous voit pas = mort silencieuse.
 - Lumière/ombre : voir plus haut.
 - Carte 1500 × 1500 m, ville de 250 × 250 m (immeubles, bureaux, commerces, restaurants, parc, voitures) et route nord-sud : voir `docs/MODIFICATIONS_CARTE.md`.
+
+## Arme : mitrailleuse HMG (hmg.blend)
+- Modèle importé depuis `hmg.blend` (4 pièces : corps, caisse de munitions, canon, bouton d armement), converti en géométrie embarquée (`src/parts/hmg_data.js`, `hmg.js`), échelle ~0,85 m.
+- 6e arme : 100 coups (+300 en réserve), cadence 800 coups/min, dégâts 30, calibre 7.62, poids 9,5 kg (vitesse ×0,78), rechargement long (4,4 s) avec la caisse qui descend.
+- Sélection : établi (bouton « Mitrailleuse HMG »). Couleurs : gris métal / vert, le .blend ne contenait que des couleurs par défaut.
