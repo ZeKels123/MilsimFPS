@@ -35,6 +35,7 @@ if(!msg){set();snkBlast(s.x,s.y,s.z,7,true);if(!s.dead)msg='grenade sans effet'}
 if(!msg){set();const b=bots.find(q=>!q.dead);if(b){const g0=b.g.position.clone(),see=b.see;b.see=false;b.g.position.set(X+5,GH(X+5,Z),Z);s.st='alert';s.t=60;s.tgt={x:X+5,z:Z};for(let i=0;i<300&&!s.dead;i++)snkTick(.05);b.g.position.copy(g0);b.see=see;if(!s.dead)msg='les bots ne tirent pas sur le serpent'}}
 }catch(e){msg=String(e)}
 Object.assign(s,{x:sv.x,z:sv.z,bx:sv.bx,bz:sv.bz,th:sv.th,st:sv.st,hp:sv.hp,dead:sv.dead,tr:sv.tr});snkPlace(s);P.x=sv.px;P.z=sv.pz;P.gy=sv.pgy;return msg});
+T('Sons : 7 échantillons embarqués',()=>{const ks=['smg','rifle','shotgun','echo','reload','empty','cock'];for(const q of ks)if(!SMD[q]||SMD[q].length<2000)return'manquant : '+q;return typeof smpPlay==='function'?'':'lecteur absent'});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

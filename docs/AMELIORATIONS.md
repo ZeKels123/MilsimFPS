@@ -358,3 +358,10 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Tué par : balles du joueur (tête ×3, via `FA.hit`/`faHit`), couteau, grenades (`snkBlast`), tirs des bots qui le voient (hors combat) à moins de 11 m. Réapparaît ailleurs 45 s après sa mort.
 - Capture : `docs/captures/v22/serpent.png`.
 - Test automatique : 91 os, cycle alerte/frappe, blessure du joueur, rayon de tir, tête/grenade/bots (23 tests).
+
+## v22b — Échantillons sonores
+- 7 sons fournis (MP3 recadrés, mono 32 kHz, normalisés, ~99 Ko en base64) : `src/parts/samples_data.js`, lecteur `src/parts/samples.js` (`smpPlay`, décodage au premier clic, repli sur la synthèse tant que non prêt).
+- Tirs joueur : Fusil → gunshot 511311 ; MP9 / Pistolet (plus aigu) → gun-shot-1 ; Reclamer 12 → gun-shot 359196 + bruit de pompe ; Signal 50 → shot and echo ; HMG → 359196 ralenti. Tirs silencieux : synthèse conservée.
+- Tirs des bots : mêmes échantillons, spatialisés (distance, occlusion, réverbération existantes).
+- Rechargement : sample de rechargement (sauf Reclamer, cartouches synthétiques) + bruit de culasse si chargeur vide ; clic à vide quand il n'y a plus de munitions.
+- Test automatique (24 tests).
