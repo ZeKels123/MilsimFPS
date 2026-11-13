@@ -27,7 +27,7 @@ function tinnitus(k,dur){try{AC=AC||new AudioContext();const o=AC.createOscillat
 AOUT();ALP.frequency.cancelScheduledValues(AC.currentTime);ALP.frequency.setValueAtTime(Math.max(260,2400*(1-k)),AC.currentTime+.02);ALP.frequency.exponentialRampToValueAtTime(20000,AC.currentTime+dur)}catch(e){}}
 function stunPlayer(k,dur){if(k<=.03||ac.on)return;FXP.stun=Math.max(FXP.stun,dur);FXP.stunMax=Math.max(dur,FXP.stun);FXP.stunK=Math.max(FXP.stunK,k);tinnitus(k,dur)}
 function nadeBoom(n){const x=n.p.x,y=n.p.y,z=n.p.z,mine=!n.owner,pdx=P.x-x,pdz=P.z-z,pd=Math.hypot(pdx,pdz,P.gy+P.bh-y),pz_=inZ(P.x,P.z)||ac.on,wet=n.wet?.55:1;n.m.visible=false;noise(x,z,90);
-if(n.type===0){const R_=7.5*wet;boom(x,z,4.2*wet);sfxBoom(x,y,z,1);FXP.shake=Math.max(FXP.shake,Math.max(0,1-pd/22)*1.2);
+if(n.type===0){const R_=7.5*wet;typeof barrelBlast==='function'&&barrelBlast(x,y,z,R_);boom(x,z,4.2*wet);sfxBoom(x,y,z,1);FXP.shake=Math.max(FXP.shake,Math.max(0,1-pd/22)*1.2);
 for(let i=0;i<14;i++)emit(_no.set(x,y+.2,z),_e.set(rnd(-1,1),rnd(.2,1),rnd(-1,1)).normalize().multiplyScalar(rnd(9,16)),{map:sparkT,color:0xffc870,size:.05,life:.35,add:1,g:6});
 for(const b of bots){if(b.dead)continue;const g=b.g.position,d=Math.hypot(g.x-x,g.z-z,g.y+1-y);if(d>R_)continue;hlBlastBot(b,new THREE.Vector3(x,y,z),R_,n,mine);if(b.hp<=0){if(mine)onKill(b,false);else botDie(b)}else{b.bl=null;if(mine){aiHit(b);b.flinch=1}}if(!b.dead&&d<5)b.stun=Math.max(b.stun,1.2)}
 if(!pz_&&pd<R_){hlBlastPlayer(new THREE.Vector3(x,y,z),R_,n);if(pd<5.5)stunPlayer(.35*(1-pd/5.5),2.2)}

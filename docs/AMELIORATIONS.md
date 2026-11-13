@@ -306,3 +306,9 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Optimisation : nombre de triangles par image divisé par 4 à 9 selon la scène.
 - Non vérifié : les performances sur un vrai GPU (mes tests tournent en rendu logiciel) et les troncs éclaircis après les dernières captures.
 - Détail et captures : `docs/MODIFICATIONS_CARTE.md` et `docs/captures/v12/`.
+
+## Barils explosifs (v16)
+- Les 4 barils rouges contiennent du carburant : une balle les perce (fuite, flaque) et peut enflammer les vapeurs (20 % par balle). Un baril en feu explose après 2,5 à 6 s s'il lui reste plus de 30 % de carburant, sinon il brûle sans exploser.
+- Réactions en chaîne : une explosion à moins de 4,4 m enflamme les barils rouges voisins. Les barils bleus et verts restent inertes.
+- Les flammes infligent des dégâts : environ 20 PV/s au joueur (qui brûle encore 2,5 s après être sorti du feu), 28 PV/s aux bots.
+- Les bots ne tirent pas sur les barils. Détail : `docs/MODIFICATIONS_CARTE.md`.

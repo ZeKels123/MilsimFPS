@@ -5,8 +5,8 @@ const okPos=(x,z,m)=>!boxes.some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!RM
 // ================= TONNEAUX =================
 {const BARS=[[-7.5,6.4,0x4a5a3a],[7.5,5.3,0x8a3028],[-9.2,-2.4,0x30506a],[9.3,-1.6,0x4a5a3a],[-1.6,-10.3,0x8a3028],[5.3,-12.4,0x4a5a3a],[-22.5,11.4,0x30506a],[19.8,9.4,0x4a5a3a],[-16.8,-14.6,0x8a3028],[19.5,-11.3,0x30506a],[1.6,18.4,0x4a5a3a],[22,12,0x8a3028]],
 bg=new THREE.CylinderGeometry(.3,.3,.95,18),rg=new THREE.TorusGeometry(.305,.018,6,20),rm_=std(0x2a2a2a,{roughness:.5,metalness:.6});
-BARS.forEach(a=>{const x=a[0],z=a[1],cp=std(a[2],{roughness:.5,metalness:.5}),b=new THREE.Mesh(bg,[std(a[2],{map:T_barrel,roughness:.5,metalness:.45,envMapIntensity:1}),cp,cp]);b.rotation.y=rnd(0,6);b.position.set(x,.475,z);b.castShadow=b.receiveShadow=true;S.add(b);solids.push(b);boxes.push({x0:x-.32,x1:x+.32,z0:z-.32,z1:z+.32});
-[.15,.475,.8].forEach(y=>{const r=new THREE.Mesh(rg,rm_);r.rotation.x=Math.PI/2;r.position.set(x,y,z);r.castShadow=true;S.add(r)})})}
+BARS.forEach(a=>{const x=a[0],z=a[1],cp=std(a[2],{roughness:.5,metalness:.5}),b=new THREE.Mesh(bg,[std(a[2],{map:T_barrel,roughness:.5,metalness:.45,envMapIntensity:1}),cp,cp]);b.rotation.y=rnd(0,6);b.position.set(x,.475,z);b.castShadow=b.receiveShadow=true;S.add(b);solids.push(b);const bx_={x0:x-.32,x1:x+.32,z0:z-.32,z1:z+.32},bq_={x,z,y0:0,fuel:a[2]===0x8a3028,f:a[2]===0x8a3028?1:0,st:0,t:0,fire:0,holes:[],pool:null,box:bx_,rings:[],m:b};boxes.push(bx_);b.userData.barrel=bq_;(window.BARRELS=window.BARRELS||[]).push(b);
+[.15,.475,.8].forEach(y=>{const r=new THREE.Mesh(rg,rm_);r.rotation.x=Math.PI/2;r.position.set(x,y,z);r.castShadow=true;S.add(r);bq_.rings.push(r)})})}
 // ================= RELIEF, ROCHERS, BUISSONS, FLAQUES =================
 {const o=new THREE.Object3D(),col=new THREE.Color();
 const N=110,rk=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1,0),std(0x8a877c,{roughness:.95,flatShading:true}),N);let n=0;

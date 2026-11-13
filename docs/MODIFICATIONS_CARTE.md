@@ -69,3 +69,12 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Forêt (zone bleue) : refaite pour se cacher — 9 500 arbres hauts (10 à 14 m, canopée qui fait de l'ombre), moins de clairières, 4 200 buissons hauts en sous-bois, et ennemis qui voient 28 % moins loin dans la zone (en plus du camouflage des skins).
 - Arbres : textures de feuillage refaites en 512 px — rameaux de pin (branche, brindilles, aiguilles en deux couches, pousses claires) et feuilles de feuillu (limbe pointu, dégradé, nervures, trois couches du sombre au clair).
 - 3 essences d'arbres en plus (5 au total) : bouleau (élancé, ~10 m, tronc blanc de 35 cm), chêne (massif, ~11 m, couronne de 10 m de large, tronc de 1,8 m), peuplier (colonne de ~17 m, tronc de 75 cm). Collisions adaptées au diamètre de chaque tronc. Répartition hors pins : feuillu 40 %, bouleau 25 %, chêne 18 %, peuplier 17 % ; forêt : 50 % de pins. Total ≈ 16 770 arbres.
+
+## Barils de carburant (v16)
+- Seuls les 4 barils rouges contiennent du carburant (`src/parts/barrels.js`) ; les bleus et verts restent inertes (impacts de balle seulement).
+- Une balle perce le baril : le carburant fuit par le trou tant que le niveau est au-dessus du trou, une flaque grandit au sol. Chaque balle a 20 % de chance d'enflammer les vapeurs.
+- Un baril en feu explose après 2,5 à 6 s s'il lui reste plus de 30 % de carburant, sinon il brûle sans exploser. L'explosion réutilise celle de la grenade (rayon environ 4 m, dégâts bots/joueur/portes/vitres), laisse une tache de brûlure et un feu au sol de 12 à 18 s ; le baril reste en place, noirci et écrasé.
+- Une explosion à moins de 4,4 m (grenade, piège, autre baril) enflamme les barils rouges voisins avec un délai de 0,35 à 1,25 s.
+- Brûlure : dans le rayon des flammes (baril en feu ou feu au sol), le joueur perd environ 20 PV/s (jambes et ventre) et continue de brûler 2,5 s après en être sorti ; les bots perdent 28 PV/s.
+- Un point lumineux orange suit le baril en feu le plus proche (pas de lumière ajoutée en cours de partie, donc pas de saccade).
+- Captures : `docs/captures/v12/baril_en_feu.png`, `baril_explosion.png`.
