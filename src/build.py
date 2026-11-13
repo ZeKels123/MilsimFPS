@@ -45,7 +45,7 @@ pr=pr.replace("const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,
 mk="// ================= RELIEF, ROCHERS"
 assert pr.count(mk)==1
 pr=pr.replace(mk,rd('relief.js')+rd('nature.js')[:rd('nature.js').index('// arbres')]+mk)
-pr=pr+rd('nature.js')[rd('nature.js').index('// arbres'):]+rd('nature2.js')
+pr=pr+rd('nature.js')[rd('nature.js').index('// arbres'):]+rd('nature2.js')+rd('snake_data.js')+rd('snake.js')
 for a_,b_ in [("const N=110,rk=","const N=1000,rk="),("std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5})","windify(std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5}),0)"),("std(0xffffff,{roughness:1,flatShading:true,envMapIntensity:.4}),NB)","windify(std(0xffffff,{roughness:1,flatShading:true,envMapIntensity:.4}),1),NB)"),("new THREE.ConeGeometry(2.1,6.5,8),mt,N)","new THREE.ConeGeometry(2.1,6.5,8),windify(mt.clone(),2),N)"),("new THREE.ConeGeometry(1.5,4.5,8),mt,N)","new THREE.ConeGeometry(1.5,4.5,8),windify(mt.clone(),3),N)"),("rnd(-29,29),z=rnd(-29,29);if(!okPos(x,z,.4))","rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.4)||nearPath(x,z,2))"),("const NB=46,","const NB=0,"),("let x=rnd(-28.2,28.2),z=rnd(-28.2,28.2);if(n%2){if(Math.random()<.5)x=Math.sign(x)*rnd(27.2,28.5);else z=Math.sign(z)*rnd(27.2,28.5)}","let x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(n%2){if(Math.random()<.5)x=Math.sign(x)*rnd(MH-3,MH-1.5);else z=Math.sign(z)*rnd(MH-3,MH-1.5)}"),("while(n<7){const x=rnd(-26,26),z=rnd(-26,16)","while(n<56){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,16)"),("const N=1400,im=","const N=9000,im="),("const x=rnd(-29.5,29.5),z=rnd(-29.5,29.5);if(!okPos(x,z,.3))","break;const x=0,z=0;if(0)"),("r=rnd(48,105)","r=rnd(MH+23,MH+95)"),("[[-33,-33],[33,-33],[-33,33],[33,33]]","[[-MH-3,-MH-3],[MH+3,-MH-3],[-MH-3,MH+3],[MH+3,MH+3]]"),("o.position.set(x,s*.35,z);","o.position.set(x,s*.35+GH(x,z),z);"),("o.position.set(x,s*.38,z);","o.position.set(x,s*.38+GH(x,z),z);"),("p.position.set(x,.016,z);","p.position.set(x,.016+GH(x,z),z);"),("o.position.set(x,0,z);o.rotation.y=rnd(0,6.3)","o.position.set(x,GH(x,z),z);o.rotation.y=rnd(0,6.3)")]:
     assert pr.count(a_)==1,a_; pr=pr.replace(a_,b_)
 rep("room(-25,-4,8,8,'E',-4);room(25,-4,8,8,'W',-4);room(-25,-14,8,6,'E',-14);room(25,-14,8,6,'W',-14);room(0,-24,10,6,'S',0);",
@@ -206,6 +206,11 @@ rep("return k*(spr?WSPR[WSEL]:WSPD[WSEL])","return k*SKM.spd*(spr?WSPR[WSEL]:WSP
 rep("if(b.hp<=0)onKill(b,u.head)}\nelse{","if(b.hp<=0)onKill(b,u.head)}\nelse if(u.mq){mqHit(u.mq,u,c.dmg*SKM.dmg*(A.supp?.9:1),h.point);hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':'#fff'}\nelse{")
 rep("knUpdate(dt);lzUpdate(dt);","knUpdate(dt);lzUpdate(dt);mqUpdate(dt);")
 rep('<div style="opacity:.7;font-size:12px">Touches 1 à 4 : rangée du haut ou pavé numérique</div>','<div style="opacity:.7;font-size:12px">Touches 1 à 4 : rangée du haut ou pavé numérique</div><button style="margin-top:14px;font:inherit;padding:10px 18px;background:#141c10;color:#d6e2c0;border:1px solid #3d4a30;cursor:pointer" onclick="event.stopPropagation();mmOpen()">☰ MENU PRINCIPAL</button>')
+# serpent : branchements (tirs, couteau, grenades, tick)
+rep("function faHit(a,pt,dm){if(a.dead)return false;","function faHit(a,pt,dm){if(a.dead)return false;if(a.snk)return snkHit(a,pt,dm,'P');")
+rep("faTick(dt);FA.rab.forEach","faTick(dt);snkTick(dt);FA.rab.forEach")
+rep("if(!best){snd(120,.05,.08,'square');return}","if(!best){if(snkKnife(o,d,9)){snd(90,.08,.2,'square');FXP&&(FXP.shake=Math.max(FXP.shake||0,.2));return}snd(120,.05,.08,'square');return}")
+rep("if(!pz_&&pd<R_){hlBlastPlayer(","snkBlast(x,y,z,R_,mine);if(!pz_&&pd<R_){hlBlastPlayer(")
 open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
 open(P+'../index.html','w',encoding='utf-8').write(s)
 # vérification de syntaxe du script principal (échoue le build si une erreur casserait tout le jeu)

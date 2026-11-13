@@ -350,3 +350,11 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Matériau Lambert avec léger émissif (les gants noirs restaient trop sombres sous l'éclairage du jeu).
 - Test automatique : 21 os, un doigt change bien d'angle entre ouvert et fermé (22 tests).
 - Limites : poses de doigts uniques par arme (pas de pose spécifique rechargement), main droite hors champ à la hanche pour la plupart des armes.
+
+## v22 — Serpent (python, 1,84 m)
+- Modèle `snake_titanoboa` réduit à taille réelle (×0,25 : 1,84 m), décimé à ~5,9 k triangles, 91 os, textures 512/256 (`src/parts/snake_data.js`, ~346 Ko). 4 serpents rôdent dans la zone (`SNK.N`), jamais dans l’étang ni dans les bâtiments.
+- Animation : les os suivent la piste de la tête (reptation sinusoïdale, amplitude liée à la vitesse), tête dressée en alerte, corps retourné à la mort. Code : `src/parts/snake.js`.
+- IA : rôde → alerte (siffle, se dresse) si le joueur ou un bot approche (≈2,9 m, +2 m en sprint, réduit accroupi/couché ; bots à 3,2 m) → frappe (bond à 3,4 m/s, morsure aux jambes : 11 dégâts + saignement joueur, 12 sur un bot) → recul bref → alerte. Blessé : riposte si l’agresseur est proche, sinon fuite (aussi sous 45 % de vie).
+- Tué par : balles du joueur (tête ×3, via `FA.hit`/`faHit`), couteau, grenades (`snkBlast`), tirs des bots qui le voient (hors combat) à moins de 11 m. Réapparaît ailleurs 45 s après sa mort.
+- Capture : `docs/captures/v22/serpent.png`.
+- Test automatique : 91 os, cycle alerte/frappe, blessure du joueur, rayon de tir, tête/grenade/bots (23 tests).

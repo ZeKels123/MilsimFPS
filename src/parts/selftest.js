@@ -24,6 +24,17 @@ T('IA : 40 mises à jour sans erreur, positions valides',()=>{ENM.off=0;bots.for
 T('Réglages : sauvegarde et relecture (SET)',()=>{const o=SET.sens;SET.sens=1.37;setSave();const r=JSON.parse(localStorage.getItem('mfps_set'));SET.sens=o;setSave();return r.sens===1.37?'':'relecture '+r.sens});
 T('Réglages : accessoires, grenade, heure mémorisés',()=>{const sv=PERS.snap();A.grip=true;A.laser=true;NADE.sel=2;PERS.write();const r=PERS.read();if(!r||!r.A.grip||!r.A.laser||r.nsel!==2)return 'écriture incorrecte';A.grip=false;A.laser=false;NADE.sel=0;PERS.apply();const ok=A.grip&&A.laser&&NADE.sel===2;A.grip=sv.A.grip;A.laser=sv.A.laser;NADE.sel=sv.nsel;PERS.write();return ok?'':'non restauré'});
 T('Réglages : valeurs corrompues ignorées',()=>{const sv=localStorage.getItem(PERS.key);localStorage.setItem(PERS.key,'{"v":1,"A":{"grip":"x"},"nsel":99,"gfx":-3,"tod":"abc"}');const n0=NADE.sel,g0=GQ.mode;const r=PERS.read();PERS.apply(r);const ok=NADE.sel===n0&&GQ.mode===g0;localStorage.setItem(PERS.key,sv||'');if(!sv)localStorage.removeItem(PERS.key);return ok?'':'valeur invalide appliquée'});
+T('Serpent : modèle à squelette, morsure, mort par tir/grenade/bot',()=>{if(typeof snkTick!=='function')return'snake.js absent';snkTick(.016);if(SNK.list.length<1)return'aucun serpent';const s=SNK.list[0];if(s.bones.length!==91)return'os : '+s.bones.length;if(!s.g.children.some(m=>m.isSkinnedMesh))return'pas de SkinnedMesh';
+const sv={x:s.x,z:s.z,bx:s.bx,bz:s.bz,th:s.th,st:s.st,hp:s.hp,dead:s.dead,tr:s.tr,px:P.x,pz:P.z,pgy:P.gy};let msg='';
+try{const sp=snkSpot(),X=sp[0],Z=sp[1];const set=()=>{s.bx=s.x=X;s.bz=s.z=Z;s.th=0;s.st='wander';s.mv=0;s.t=99;s.dead=0;s.hp=s.hm;s.cd=0;s.roll=0;s.tr=[];for(let i=0;i<140;i++)s.tr.push([X,Z-.02*(i+1)]);snkPose(s,1)};
+set();const kt=SNK.d.indexOf(Math.max(...SNK.d)),L=s.bones[90].position.distanceTo(s.bones[kt].position);if(L<1.2)return'corps trop court : '+L.toFixed(2);
+P.x=X;P.z=Z+1.2;P.gy=GH(X,Z+1.2);const l0=HM.z.ll+HM.z.rl;let st={};for(let i=0;i<140;i++){snkTick(.05);st[s.st]=1}if(!st.alert||!st.strike)msg='cycle alerte/frappe absent ('+Object.keys(st)+')';else if(HM.z.ll+HM.z.rl>=l0)msg='le joueur n’est pas blessé par la morsure';
+if(!msg){set();const h=castShot(new THREE.Vector3(s.px[3].position.x+.2,s.px[3].position.y+1.2,s.px[3].position.z),new THREE.Vector3(-.2,-1.2,0).normalize(),10);if(!h||h.object.userData.an!==s)msg='tir : le serpent n’est pas touché par le rayon';}
+if(!msg){set();snkHit(s,null,6,'P');if(s.dead||s.hp>=s.hm)msg='dégât d’une balle';else{snkHit(s,s.hpos.clone(),18,'P');if(!s.dead)msg='tir à la tête non mortel'}}
+if(!msg){set();snkBlast(s.x,s.y,s.z,7,true);if(!s.dead)msg='grenade sans effet'}
+if(!msg){set();const b=bots.find(q=>!q.dead);if(b){const g0=b.g.position.clone(),see=b.see;b.see=false;b.g.position.set(X+5,GH(X+5,Z),Z);s.st='alert';s.t=60;s.tgt={x:X+5,z:Z};for(let i=0;i<300&&!s.dead;i++)snkTick(.05);b.g.position.copy(g0);b.see=see;if(!s.dead)msg='les bots ne tirent pas sur le serpent'}}
+}catch(e){msg=String(e)}
+Object.assign(s,{x:sv.x,z:sv.z,bx:sv.bx,bz:sv.bz,th:sv.th,st:sv.st,hp:sv.hp,dead:sv.dead,tr:sv.tr});snkPlace(s);P.x=sv.px;P.z=sv.pz;P.gy=sv.pgy;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
