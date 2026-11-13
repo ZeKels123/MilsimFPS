@@ -294,3 +294,15 @@ Limites : pas testé sur GPU réelle (performances sur la grande carte, 30 000 b
 - Écran d accueil à 3 boutons : **Jouer** (carte complète ou zone d entraînement), **Paramètres** (volume général, qualité graphique, sensibilité, remappage de 19 touches, enregistrés dans le navigateur), **Équipement** (6 skins d armes et 6 tenues = camouflage uniquement : chaque skin réduit ou augmente la distance à laquelle les ennemis te voient selon la zone (forêt, plaine, ville, intérieur, nuit). Aucun effet sur le tir. Un indicateur de zone s affiche en jeu.)
 - Zone d entraînement : champ de tir dégagé à (20, 122), 9 mannequins de 10 à 75 m dont 2 mobiles, aucun ennemi, munitions illimitées, statistiques (tirs, précision, têtes, éliminations, dernier impact). Le bouton ☰ MENU PRINCIPAL est dans l écran de pause.
 - Fichiers : `src/parts/menu0.js` (réglages, volume, touches), `src/parts/menu.js` (interface, mannequins, skins).
+
+## Carte, nature et rendu (v15 à v16)
+- Voitures : les boîtes ont été remplacées par les modèles Mustang et Mazda fournis (8 de chaque), avec carrosserie vernie et salie en dégradé, vitres teintées, chrome et pneus mats ; 8 teintes de peinture.
+- Lampadaires : vraie lumière la nuit (18 h 40 à 6 h 20) avec 10 projecteurs conique répartis sur les lampadaires les plus proches (2 avec ombres), halo de la lanterne et tache de lumière au sol.
+- Bouche d'incendie : modèle importé de `borne_hydrante.blend`, avec collision.
+- Zone jaune (nord-ouest) : champs agricoles (blé, maïs, colza, etc.) avec textures de culture refaites, haies, bottes de foin et fermes ; le sol suit le relief sans scintillement.
+- Zone bleue (sud-ouest) : forêt dense de grands arbres pour se cacher et profiter de l'ombre ; les ennemis voient 28 % moins loin dans la forêt.
+- Arbres : 5 essences (pin, feuillu, bouleau, chêne, peuplier) de hauteurs et diamètres différents, troncs colorés par essence, nouvelle texture de feuilles ; la collision suit le diamètre du tronc ; environ 16 770 arbres.
+- Terrain : découpé en 16 × 16 morceaux avec culling, anneau extérieur raccordé au relief (jointure ramenée de 11 m à 0,5 m), couleurs lissées, aucun arbre mal placé constaté.
+- Optimisation : nombre de triangles par image divisé par 4 à 9 selon la scène.
+- Non vérifié : les performances sur un vrai GPU (mes tests tournent en rendu logiciel) et les troncs éclaircis après les dernières captures.
+- Détail et captures : `docs/MODIFICATIONS_CARTE.md` et `docs/captures/v12/`.
