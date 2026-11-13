@@ -76,7 +76,7 @@ rep("hit=1;hitT=.2;","hit=1;hitT=.2;hitFx(h,hitA,brk,u.head,b);")
 rep("if(n<4){const s=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.MeshBasicMaterial({color:0xffdd88}));s.position.copy(h.point);S.add(s);sparks.push({s,t:.25})}","if(n<4)impact(h,!!u.door);")
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('melee.js')+rd('ai.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")

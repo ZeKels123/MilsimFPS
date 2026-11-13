@@ -41,3 +41,12 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - **Non utilisés** : herbe et iPhone (trop lourds / sans usage), tracteur et scène « volna » (pas de place dans la ville ; le tracteur peut aller dans les villages).
 - **Attention** : chargement plus long (≈ 200 s en test headless sur machine sans GPU).
 - **Voitures (v13b)** : jantes chromées + pneus noirs sur la Mustang et la Mazda, vitres teintées sur la Mazda, 8 couleurs de carrosserie (rouge, bleu, blanc, noir, gris, vert, jaune, orange) tirées au hasard pour les voitures garées.
+
+## v14 — Bâtiments de la ville refaits, lampadaires, bouches d'incendie, chargement à la demande
+
+- **Bâtiments** (46, tous les étages accessibles jusqu'au toit) : couloir central, pièces cloisonnées avec portes, cage d'escalier fermée à deux volées avec palier, trémie et édicule sur le toit. Rez-de-chaussée : hall traversant (immeubles, hôtel, bureaux) ou surface ouverte (commerces, restaurants). Bureaux : un étage sur deux en open space.
+- **Façades** : bandeaux d'étage, corniche, linteaux et appuis de fenêtres, volets (immeubles), balcons accessibles avec porte-fenêtre (immeubles, hôtel), vitrines + auvent + enseigne (commerces, restaurants), marquise et enseigne (bureaux, hôtel), couleurs variées par bâtiment.
+- **Volumes** : tour de bureaux + annexe basse, hôtel + aile restaurant, îlots d'immeubles de 3 à 6 étages avec cour arborée, îlots de 4 commerces/restaurants de 2 à 3 étages.
+- **Lampadaires** refaits (mât conique, crosse, lanterne, halo au sol la nuit, éteints le jour), en quinconce.
+- **Bouches d'incendie** : 2 par îlot sur les trottoirs.
+- **Chargement à la demande** (`src/parts/stream.js`) : bâtiments, voitures, lampadaires, arbres et bouches d'incendie de la ville ne sont construits que lorsque le joueur est à moins de 160 m, puis masqués au-delà de 200 m ; les secteurs fusionnés du reste de la carte sont masqués de la même façon. Chargement initial mesuré : 88 s en test sans GPU (≈ 200 s avant).
