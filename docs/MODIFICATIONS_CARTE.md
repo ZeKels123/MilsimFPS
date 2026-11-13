@@ -67,3 +67,4 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Voitures : peinture métallisée vernie, salissure en bas de caisse, vitres teintées (elles prenaient la couleur de la carrosserie), jantes chromées, pneus mats ; nouvelle palette de 8 teintes.
 - Divers : touches J, Y, I, virgule, point réservées (soins) dans le changement de touches ; texte des skins sans effet corrigé.
 - Forêt (zone bleue) : refaite pour se cacher — 9 500 arbres hauts (10 à 14 m, canopée qui fait de l'ombre), moins de clairières, 4 200 buissons hauts en sous-bois, et ennemis qui voient 28 % moins loin dans la zone (en plus du camouflage des skins).
+- Arbres : textures de feuillage refaites en 512 px — rameaux de pin (branche, brindilles, aiguilles en deux couches, pousses claires) et feuilles de feuillu (limbe pointu, dégradé, nervures, trois couches du sombre au clair).
