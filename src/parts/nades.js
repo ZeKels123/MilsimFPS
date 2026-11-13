@@ -11,7 +11,7 @@ for(let t=0;t<3;t++)for(let i=0;i<5;i++){const m=mkNade(t);m.userData.ty=t;m.sca
 const nfL=new THREE.PointLight(0xffffff,0,60);S.add(nfL);const nfS=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));nfS.visible=false;S.add(nfS);
 function dmgDir(x,z){const a=Math.atan2(x-P.x,z-P.z)-P.yaw+Math.PI;FXP.elD.style.transform='rotate('+(-a)+'rad)';FXP.elD.style.opacity=1;clearTimeout(FXP.dT);FXP.dT=setTimeout(()=>FXP.elD.style.opacity=0,700)}
 function nadeReset(){NADE.inv=[2,2,2];FXP.flash=0;FXP.stun=0;FXP.shake=0}
-function throwNade(type,pos,vel,owner){const m=NADE.pool.find(q=>!q.visible&&q.userData.ty===type);if(!m)return;m.userData.lev.rotation.z=-1.2;m.position.copy(pos);m.visible=true;NADE.list.push({type,p:m.position,v:vel,m,t:NT[type].fuse+(owner?.3:0),owner,rest:false,wet:false})}
+function throwNade(type,pos,vel,owner){const m=NADE.pool.find(q=>!q.visible&&q.userData.ty===type);if(!m)return;m.userData.lev.rotation.z=-1.2;m.userData.pin.visible=false;m.position.copy(pos);m.visible=true;NADE.list.push({type,p:m.position,v:vel,m,t:NT[type].fuse+(owner?.3:0),owner,rest:false,wet:false})}
 function playerThrow(){const k=NADE.sel;if(NADE.inv[k]<=0||NADE.cd>0||THR.on||bench||ac.on||plateT>0)return;NADE.inv[k]--;NADE.cd=1.5;cd=Math.max(cd,1.3);inspT=0;ads=false;reloading=0;thrSet(k);Object.assign(THR,{on:true,t:0,rel:false,pin:false})}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none')return;if(e.code==='KeyC'&&!inZ(P.x,P.z))playerThrow();if(e.code==='KeyU')NADE.sel=(NADE.sel+1)%3});
 addEventListener('wheel',e=>{if(!ads&&!bench&&!ac.on)NADE.sel=(NADE.sel+(e.deltaY>0?1:2))%3});

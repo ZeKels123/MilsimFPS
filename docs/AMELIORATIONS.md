@@ -321,3 +321,4 @@ Le fusil de précision est remplacé par le Signal 50 importé de signal_50.blen
 
 ## Grenades : modèle flash et animation de lancer (v19)
 Modèle de la grenade flash importé de flash.blend (corps, bande, cuillère, goupille), utilisé aussi pour les grenades à fragmentation et assourdissantes avec une autre couleur. Animation de lancer à la première personne (1,25 s) : l'arme se baisse, la grenade monte dans la main droite, la main gauche arrache la goupille, bras en arrière, lancer, la cuillère s'écarte puis l'arme remonte. La grenade part au moment du lâcher (et non plus au clic) ; recharge/visée interrompues, délai de 1,5 s entre deux lancers. Les grenades lancées utilisent le même modèle.
+Révision (v19b) : mains du lancer refaites — doigts à trois phalanges qui se referment autour de la grenade, pouce articulé, bras en deux segments (épaule-coude-poignet) toujours reliés au poignet ; la goupille part dans la main gauche.
