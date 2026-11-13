@@ -77,7 +77,7 @@ rep("if(n<4){const s=new THREE.Mesh(new THREE.SphereGeometry(.04,5,5),new THREE.
 rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.barrel,h,c.dmg);if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));")
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -203,4 +203,12 @@ rep("knUpdate(dt);lzUpdate(dt);","knUpdate(dt);lzUpdate(dt);mqUpdate(dt);")
 rep('<div style="opacity:.7;font-size:12px">Touches 1 à 4 : rangée du haut ou pavé numérique</div>','<div style="opacity:.7;font-size:12px">Touches 1 à 4 : rangée du haut ou pavé numérique</div><button style="margin-top:14px;font:inherit;padding:10px 18px;background:#141c10;color:#d6e2c0;border:1px solid #3d4a30;cursor:pointer" onclick="event.stopPropagation();mmOpen()">☰ MENU PRINCIPAL</button>')
 open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
 open(P+'../index.html','w',encoding='utf-8').write(s)
+# vérification de syntaxe du script principal (échoue le build si une erreur casserait tout le jeu)
+import re,subprocess,shutil,tempfile,os
+if shutil.which('node'):
+    big=max(re.findall(r"<script[^>]*>(.*?)</script>",s,re.S),key=len)
+    f=tempfile.NamedTemporaryFile('w',suffix='.js',delete=False,encoding='utf-8');f.write(big);f.close()
+    r=subprocess.run(['node','--check',f.name],capture_output=True,text=True);os.unlink(f.name)
+    if r.returncode:
+        print('ERREUR DE SYNTAXE\n'+r.stderr[:600]);raise SystemExit(1)
 print('ok',len(s))

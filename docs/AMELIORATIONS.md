@@ -322,3 +322,11 @@ Le fusil de précision est remplacé par le Signal 50 importé de signal_50.blen
 ## Grenades : modèle flash et animation de lancer (v19)
 Modèle de la grenade flash importé de flash.blend (corps, bande, cuillère, goupille), utilisé aussi pour les grenades à fragmentation et assourdissantes avec une autre couleur. Animation de lancer à la première personne (1,25 s) : l'arme se baisse, la grenade monte dans la main droite, la main gauche arrache la goupille, bras en arrière, lancer, la cuillère s'écarte puis l'arme remonte. La grenade part au moment du lâcher (et non plus au clic) ; recharge/visée interrompues, délai de 1,5 s entre deux lancers. Les grenades lancées utilisent le même modèle.
 Révision (v19b) : mains du lancer refaites — doigts à trois phalanges qui se referment autour de la grenade, pouce articulé, bras en deux segments (épaule-coude-poignet) toujours reliés au poignet ; la goupille part dans la main gauche.
+
+## Sauvegarde des réglages et tests automatiques (v20)
+**Sauvegarde** (localStorage, `parts/persist.js`) : en plus de ce qui l'était déjà (volume, sensibilité, qualité du menu, touches, skins, tenue), sont maintenant mémorisés les accessoires et le viseur actif, la loupe holo, la grenade sélectionnée, la qualité choisie avec [O], l'heure, la météo, la lampe et le dernier mode. Les valeurs corrompues sont ignorées. Bouton « Réinitialiser les réglages » dans Paramètres.
+
+**Tests automatiques** (`parts/selftest.js`, `tests/run_tests.py`) : 20 vérifications (fonctions, carte, bots, 6 armes qui tirent, rechargement, Signal 50, santé, 3 types de grenades et animation de lancer, barils, véhicules et avions, modèles 3D, IA sur 40 mises à jour, sauvegarde, valeurs corrompues, rendu). Deux façons de les lancer :
+- dans le navigateur : ouvrir `MILSIM_FPS.html?selftest` (résultats affichés en vert/rouge) ;
+- en ligne de commande : `python tests/run_tests.py` (nécessite playwright), qui mesure aussi le temps de chargement, relit la sauvegarde après rechargement de la page et renvoie un code d'erreur en cas d'échec.
+Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si elle est cassée.

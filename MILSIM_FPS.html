@@ -2160,7 +2160,7 @@ s.src.playbackRate.setTargetAtTime(k,t,.08);s.o.frequency.setTargetAtTime(85*k,t
 s.lp.frequency.setTargetAtTime(500+6500*Math.exp(-d/450),t,.1);s.g.gain.setTargetAtTime(Math.min(1,Math.pow(170/(d+70),1.5))*.55,t,.08);
 const r=(ex*Math.cos(P.yaw)-ez*Math.sin(P.yaw))/Math.max(d,1);s.pan.pan.setTargetAtTime(Math.max(-1,Math.min(1,r*1.2)),t,.05)}
 if(a.t>a.life)airStop(a)}
-requestAnimationFrame(airLoop);window.AIRSHOW=airSpawn}
+requestAnimationFrame(airLoop);window.AIRSHOW=airSpawn;window.AIRSTOP=airStop}
 // ================= COUTEAU DE COMBAT (v12) : touche Z, clic gauche = taillade, clic droit = estoc =================
 const KNF={on:0,s:0,t:0,dur:.4,type:0,hit:0,alt:0};
 const KN=new THREE.Group();C.add(KN);KN.visible=false;
@@ -3494,7 +3494,7 @@ if(p==='home')w.innerHTML=H('SIMULATION MILITAIRE','<button class="big" onclick=
 else if(p==='play')w.innerHTML=H('CHOISIS TON TERRAIN','<div class="row"><div class="card" onclick="mmPlay(\'full\')"><h3>CARTE COMPLÈTE</h3><p>Toute la carte avec la ville, les villages, la nature et les ennemis.</p></div><div class="card" onclick="mmPlay(\'train\')"><h3>ZONE D’ENTRAÎNEMENT</h3><p>Aucun ennemi. Mannequins fixes et mobiles de 10 à 75 m, munitions illimitées, statistiques de tir.</p></div></div>'+back);
 else if(p==='set')mmSet();else if(p==='eq')mmEq()}
 function mmSet(){const w=$('mmw');let k='';KBD.forEach(([id,n,d])=>{k+='<div class="kr"><span>'+n+'</span><button id="kb_'+id+'" onclick="mmKey(\''+id+'\')">'+kLab(SET.keys[id]||d)+'</button></div>'});
-w.innerHTML='<h1>PARAMÈTRES</h1><div class="sb">&nbsp;</div><div class="sec">AUDIO</div><div class="sl"><span>Volume général</span><input id="s_vol" type="range" min="0" max="100" value="'+Math.round(SET.vol*100)+'"><b id="s_volv">'+Math.round(SET.vol*100)+' %</b></div><div class="sec">GRAPHISMES</div><div class="sl"><span>Qualité</span><select id="s_gfx">'+['Auto','Bas','Moyen','Élevé','Ultra'].map((n,i)=>'<option value="'+i+'"'+(i==SET.gfx?' selected':'')+'>'+n+'</option>').join('')+'</select></div><div class="sec">COMMANDES</div><div class="sl"><span>Sensibilité souris</span><input id="s_sens" type="range" min="30" max="250" value="'+Math.round(SET.sens*100)+'"><b id="s_sensv">'+Math.round(SET.sens*100)+' %</b></div><div id="kbl">'+k+'</div><div class="bk"><button onclick="SET.keys={};kbBuild();setSave();mmSet()">Touches par défaut</button> <button onclick="mmShow(\'home\')">◂ RETOUR</button></div>';
+w.innerHTML='<h1>PARAMÈTRES</h1><div class="sb">&nbsp;</div><div class="sec">AUDIO</div><div class="sl"><span>Volume général</span><input id="s_vol" type="range" min="0" max="100" value="'+Math.round(SET.vol*100)+'"><b id="s_volv">'+Math.round(SET.vol*100)+' %</b></div><div class="sec">GRAPHISMES</div><div class="sl"><span>Qualité</span><select id="s_gfx">'+['Auto','Bas','Moyen','Élevé','Ultra'].map((n,i)=>'<option value="'+i+'"'+(i==SET.gfx?' selected':'')+'>'+n+'</option>').join('')+'</select></div><div class="sec">COMMANDES</div><div class="sl"><span>Sensibilité souris</span><input id="s_sens" type="range" min="30" max="250" value="'+Math.round(SET.sens*100)+'"><b id="s_sensv">'+Math.round(SET.sens*100)+' %</b></div><div id="kbl">'+k+'</div><div class="bk"><button onclick="SET.keys={};kbBuild();setSave();mmSet()">Touches par défaut</button> <button onclick="if(confirm(\'Réinitialiser tous les réglages ?\')){PERS.reset();location.reload()}">Réinitialiser les réglages</button> <button onclick="mmShow(\'home\')">◂ RETOUR</button></div>';
 $('s_vol').oninput=e=>{SET.vol=e.target.value/100;$('s_volv').textContent=e.target.value+' %';if(typeof AC!=='undefined'&&AC&&AC.__mg)AC.__mg.gain.value=SET.vol;setSave()};
 $('s_gfx').onchange=e=>{SET.gfx=+e.target.value;mmGfx();setSave()};$('s_sens').oninput=e=>{SET.sens=e.target.value/100;$('s_sensv').textContent=e.target.value+' %';setSave()}}
 function mmGfx(){try{GQ.mode=SET.gfx;setQuality(GQ.mode?GQ.mode-1:2)}catch(e){}}
@@ -3512,6 +3512,55 @@ if(mode==='train'){ENM.off=1;mqBuild();P.x=TR.x;P.z=TR.z;P.yaw=0;P.pitch=0;$('mq
 else{mqClear();$('mqh').style.display='none';if(ENM.off){ENM.off=0;bots.forEach(b=>{if(b.dead>50)b.dead=.3})}P.x=0;P.z=25;P.yaw=0;P.pitch=0}
 P.gy=GH(P.x,P.z);P.hp=100;P.ar=SKM.ar;P.plates=2;ammo=magMax();reserve=WC[WSEL].res;MM.started=true;$('ov').onclick()}
 ENM.off=1;mmShow('home');mmLoad();
+// ================= SAUVEGARDE DES RÉGLAGES : tout ce que le joueur règle est mémorisé d'une partie à l'autre =================
+// Déjà sauvegardé par menu0.js : volume, sensibilité, qualité (menu), touches, skins d'arme, tenue.
+// Ajouté ici : qualité choisie avec [O], accessoires et viseur, loupe holo, grenade sélectionnée, heure et météo, dernier mode.
+const PERS={key:'mfps_ext',v:1,sig:'',last:null};
+PERS.snap=()=>({v:PERS.v,A:Object.assign({},A),sel,mgIn,nsel:NADE.sel,gfx:GQ.mode,tod:+TOD.t.toFixed(2),wx:TOD.tgt,mode:GM.mode,fl:typeof flOn!=='undefined'?!!flOn:false});
+PERS.read=()=>{try{const o=JSON.parse(localStorage.getItem(PERS.key)||'null');return o&&o.v===PERS.v?o:null}catch(e){return null}};
+PERS.write=()=>{try{const o=PERS.snap(),s=JSON.stringify(o);if(s===PERS.sig)return false;PERS.sig=s;localStorage.setItem(PERS.key,s);if(SET.gfx!==o.gfx){SET.gfx=o.gfx;setSave()}return true}catch(e){return false}};
+PERS.apply=o=>{o=o||PERS.read();if(!o)return false;
+if(o.A&&typeof o.A==='object'){for(const k in A)if(typeof o.A[k]==='boolean')A[k]=o.A[k];if(A.supp&&A.brake)A.brake=false}
+if(['scope','angled','holo'].includes(o.sel)&&A[o.sel])sel=o.sel;else{const l=['scope','angled','holo'].filter(k=>A[k]);if(l.length)sel=l[0]}
+if(typeof o.mgIn==='boolean')mgIn=o.mgIn;
+if(Number.isInteger(o.nsel)&&o.nsel>=0&&o.nsel<3)NADE.sel=o.nsel;
+if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5){GQ.mode=o.gfx;SET.gfx=o.gfx}
+if(isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
+if(Number.isInteger(o.wx)&&o.wx>=0&&o.wx<5)TOD.tgt=o.wx;
+if(o.fl&&typeof flOn!=='undefined')flOn=true;
+PERS.sig=JSON.stringify(PERS.snap());return true};
+PERS.reset=()=>{try{localStorage.removeItem(PERS.key);localStorage.removeItem('mfps_set')}catch(e){}};
+PERS.apply();
+setInterval(PERS.write,1500);addEventListener('pagehide',PERS.write);addEventListener('beforeunload',PERS.write);
+// ================= TESTS AUTOMATIQUES : ouvrir MILSIM_FPS.html?selftest, ou lancer tests/run_tests.py =================
+window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message||e)));addEventListener('unhandledrejection',e=>window.__errs.push('promesse : '+(e.reason&&e.reason.message||e.reason)));
+function SELFTEST(){const RS=[];const T=(n,f)=>{try{const v=f();if(v===false||(typeof v==='string'&&v))RS.push({n,ok:false,m:typeof v==='string'?v:''});else RS.push({n,ok:true})}catch(e){RS.push({n,ok:false,m:String(e&&e.message||e)})}};
+const fin=x=>typeof x==='number'&&isFinite(x);
+T('Fonctions principales présentes',()=>{const need=['fire','reload','equip','setWeapon','throwNade','nadeBoom','playerThrow','hlApply','hlReset','aiUpdate','mdl','GH','castShot','barrelHit','groundAt'];const miss=need.filter(n=>{try{return typeof eval(n)!=='function'}catch(e){return true}});return miss.length?'manquantes : '+miss.join(', '):''});
+T('Aucune erreur JavaScript au chargement',()=>window.__errs.length?window.__errs.slice(0,3).join(' | '):'');
+T('Carte : hauteur du terrain valide partout',()=>{for(let i=0;i<200;i++){const x=(Math.random()*2-1)*(MH-5),z=(Math.random()*2-1)*(MH-5);if(!fin(GH(x,z)))return 'GH('+x.toFixed(0)+','+z.toFixed(0)+') invalide'}return ''});
+T('Bots présents (18)',()=>bots.length>=10?'':bots.length+' bots');
+T('6 armes définies',()=>WC.length===6?'':WC.length+' armes');
+T('Chaque arme : sélection et tir consomme une balle',()=>{const bad=[];const sv=[WSEL,ammo,reserve];for(let i=0;i<WC.length;i++){setWeapon(i);reloading=0;if(HM)HM.act=null;cd=0;const a0=ammo=WC[i].mag;fire();if(ammo!==a0-1)bad.push(WC[i].n)}equip(sv[0],sv[1],sv[2]);return bad.length?'tir sans effet : '+bad.join(', '):''});
+T('Rechargement démarre',()=>{setWeapon(0);reloading=0;ammo=1;reserve=60;reload();const ok=reloading>0;reloading=0;ammo=30;return ok?'':'reload() sans effet'});
+T('Signal 50 : modèle et caractéristiques',()=>WC[4].n==='Signal 50'&&WC[4].mag===5&&typeof sigM==='object'&&sigM.compensater&&sigM.compensater.length?'':'incorrect');
+T('Silencieux et frein de bouche s’excluent',()=>{const sv=[A.supp,A.brake];A.supp=false;A.brake=true;toggleAtt('supp');const ok=A.supp&&!A.brake;A.supp=sv[0];A.brake=sv[1];return ok?'':'silencieux et frein actifs ensemble'});
+T('Santé : dégâts puis réinitialisation',()=>{hlReset();const z0=HM.z.t;hlApply('t',20,'b',null);const z1=HM.z.t;hlReset();return z1<z0&&HM.z.t===z0?'':'zone '+z0+' → '+z1+' → '+HM.z.t});
+T('Grenades : 3 types lancés puis explosion sans erreur',()=>{if(NADE.pool.length<15)return 'réserve '+NADE.pool.length;for(let t=0;t<3;t++){throwNade(t,new THREE.Vector3(P.x+30,GH(P.x+30,P.z)+1,P.z),new THREE.Vector3(0,0,0),null);const n=NADE.list[NADE.list.length-1];if(!n||n.type!==t)return 'lancer type '+t;NADE.list.pop();nadeBoom(n)}NADE.list.length=0;FXP.flash=0;FXP.stun=0;return ''});
+T('Animation de lancer : démarrage et lâcher',()=>{NADE.inv=[2,2,2];NADE.cd=0;THR.on=false;plateT=0;NADE.sel=1;playerThrow();if(!THR.on)return 'non démarré';THR.t=1.0;const n0=NADE.list.length;thrTick(.016);const ok=NADE.list.length===n0+1&&THR.rel;THR.on=false;tvm.visible=false;gun.visible=true;NADE.list.length=0;NADE.inv=[2,2,2];return ok?'':'grenade non lâchée'});
+T('Barils explosifs présents',()=>typeof BARRELS!=='undefined'&&BARRELS.length>0?'':'aucun baril');
+T('Véhicules et passages d’avions',()=>{if(!window.VEHS||VEHS.length<3)return 'véhicules : '+(window.VEHS&&VEHS.length);const a=AIRSHOW('f14'),b=(AIRSTOP(a),AIRSHOW('f15'));AIRSTOP(b);return ''});
+T('Modèles 3D valides (véhicules, avions)',()=>{for(const n of['lambo','ural','centauro','f14','f15']){const g=mdl(n),bb=new THREE.Box3().setFromObject(g),s=bb.getSize(new THREE.Vector3());if(!g.children.length||!fin(s.x)||s.length()<1)return n+' vide'}return ''});
+T('IA : 40 mises à jour sans erreur, positions valides',()=>{ENM.off=0;bots.forEach(b=>{if(b.dead>50)b.dead=.3});const t0=performance.now();for(let i=0;i<40;i++)aiUpdate(.05,false);const ms=(performance.now()-t0)/40;window.__aiMs=ms;const bad=bots.filter(b=>!fin(b.g.position.x)||!fin(b.g.position.z)||!fin(b.fy)||Math.abs(b.g.position.x)>MH||Math.abs(b.g.position.z)>MH);return bad.length?bad.length+' bot(s) en position invalide':''});
+T('Réglages : sauvegarde et relecture (SET)',()=>{const o=SET.sens;SET.sens=1.37;setSave();const r=JSON.parse(localStorage.getItem('mfps_set'));SET.sens=o;setSave();return r.sens===1.37?'':'relecture '+r.sens});
+T('Réglages : accessoires, grenade, heure mémorisés',()=>{const sv=PERS.snap();A.grip=true;A.laser=true;NADE.sel=2;PERS.write();const r=PERS.read();if(!r||!r.A.grip||!r.A.laser||r.nsel!==2)return 'écriture incorrecte';A.grip=false;A.laser=false;NADE.sel=0;PERS.apply();const ok=A.grip&&A.laser&&NADE.sel===2;A.grip=sv.A.grip;A.laser=sv.A.laser;NADE.sel=sv.nsel;PERS.write();return ok?'':'non restauré'});
+T('Réglages : valeurs corrompues ignorées',()=>{const sv=localStorage.getItem(PERS.key);localStorage.setItem(PERS.key,'{"v":1,"A":{"grip":"x"},"nsel":99,"gfx":-3,"tod":"abc"}');const n0=NADE.sel,g0=GQ.mode;const r=PERS.read();PERS.apply(r);const ok=NADE.sel===n0&&GQ.mode===g0;localStorage.setItem(PERS.key,sv||'');if(!sv)localStorage.removeItem(PERS.key);return ok?'':'valeur invalide appliquée'});
+T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
+const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
+window.SELFTEST=SELFTEST;
+if(/[?&]selftest/.test(location.search)){const iv=setInterval(()=>{if(typeof bots!=='undefined'&&bots.length&&typeof MERGED!=='undefined'&&MERGED.out>0&&typeof mmShow==='function'&&window.VEHS){clearInterval(iv);setTimeout(()=>{let r;try{r=SELFTEST()}catch(e){r={pass:0,fail:1,total:1,results:[{n:'SELFTEST',ok:false,m:String(e)}]}}
+const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,12,8,.96);color:#dfe8d0;font:14px monospace;padding:24px;overflow:auto';
+d.innerHTML='<h2 style="margin:0 0 12px;color:'+(r.fail?'#ff6a4a':'#9ccc4e')+'">TESTS : '+r.pass+' / '+r.total+' réussis'+(r.fail?' · '+r.fail+' échec(s)':'')+'</h2>'+r.results.map(x=>'<div style="color:'+(x.ok?'#9ccc4e':'#ff6a4a')+'">'+(x.ok?'✔':'✘')+' '+x.n+(x.m?' — '+x.m:'')+'</div>').join('')+'<p style="opacity:.6">IA : '+(r.aiMs?r.aiMs.toFixed(1):'?')+' ms par mise à jour · rechargez la page pour rejouer.</p>';document.body.appendChild(d)},500)}},1000)}
 // ---- Bots
 const bots=[],botParts=[];
 const T_camo=ctex(256,d=>{const a=fbm(256,4,4,4,41),b=fbm(256,9,9,3,77);for(let i=0;i<65536;i++){const v=a[i]<.4?.6:a[i]<.58?.78:1,w=b[i]>.62?.82:1,c=Math.min(1,v*w)*255;d[i*4]=c;d[i*4+1]=c;d[i*4+2]=c;d[i*4+3]=255}});

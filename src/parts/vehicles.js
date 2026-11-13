@@ -39,4 +39,4 @@ s.src.playbackRate.setTargetAtTime(k,t,.08);s.o.frequency.setTargetAtTime(85*k,t
 s.lp.frequency.setTargetAtTime(500+6500*Math.exp(-d/450),t,.1);s.g.gain.setTargetAtTime(Math.min(1,Math.pow(170/(d+70),1.5))*.55,t,.08);
 const r=(ex*Math.cos(P.yaw)-ez*Math.sin(P.yaw))/Math.max(d,1);s.pan.pan.setTargetAtTime(Math.max(-1,Math.min(1,r*1.2)),t,.05)}
 if(a.t>a.life)airStop(a)}
-requestAnimationFrame(airLoop);window.AIRSHOW=airSpawn}
+requestAnimationFrame(airLoop);window.AIRSHOW=airSpawn;window.AIRSTOP=airStop}
