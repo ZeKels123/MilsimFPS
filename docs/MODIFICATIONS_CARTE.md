@@ -56,3 +56,4 @@ Photo de dessus : `captures/v12/carte_dessus.png` (rectangle rouge = ville, trai
 - Zone bleue (SO, x −750..40, z 408..750) : forêt dense (6 000 arbres, clairières).
 - Ville agrandie : x 150..738, z −738..−350 (588×388 m), rangée nord en parcs.
 - Voitures : plus de « caisses » ; uniquement les modèles Mustang et Mazda fournis (8 couleurs).
+- Lampadaires : éclairage réel la nuit (18 h 42 – 6 h 18). Les 8 lampadaires les plus proches (< 300 m) émettent une vraie lumière chaude ; les 2 plus proches projettent des ombres.

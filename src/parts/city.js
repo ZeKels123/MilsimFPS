@@ -141,10 +141,13 @@ const lampM2=new THREE.MeshBasicMaterial({color:0xfff0c8,toneMapped:false}),polM
 const poolT=(()=>{const[c,g]=mkC(128,128),gr=g.createRadialGradient(64,64,2,64,64,64);gr.addColorStop(0,'rgba(255,225,170,1)');gr.addColorStop(.5,'rgba(255,215,150,.35)');gr.addColorStop(1,'rgba(255,210,140,0)');g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)})();
 const poolM=new THREE.MeshBasicMaterial({map:poolT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
 setInterval(()=>{if(typeof TOD==='undefined')return;const n=TOD.t<6.3||TOD.t>18.7;poolM.opacity=n?.5:0;lampM2.color.setHex(n?0xfff0c8:0x8f8a7c)},1500);
+const LAMPS=[],LPL=[];for(let i=0;i<8;i++){const l=new THREE.PointLight(0xffe2a8,0,38,1.6);l.visible=false;if(i<2){l.castShadow=true;l.shadow.mapSize.set(512,512);l.shadow.bias=-.002;l.shadow.camera.far=40}S.add(l);LPL.push(l)}
+setInterval(()=>{if(typeof TOD==='undefined'||typeof P==='undefined')return;const n=TOD.t<6.3||TOD.t>18.7;if(!n){LPL.forEach(l=>{l.visible=false});return}
+const d=LAMPS.map(q=>[(q[0]-P.x)**2+(q[2]-P.z)**2,q]).filter(a=>a[0]<90000).sort((a,b)=>a[0]-b[0]);LPL.forEach((l,i)=>{const e=d[i];if(!e){l.visible=false;return}l.visible=true;l.position.set(e[1][0],e[1][1],e[1][2]);l.intensity=n?2.4:0})},500);
 const lamp=(x,z,dx,dz)=>lazy([x,x,z,z],()=>lamp0(x,z,dx,dz)),lamp0=(x,z,dx,dz)=>{const add=(g,m,px,py,pz,rz,rx)=>{const e=new THREE.Mesh(g,m);e.position.set(x+px,Y+py,z+pz);if(rz)e.rotation.z=rz;if(rx)e.rotation.x=rx;e.castShadow=true;S.add(e);return e};
 add(new THREE.CylinderGeometry(.2,.24,.5,8),polM,0,.25,0);add(new THREE.CylinderGeometry(.06,.11,7.2,8),polM,0,3.9,0);
 add(new THREE.BoxGeometry(dx?1.9:.09,.09,dz?1.9:.09),polM,dx*.85,7.75,dz*.85,dx?dx*.28:0,dz?-dz*.28:0);
-add(new THREE.BoxGeometry(dx?.9:.36,.14,dz?.9:.36),polM,dx*1.9,8.05,dz*1.9);const h=add(new THREE.BoxGeometry(dx?.7:.26,.05,dz?.7:.26),lampM2,dx*1.9,7.96,dz*1.9);h.castShadow=false;
+add(new THREE.BoxGeometry(dx?.9:.36,.14,dz?.9:.36),polM,dx*1.9,8.05,dz*1.9);const h=add(new THREE.BoxGeometry(dx?.7:.26,.05,dz?.7:.26),lampM2,dx*1.9,7.96,dz*1.9);h.castShadow=false;LAMPS.push([x+dx*1.9,Y+7.7,z+dz*1.9]);
 const p=new THREE.Mesh(new THREE.CircleGeometry(8,20),poolM);p.rotation.x=-Math.PI/2;p.position.set(x+dx*1.9,Y+.13,z+dz*1.9);p.renderOrder=2;S.add(p);
 boxes.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2,y0:Y,y1:Y+3})};
 SX.forEach(([x,w])=>{for(let z=-730;z<=-358;z+=34){if(SZ.some(([g,ww])=>Math.abs(z-g)<ww/2+3))continue;lamp(x-w/2-1.4,z,1,0);lamp(x+w/2+1.4,z+17,-1,0)}});
