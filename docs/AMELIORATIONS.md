@@ -342,3 +342,11 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - `combat_knife.glb` remplace le couteau en boîtes (touche Z) : manche, lame et garde, couleurs lues dans la texture de base (sans embarquer les images), lame redressée (axe PCA) et mise à l'échelle 0,31 m.
 - Données : `src/parts/knife_data.js` ; `creaseGeo` (reclamer.js) gère maintenant couleurs par sommet.
 - Les mains (`first-person_arm_hand_fingerless_gloves.glb`) ne sont pas encore intégrées : maillage unique sans squelette (voir échange).
+
+## v21c — Mains à squelette (hand_with_gloves.glb)
+- Remplacement des mains en boîtes par un modèle à squelette : gant + manche, 21 os par main (avant-bras, main, pouce 3 phalanges, 4 doigts × 4), poids de peau conservés, main gauche = miroir de la droite.
+- Données : `src/parts/hand_data.js` (généré, ~440 Ko, textures réduites en JPEG 512/256), `src/parts/hands3.js` (`mkRig`, `hPose(main, fermeture des doigts, pouce)`, `mkHand`).
+- Utilisées par : mains d'armes, couteau (poing fermé sur le manche, blade orientée à la main), lancer de grenade (`mkHand2`/`handCurl`).
+- Matériau Lambert avec léger émissif (les gants noirs restaient trop sombres sous l'éclairage du jeu).
+- Test automatique : 21 os, un doigt change bien d'angle entre ouvert et fermé (22 tests).
+- Limites : poses de doigts uniques par arme (pas de pose spécifique rechargement), main droite hors champ à la hanche pour la plupart des armes.

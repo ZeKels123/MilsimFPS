@@ -10,16 +10,10 @@ g.userData={lev,pin};return g}
 // vue : mains articulées (doigts à 3 phalanges, pouce) et bras à deux segments reliés poignet-coude-épaule
 const tvm=new THREE.Group();tvm.visible=false;C.add(tvm);
 const THR={on:false,t:0,k:0,g:0,rel:false,pin:false,dur:1.25};
-function mkHand2(sg){const g=new THREE.Group(),F=[];bx(.07,.026,.09,0,0,-.044,SK,g);bx(.062,.034,.045,0,0,.016,SKd,g);
-[.036,.041,.038,.03].forEach((L,i)=>{const a=new THREE.Group();a.position.set(-sg*(1.5-i)*.0175,0,-.086);g.add(a);bx(.0158,.017,L+.006,0,0,-L/2,SK,a);
-const L2=L*.72,b=new THREE.Group();b.position.set(0,0,-L);a.add(b);bx(.015,.016,L2+.005,0,0,-L2/2,SK,b);
-const L3=L*.6,c=new THREE.Group();c.position.set(0,0,-L2);b.add(c);bx(.014,.015,L3,0,0,-L3/2,SK,c);bx(.011,.003,L3*.5,0,.008,-L3*.62,NLm,c);F.push([a,b,c])});
-const t1=new THREE.Group();t1.position.set(-sg*.034,-.006,-.024);g.add(t1);bx(.02,.02,.044,0,0,-.019,SK,t1);
-const t2=new THREE.Group();t2.position.set(0,0,-.04);t1.add(t2);bx(.018,.018,.032,0,0,-.016,SK,t2);bx(.012,.003,.014,0,.0095,-.024,NLm,t2);
-g.traverse(m=>{m.frustumCulled=false});g.userData={F,t1,t2,sg};tvm.add(g);return g}
-function handCurl(h,c,tc){const u=h.userData;u.F.forEach(f=>{f[0].rotation.x=-c*1.15;f[1].rotation.x=-c*1.25;f[2].rotation.x=-c*.75});u.t1.rotation.set(-tc*.55,u.sg*(.8-tc*.4),0);u.t2.rotation.x=-tc*.7}
-const thH=mkHand2(1),thL=mkHand2(-1),thC=new THREE.Group();thH.add(thC);thC.position.set(0,-.038,-.06);thC.rotation.z=Math.PI/2;
-const thArm=[0,1].map(()=>{const u=bx(.085,.085,1,0,0,0,SLV,tvm),f=bx(.066,.066,1,0,0,0,SLV,tvm);u.frustumCulled=f.frustumCulled=false;return[u,f]});
+function mkHand2(sg){const g=new THREE.Group(),w=mkRig(sg<0);g.add(w);g.userData={w,sg};tvm.add(g);return g}
+function handCurl(h,c,tc){hPose(h.userData.w,c,tc)}
+const SLM=L(0x5e5953);const thH=mkHand2(1),thL=mkHand2(-1),thC=new THREE.Group();thH.add(thC);thC.position.set(0,-.038,-.06);thC.rotation.z=Math.PI/2;
+const thArm=[0,1].map(()=>{const u=bx(.085,.085,1,0,0,0,SLM,tvm),f=bx(.066,.066,1,0,0,0,SLM,tvm);u.frustumCulled=f.frustumCulled=false;return[u,f]});
 const thPin=new THREE.Group();thL.add(thPin);thPin.position.set(0,-.03,-.125);thPin.visible=false;
 {const q=mkNade(1).userData.pin;q.children.slice().forEach(m=>{m.geometry.translate(0,-.07,0);thPin.add(m)})}
 function thrSet(k){THR.k=k;while(thC.children.length)thC.remove(thC.children[0]);const ng=mkNade(k);ng.rotation.y=-Math.PI/2;thC.add(ng);THR.G=ng}

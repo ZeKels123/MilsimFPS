@@ -3,13 +3,13 @@ const KNF={on:0,s:0,t:0,dur:.4,type:0,hit:0,alt:0};
 const KN=new THREE.Group();C.add(KN);KN.visible=false;
 const knSteel=L(0xbfc7cf),knEdge=L(0xe8eef2),knDark=L(0x1c1d1f),knBlack=L(0x111214);
 const knHandR=mkHand(true,KN),knHandL=mkHand(false,KN);
-const knArm=(h,rx,ry)=>{const f=h.children[h.children.length-1];f.rotation.set(rx,ry,0);f.position.set(0,-.07,.2);f.scale.set(.85,.8,.9)};knArm(knHandR,.1,-1.0);knHandR.children[knHandR.children.length-1].position.set(-.13,-.03,.2);knArm(knHandL,.5,.25);
+const knArm=(h,rx,ry)=>{if(h.userData.rig)return;const f=h.children[h.children.length-1];f.rotation.set(rx,ry,0);f.position.set(0,-.07,.2);f.scale.set(.85,.8,.9)};knArm(knHandR,.1,-1.0);knArm(knHandL,.5,.25);
 // couteau : tenu dans la main droite, axe de poignée = x local de la main (la main est tournée pour que la lame monte)
-{const k=new THREE.Group();knHandR.add(k);k.position.set(0,.02,-.075);
+{const k=new THREE.Group();knHandR.add(k);k.position.set(0,-.035,-.02);k.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,1),new THREE.Vector3(0,1,0)));
 KND.forEach((d,j)=>{const G=creaseGeo(d.p,d.i,.7,d.c,1e4);const mt=new THREE.MeshStandardMaterial({vertexColors:true,roughness:j===1?.38:.62,metalness:j===1?.55:.15,envMapIntensity:.9});
 const m=new THREE.Mesh(G,mt);m.frustumCulled=false;k.add(m)})}
-knHandR.rotation.set(-.55,0,1.5708);knHandR.position.set(.11,-.17,-.36);
-knHandL.position.set(-.16,-.22,-.32);knHandL.rotation.set(-.25,.35,-.2);
+{const bl=new THREE.Vector3(.15,1,-.55).normalize(),ex=bl.clone().negate(),d=new THREE.Vector3(.3,-.6,.8).normalize();const ez=d.sub(ex.clone().multiplyScalar(d.dot(ex))).normalize(),ey=new THREE.Vector3().crossVectors(ez,ex);knHandR.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex,ey,ez))}knHandR.position.set(.09,-.13,-.34);
+knHandL.position.set(-.14,-.17,-.32);knHandL.rotation.set(-.25,.35,-.2);
 let knClk=0;
 function knAtk(type){if(KNF.t>0||P.hp<=0||ac.on||bench)return;KNF.type=type;KNF.dur=type?.34:.42;KNF.t=KNF.dur;KNF.hit=0;snd(type?240:180,.07,.13,'sawtooth');noise(P.x,P.z,6)}
 function knStrike(){const o=C.getWorldPosition(new THREE.Vector3()),d=C.getWorldDirection(new THREE.Vector3());let best=null,bz='t',bd=9;

@@ -11,6 +11,7 @@ T('Chaque arme : sélection et tir consomme une balle',()=>{const bad=[];const s
 T('Rechargement démarre',()=>{setWeapon(0);reloading=0;ammo=1;reserve=60;reload();const ok=reloading>0;reloading=0;ammo=30;return ok?'':'reload() sans effet'});
 T('Reclamer 12 : modèle, 6 coups, rechargement 2 par 2',()=>{if(WC[3].n!=='Reclamer 12'||WC[3].mag!==6||!rcM.corps||!rcM.Cube)return'incorrect';const sw=WSEL,sa=ammo,sr=reserve;setWeapon(3);ammo=0;reserve=36;reload();const N=SGR.N;SGR.d=0;reloading=.01;SGR.d=0;
 let ok=N===3;ammo=0;reserve=36;reloading=0;SGR.N=3;SGR.d=0;ok=ok&&RT>1.9&&RT<2.4;ammo=sa;reserve=sr;reloading=0;setWeapon(sw);return ok?'':'N='+N+' RT='+RT});
+T('Mains à squelette : 21 os, doigts animables',()=>{const w=handR.userData.rig;if(!w||!w.userData.B||w.userData.B.length!==21)return'rig absent';hPose(w,0,0);const b=w.userData.B[6].quaternion.clone();hPose(w,1,1);const d=b.angleTo(w.userData.B[6].quaternion);hPose(w,[.85,.85,.8,.75],.55);return d>.5?'':'doigt immobile'});
 T('Signal 50 : modèle et caractéristiques',()=>WC[4].n==='Signal 50'&&WC[4].mag===5&&typeof sigM==='object'&&sigM.compensater&&sigM.compensater.length?'':'incorrect');
 T('Silencieux et frein de bouche s’excluent',()=>{const sv=[A.supp,A.brake];A.supp=false;A.brake=true;toggleAtt('supp');const ok=A.supp&&!A.brake;A.supp=sv[0];A.brake=sv[1];return ok?'':'silencieux et frein actifs ensemble'});
 T('Santé : dégâts puis réinitialisation',()=>{hlReset();const z0=HM.z.t;hlApply('t',20,'b',null);const z1=HM.z.t;hlReset();return z1<z0&&HM.z.t===z0?'':'zone '+z0+' → '+z1+' → '+HM.z.t});
