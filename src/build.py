@@ -89,7 +89,7 @@ rep("V.set(P.x,1.6,P.z);W.set(rx*Math.sign(off)","V.set(P.x,P.eh-.1+P.gy,P.z);W.
 rep("C.position.set(P.x+rx*off,1.7-Math.abs(P.lean)*.14+","C.position.set(P.x+rx*off,P.eh+P.gy-Math.abs(P.lean)*.14+")
 rep("dead:false,x:cx,z:cz,","dead:false,k:[.6,.4,.24],x:cx,z:cz,")
 rep("d.mat.color.setRGB(.6*r,.4*r,.24*r)","d.mat.color.setRGB(d.k[0]*r,d.k[1]*r,d.k[2]*r)")
-rep("const WC=[\n",rd('menu0.js')+rd('hmg_data.js')+rd('hmg.js')+rd('weapons.js')+rd('signal_data.js')+rd('signal.js')+rd('reclamer_data.js')+rd('reclamer.js')+"const WC=[\n")
+rep("const WC=[\n",rd('menu0.js')+rd('hmg_data.js')+rd('hmg.js')+rd('weapons.js')+rd('signal_data.js')+rd('signal.js')+rd('reclamer_data.js')+rd('knife_data.js')+rd('reclamer.js')+"const WC=[\n")
 rep("const AMM=[30,30,15,6,5],RSV=[120,120,75,36,30]","Object.assign(WC[3],{n:'Reclamer 12',hb:{ry:-.11,rz:.01,ly:-.07,lz:-.456,zM:0,zS:-.05},mz:-.73,my:0,iy:-.06,rate:.8,rec:2.6,dmg:18,pel:9,sp:.065,snd:[85,.3,.5]});Object.assign(WC[4],{hb:{ry:-.1,rz:.04,ly:-.06,lz:-.27,zM:0,zS:-.05},n:'Signal 50',rate:.5,rec:2.7,dmg:125,cyc:0,amp:.045,mz:-.72,snd:[62,.4,.55],rt:2.2});WC.push(HMGC);const AMM=[30,30,15,6,5,100],RSV=[120,120,75,36,30,300]")
 rep("reloading=RT;reloadEmpty=ammo===0;","if(WSEL===3){SGR.N=Math.ceil(Math.min(magMax()-ammo,reserve)/2);SGR.d=0;RT=.3+.62*SGR.N}reloading=RT;reloadEmpty=ammo===0;")
 rep("if(reloading||plateT>0||ac.on)return;if(ammo<=0){reload();return}","if(reloading&&WSEL===3&&ammo>0){reloading=0;SGR.N=0}if(reloading||plateT>0||ac.on)return;if(ammo<=0){reload();return}")

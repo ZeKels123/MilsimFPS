@@ -337,3 +337,8 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Animation : main gauche qui monte à la fenêtre de chargement avec 2 cartouches en main, pompe finale.
 - Données : `src/parts/reclamer_data.js` (généré), `src/parts/reclamer.js` (lissage par angle des normales). Test automatique ajouté (21 tests).
 - Captures : `docs/captures/v21/`.
+
+## v21b — Couteau de combat (modèle importé)
+- `combat_knife.glb` remplace le couteau en boîtes (touche Z) : manche, lame et garde, couleurs lues dans la texture de base (sans embarquer les images), lame redressée (axe PCA) et mise à l'échelle 0,31 m.
+- Données : `src/parts/knife_data.js` ; `creaseGeo` (reclamer.js) gère maintenant couleurs par sommet.
+- Les mains (`first-person_arm_hand_fingerless_gloves.glb`) ne sont pas encore intégrées : maillage unique sans squelette (voir échange).

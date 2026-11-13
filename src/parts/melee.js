@@ -6,10 +6,8 @@ const knHandR=mkHand(true,KN),knHandL=mkHand(false,KN);
 const knArm=(h,rx,ry)=>{const f=h.children[h.children.length-1];f.rotation.set(rx,ry,0);f.position.set(0,-.07,.2);f.scale.set(.85,.8,.9)};knArm(knHandR,.1,-1.0);knHandR.children[knHandR.children.length-1].position.set(-.13,-.03,.2);knArm(knHandL,.5,.25);
 // couteau : tenu dans la main droite, axe de poignée = x local de la main (la main est tournée pour que la lame monte)
 {const k=new THREE.Group();knHandR.add(k);k.position.set(0,.02,-.075);
-bx(.115,.025,.025,0,0,0,knBlack,k);for(let i=-2;i<=2;i++)bx(.006,.027,.027,i*.02,0,0,knDark,k);
-bx(.012,.03,.045,.062,0,0,knSteel,k);bx(.012,.05,.012,.062,0,0,knSteel,k);
-bx(.13,.034,.0045,.13,.0,0,knSteel,k);bx(.13,.006,.006,.13,-.017,0,knEdge,k);bx(.1,.012,.003,.115,.012,0,knDark,k);
-const tp=bx(.04,.03,.0045,.215,.0,0,knSteel,k);tp.scale.y=.7;bx(.02,.015,.0045,.24,-.005,0,knEdge,k);bx(.018,.03,.03,-.067,0,0,knSteel,k)}
+KND.forEach((d,j)=>{const G=creaseGeo(d.p,d.i,.7,d.c,1e4);const mt=new THREE.MeshStandardMaterial({vertexColors:true,roughness:j===1?.38:.62,metalness:j===1?.55:.15,envMapIntensity:.9});
+const m=new THREE.Mesh(G,mt);m.frustumCulled=false;k.add(m)})}
 knHandR.rotation.set(-.55,0,1.5708);knHandR.position.set(.11,-.17,-.36);
 knHandL.position.set(-.16,-.22,-.32);knHandL.rotation.set(-.25,.35,-.2);
 let knClk=0;

@@ -1,14 +1,14 @@
 // ================= RECLAMER 12 (fusil à pompe, 6 cartouches, rechargement 2 par 2) — modèle importé de reclamer_12.blend =================
 const rcM={},SGR={N:0,d:0};
-function creaseGeo(P,I,ang){const n=I.length/3,fn=[],adj=new Map();
+function creaseGeo(P,I,ang,Cc,sc){sc=sc||1000;const col=Cc?new Float32Array(I.length*3):null;const n=I.length/3,fn=[],adj=new Map();
 for(let f=0;f<n;f++){const a=I[f*3]*3,b=I[f*3+1]*3,c=I[f*3+2]*3;const ux=P[b]-P[a],uy=P[b+1]-P[a+1],uz=P[b+2]-P[a+2],vx=P[c]-P[a],vy=P[c+1]-P[a+1],vz=P[c+2]-P[a+2];
 let x=uy*vz-uz*vy,y=uz*vx-ux*vz,z=ux*vy-uy*vx;const l=Math.hypot(x,y,z)||1;fn.push([x/l,y/l,z/l]);
 for(let k=0;k<3;k++){const v=I[f*3+k];(adj.get(v)||adj.set(v,[]).get(v)).push(f)}}
 const pos=new Float32Array(n*9),nor=new Float32Array(n*9),ct=Math.cos(ang);
-for(let f=0;f<n;f++)for(let k=0;k<3;k++){const v=I[f*3+k],o=f*9+k*3;pos[o]=P[v*3]/1000;pos[o+1]=P[v*3+1]/1000;pos[o+2]=P[v*3+2]/1000;
+for(let f=0;f<n;f++)for(let k=0;k<3;k++){const v=I[f*3+k],o=f*9+k*3;pos[o]=P[v*3]/sc;pos[o+1]=P[v*3+1]/sc;pos[o+2]=P[v*3+2]/sc;if(col){col[o]=Math.pow(Cc[v*3]/255,2.2);col[o+1]=Math.pow(Cc[v*3+1]/255,2.2);col[o+2]=Math.pow(Cc[v*3+2]/255,2.2)}
 let sx=0,sy=0,sz=0;const q=fn[f];adj.get(v).forEach(g=>{const r=fn[g];if(r[0]*q[0]+r[1]*q[1]+r[2]*q[2]>ct){sx+=r[0];sy+=r[1];sz+=r[2]}});
 const l=Math.hypot(sx,sy,sz)||1;nor[o]=sx/l;nor[o+1]=sy/l;nor[o+2]=sz/l}
-const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));return G}
+const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));if(col)G.setAttribute('color',new THREE.BufferAttribute(col,3));return G}
 {const g=wg[3],pump=wm[3];
 g.children.slice().forEach(c=>{if(c!==pump&&!extV.includes(c))g.remove(c)});
 pump.children.slice().forEach(c=>pump.remove(c));
