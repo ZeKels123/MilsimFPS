@@ -365,3 +365,10 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Tirs des bots : mêmes échantillons, spatialisés (distance, occlusion, réverbération existantes).
 - Rechargement : sample de rechargement (sauf Reclamer, cartouches synthétiques) + bruit de culasse si chargeur vide ; clic à vide quand il n'y a plus de munitions.
 - Test automatique (24 tests).
+
+## v23 — Optimisations, tenue du couteau
+- Couteau : prise « marteau » (lame vers l'avant, légèrement relevée), poing droit en bas à droite, main gauche ouverte en garde ; réglable via `knPose()` (melee.js). Estoc et taillade gardent leurs mouvements.
+- Scène : les originaux des maillages fusionnés sont détachés du graphe (gardés dans `solids`/`ray` pour les tirs) et les 16 770 colliders invisibles de troncs ne sont plus dans la scène → 58 400 → 11 600 objets parcourus par image (mise à jour des matrices ÷2,5, rendu CPU ÷1,8).
+- Serpents : pose des os en une passe (une seule lecture du relief par os, tangente par os voisins), cadence réduite avec la distance, collision via la grille de navigation au lieu de `boxes` (tick serpents 3,2 ms → 0,3 ms).
+- Textures : inventaire fait (73 textures, aucune non chargée ; quelques tailles non puissances de 2, sans effet en WebGL2). Les 5 matériaux noirs sont ceux du modèle Reclamer (couleur de base noire du .blend).
+- À faire : vérification visuelle des éléments de la carte (tour par zones interrompu), intégration du soldat Mixamo (`military-man`, 33 os, 13 animations) comme modèle d'ennemi, armure `military_armor` (maillage statique 21 k tris).

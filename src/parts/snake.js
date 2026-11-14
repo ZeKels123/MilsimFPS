@@ -26,22 +26,24 @@ S.add(g);
 const s={snk:1,g,bones,px:[],tr:[],x:0,z:0,y:0,bx:0,bz:0,th:rnd(0,6.28),ph:rnd(0,6),am:0,v:0,hp:20,hm:20,dead:0,st:'wander',t:rnd(1,4),mv:1,sc:rnd(0,.3),cd:0,raise:0,roll:0,id:i,tgt:null,by:null,bit:0,bsc:rnd(0,.3),hpos:new THREE.Vector3(),idx:i};
 for(let k=0;k<7;k++){const m=new THREE.Mesh(SNK.pg,SNK.pm);m.userData.an=s;m.userData.head=k===0;m.scale.setScalar(k===0?.075:.06);g.add(m);s.px.push(m);FA.hit.push(m)}
 snkPlace(s);return s}
-function snkSpot(){for(let n=0;n<80;n++){const a=rnd(0,6.283),r=rnd(14,95),x=Math.sin(a)*r,z=Math.cos(a)*r-10;if(Math.abs(x)>MH-12||Math.abs(z)>MH-12)continue;if(!free_(x,z))continue;if(Math.hypot((x-POND.x)/(POND.rx+6),(z-POND.z)/(POND.rz+6))<1.2)continue;if(SNK.list.some(o=>Math.hypot(o.x-x,o.z-z)<12))continue;return[x,z]}return[30,-40]}
+function snkSpot(){for(let n=0;n<80;n++){const a=rnd(0,6.283),r=rnd(14,95),x=Math.sin(a)*r,z=Math.cos(a)*r-10;if(Math.abs(x)>MH-12||Math.abs(z)>MH-12)continue;if(!nFree(x,z)||!free_(x,z))continue;if(Math.hypot((x-POND.x)/(POND.rx+6),(z-POND.z)/(POND.rz+6))<1.2)continue;if(SNK.list.some(o=>Math.hypot(o.x-x,o.z-z)<12))continue;return[x,z]}return[30,-40]}
 function snkPlace(s){const p=snkSpot();s.bx=s.x=p[0];s.bz=s.z=p[1];s.th=rnd(0,6.283);s.tr=[];const fx=Math.sin(s.th),fz=Math.cos(s.th);for(let i=0;i<140;i++)s.tr.push([s.x-fx*SNK.SP*(i+1),s.z-fz*SNK.SP*(i+1)]);
 s.hp=s.hm=20;s.dead=0;s.roll=0;s.raise=0;s.st='wander';s.t=rnd(1,4);s.tgt=null;s.by=null;s.am=0;s.v=0;s.g.visible=true;s.y=GH(s.x,s.z);snkPose(s,1)}
 // point à la distance d de la tête le long de la piste
 function snkArc(s,d,o){const t=s.tr,d0=Math.hypot(s.x-t[0][0],s.z-t[0][1]);if(d<=d0){const f=d0>1e-6?d/d0:0;o.x=s.x+(t[0][0]-s.x)*f;o.z=s.z+(t[0][1]-s.z)*f;return}
 d-=d0;const i=Math.floor(d/SNK.SP);if(i>=t.length-1){o.x=t[t.length-1][0];o.z=t[t.length-1][1];return}const f=d/SNK.SP-i;o.x=t[i][0]+(t[i+1][0]-t[i][0])*f;o.z=t[i][1]+(t[i+1][1]-t[i][1])*f}
 const snkRz=(s,d)=>s.raise*.26*Math.pow(Math.max(0,1-d/.5),2);
+const _sp=new Float32Array(91*3),_sord=[];
 function snkPose(s,force){
-const B=SNK.B,Y0=SNK.Y0,bn=s.bones;
-for(let k=0;k<91;k++){const dk=SNK.d[k];snkArc(s,Math.max(0,dk-.06),_sb);snkArc(s,dk+.06,_sc);snkArc(s,dk,_sa);
-const ya=GH(_sa.x,_sa.z)+SNK.lift+snkRz(s,dk),yb=GH(_sb.x,_sb.z)+SNK.lift+snkRz(s,Math.max(0,dk-.06)),yc=GH(_sc.x,_sc.z)+SNK.lift+snkRz(s,dk+.06);
-_sz.set(_sc.x-_sb.x,yc-yb,_sc.z-_sb.z);if(_sz.lengthSq()<1e-9)_sz.set(Math.sin(s.th)*-1,0,Math.cos(s.th)*-1);_sz.normalize();
+const B=SNK.B,Y0=SNK.Y0,bn=s.bones,D=SNK.d;if(!_sord.length){for(let k=0;k<91;k++)_sord.push(k);_sord.sort((a,b)=>D[a]-D[b]);SNK.rank=new Int16Array(91);_sord.forEach((k,i)=>SNK.rank[k]=i)}
+// 1 passe : position (x,z) sur la piste + hauteur du sol, une seule fois par os
+for(let k=0;k<91;k++){snkArc(s,D[k],_sa);_sp[k*3]=_sa.x;_sp[k*3+2]=_sa.z;_sp[k*3+1]=GH(_sa.x,_sa.z)+SNK.lift+snkRz(s,D[k])}
+for(let k=0;k<91;k++){const r=SNK.rank[k],kb=_sord[Math.max(0,r-1)],kc=_sord[Math.min(90,r+1)];
+// tangente : os voisins le long du corps (du côté queue vers la tête)
+_sz.set(_sp[kb*3]-_sp[kc*3],_sp[kb*3+1]-_sp[kc*3+1],_sp[kb*3+2]-_sp[kc*3+2]);if(_sz.lengthSq()<1e-9)_sz.set(-Math.sin(s.th),0,-Math.cos(s.th));_sz.normalize();
 _sx.crossVectors(_su,_sz);if(_sx.lengthSq()<1e-6)_sx.set(1,0,0);_sx.normalize();_sy.crossVectors(_sz,_sx);_sm.makeBasis(_sx,_sy,_sz);_sq.setFromRotationMatrix(_sm);
 if(s.roll)_sq.multiply(_sq2.setFromAxisAngle(_sqa,s.roll));
-// décalage de l'os par rapport à l'axe du corps (os de la tête)
-const oy=B[k][1]-Y0,ox=B[k][0];_sv.set(_sa.x,ya,_sa.z);if(oy||ox){_sw.set(ox,oy,0).applyQuaternion(_sq);_sv.add(_sw)}
+const oy=B[k][1]-Y0,ox=B[k][0];_sv.set(_sp[k*3],_sp[k*3+1],_sp[k*3+2]);if(oy||ox){_sw.set(ox,oy,0).applyQuaternion(_sq);_sv.add(_sw)}
 bn[k].position.copy(_sv);bn[k].quaternion.copy(_sq)}
 // proxys
 const p0=bn[88].position,p2=bn[90].position;s.px[0].position.set((p0.x+p2.x)/2,(p0.y+p2.y)/2,(p0.z+p2.z)/2);s.hpos.copy(s.px[0].position);
@@ -72,7 +74,7 @@ const snkNear=a=>a.reduce((m,q)=>!m||q.d<m.d?q:m,null);
 function snkMove(s,dt,v){
 s.v+=(v-s.v)*Math.min(1,dt*6);const sp=s.v;s.ph+=sp*dt*10.2;s.am+=(Math.min(.085,sp>.06?.02+sp*.09:0)-s.am)*Math.min(1,dt*4);
 if(sp>.01){const nx=s.bx+Math.sin(s.th)*sp*dt,nz=s.bz+Math.cos(s.th)*sp*dt;
-if(Math.abs(nx)>MH-12||Math.abs(nz)>MH-12||!free_(nx,nz)||Math.hypot((nx-POND.x)/(POND.rx+3),(nz-POND.z)/(POND.rz+3))<1){s.th+=(s.id%2?1:-1)*(1.4+Math.random());s.t=Math.min(s.t,.5);s.v=0}
+if(Math.abs(nx)>MH-12||Math.abs(nz)>MH-12||!nFree(nx,nz)||Math.hypot((nx-POND.x)/(POND.rx+3),(nz-POND.z)/(POND.rz+3))<1){s.th+=(s.id%2?1:-1)*(1.4+Math.random());s.t=Math.min(s.t,.5);s.v=0}
 else{s.bx=nx;s.bz=nz}}
 const o=s.am*Math.sin(s.ph);s.nx=s.x;s.nz=s.z;const hx=s.bx+Math.cos(s.th)*o,hz=s.bz-Math.sin(s.th)*o;
 s.x=hx;s.z=hz;s.y=GH(hx,hz);
@@ -94,7 +96,7 @@ else if(s.st==='strike'){snkTurn(s,Math.atan2(tx-s.x,tz-s.z),9,dt);v=3.4;if(!s.b
 if(s.t<=0||s.bit&&td<.2){s.st='flee';s.t=rnd(.9,1.4);s.cd=rnd(1.6,2.4);s.by=null}}
 else if(s.st==='flee'){const a=tw?Math.atan2(s.x-tx,s.z-tz):s.th;snkTurn(s,a,3.2,dt);v=1.5;
 if(s.t<=0){if(tw&&td<2.8&&!s.by&&!(tw.b&&tw.b.dead)){s.st='alert';s.t=3}else{s.st='wander';s.t=rnd(1,3);s.tgt=null}s.by=null}}
-snkMove(s,dt,v);if(pd<140||s.v>.05||s.raise>.02)snkPose(s);
+snkMove(s,dt,v);s.pk=(s.pk||0)+1;const every=pd<30?1:pd<70?2:4;if((s.v>.01||s.raise>.02||s.st!=='wander')&&s.pk%every===0)snkPose(s);
 // bots qui tirent sur le serpent
 if(s.st!=='wander'||s.hp<s.hm){s.bsc-=dt;if(s.bsc<=0){s.bsc=.3;snkBotsFire(s)}}}
 function snkBotsFire(s){for(const b of bots){if(b.dead||b.see||(b.snkCd||0)>SNK.t)continue;const g=b.g.position,d=Math.hypot(g.x-s.x,g.z-s.z);if(d>11||Math.abs(g.y-s.y)>3)continue;

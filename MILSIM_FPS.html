@@ -1003,7 +1003,7 @@ const s=rnd(1.5,2.2),pine=Math.random()<.5;if(pine)np++;else no++;c++;TR.push({x
 
 while((np<NP||no<NO)&&t++<120000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:TYP(),r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
-TR.forEach(q=>{const sc=q.s*[1,1.15,.7,2.9,1.2][q.ty],hh=q.s/sc*(q.ty?1.2:1),m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;S.add(m);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});
+TR.forEach(q=>{const sc=q.s*[1,1.15,.7,2.9,1.2][q.ty],hh=q.s/sc*(q.ty?1.2:1),m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;m.updateMatrixWorld(true);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});
 const tki=new THREE.InstancedMesh(new THREE.CylinderGeometry(.14,.3,1,6),std(0xffffff,{roughness:1,envMapIntensity:.3}),TR.length),oo=new THREE.Object3D();
 TR.forEach((q,i)=>{const hh=q.ty?4.6:6.4,sc=q.ty?q.s*1.1:q.s*.9;oo.position.set(q.x,q.y+hh*q.s*.5,q.z);oo.rotation.set(0,q.r,0);oo.scale.set(sc*(q.ty?1.3:1),hh*q.s,sc*(q.ty?1.3:1));oo.updateMatrix();tki.setMatrixAt(i,oo.matrix)});tki.castShadow=tki.receiveShadow=true;S.add(tki);tki.frustumCulled=false;tki.setColorAt(0,new THREE.Color(1,1,1));tki.count=0;const tkC=TSP.map(t=>new THREE.Color(t[2]));tki.setColorAt(0,tkC[0]);const tkPut=(q,i)=>{const T=TSP[q.ty],hh=T[0],sc=q.s*T[1];oo.position.set(q.x,q.y+hh*q.s*.5,q.z);oo.rotation.set(0,q.r,0);oo.scale.set(sc,hh*q.s,sc);oo.updateMatrix();tki.setMatrixAt(i,oo.matrix);tki.setColorAt(i,tkC[q.ty])};
 // --- LOD : listes d'instances reconstruites quand le joueur bouge
@@ -1198,22 +1198,24 @@ S.add(g);
 const s={snk:1,g,bones,px:[],tr:[],x:0,z:0,y:0,bx:0,bz:0,th:rnd(0,6.28),ph:rnd(0,6),am:0,v:0,hp:20,hm:20,dead:0,st:'wander',t:rnd(1,4),mv:1,sc:rnd(0,.3),cd:0,raise:0,roll:0,id:i,tgt:null,by:null,bit:0,bsc:rnd(0,.3),hpos:new THREE.Vector3(),idx:i};
 for(let k=0;k<7;k++){const m=new THREE.Mesh(SNK.pg,SNK.pm);m.userData.an=s;m.userData.head=k===0;m.scale.setScalar(k===0?.075:.06);g.add(m);s.px.push(m);FA.hit.push(m)}
 snkPlace(s);return s}
-function snkSpot(){for(let n=0;n<80;n++){const a=rnd(0,6.283),r=rnd(14,95),x=Math.sin(a)*r,z=Math.cos(a)*r-10;if(Math.abs(x)>MH-12||Math.abs(z)>MH-12)continue;if(!free_(x,z))continue;if(Math.hypot((x-POND.x)/(POND.rx+6),(z-POND.z)/(POND.rz+6))<1.2)continue;if(SNK.list.some(o=>Math.hypot(o.x-x,o.z-z)<12))continue;return[x,z]}return[30,-40]}
+function snkSpot(){for(let n=0;n<80;n++){const a=rnd(0,6.283),r=rnd(14,95),x=Math.sin(a)*r,z=Math.cos(a)*r-10;if(Math.abs(x)>MH-12||Math.abs(z)>MH-12)continue;if(!nFree(x,z)||!free_(x,z))continue;if(Math.hypot((x-POND.x)/(POND.rx+6),(z-POND.z)/(POND.rz+6))<1.2)continue;if(SNK.list.some(o=>Math.hypot(o.x-x,o.z-z)<12))continue;return[x,z]}return[30,-40]}
 function snkPlace(s){const p=snkSpot();s.bx=s.x=p[0];s.bz=s.z=p[1];s.th=rnd(0,6.283);s.tr=[];const fx=Math.sin(s.th),fz=Math.cos(s.th);for(let i=0;i<140;i++)s.tr.push([s.x-fx*SNK.SP*(i+1),s.z-fz*SNK.SP*(i+1)]);
 s.hp=s.hm=20;s.dead=0;s.roll=0;s.raise=0;s.st='wander';s.t=rnd(1,4);s.tgt=null;s.by=null;s.am=0;s.v=0;s.g.visible=true;s.y=GH(s.x,s.z);snkPose(s,1)}
 // point à la distance d de la tête le long de la piste
 function snkArc(s,d,o){const t=s.tr,d0=Math.hypot(s.x-t[0][0],s.z-t[0][1]);if(d<=d0){const f=d0>1e-6?d/d0:0;o.x=s.x+(t[0][0]-s.x)*f;o.z=s.z+(t[0][1]-s.z)*f;return}
 d-=d0;const i=Math.floor(d/SNK.SP);if(i>=t.length-1){o.x=t[t.length-1][0];o.z=t[t.length-1][1];return}const f=d/SNK.SP-i;o.x=t[i][0]+(t[i+1][0]-t[i][0])*f;o.z=t[i][1]+(t[i+1][1]-t[i][1])*f}
 const snkRz=(s,d)=>s.raise*.26*Math.pow(Math.max(0,1-d/.5),2);
+const _sp=new Float32Array(91*3),_sord=[];
 function snkPose(s,force){
-const B=SNK.B,Y0=SNK.Y0,bn=s.bones;
-for(let k=0;k<91;k++){const dk=SNK.d[k];snkArc(s,Math.max(0,dk-.06),_sb);snkArc(s,dk+.06,_sc);snkArc(s,dk,_sa);
-const ya=GH(_sa.x,_sa.z)+SNK.lift+snkRz(s,dk),yb=GH(_sb.x,_sb.z)+SNK.lift+snkRz(s,Math.max(0,dk-.06)),yc=GH(_sc.x,_sc.z)+SNK.lift+snkRz(s,dk+.06);
-_sz.set(_sc.x-_sb.x,yc-yb,_sc.z-_sb.z);if(_sz.lengthSq()<1e-9)_sz.set(Math.sin(s.th)*-1,0,Math.cos(s.th)*-1);_sz.normalize();
+const B=SNK.B,Y0=SNK.Y0,bn=s.bones,D=SNK.d;if(!_sord.length){for(let k=0;k<91;k++)_sord.push(k);_sord.sort((a,b)=>D[a]-D[b]);SNK.rank=new Int16Array(91);_sord.forEach((k,i)=>SNK.rank[k]=i)}
+// 1 passe : position (x,z) sur la piste + hauteur du sol, une seule fois par os
+for(let k=0;k<91;k++){snkArc(s,D[k],_sa);_sp[k*3]=_sa.x;_sp[k*3+2]=_sa.z;_sp[k*3+1]=GH(_sa.x,_sa.z)+SNK.lift+snkRz(s,D[k])}
+for(let k=0;k<91;k++){const r=SNK.rank[k],kb=_sord[Math.max(0,r-1)],kc=_sord[Math.min(90,r+1)];
+// tangente : os voisins le long du corps (du côté queue vers la tête)
+_sz.set(_sp[kb*3]-_sp[kc*3],_sp[kb*3+1]-_sp[kc*3+1],_sp[kb*3+2]-_sp[kc*3+2]);if(_sz.lengthSq()<1e-9)_sz.set(-Math.sin(s.th),0,-Math.cos(s.th));_sz.normalize();
 _sx.crossVectors(_su,_sz);if(_sx.lengthSq()<1e-6)_sx.set(1,0,0);_sx.normalize();_sy.crossVectors(_sz,_sx);_sm.makeBasis(_sx,_sy,_sz);_sq.setFromRotationMatrix(_sm);
 if(s.roll)_sq.multiply(_sq2.setFromAxisAngle(_sqa,s.roll));
-// décalage de l'os par rapport à l'axe du corps (os de la tête)
-const oy=B[k][1]-Y0,ox=B[k][0];_sv.set(_sa.x,ya,_sa.z);if(oy||ox){_sw.set(ox,oy,0).applyQuaternion(_sq);_sv.add(_sw)}
+const oy=B[k][1]-Y0,ox=B[k][0];_sv.set(_sp[k*3],_sp[k*3+1],_sp[k*3+2]);if(oy||ox){_sw.set(ox,oy,0).applyQuaternion(_sq);_sv.add(_sw)}
 bn[k].position.copy(_sv);bn[k].quaternion.copy(_sq)}
 // proxys
 const p0=bn[88].position,p2=bn[90].position;s.px[0].position.set((p0.x+p2.x)/2,(p0.y+p2.y)/2,(p0.z+p2.z)/2);s.hpos.copy(s.px[0].position);
@@ -1244,7 +1246,7 @@ const snkNear=a=>a.reduce((m,q)=>!m||q.d<m.d?q:m,null);
 function snkMove(s,dt,v){
 s.v+=(v-s.v)*Math.min(1,dt*6);const sp=s.v;s.ph+=sp*dt*10.2;s.am+=(Math.min(.085,sp>.06?.02+sp*.09:0)-s.am)*Math.min(1,dt*4);
 if(sp>.01){const nx=s.bx+Math.sin(s.th)*sp*dt,nz=s.bz+Math.cos(s.th)*sp*dt;
-if(Math.abs(nx)>MH-12||Math.abs(nz)>MH-12||!free_(nx,nz)||Math.hypot((nx-POND.x)/(POND.rx+3),(nz-POND.z)/(POND.rz+3))<1){s.th+=(s.id%2?1:-1)*(1.4+Math.random());s.t=Math.min(s.t,.5);s.v=0}
+if(Math.abs(nx)>MH-12||Math.abs(nz)>MH-12||!nFree(nx,nz)||Math.hypot((nx-POND.x)/(POND.rx+3),(nz-POND.z)/(POND.rz+3))<1){s.th+=(s.id%2?1:-1)*(1.4+Math.random());s.t=Math.min(s.t,.5);s.v=0}
 else{s.bx=nx;s.bz=nz}}
 const o=s.am*Math.sin(s.ph);s.nx=s.x;s.nz=s.z;const hx=s.bx+Math.cos(s.th)*o,hz=s.bz-Math.sin(s.th)*o;
 s.x=hx;s.z=hz;s.y=GH(hx,hz);
@@ -1266,7 +1268,7 @@ else if(s.st==='strike'){snkTurn(s,Math.atan2(tx-s.x,tz-s.z),9,dt);v=3.4;if(!s.b
 if(s.t<=0||s.bit&&td<.2){s.st='flee';s.t=rnd(.9,1.4);s.cd=rnd(1.6,2.4);s.by=null}}
 else if(s.st==='flee'){const a=tw?Math.atan2(s.x-tx,s.z-tz):s.th;snkTurn(s,a,3.2,dt);v=1.5;
 if(s.t<=0){if(tw&&td<2.8&&!s.by&&!(tw.b&&tw.b.dead)){s.st='alert';s.t=3}else{s.st='wander';s.t=rnd(1,3);s.tgt=null}s.by=null}}
-snkMove(s,dt,v);if(pd<140||s.v>.05||s.raise>.02)snkPose(s);
+snkMove(s,dt,v);s.pk=(s.pk||0)+1;const every=pd<30?1:pd<70?2:4;if((s.v>.01||s.raise>.02||s.st!=='wander')&&s.pk%every===0)snkPose(s);
 // bots qui tirent sur le serpent
 if(s.st!=='wander'||s.hp<s.hm){s.bsc-=dt;if(s.bsc<=0){s.bsc=.3;snkBotsFire(s)}}}
 function snkBotsFire(s){for(const b of bots){if(b.dead||b.see||(b.snkCd||0)>SNK.t)continue;const g=b.g.position,d=Math.hypot(g.x-s.x,g.z-s.z);if(d>11||Math.abs(g.y-s.y)>3)continue;
@@ -1576,7 +1578,7 @@ const gm=new THREE.BufferGeometry();gm.setAttribute('position',new THREE.Float32
 const rm=new THREE.Mesh(gm,new THREE.MeshStandardMaterial({map:tx_,roughness:.95,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));rm.receiveShadow=true;S.add(rm)}
 }
 // ================= OPTIMISATION (v5) : fusion des maillages statiques par matériau et par secteur =================
-// les originaux restent pour les rayons (calque 1, non dessiné) ; les copies fusionnées sont dessinées.
+// les originaux sont détachés de la scène (plus parcourus à chaque image) mais gardés dans solids/ray pour les rayons ; les copies fusionnées sont dessinées.
 const MERGED={n:0,out:0,ms:performance.now()};
 function mergeRoots(roots){const made=[],dyn=new Set([C,sky]);doors.forEach(d=>dyn.add(d.pv));
 const sg=m=>[m.type,m.color.getHex(),m.map?m.map.uuid:0,m.normalMap?m.normalMap.uuid:0,m.roughnessMap?m.roughnessMap.uuid:0,m.roughness,m.metalness,m.flatShading?1:0,m.side,m.vertexColors?1:0,m.emissive?m.emissive.getHex():0,m.emissiveIntensity,m.envMapIntensity,m.alphaTest,m.polygonOffset?m.polygonOffsetFactor:0,m.normalScale?m.normalScale.x:0,m.toneMapped?1:0].join('|');
@@ -1591,7 +1593,7 @@ const P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2)
 q.forEach((o,i)=>{const g=gs[i],p=g.attributes.position,nn=g.attributes.normal,uv=g.attributes.uv,cl=g.attributes.color,M=o.matrixWorld,fl=M.determinant()<0,c=p.count;nm.getNormalMatrix(M);
 for(let j=0;j<c;j++){const s=fl?j-j%3+(2-j%3):j,d=k+j;v.fromBufferAttribute(p,s).applyMatrix4(M);P_[d*3]=v.x;P_[d*3+1]=v.y;P_[d*3+2]=v.z;v.fromBufferAttribute(nn,s).applyMatrix3(nm).normalize();N_[d*3]=v.x;N_[d*3+1]=v.y;N_[d*3+2]=v.z;
 if(uv){U_[d*2]=uv.getX(s);U_[d*2+1]=uv.getY(s)}if(C_){if(cl){C_[d*3]=cl.getX(s);C_[d*3+1]=cl.getY(s);C_[d*3+2]=cl.getZ(s)}else C_[d*3]=C_[d*3+1]=C_[d*3+2]=1}}
-k+=c;if(g!==o.geometry)g.dispose();o.layers.set(1);o.matrixAutoUpdate=false});
+k+=c;if(g!==o.geometry)g.dispose();o.layers.set(1);o.matrixAutoUpdate=false;if(o.parent)o.parent.remove(o)});
 const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(P_,3));G.setAttribute('normal',new THREE.BufferAttribute(N_,3));G.setAttribute('uv',new THREE.BufferAttribute(U_,2));if(C_)G.setAttribute('color',new THREE.BufferAttribute(C_,3));G.computeBoundingSphere();G.computeBoundingBox();
 const me=new THREE.Mesh(G,mat);me.castShadow=q[0].castShadow;me.receiveShadow=q[0].receiveShadow;me.matrixAutoUpdate=false;me.userData.merged=1;S.add(me);made.push(me);MERGED.n+=q.length;MERGED.out++});return made}
 S.updateMatrixWorld(true);MERGED.first=mergeRoots([S]);MERGED.ms=performance.now()-MERGED.ms;
@@ -2336,8 +2338,9 @@ const knArm=(h,rx,ry)=>{if(h.userData.rig)return;const f=h.children[h.children.l
 {const k=new THREE.Group();knHandR.add(k);k.position.set(0,-.035,-.02);k.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,1),new THREE.Vector3(0,1,0)));
 KND.forEach((d,j)=>{const G=creaseGeo(d.p,d.i,.7,d.c,1e4);const mt=new THREE.MeshStandardMaterial({vertexColors:true,roughness:j===1?.38:.62,metalness:j===1?.55:.15,envMapIntensity:.9});
 const m=new THREE.Mesh(G,mt);m.frustumCulled=false;k.add(m)})}
-{const bl=new THREE.Vector3(.15,1,-.55).normalize(),ex=bl.clone().negate(),d=new THREE.Vector3(.3,-.6,.8).normalize();const ez=d.sub(ex.clone().multiplyScalar(d.dot(ex))).normalize(),ey=new THREE.Vector3().crossVectors(ez,ex);knHandR.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex,ey,ez))}knHandR.position.set(.09,-.13,-.34);
-knHandL.position.set(-.14,-.17,-.32);knHandL.rotation.set(-.25,.35,-.2);
+// prise « marteau » : lame vers l'avant (légèrement relevée et rentrée), poing à droite, avant-bras qui revient vers l'épaule ; main gauche ouverte en garde
+function knPose(bl,d,pos,lpos,lrot){bl=new THREE.Vector3(...bl).normalize();const ex=bl.clone().negate();d=new THREE.Vector3(...d).normalize();const ez=d.sub(ex.clone().multiplyScalar(d.dot(ex))).normalize(),ey=new THREE.Vector3().crossVectors(ez,ex);knHandR.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex,ey,ez));knHandR.position.set(...pos);knHandL.position.set(...lpos);knHandL.rotation.set(...lrot)}
+knPose([-.25,.3,-.92],[.5,-.62,.6],[.21,-.21,-.45],[-.21,-.22,-.46],[1,-.4,.1]);hPose(knHandL.userData.rig,[.3,.32,.35,.4],.25);
 let knClk=0;
 function knAtk(type){if(KNF.t>0||P.hp<=0||ac.on||bench)return;KNF.type=type;KNF.dur=type?.34:.42;KNF.t=KNF.dur;KNF.hit=0;snd(type?240:180,.07,.13,'sawtooth');noise(P.x,P.z,6)}
 function knStrike(){const o=C.getWorldPosition(new THREE.Vector3()),d=C.getWorldDirection(new THREE.Vector3());let best=null,bz='t',bd=9;

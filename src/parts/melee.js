@@ -8,8 +8,9 @@ const knArm=(h,rx,ry)=>{if(h.userData.rig)return;const f=h.children[h.children.l
 {const k=new THREE.Group();knHandR.add(k);k.position.set(0,-.035,-.02);k.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3(-1,0,0),new THREE.Vector3(0,0,1),new THREE.Vector3(0,1,0)));
 KND.forEach((d,j)=>{const G=creaseGeo(d.p,d.i,.7,d.c,1e4);const mt=new THREE.MeshStandardMaterial({vertexColors:true,roughness:j===1?.38:.62,metalness:j===1?.55:.15,envMapIntensity:.9});
 const m=new THREE.Mesh(G,mt);m.frustumCulled=false;k.add(m)})}
-{const bl=new THREE.Vector3(.15,1,-.55).normalize(),ex=bl.clone().negate(),d=new THREE.Vector3(.3,-.6,.8).normalize();const ez=d.sub(ex.clone().multiplyScalar(d.dot(ex))).normalize(),ey=new THREE.Vector3().crossVectors(ez,ex);knHandR.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex,ey,ez))}knHandR.position.set(.09,-.13,-.34);
-knHandL.position.set(-.14,-.17,-.32);knHandL.rotation.set(-.25,.35,-.2);
+// prise « marteau » : lame vers l'avant (légèrement relevée et rentrée), poing à droite, avant-bras qui revient vers l'épaule ; main gauche ouverte en garde
+function knPose(bl,d,pos,lpos,lrot){bl=new THREE.Vector3(...bl).normalize();const ex=bl.clone().negate();d=new THREE.Vector3(...d).normalize();const ez=d.sub(ex.clone().multiplyScalar(d.dot(ex))).normalize(),ey=new THREE.Vector3().crossVectors(ez,ex);knHandR.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(ex,ey,ez));knHandR.position.set(...pos);knHandL.position.set(...lpos);knHandL.rotation.set(...lrot)}
+knPose([-.25,.3,-.92],[.5,-.62,.6],[.21,-.21,-.45],[-.21,-.22,-.46],[1,-.4,.1]);hPose(knHandL.userData.rig,[.3,.32,.35,.4],.25);
 let knClk=0;
 function knAtk(type){if(KNF.t>0||P.hp<=0||ac.on||bench)return;KNF.type=type;KNF.dur=type?.34:.42;KNF.t=KNF.dur;KNF.hit=0;snd(type?240:180,.07,.13,'sawtooth');noise(P.x,P.z,6)}
 function knStrike(){const o=C.getWorldPosition(new THREE.Vector3()),d=C.getWorldDirection(new THREE.Vector3());let best=null,bz='t',bd=9;
