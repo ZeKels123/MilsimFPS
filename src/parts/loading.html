@@ -1,7 +1,7 @@
 <style>#ld{position:fixed;inset:0;z-index:99999;background:radial-gradient(ellipse at 50% 40%,#1b2416 0,#080b06 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#cfe0b8;font-family:monospace;transition:opacity .6s}
 #ld h1{letter-spacing:.35em;font-size:34px;margin:0 0 6px;color:#e4f0cf}#ld .s{font-size:12px;letter-spacing:.25em;opacity:.6;margin-bottom:34px}
-#ld .b{width:min(420px,70vw);height:6px;background:#1d2618;border:1px solid #3a4430;overflow:hidden;position:relative}#ld .b i{position:absolute;top:0;left:0;height:100%;width:38%;background:linear-gradient(90deg,transparent,#8fae5a,#c9e68a,#8fae5a,transparent);animation:ldb 1.5s ease-in-out infinite}
-@keyframes ldb{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
+#ld .b{width:min(420px,70vw);height:6px;background:#1d2618;border:1px solid #3a4430;overflow:hidden;position:relative}#ld .b i{position:absolute;top:0;left:0;height:100%;width:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,#6f8f45,#c9e68a);animation:ldf 16s cubic-bezier(.12,.55,.3,1) forwards;transition:transform .35s}
+@keyframes ldf{to{transform:scaleX(.93)}}
 #ld .t{margin-top:26px;height:18px;width:min(520px,86vw);position:relative;font-size:13px;text-align:center}#ld .t span{position:absolute;left:0;right:0;opacity:0;animation:ldt 12s infinite}
 #ld .t span:nth-child(2){animation-delay:3s}#ld .t span:nth-child(3){animation-delay:6s}#ld .t span:nth-child(4){animation-delay:9s}
 @keyframes ldt{0%{opacity:0}4%{opacity:1}22%{opacity:1}26%{opacity:0}100%{opacity:0}}
@@ -9,4 +9,4 @@
 <div id="ld"><h1>MILSIM FPS</h1><div class="s">PRÉPARATION DE LA MISSION</div><div class="b"><i></i></div>
 <div class="t"><span>Génération du terrain, de la forêt et des bâtiments…</span><span>Astuce : [P] pour se coucher, Q/E pour pencher</span><span>Astuce : les ennemis communiquent par radio, écoute-les</span><span>Astuce : [Ctrl] posture, [C] lancer une grenade</span></div>
 <div class="m">Chargement (le premier lancement peut prendre quelques secondes)…</div></div>
-<script>window.ldDone=function(){var e=document.getElementById('ld');if(!e)return;if(!window.__ldN)window.__ldN=0;if(++window.__ldN<3)return;try{if(typeof MERGED!=='undefined'&&!(MERGED.out>0)&&window.__ldN<240)return}catch(x){}window.ldDone=function(){};e.style.opacity=0;e.style.pointerEvents='none';setTimeout(function(){e.remove()},700)}</script>
+<script>window.ldDone=function(){var e=document.getElementById('ld');if(!e)return;if(!window.__ldN)window.__ldN=0;if(++window.__ldN<3)return;try{if(typeof MERGED!=='undefined'&&!(MERGED.out>0)&&window.__ldN<240)return}catch(x){}window.ldDone=function(){};var bi=e.querySelector('.b i');if(bi){try{bi.animate({transform:[getComputedStyle(bi).transform,'scaleX(1)']},{duration:350,fill:'forwards'})}catch(x){bi.style.transform='scaleX(1)'}}e.style.pointerEvents='none';setTimeout(function(){e.style.opacity=0},450);setTimeout(function(){e.remove()},1200)}</script>

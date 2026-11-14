@@ -394,5 +394,5 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - `src/parts/voix.js` : les bots annoncent « Contact ! », « Je recharge ! », « Grenade ! », « Je suis touché ! », « Homme à terre ! », « Je me replie ! », « Je l'ai perdu » ; un soldat voisin répond (« Reçu. »). Synthèse vocale du navigateur en français (hauteur de voix selon le bot), volume selon la distance (portée 45 m), délais anti-spam par bot et global, sous-titre à l'écran. Désactivable via `VX.on=false`.
 
 ### v26 — Écran de chargement
-- Écran affiché dès l'ouverture du fichier (`src/parts/loading.html`) : titre, barre animée en CSS (continue même pendant le calcul du monde), astuces tournantes, fondu de sortie à la première image rendue une fois le décor fusionné.
+- Écran affiché dès l'ouverture du fichier (`src/parts/loading.html`) : titre, fausse barre de progression en CSS (avance de 0 à ≈93 % en 16 s sans dépendre du thread principal, puis se complète à 100 % au chargement), astuces tournantes, fondu de sortie à la première image rendue une fois le décor fusionné.
 - Le script du jeu est désormais exécuté après le premier affichage (`type="text/plain"` puis injection après `requestAnimationFrame`), pour garantir que l'écran de chargement apparaît avant le gros calcul.
