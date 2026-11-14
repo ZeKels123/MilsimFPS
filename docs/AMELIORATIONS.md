@@ -372,3 +372,11 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Serpents : pose des os en une passe (une seule lecture du relief par os, tangente par os voisins), cadence réduite avec la distance, collision via la grille de navigation au lieu de `boxes` (tick serpents 3,2 ms → 0,3 ms).
 - Textures : inventaire fait (73 textures, aucune non chargée ; quelques tailles non puissances de 2, sans effet en WebGL2). Les 5 matériaux noirs sont ceux du modèle Reclamer (couleur de base noire du .blend).
 - À faire : vérification visuelle des éléments de la carte (tour par zones interrompu), intégration du soldat Mixamo (`military-man`, 33 os, 13 animations) comme modèle d'ennemi, armure `military_armor` (maillage statique 21 k tris).
+
+## v24 — Soldats Mixamo
+- Les bots utilisent désormais le modèle **military-man** (Mixamo) : mesh skinné 13 000 sommets, 33 os, texture camouflage 1024 px, embarqués dans `src/parts/soldier_data.js` (≈1,2 Mo) et 7 animations échantillonnées à 15 i/s dans `soldier_anim.js` (marche, course, tir, rechargement, mort, pas latéral, accroupi).
+- `src/parts/soldier.js` : géométrie/matériau partagés, un squelette par bot, fondu enchaîné entre animations (marche/course/tir/rechargement/accroupi/mort), cadence de pose réduite selon la distance (1/2/1/4 images).
+- L'arme est placée entre la main droite (poignée) et la main gauche (garde-main). À la mort, l'ancienne chute par rotation est annulée et l'animation squelettique « mort » est jouée.
+- Les anciennes boîtes du corps restent comme **hitbox invisibles** (zones tête/torse/bras/jambes inchangées).
+- Selftest ajouté (« Soldats Mixamo »).
+- À faire : ennemis avec `military_armor_3d_model.glb` (mesh statique sans squelette), calage fin de l'arme par type, animation de rechargement liée à l'IA.

@@ -61,7 +61,7 @@ rep("new THREE.MeshPhongMaterial({color:p.c,flatShading:true,shininess:25,specul
 rep("PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);","PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);PR.toneMapping=R.toneMapping;PR.toneMappingExposure=R.toneMappingExposure;PS.environment=mkEnv(PR);")
 # 6. bots
 a=s.index("function mkBot(){");b=s.index("function free_(")
-s=s[:a]+rd('bots.js')+s[b:]
+s=s[:a]+rd('soldier_data.js')+rd('soldier_anim.js')+rd('soldier.js')+rd('bots.js')+s[b:]
 rep("b.dead=0;b.g.visible=true;pick(b)}","b.dead=0;b.fall=0;b.g.rotation.x=0;b.g.visible=true;botLook(b,i);pick(b)}")
 rep("b.g.visible=false;P.kills++","botDeath(b,head);P.kills++")
 rep("const px=P.x-g.position.x,pz=P.z-g.position.z,pd=Math.hypot(px,pz);g.rotation.y=Math.atan2(px,pz);",
@@ -119,6 +119,9 @@ rep("box(0,-30,60,4,1,0x6b6b60);box(0,30,60,4,1,0x6b6b60);box(-30,0,1,4,60,0x6b6
 rep("P.x=Math.max(-29.4,Math.min(29.4,P.x));P.z=Math.max(-29.4,Math.min(29.4,P.z));","P.x=Math.max(-MH+.6,Math.min(MH-.6,P.x));P.z=Math.max(-MH+.6,Math.min(MH-.6,P.z));")
 rep("x=rnd(-27,27);z=rnd(-27,10)","x=rnd(-MH+5,MH-5);z=rnd(-MH+5,MH-5)")
 rep("b.tx=Math.max(-27,Math.min(27,x));b.tz=Math.max(-27,Math.min(27,z))","b.tx=Math.max(-MH+5,Math.min(MH-5,x));b.tz=Math.max(-MH+5,Math.min(MH-5,z))")
+rep("function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;","function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;sldUpdate(b,dt,mv);")
+rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;sldUpdate(b,dt,0);")
+rep("b.mat=m;S.add(g);spawn(b);bots.push(b)}","b.mat=m;sldAttach(b);S.add(g);spawn(b);bots.push(b)}")
 rep("for(let i=0;i<7;i++)mkBot();","for(let i=0;i<18;i++)mkBot();")
 rep("C.position.set(Math.cos(ac.a)*48,62,Math.sin(ac.a)*48-6)","C.position.set(Math.cos(ac.a)*90,115,Math.sin(ac.a)*90-6)")
 rep("ac.tx=Math.max(-29,Math.min(29,ac.tx+(dx*-fz-dy*fx)*k));ac.tz=Math.max(-29,Math.min(29,ac.tz+(dx*fx-dy*fz)*k))","ac.tx=Math.max(-MH+1,Math.min(MH-1,ac.tx+(dx*-fz-dy*fx)*k));ac.tz=Math.max(-MH+1,Math.min(MH-1,ac.tz+(dx*fx-dy*fz)*k))")
