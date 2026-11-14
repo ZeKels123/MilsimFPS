@@ -404,3 +404,6 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ### v27 — Plus d'ennemis, mise en veille à distance
 - 36 ennemis au lieu de 18 (4 escouades de 9), apparition aléatoire sur toute la carte (inchangée).
 - **Mise en veille** : au-delà de 220 m du joueur (hors portée d'audition max. 90 m et de vue), un bot n'est ni mis à jour (IA, animation) ni affiché ; il se réveille quand le joueur approche (`AI.dorm`). Les morts continuent leur animation puis réapparaissent normalement.
+
+### v27b — Sac à dos fourni (`military_backpack.glb`)
+- Modèle d'origine : 180 000 triangles, 6 matériaux PBR. Allégé à 6 000 triangles, couleurs moyennes de chaque matériau en couleurs de sommets (sans texture), mis à l'échelle (×0,65), retourné pour que les sangles soient côté dos du soldat, et attaché à l'os `Spine2` des types 1 et 2, à la place des boîtes (`src/parts/pack_data.js`).

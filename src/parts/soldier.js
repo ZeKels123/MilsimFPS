@@ -50,15 +50,14 @@ else{_slo.compose(hb.position,hb.quaternion,_slv1).multiply(SLS.rel[wi]);_slo.de
 // ---- déclinaisons par type : teinte, casque, gilet, sac, épaulières attachés aux os (offsets exprimés dans le repère monde de la pose de repos)
 const SLT=[0x9fa68c,0xc2c6ce,0xadb58c,0x6a6f76];
 function sldAcc(sd,bone,mesh,d,list){const i=SLS.ix[bone],q=new THREE.Quaternion().setFromRotationMatrix(SLS.rest[i]).invert();mesh.position.set(d[0],d[1],d[2]).applyQuaternion(q);mesh.quaternion.copy(q);mesh.castShadow=true;sd.bones[i].add(mesh);Object.defineProperty(mesh,'visible',{get(){return this._v!==false},set(v){this._v=v}});list.push(mesh);return mesh}
-function sldBuild(b){sldVestGeo();const sd=b.sld;sd.var=[[],[],[],[]];const BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d),SP=(r,a)=>new THREE.SphereGeometry(r,14,10,0,6.2832,0,a||1.9),M=(c,o)=>L(c,Object.assign({roughness:.85},o||{}));
+function sldBuild(b){sldVestGeo();sldPackGeo();const sd=b.sld;sd.var=[[],[],[],[]];const BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d),SP=(r,a)=>new THREE.SphereGeometry(r,14,10,0,6.2832,0,a||1.9),M=(c,o)=>L(c,Object.assign({roughness:.85},o||{}));
 sd.mats=SLT.map(c=>{const m=SLS.mat.clone();m.color.setHex(c);return m});
 for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
  if(t===1){sldAcc(sd,H,new THREE.Mesh(SP(.135,1.5),M(0x4b5a44)),[0,.105,.005],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.055,.05),M(0x0a0a0a,{metalness:.8,roughness:.2})),[0,.11,.115],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[.13,.06,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[-.13,.06,0],v)}
  if(t===2){sldAcc(sd,H,new THREE.Mesh(SP(.125,1.45),M(T.col)),[0,.11,0],v);sldAcc(sd,H,new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.012,18),M(T.col)),[0,.125,0],v)}
  if(t===3){sldAcc(sd,H,new THREE.Mesh(SP(.155,1.6),M(0x1c1e22)),[0,.1,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.22,.06,.05),new THREE.MeshBasicMaterial({color:0xaa1111})),[0,.1,.14],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.1,.08),M(0x111111)),[0,.0,.1],v)}
  {const vm=new THREE.Mesh(sldVestGeo(),SLS.vm[t]);vm.castShadow=true;sd.bones[SLS.ix.Spine2].add(vm);Object.defineProperty(vm,'visible',{get(){return this._v!==false},set(v_){this._v=v_}});v.push(vm)}
- if(t===1||t===2)sldAcc(sd,C,new THREE.Mesh(BX(.3,.38,.17),M(new THREE.Color(T.col).multiplyScalar(.8).getHex())),[0,0,-.17],v);
- if(t===2)sldAcc(sd,C,new THREE.Mesh(BX(.36,.07,.2),M(0x4a4a38)),[0,.18,-.1],v);
+ if(t===1||t===2){const pm=new THREE.Mesh(sldPackGeo(),SLS.pm[t]);pm.castShadow=true;sd.bones[SLS.ix.Spine2].add(pm);Object.defineProperty(pm,'visible',{get(){return this._v!==false},set(v_){this._v=v_}});v.push(pm)}
  if(t===3){[-.24,.24].forEach(x=>sldAcc(sd,C,new THREE.Mesh(BX(.16,.09,.24),M(0x25282c)),[x,.15,0],v));sldAcc(sd,C,new THREE.Mesh(BX(.34,.34,.1),M(0x2b2f34)),[0,.0,-.15],v)}
 }}
 function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.sm.geometry=SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
@@ -67,3 +66,7 @@ function sldVestGeo(){if(SLS.vg)return SLS.vg;const g=new THREE.BufferGeometry()
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setIndex(new THREE.BufferAttribute(new Uint16Array(VSD.i),1));
 g.applyMatrix4(SLS.inv[SLS.ix.Spine2]);g.computeBoundingSphere();SLS.vg=g;
 const t=new THREE.TextureLoader().load(VSD.tex);t.encoding=THREE.sRGBEncoding;SLS.vm=[0xffffff,0xdde3ee,0xcfd6b0,0x8a8f96].map(c=>new THREE.MeshLambertMaterial({map:t,color:c,side:THREE.DoubleSide}));return g}
+
+function sldPackGeo(){if(SLS.pg)return SLS.pg;const g=new THREE.BufferGeometry(),n=PKD.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),C_=new Float32Array(n*3);for(let i=0;i<n*3;i++){P_[i]=PKD.p[i]/1e4;N_[i]=PKD.nr[i]/100;C_[i]=PKD.c[i]/255}
+g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('color',new THREE.BufferAttribute(C_,3));g.setIndex(new THREE.BufferAttribute(new Uint16Array(PKD.i),1));
+g.applyMatrix4(SLS.inv[SLS.ix.Spine2]);g.computeBoundingSphere();SLS.pg=g;SLS.pm=[0,0xffffff,0xd9d2a8,0].map(c=>new THREE.MeshLambertMaterial({vertexColors:true,color:c,side:THREE.DoubleSide}));return g}
