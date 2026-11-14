@@ -389,6 +389,6 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Le modèle `military_armor_3d_model.glb` (21 030 triangles) est allégé à ≈8 400 triangles, mis à l'échelle sur le torse du soldat et embarqué (`src/parts/vest_data.js`, texture JPEG 1024). Il est attaché à l'os `Spine2` et partagé par tous les bots, avec une teinte par type. Il remplace les anciennes plaques en boîtes.
 
 ### v25 — Voix entre bots ; ajustements v24
-- Type 0 : le chapeau est retiré (la casquette du modèle est masquée par un index de triangles sans chapeau, plus de dôme ajouté).
+- Type 0 : le dôme de casque ajouté est retiré ; la casquette du modèle Mixamo reste.
 - Gilet : orientation inversée et échelle élargie (corps, col et poches enveloppent le torse).
 - `src/parts/voix.js` : les bots annoncent « Contact ! », « Je recharge ! », « Grenade ! », « Je suis touché ! », « Homme à terre ! », « Je me replie ! », « Je l'ai perdu » ; un soldat voisin répond (« Reçu. »). Synthèse vocale du navigateur en français (hauteur de voix selon le bot), volume selon la distance (portée 45 m), délais anti-spam par bot et global, sous-titre à l'écran. Désactivable via `VX.on=false`.

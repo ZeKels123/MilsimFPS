@@ -3803,7 +3803,7 @@ for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
  if(t===2)sldAcc(sd,C,new THREE.Mesh(BX(.36,.07,.2),M(0x4a4a38)),[0,.18,-.1],v);
  if(t===3){[-.24,.24].forEach(x=>sldAcc(sd,C,new THREE.Mesh(BX(.16,.09,.24),M(0x25282c)),[x,.15,0],v));sldAcc(sd,C,new THREE.Mesh(BX(.34,.34,.1),M(0x2b2f34)),[0,.0,-.15],v)}
 }}
-function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.sm.geometry=i===0?SLS.geoNH:SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
+function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.sm.geometry=SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
 
 function sldVestGeo(){if(SLS.vg)return SLS.vg;const g=new THREE.BufferGeometry(),n=VSD.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2);for(let i=0;i<n*3;i++){P_[i]=VSD.p[i]/1e4;N_[i]=VSD.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=VSD.u[i]/1e3;
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setIndex(new THREE.BufferAttribute(new Uint16Array(VSD.i),1));
