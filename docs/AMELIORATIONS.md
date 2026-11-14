@@ -416,3 +416,6 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - `night_vision_goggles_navy_seals.glb` (casque sombre + jumelles de vision nocturne) → type 0 ; `military_helmet.glb` (casque olive) → type 1 ; `sci_fi_military_helmet.glb` (casque intégral avec masque) → type 3. Type 2 garde le chapeau de brousse (aucun chapeau fourni). Allégés à 2 500 triangles, couleurs moyennes par matériau, attachés à l'os `Head` (`src/parts/helm_data.js`).
 - La casquette du modèle Mixamo est masquée pour les types 0, 1 et 3 (index de triangles sans le chapeau) ; les anciens casques en formes simples sont supprimés.
 - Non utilisés : `military_helmet(2).glb`, `military_rollmat_and_bandanas.glb`, `yote_military_backpack_repro.glb` (94 Mo), dossier `Animaux`.
+
+## v28b — Casques recalés
+- Casques (types 0, 1, 3) recalculés depuis les modèles d'origine : sommet à 1,83 m, centrés sur le crâne, inclinés de ~10° (l'avant remonte) pour suivre la tête de la pose de tir. Vérifié en rendu sous 4 azimuts en pose animée.
