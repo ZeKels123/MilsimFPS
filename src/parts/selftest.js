@@ -69,6 +69,16 @@ if(h5){const r5=balWall(h5,q5,org,d);if(r5!==0||q5.rc!==1||q5.vz<=0||Math.hypot(
 if(!msg){const a=BAM.bk,f=d_=>balFac({a,vx:0,vy:0,vz:-a.v*Math.pow(.97,d_/3),dist:d_});if(!(f(3)>f(20)&&f(20)>f(45)&&f(45)<.25&&f(3)>.8))msg='chevrotine '+[3,20,45].map(f).map(x=>x.toFixed(2))}
 if(!msg){balRet(true,1);const cv=BRT.c;if(!cv||cv.style.display!=='block')msg='réticule absent';balRet(false,0);if(cv&&cv.style.display!=='none')msg='réticule non masqué'}
 }finally{delete BAL.fixed}return msg});
+T('Armes : enrayage, chambre +1, modes de tir, chauffe, recul selon la position',()=>{const sv=[WSEL,ammo,reserve,reloading,cd,mdPrev,P.st],rng=WPN.rng;let msg='';const hi=WC.findIndex(c=>/HMG/.test(c.n)),pi=3;
+try{setWeapon(0);reloading=0;const s=wpS(0);s.jam=0;s.clr=0;s.hot=0;s.heat=0;s.wear=0;s.mode=0;s.bst=0;
+if(wpnCh()!==1||JSON.stringify(wpModes(0))!=='[0,1,2]'||JSON.stringify(wpModes(pi))!=='[1]'||(hi>=0&&JSON.stringify(wpModes(hi))!=='[0]'))return'modes/chambre : '+wpnCh()+JSON.stringify(wpModes(0));
+ammo=magMax()+1;reload();if(reloading)return'rechargement à chambre pleine';ammo=5;reload();if(!reloading)return'rechargement tactique refusé';reloading=0;
+WPN.rng=()=>0;ammo=10;cd=0;fire();if(ammo!==10||!s.jam)return'enrayage non déclenché';WPN.rng=Math.random;reload();if(!(s.clr>0))return'désenrayage non lancé';wpTick(2);if(s.jam||ammo!==9)return'enrayage non résolu '+s.jam+' '+ammo;
+if(!(wpJamP({wear:1,heat:0})>wpJamP({wear:0,heat:0})*10&&wpJamP({wear:0,heat:1.2})>wpJamP({wear:0,heat:0})*2))return'probabilité d’enrayage';
+s.mode=1;mdPrev=true;if(wpTrig())return'semi : tir au maintien';mdPrev=false;if(!wpTrig())return'semi : appui refusé';s.mode=2;mdPrev=false;s.bst=0;wpTrig();if(s.bst!==3)return'rafale non armée';s.bst=0;s.mode=0;mdPrev=true;if(!wpTrig())return'auto bloqué';
+s.heat=0;const sp0=wpSpread();s.heat=1;if(!(wpSpread()>sp0*1.3))return'chauffe sans effet sur la dispersion';s.heat=0;P.st=0;const r0=wpRecoil();P.st=2;const r2=wpRecoil();if(!(r2<r0*.7))return'recul couché '+r0+'/'+r2;
+if(hi>=0){setWeapon(hi);const h=wpS(hi);h.heat=.995;h.hot=0;wpPost();if(!h.hot)return'HMG sans surchauffe';wpTick(10);if(h.hot)return'HMG ne refroidit pas '+h.heat}
+}finally{WPN.rng=rng;setWeapon(sv[0]);ammo=sv[1];reserve=sv[2];reloading=sv[3];cd=sv[4];mdPrev=sv[5];P.st=sv[6];WPS[0]&&(WPS[0].jam=0,WPS[0].clr=0,WPS[0].heat=0,WPS[0].bst=0)}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

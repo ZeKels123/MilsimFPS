@@ -476,3 +476,12 @@ Constantes regroupées dans `STA` (`src/parts/effort.js`) : sprint ≈ 22 s à c
 **Chevrotine.** Les dégâts décroissent aussi avec la distance parcourue (plein jusqu'à 8 m, ~10 % à 50 m) en plus de l'énergie perdue.
 
 Test : « Balistique : pénétration selon le matériau, ricochet rasant, chevrotine » et « Soldats : niveaux de détail » (36/36).
+
+## v32 — Armes réalistes (`weapon.js`)
+- **Enrayage** : probabilité par coup = base 1/9 000 × usure (jusqu'à ×41) × chaleur du canon (>60 %) × pluie × silencieux. Message « ENRAYAGE », **R** dégage (1,6 s, la cartouche est éjectée).
+- **Usure** par arme (+0,04 %/coup, plus vite sous la pluie) ; **L** nettoie (3 s à l'établi, 10 s sur le terrain, immobile).
+- **Chambre** : rechargement tactique (chargeur non vide) = chargeur + 1 ; chargeur vide = chargeur seul. Pompe et fusil de précision : sans chambre supplémentaire.
+- **Modes de tir (C)** : fusil auto/semi/rafale ×3, MP9 auto/semi, autres armes en semi, HMG en auto.
+- **Chauffe du canon** : monte à chaque coup, refroidit plus vite sous la pluie ; au-delà de 50 % la dispersion augmente, fumée au-delà de 70 %, **surchauffe bloquante de la HMG** à 100 % jusqu'à retomber sous 60 %.
+- **Recul et dispersion selon la position** : accroupi ×0,8, couché ×0,6 ; appui sur un rebord ×0,72 ; HMG couchée ×0,5 de plus. Indicateur « appui » et barre de chauffe dans le HUD (près de la charge).
+Test : « Armes : enrayage, chambre +1, modes de tir, chauffe, recul » (37/37).
