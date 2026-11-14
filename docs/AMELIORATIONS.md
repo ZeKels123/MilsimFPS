@@ -411,3 +411,8 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ### v27c — Position du sac, passages d'avions visibles
 - Sac à dos plaqué contre le dos (rapproché de ~9 cm, abaissé de 5 cm).
 - Avions : la distance de rendu de la caméra (100 à 220 m selon la qualité) était inférieure à l'altitude des passages (110–220 m) : les avions étaient coupés. Ils sont maintenant rendus à distance réduite avec échelle compensée (même taille apparente), position réelle conservée pour le son. Passages toutes les 90–200 s au lieu de 150–300 s.
+
+### v28 — Casques fournis
+- `night_vision_goggles_navy_seals.glb` (casque sombre + jumelles de vision nocturne) → type 0 ; `military_helmet.glb` (casque olive) → type 1 ; `sci_fi_military_helmet.glb` (casque intégral avec masque) → type 3. Type 2 garde le chapeau de brousse (aucun chapeau fourni). Allégés à 2 500 triangles, couleurs moyennes par matériau, attachés à l'os `Head` (`src/parts/helm_data.js`).
+- La casquette du modèle Mixamo est masquée pour les types 0, 1 et 3 (index de triangles sans le chapeau) ; les anciens casques en formes simples sont supprimés.
+- Non utilisés : `military_helmet(2).glb`, `military_rollmat_and_bandanas.glb`, `yote_military_backpack_repro.glb` (94 Mo), dossier `Animaux`.
