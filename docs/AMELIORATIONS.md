@@ -392,3 +392,7 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Type 0 : le dôme de casque ajouté est retiré ; la casquette du modèle Mixamo reste.
 - Gilet : orientation inversée et échelle élargie (corps, col et poches enveloppent le torse).
 - `src/parts/voix.js` : les bots annoncent « Contact ! », « Je recharge ! », « Grenade ! », « Je suis touché ! », « Homme à terre ! », « Je me replie ! », « Je l'ai perdu » ; un soldat voisin répond (« Reçu. »). Synthèse vocale du navigateur en français (hauteur de voix selon le bot), volume selon la distance (portée 45 m), délais anti-spam par bot et global, sous-titre à l'écran. Désactivable via `VX.on=false`.
+
+### v26 — Écran de chargement
+- Écran affiché dès l'ouverture du fichier (`src/parts/loading.html`) : titre, barre animée en CSS (continue même pendant le calcul du monde), astuces tournantes, fondu de sortie à la première image rendue une fois le décor fusionné.
+- Le script du jeu est désormais exécuté après le premier affichage (`type="text/plain"` puis injection après `requestAnimationFrame`), pour garantir que l'écran de chargement apparaît avant le gros calcul.
