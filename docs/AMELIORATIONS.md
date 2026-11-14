@@ -407,3 +407,7 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 
 ### v27b — Sac à dos fourni (`military_backpack.glb`)
 - Modèle d'origine : 180 000 triangles, 6 matériaux PBR. Allégé à 6 000 triangles, couleurs moyennes de chaque matériau en couleurs de sommets (sans texture), mis à l'échelle (×0,65), retourné pour que les sangles soient côté dos du soldat, et attaché à l'os `Spine2` des types 1 et 2, à la place des boîtes (`src/parts/pack_data.js`).
+
+### v27c — Position du sac, passages d'avions visibles
+- Sac à dos plaqué contre le dos (rapproché de ~9 cm, abaissé de 5 cm).
+- Avions : la distance de rendu de la caméra (100 à 220 m selon la qualité) était inférieure à l'altitude des passages (110–220 m) : les avions étaient coupés. Ils sont maintenant rendus à distance réduite avec échelle compensée (même taille apparente), position réelle conservée pour le son. Passages toutes les 90–200 s au lieu de 150–300 s.

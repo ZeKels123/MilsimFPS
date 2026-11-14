@@ -24,16 +24,16 @@ function airSpawn(force){const nm=typeof force==="string"?force:AIR.list[(vr()*A
 const dx=Math.sin(th),dz=Math.cos(th),px=P.x+off*dz-dx*R,pz=P.z-off*dx-dz*R;g.position.set(px,alt,pz);g.rotation.y=th;g.rotation.z=(vr()-.5)*.25;
 g.traverse(m=>{if(m.isMesh){m.castShadow=false;m.receiveShadow=false;m.frustumCulled=false}});
 if(nm==='f14')jetGlow(g,1.9,-9.4,[-1.1,1.1]);else jetGlow(g,2.0,-9.6,[-1,1]);
-S.add(g);const a={g,dx,dz,sp,alt,t:0,life:2*R/sp,pd:1e9,snd:null};AIR.on=a;airSnd(a);return a}
+S.add(g);const a={g,dx,dz,sp,alt,t:0,life:2*R/sp,pd:1e9,snd:null,p:g.position.clone(),s0:g.scale.x};AIR.on=a;airSnd(a);return a}
 function airSnd(a){try{if(typeof AC==='undefined'||!AC)return;auInit();if(!AU.ready)return;const src=AC.createBufferSource();src.buffer=AU.nb;src.loop=true;const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.6;
 const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=85;const og=AC.createGain();og.gain.value=.3;const g=AC.createGain();g.gain.value=0;const pan=AC.createStereoPanner();
 src.connect(bp);bp.connect(lp);o.connect(og);og.connect(lp);lp.connect(g);g.connect(pan);pan.connect(AOUT());src.start();o.start();a.snd={src,o,g,lp,bp,pan}}catch(e){}}
 function airStop(a){if(a.snd){try{a.snd.src.stop();a.snd.o.stop();a.snd.g.disconnect()}catch(e){}a.snd=null}S.remove(a.g);AIR.on=null}
 let last=performance.now();
 function airLoop(){requestAnimationFrame(airLoop);const now=performance.now(),dt=Math.min(.1,(now-last)/1000);last=now;const ov=document.getElementById('ov');if(ov&&ov.style.display!=='none')return;
-if(!AIR.on){AIR.t-=dt;if(AIR.t<=0){airSpawn();AIR.t=150+vr()*150}return}
-const a=AIR.on;a.t+=dt;const g=a.g;g.position.x+=a.dx*a.sp*dt;g.position.z+=a.dz*a.sp*dt;
-const ex=g.position.x-P.x,ey=g.position.y-(P.gy+1.6),ez=g.position.z-P.z,d=Math.hypot(ex,ey,ez);
+if(!AIR.on){AIR.t-=dt;if(AIR.t<=0){airSpawn();AIR.t=90+vr()*110}return}
+const a=AIR.on;a.t+=dt;const g=a.g;a.p.x+=a.dx*a.sp*dt;a.p.z+=a.dz*a.sp*dt;
+const ex=a.p.x-P.x,ey=a.p.y-(P.gy+1.6),ez=a.p.z-P.z,d=Math.hypot(ex,ey,ez);{const fr=Math.min(1,C.far*.8/Math.max(d,1));g.scale.setScalar(a.s0*fr);g.position.set(P.x+ex*fr,P.gy+1.6+ey*fr,P.z+ez*fr)}
 if(a.snd){const rec=(d-a.pd)/Math.max(dt,1e-3);a.pd=d;const k=340/(340+Math.max(-250,Math.min(250,rec))),s=a.snd,t=AC.currentTime;
 s.src.playbackRate.setTargetAtTime(k,t,.08);s.o.frequency.setTargetAtTime(85*k,t,.08);s.bp.frequency.setTargetAtTime(500+700*k,t,.1);
 s.lp.frequency.setTargetAtTime(500+6500*Math.exp(-d/450),t,.1);s.g.gain.setTargetAtTime(Math.min(1,Math.pow(170/(d+70),1.5))*.55,t,.08);
