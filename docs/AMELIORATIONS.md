@@ -485,3 +485,6 @@ Test : « Balistique : pénétration selon le matériau, ricochet rasant, chevro
 - **Chauffe du canon** : monte à chaque coup, refroidit plus vite sous la pluie ; au-delà de 50 % la dispersion augmente, fumée au-delà de 70 %, **surchauffe bloquante de la HMG** à 100 % jusqu'à retomber sous 60 %.
 - **Recul et dispersion selon la position** : accroupi ×0,8, couché ×0,6 ; appui sur un rebord ×0,72 ; HMG couchée ×0,5 de plus. Indicateur « appui » et barre de chauffe dans le HUD (près de la charge).
 Test : « Armes : enrayage, chambre +1, modes de tir, chauffe, recul » (37/37).
+
+## v33 — Véhicules destructibles et pénétration (`destruct.js`)
+Voitures et véhicules ont 700 PV (balles ×6 pour compenser la taille du volume, explosions selon la distance). Fumée grise sous 60 %, fumée noire et flammes sous 30 %, épave en feu à 0 PV qui explose après 3–7 s (60 %), noircit, reste comme obstacle et fume 1 à 2 min. La tôle se perfore (matériau `veh`, 2 cm équivalent acier : fusil et HMG traversent, 9 mm non) ; les troncs d'arbre sont du bois (pénétration par épaisseur réelle). Murs de bâtiments et caisses intérieures : toujours indestructibles (géométrie fusionnée). Test : « Véhicules destructibles » (38/38).

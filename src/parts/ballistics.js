@@ -49,13 +49,13 @@ function balPHit(h,q,fac){const c=q.c,u=h.object.userData,dm0=c.dmg*fac;let hit=
 if(u.an){if(faHit(u.an,h.point,dm0)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}
 if(u.bot&&!u.bot.dead){const b=u.bot,dm=dm0*SKM.dmg*(A.supp?.9:1);{b.pk=1;const hr=bhHit(b,u.head?'h':(u.zone||'t'),dm,'b');hitA=hr.a;brk=hr.brk}hit=1;hitT=.2;hitFx.call(null,h,hitA,brk,u.head,b);aiHit(b);$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':(brk?'#fc0':(hitA?'#6cf':'#fff'));if(b.hp<=0)onKill(b,u.head)}
 else if(u.mq){mqHit(u.mq,u,dm0*SKM.dmg*(A.supp?.9:1),h.point);hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':'#fff'}
-else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impact(h,!!u.door)}
+else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.dst)dstHit(u.dst,h,dm0*6);if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impact(h,!!u.door)}
 if(brk)crack();else if(hitA)snd(1800,.08,.2,'triangle');else if(hit)snd(900,.06,.15,'square');BAL.hits++;return hit}
 
 // ---- matériaux des murs : pénétration (profondeur max en m pour pen=1 à pleine vitesse), ricochet (sinus de l'angle d'incidence rasant limite), vitesse conservée au ricochet
-const BMT={wood:{t:'wood',k:.22,r:.1,v:.35},brick:{t:'brick',k:.08,r:.18,v:.5},conc:{t:'conc',k:.035,r:.24,v:.5},steel:{t:'steel',k:.003,r:.26,v:.6},plas:{t:'plas',k:.35,r:.05,v:.3}};
+const BMT={wood:{t:'wood',k:.22,r:.1,v:.35},brick:{t:'brick',k:.08,r:.18,v:.5},conc:{t:'conc',k:.035,r:.24,v:.5},steel:{t:'steel',k:.003,r:.26,v:.6},plas:{t:'plas',k:.35,r:.05,v:.3},veh:{t:'veh',k:.03,r:.2,v:.45,th:.02}};
 const BMC=new WeakMap(),_br=new THREE.Raycaster(),_bn=new THREE.Vector3(),_bx=new THREE.Vector3();
-function balMatOf(o){let c=BMC.get(o);if(c)return c;const m=Array.isArray(o.material)?o.material[0]:o.material;let t='brick';
+function balMatOf(o){let c=BMC.get(o);if(c)return c;if(o.userData.bmat){c=BMT[o.userData.bmat];BMC.set(o,c);return c}const m=Array.isArray(o.material)?o.material[0]:o.material;let t='brick';
 if(m){const n=(m.name||'').toLowerCase(),col=m.color,r=col?col.r:1,g=col?col.g:1,b=col?col.b:1;
 if(m.metalness>.55||/steel|metal|iron|acier|tole/.test(n))t='steel';else if(/wood|bois|plank|timber/.test(n))t='wood';else if(/conc|beton/.test(n))t='conc';
 else if(!m.map){if(r>b*1.3&&r>g*1.05&&r+g+b<2)t='wood';else if(r+g+b>2.4)t='plas';else t='conc'}}
@@ -67,8 +67,8 @@ if((q.rc|0)<2&&cs<mt.r&&rr<(1-cs/mt.r)*.9+.1){const dn=dir.dot(_bn);_bx.copy(dir
 q.vx=_bx.x*v;q.vy=_bx.y*v;q.vz=_bx.z*v;q.px=h.point.x+_bn.x*(dn<0?.04:-.04);q.py=h.point.y+_bn.y*(dn<0?.04:-.04);q.pz=h.point.z+_bn.z*(dn<0?.04:-.04);q.rc=(q.rc|0)+1;BAL.ric=(BAL.ric|0)+1;
 if(Math.hypot(h.point.x-P.x,h.point.z-P.z)<90){for(let i=0;i<4;i++){_bp.copy(h.point);emit(_bp,_e.set(_bx.x*3+rnd(-1,1),_bx.y*3+rnd(0,1.5),_bx.z*3+rnd(-1,1)),{color:0xffe0a0,size:.07,grow:0,life:.22,a:.9,drag:1})}snd(rnd(2400,3400),.14,.06,'sawtooth');setTimeout(()=>snd(rnd(1500,2100),.1,.04,'triangle'),60)}
 return 0}
-const D=q.a.pen*mt.k*Math.pow(sp/q.a.v,2);_bx.copy(h.point).addScaledVector(dir,1.5);_br.set(_bx,_bn.copy(dir).negate());_br.far=1.5;
-const x=_br.intersectObject(h.object,false)[0];if(!x)return 1;const th=Math.max(.005,1.5-x.distance);if(th>=D)return 1;
+const D=q.a.pen*mt.k*Math.pow(sp/q.a.v,2);let x,th;if(mt.th){th=mt.th;x={point:_bx.copy(h.point).addScaledVector(dir,.05)}}else{_bx.copy(h.point).addScaledVector(dir,1.5);_br.set(_bx,_bn.copy(dir).negate());_br.far=1.5;
+x=_br.intersectObject(h.object,false)[0];if(!x)return 1;th=Math.max(.005,1.5-x.distance)}if(th>=D)return 1;
 const kv=Math.max(.3,1-.75*th/D),j=.012*th/D;q.vx=(q.vx+(Math.random()-.5)*sp*j)*kv;q.vy=(q.vy+(Math.random()-.5)*sp*j)*kv;q.vz=(q.vz+(Math.random()-.5)*sp*j)*kv;
 q.px=x.point.x+dir.x*.03;q.py=x.point.y+dir.y*.03;q.pz=x.point.z+dir.z*.03;BAL.pen=(BAL.pen|0)+1;
 if(Math.hypot(x.point.x-P.x,x.point.z-P.z)<60){_bp.copy(x.point);emit(_bp,_e.set(dir.x,dir.y+.3,dir.z),{color:0xb8a890,size:.1,grow:.6,life:.4,a:.4,drag:2})}return 0}
@@ -93,7 +93,7 @@ const hr=hlRay(org,dir,Math.min(far,wt));
 if(hr&&hr.t<wt){_bp.copy(org).addScaledVector(dir,hr.t);hlApply(hr.z,q.dmg*balFac(q),'b',q.bot?q.bot.g.position:null);BAL.hits++;return 1}
 // claquement d'une balle qui passe près du joueur
 if(!q.wz&&P.gy!==undefined){_bq.set(P.x-org.x,P.gy+P.eh*.6-org.y,P.z-org.z);const t=Math.max(0,Math.min(far,_bq.dot(dir))),dd=_bq.sub(_bu.copy(dir).multiplyScalar(t)).length();if(dd<1.8&&t>1){q.wz=1;FXP.shake=Math.max(FXP.shake,.22);snd(rnd(1700,2500),.04,.07,'square');HM.pain=Math.min(1,HM.pain+.01)}}
-if(wh){if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impact(wh,!!wh.object.userData.door);if(!wh.object.userData.door&&balWall(wh,q,org,dir)===0)return 0;return 1}
+if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impact(wh,!!wh.object.userData.door);if(!wh.object.userData.door&&balWall(wh,q,org,dir)===0)return 0;return 1}
 return 0}
 return 0}
 function balTick(dt){BAL.t+=dt;if(P.gy!==undefined){if(BAL.pOk){BAL.pv.set((P.x-BAL.pp.x)/Math.max(dt,.001),0,(P.z-BAL.pp.z)/Math.max(dt,.001)).clampLength(0,7)}BAL.pp.set(P.x,0,P.z);BAL.pOk=1}

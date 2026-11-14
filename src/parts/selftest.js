@@ -79,6 +79,12 @@ s.mode=1;mdPrev=true;if(wpTrig())return'semi : tir au maintien';mdPrev=false;if(
 s.heat=0;const sp0=wpSpread();s.heat=1;if(!(wpSpread()>sp0*1.3))return'chauffe sans effet sur la dispersion';s.heat=0;P.st=0;const r0=wpRecoil();P.st=2;const r2=wpRecoil();if(!(r2<r0*.7))return'recul couché '+r0+'/'+r2;
 if(hi>=0){setWeapon(hi);const h=wpS(hi);h.heat=.995;h.hot=0;wpPost();if(!h.hot)return'HMG sans surchauffe';wpTick(10);if(h.hot)return'HMG ne refroidit pas '+h.heat}
 }finally{WPN.rng=rng;setWeapon(sv[0]);ammo=sv[1];reserve=sv[2];reloading=sv[3];cd=sv[4];mdPrev=sv[5];P.st=sv[6];WPS[0]&&(WPS[0].jam=0,WPS[0].clr=0,WPS[0].heat=0,WPS[0].bst=0)}return msg});
+T('Véhicules destructibles : tôle perforable, fumée, épave et explosion',()=>{const D=dstS(),n0=D.list.length,e=new THREE.Group(),m=new THREE.Mesh(new THREE.BoxGeometry(2,1,4),new THREE.MeshStandardMaterial({color:0x8a1f1f}));e.add(m);S.add(e);
+const px=new THREE.Mesh(new THREE.BoxGeometry(2.8,1.4,8),new THREE.MeshBasicMaterial());px.position.set(P.x+60,1,P.z);px.updateMatrixWorld();dstVeh(e,px,null,P.x+60,0,P.z);const r=px.userData.dst;let msg='';
+try{if(px.userData.bmat!=='veh'||D.list.length!==n0+1)return'enregistrement';const rc=new THREE.Raycaster(),org=new THREE.Vector3(P.x+60,1,P.z-8),dir=new THREE.Vector3(0,0,1);rc.set(org,dir);const h=rc.intersectObject(px)[0];if(!h)return'pas de touche';
+const mk=(am)=>({a:BAM[am],vx:0,vy:0,vz:BAM[am].v,px:org.x,py:1,pz:org.z,rc:0});const q1=mk('r556');BAL.fixed=0.99;if(balWall(h,q1,org,dir)!==0)return'le fusil ne traverse pas la tôle';const q2=mk('p9');if(balWall(h,q2,org,dir)!==1)return'le 9 mm traverse la tôle';
+dstHit(r,h,r.max*.5);if(r.hp>=r.max||r.st!==0)return'dégâts';dstHit(r,h,r.max);if(r.st!==1)return'pas en feu à 0 PV';let n=0;while(r.st===1&&n++<400)dstTick(.1);if(r.st!==2)return'pas d’épave '+r.st;
+const g=D.list.slice(-1)[0];if(g!==r)return'liste'}finally{delete BAL.fixed;r.st=2;r.fl=-61;dstTick(.1);S.remove(e);D.list.pop();const i=D.act.indexOf(r);if(i>=0)D.act.splice(i,1)}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

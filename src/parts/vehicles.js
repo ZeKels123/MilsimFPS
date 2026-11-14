@@ -7,7 +7,7 @@ const free=(x,z,hw,hd)=>!boxes.some(o=>x+hw>o.x0-1&&x-hw<o.x1+1&&z+hd>o.z0-1&&z-
 const flat=(x,z,hw,hd)=>{const h=[GH(x-hw,z-hd),GH(x+hw,z-hd),GH(x-hw,z+hd),GH(x+hw,z+hd),GH(x,z)];return Math.max(...h)-Math.min(...h)<.7};
 const put=(n,x,z,ry,hw,hd,hh)=>{const e=mdl(n),y=Math.max(GH(x-hw*.8,z-hd*.8),GH(x+hw*.8,z-hd*.8),GH(x-hw*.8,z+hd*.8),GH(x+hw*.8,z+hd*.8),GH(x,z));
 e.position.set(x,y-.03,z);e.rotation.y=ry;e.traverse(m=>{if(m.isMesh&&!m.material.transparent){m.castShadow=true;m.receiveShadow=true}});S.add(e);(window.VEHS=window.VEHS||[]).push([n,x,z,ry]);
-boxes.push({x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:y,y1:y+hh});const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,y+hh/2,z);px.visible=false;S.add(px);solids.push(px);ray.push(px);return e};
+const bx={x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:y,y1:y+hh};boxes.push(bx);const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,y+hh/2,z);px.visible=false;S.add(px);solids.push(px);ray.push(px);dstVeh(e,px,bx,x,y,z);return e};
 // --- tracteurs dans les cours de ferme
 (window.FYARD||[]).forEach(([cx,cz])=>{const x=cx+9.5,z=cz-6;if(free(x,z,2.4,1.3))put('lambo',x,z,Math.PI/2*(vr()<.5?1:-1),2.3,1.2,2.9)});
 // --- convoi militaire le long de la route nord-sud (x = CT.ax), épaulements est et ouest
