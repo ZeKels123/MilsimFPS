@@ -85,6 +85,13 @@ try{if(px.userData.bmat!=='veh'||D.list.length!==n0+1)return'enregistrement';con
 const mk=(am)=>({a:BAM[am],vx:0,vy:0,vz:BAM[am].v,px:org.x,py:1,pz:org.z,rc:0});const q1=mk('r556');BAL.fixed=0.99;if(balWall(h,q1,org,dir)!==0)return'le fusil ne traverse pas la tôle';const q2=mk('p9');if(balWall(h,q2,org,dir)!==1)return'le 9 mm traverse la tôle';
 dstHit(r,h,r.max*.5);if(r.hp>=r.max||r.st!==0)return'dégâts';dstHit(r,h,r.max);if(r.st!==1)return'pas en feu à 0 PV';let n=0;while(r.st===1&&n++<400)dstTick(.1);if(r.st!==2)return'pas d’épave '+r.st;
 const g=D.list.slice(-1)[0];if(g!==r)return'liste'}finally{delete BAL.fixed;r.st=2;r.fl=-61;dstTick(.1);S.remove(e);D.list.pop();const i=D.act.indexOf(r);if(i>=0)D.act.splice(i,1)}return msg});
+T('Vision nocturne/thermique, sol mouillé, empreintes, douilles persistantes',()=>{let msg='';const b=bots.find(o=>o.sld&&o.sld.mats&&!o.dead),w0=WET.v,m0=NVG.m;
+try{nvSet(1);if(NVG.el.style.display!=='block'||!/brightness/.test(NVG.el.style.backdropFilter+NVG.el.style.webkitBackdropFilter))return'NVG absente';
+if(b){nvSet(2);nvHeat(1);if(!(b.sld.mats[0].emissive.r>.5))return'bot froid en thermique';nvSet(0);if(b.sld.mats[0].emissive.r!==0)return'émission non remise à zéro'}
+wetTick(1000,1);if(!(WET.v>.9))return'sol non mouillé '+WET.v;if(WET.mat&&!(WET.mat.color.r<WET.c0.r*.8))return'sol non assombri';wetTick(5000,0);if(WET.v>.01)return'le sol ne sèche pas '+WET.v;
+const n0=FP.n;fpAdd(P.x+3,P.z+3,.5);if(FP.n!==n0+1)return'empreinte non ajoutée';const mm=new THREE.Matrix4();FP.im.getMatrixAt(n0%FP.max,mm);if(mm.elements[0]===0&&mm.elements[10]===0)return'empreinte invisible';
+const sh=shells.length;eject(WC[0]);if(shells.length!==sh+1||shells[shells.length-1].t<30)return'douille non persistante'}
+finally{nvSet(m0);WET.v=w0;wetTick(0,0)}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

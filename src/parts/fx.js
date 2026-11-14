@@ -36,7 +36,7 @@ flash.material.blending=THREE.AdditiveBlending;flash.material.transparent=true;f
 const mzL=new THREE.PointLight(0xffb060,0,14);gun.add(mzL);
 const shG=new THREE.CylinderGeometry(.0075,.0075,.036,6),shG2=new THREE.CylinderGeometry(.012,.012,.07,8),shM=std(0xc9a24a,{roughness:.35,metalness:.9,envMapIntensity:1}),shM2=std(0xa02a20,{roughness:.6}),shells=[];
 function eject(c){if(ac.on||bench)return;const m=new THREE.Mesh(c.pel>1?shG2:shG,c.pel>1?shM2:shM);m.position.set(.03,.03,.02);gun.localToWorld(m.position);
-const v=new THREE.Vector3(rnd(1.4,2.4),rnd(1.2,2.2),rnd(-.3,.5)).applyQuaternion(C.quaternion);m.rotation.set(rnd(0,6),rnd(0,6),rnd(0,6));S.add(m);shells.push({m,v,t:2.4,s:rnd(8,18)});if(shells.length>50){S.remove(shells.shift().m)}}
+const v=new THREE.Vector3(rnd(1.4,2.4),rnd(1.2,2.2),rnd(-.3,.5)).applyQuaternion(C.quaternion);m.rotation.set(rnd(0,6),rnd(0,6),rnd(0,6));S.add(m);shells.push({m,v,t:60,s:rnd(8,18)});if(shells.length>90){S.remove(shells.shift().m)}}
 function shUpdate(dt){for(let i=shells.length-1;i>=0;i--){const s=shells[i],p=s.m.position;s.t-=dt;if(s.t<=0){S.remove(s.m);shells.splice(i,1);continue}
 if(s.s>0){s.v.y-=9.8*dt;p.addScaledVector(s.v,dt);s.m.rotation.x+=s.s*dt;s.m.rotation.z+=s.s*.6*dt;if(p.y<.012){p.y=.012;if(s.v.y<-1){s.v.y*=-.32;s.v.x*=.55;s.v.z*=.55;s.s*=.6}else{s.s=0;s.m.rotation.set(0,rnd(0,6),Math.PI/2)}}}}}
 function shotFx(c){noise(P.x,P.z,A.supp?12:48);flash.rotation.z=rnd(0,6.28);flash.scale.setScalar((c.pel>1?1.5:1)*(adsT>.5?.55:1)*rnd(.8,1.2));flash.getWorldPosition(MZ);

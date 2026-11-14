@@ -479,12 +479,20 @@ Test : « Balistique : pénétration selon le matériau, ricochet rasant, chevro
 
 ## v32 — Armes réalistes (`weapon.js`)
 - **Enrayage** : probabilité par coup = base 1/9 000 × usure (jusqu'à ×41) × chaleur du canon (>60 %) × pluie × silencieux. Message « ENRAYAGE », **R** dégage (1,6 s, la cartouche est éjectée).
-- **Usure** par arme (+0,04 %/coup, plus vite sous la pluie) ; **L** nettoie (3 s à l'établi, 10 s sur le terrain, immobile).
+- **Usure** par arme (+0,04 %/coup, plus vite sous la pluie) ; **maintenir H** (1,2 s, immobile) nettoie (3 s à l'établi, 10 s sur le terrain).
 - **Chambre** : rechargement tactique (chargeur non vide) = chargeur + 1 ; chargeur vide = chargeur seul. Pompe et fusil de précision : sans chambre supplémentaire.
-- **Modes de tir (C)** : fusil auto/semi/rafale ×3, MP9 auto/semi, autres armes en semi, HMG en auto.
+- **Modes de tir (clic molette)** : fusil auto/semi/rafale ×3, MP9 auto/semi, autres armes en semi, HMG en auto.
 - **Chauffe du canon** : monte à chaque coup, refroidit plus vite sous la pluie ; au-delà de 50 % la dispersion augmente, fumée au-delà de 70 %, **surchauffe bloquante de la HMG** à 100 % jusqu'à retomber sous 60 %.
 - **Recul et dispersion selon la position** : accroupi ×0,8, couché ×0,6 ; appui sur un rebord ×0,72 ; HMG couchée ×0,5 de plus. Indicateur « appui » et barre de chauffe dans le HUD (près de la charge).
 Test : « Armes : enrayage, chambre +1, modes de tir, chauffe, recul » (37/37).
 
 ## v33 — Véhicules destructibles et pénétration (`destruct.js`)
 Voitures et véhicules ont 700 PV (balles ×6 pour compenser la taille du volume, explosions selon la distance). Fumée grise sous 60 %, fumée noire et flammes sous 30 %, épave en feu à 0 PV qui explose après 3–7 s (60 %), noircit, reste comme obstacle et fume 1 à 2 min. La tôle se perfore (matériau `veh`, 2 cm équivalent acier : fusil et HMG traversent, 9 mm non) ; les troncs d'arbre sont du bois (pénétration par épaisseur réelle). Murs de bâtiments et caisses intérieures : toujours indestructibles (géométrie fusionnée). Test : « Véhicules destructibles » (38/38).
+
+## v34 — Vision nocturne/thermique, sol mouillé, empreintes, douilles (`night.js`)
+- **² / § (touche Backquote)** : vision nocturne (filtre vert amplifié, tube, grain) → thermique (noir et blanc, soldats vivants blancs, cadavres qui refroidissent sur 60 s) → arrêt.
+- **Sol mouillé** : la pluie mouille le sol en ~70 s (plus sombre, moins rugueux), il sèche en ~4 min.
+- **Empreintes** : jusqu'à 140 sur herbe et boue (joueur et bots à moins de 45 m), durée 70 s au sec et jusqu'à 240 s sur sol mouillé ; plus marquées quand le sol est mouillé. Pas qui clapotent sur sol mouillé.
+- **Douilles persistantes** : 60 s au sol, 90 maximum.
+- Mode de tir = clic molette, nettoyage = maintenir H (C et L étaient déjà pris) ; indicateur d'arme intégré au bloc munitions.
+Test : « Vision nocturne/thermique, sol mouillé, empreintes, douilles persistantes » (39/39).

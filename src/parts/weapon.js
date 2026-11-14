@@ -1,5 +1,5 @@
 // ================= ARMES RÉALISTES (v32) =================
-// Usure, chaleur du canon, enrayages, chambre (+1), modes de tir (C), nettoyage (L), recul selon la position et l'appui.
+// Usure, chaleur du canon, enrayages, chambre (+1), modes de tir (clic molette), nettoyage (maintenir H), recul selon la position et l'appui.
 const WPS={},WPN={rng:Math.random,msg:'',rest:0,cl:0};
 const wpS=i=>WPS[i]||(WPS[i]={wear:0,heat:0,jam:0,clr:0,hot:0,mode:0,bst:0});
 // modes autorisés : tableau d'indices (0 auto, 1 semi, 2 rafale de 3)
@@ -36,14 +36,17 @@ let _wsm=0;
 function wpTick(dt){const s=wpS(WSEL),c=WC[WSEL],rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);
 if(WPN.mt>0){WPN.mt-=dt;if(WPN.mt<=0)WPN.msg=''}
 for(const i in WPS){const q=WPS[i];q.heat=Math.max(0,q.heat-dt*.05*(1+rain*1.5)*(i==WSEL&&mdown?.4:1));if(q.hot&&q.heat<.6){q.hot=0;if(i==WSEL)wpnMsg('Canon refroidi')}}
+if(K.KeyH&&WPN.cl<=0&&!bench&&!reloading&&!mdown){WPN.h=(WPN.h||0)+dt;if(WPN.h>1.2){WPN.h=-99;wpCleanStart()}}else if(!K.KeyH)WPN.h=0;
 if(s.clr>0){s.clr-=dt;if(s.clr<=0){s.clr=0;wpFin()}}
 if(WPN.cl>0){const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD||mdown||reloading||bench;if(mv){WPN.cl=0;wpnMsg('Nettoyage interrompu')}else{WPN.cl+=dt;if(WPN.cl>=WPN.cT){WPN.cl=0;s.wear*=.2;if(s.jam){s.jam=0}snd(520,.1,.12,'sine');wpnMsg('Arme nettoyée')}}}
 if(s.heat>.7&&P.gy!==undefined){_wsm-=dt;if(_wsm<=0){_wsm=.18;try{emit(MZ,_e.set(rnd(-.1,.1),rnd(.2,.5),rnd(-.1,.1)),{color:0xcfcfcf,size:.07,grow:.9,life:.9,a:Math.min(.35,(s.heat-.6)*.5),drag:1.5})}catch(e){}}}}
-function wpBar(){const s=wpS(WSEL),c=WC[WSEL],m=wpModes(WSEL).length>1?' · '+WPMN[wpMode(WSEL)]+' [C]':'',w=Math.round(s.wear*100),h=Math.round(Math.min(1,s.heat)*100),col=h>85?'#e04a3a':h>60?'#e6c04a':'#8fae5a';
-return'<div style="font-size:11px;margin-top:3px;opacity:.9">Arme'+m+' · usure '+w+' %'+(WPN.rest?' · <span style="color:#8fae5a">appui</span>':'')+'</div><div style="width:96px;height:3px;background:#2a2f2a;margin-top:2px"><i style="display:block;height:3px;width:'+h+'%;background:'+col+'"></i></div>'+(s.jam?'<span style="color:#e04a3a;font-size:11px">ENRAYAGE [R]</span>':s.hot?'<span style="color:#e04a3a;font-size:11px">SURCHAUFFE</span>':WPN.cl>0?'<span style="font-size:11px">nettoyage '+Math.round(WPN.cl/WPN.cT*100)+' %</span>':'')}
-addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
-if(e.code==='KeyC'){const m=wpModes(WSEL);if(m.length>1){const s=wpS(WSEL);s.mode=(s.mode+1)%m.length;s.bst=0;snd(420,.04,.1,'square');wpnMsg('Mode : '+WPMN[wpMode(WSEL)])}}
-else if(e.code==='KeyL')wpCleanStart()});
+function wpHud(){const s=wpS(WSEL),m=wpModes(WSEL).length>1?WPMN[wpMode(WSEL)]+' · ':'',h=Math.round(Math.min(1,s.heat)*100),col=s.jam||s.hot||h>85?'#e04a3a':h>60?'#e6c04a':'#cfe3c0';
+const st=s.jam?'ENRAYAGE [R]':s.hot?'SURCHAUFFE':WPN.cl>0?'nettoyage '+Math.round(WPN.cl/WPN.cT*100)+' %':'';
+return'<small style="color:'+col+'">'+m+'usure '+Math.round(s.wear*100)+' % · chauffe '+h+' %'+(WPN.rest?' · appui':'')+(st?' · <b>'+st+'</b>':'')+'</small>'}
+// mode de tir : clic molette ; nettoyage : maintenir H (inspection) 1,2 s à l'arrêt
+function wpModeNext(){const m=wpModes(WSEL);if(m.length>1){const s=wpS(WSEL);s.mode=(s.mode+1)%m.length;s.bst=0;snd(420,.04,.1,'square');wpnMsg('Mode : '+WPMN[wpMode(WSEL)])}}
+addEventListener('mousedown',e=>{if(e.button!==1||$('ov').style.display!=='none'||ac.on||bench)return;e.preventDefault();wpModeNext()});
+addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat)WPN.h=0});
 // enveloppes des fonctions d'origine (renommées fire0 / reload0 à l'assemblage)
 function fire() {if(wpPre())return;const a=ammo;fire0();if(ammo<a)wpPost()}
 function reload() {if(wpClear())return;reload0()}
