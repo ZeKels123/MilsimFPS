@@ -5,7 +5,7 @@ SLS.inv=SLS.rest.map(m=>m.clone().invert());
 function sldGeo(){if(SLS.geo)return SLS.geo;const g=new THREE.BufferGeometry(),n=SLD.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2),W_=new Float32Array(n*4);
 for(let i=0;i<n*3;i++){P_[i]=SLD.p[i]/1e4;N_[i]=SLD.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=SLD.u[i]/1e3;for(let i=0;i<n*4;i++)W_[i]=SLD.w[i]/100;
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setAttribute('skinIndex',new THREE.BufferAttribute(new Uint16Array(SLD.s),4));g.setAttribute('skinWeight',new THREE.BufferAttribute(W_,4));
-g.setIndex(new THREE.BufferAttribute(n>65535?new Uint32Array(SLD.i):new Uint16Array(SLD.i),1));g.computeBoundingSphere();g.boundingSphere.radius=2;SLS.geo=g;
+g.setIndex(new THREE.BufferAttribute(n>65535?new Uint32Array(SLD.i):new Uint16Array(SLD.i),1));g.computeBoundingSphere();g.boundingSphere.radius=2;SLS.geo=g;{const a=SLD.i.slice(0,17518*3).concat(SLD.i.slice(17916*3));const g2=new THREE.BufferGeometry();for(const k in g.attributes)g2.setAttribute(k,g.attributes[k]);g2.setIndex(new THREE.BufferAttribute(new Uint16Array(a),1));g2.boundingSphere=g.boundingSphere;SLS.geoNH=g2}
 const t=new THREE.TextureLoader().load(SLD.tex);t.flipY=false;t.encoding=THREE.sRGBEncoding;t.anisotropy=4;SLS.tex=t;
 SLS.mat=new THREE.MeshLambertMaterial({map:t,skinning:true,emissive:0x1a1a1a});return g}
 // clips : pose monde de chaque os (x,y,z mm ; quaternion xyz mm, w reconstruit)
@@ -50,7 +50,6 @@ function sldAcc(sd,bone,mesh,d,list){const i=SLS.ix[bone],q=new THREE.Quaternion
 function sldBuild(b){sldVestGeo();const sd=b.sld;sd.var=[[],[],[],[]];const BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d),SP=(r,a)=>new THREE.SphereGeometry(r,14,10,0,6.2832,0,a||1.9),M=(c,o)=>L(c,Object.assign({roughness:.85},o||{}));
 sd.mats=SLT.map(c=>{const m=SLS.mat.clone();m.color.setHex(c);return m});
 for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
- if(t===0){sldAcc(sd,H,new THREE.Mesh(SP(.13,1.45),M(0x2b3138)),[0,.1,.005],v);sldAcc(sd,H,new THREE.Mesh(BX(.1,.04,.04),M(0x111111)),[0,.17,.12],v)}
  if(t===1){sldAcc(sd,H,new THREE.Mesh(SP(.135,1.5),M(0x4b5a44)),[0,.105,.005],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.055,.05),M(0x0a0a0a,{metalness:.8,roughness:.2})),[0,.11,.115],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[.13,.06,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[-.13,.06,0],v)}
  if(t===2){sldAcc(sd,H,new THREE.Mesh(SP(.125,1.45),M(T.col)),[0,.11,0],v);sldAcc(sd,H,new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.012,18),M(T.col)),[0,.125,0],v)}
  if(t===3){sldAcc(sd,H,new THREE.Mesh(SP(.155,1.6),M(0x1c1e22)),[0,.1,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.22,.06,.05),new THREE.MeshBasicMaterial({color:0xaa1111})),[0,.1,.14],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.1,.08),M(0x111111)),[0,.0,.1],v)}
@@ -59,7 +58,7 @@ for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
  if(t===2)sldAcc(sd,C,new THREE.Mesh(BX(.36,.07,.2),M(0x4a4a38)),[0,.18,-.1],v);
  if(t===3){[-.24,.24].forEach(x=>sldAcc(sd,C,new THREE.Mesh(BX(.16,.09,.24),M(0x25282c)),[x,.15,0],v));sldAcc(sd,C,new THREE.Mesh(BX(.34,.34,.1),M(0x2b2f34)),[0,.0,-.15],v)}
 }}
-function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
+function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.sm.geometry=i===0?SLS.geoNH:SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
 
 function sldVestGeo(){if(SLS.vg)return SLS.vg;const g=new THREE.BufferGeometry(),n=VSD.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2);for(let i=0;i<n*3;i++){P_[i]=VSD.p[i]/1e4;N_[i]=VSD.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=VSD.u[i]/1e3;
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setIndex(new THREE.BufferAttribute(new Uint16Array(VSD.i),1));

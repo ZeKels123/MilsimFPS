@@ -61,7 +61,7 @@ rep("new THREE.MeshPhongMaterial({color:p.c,flatShading:true,shininess:25,specul
 rep("PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);","PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);PR.toneMapping=R.toneMapping;PR.toneMappingExposure=R.toneMappingExposure;PS.environment=mkEnv(PR);")
 # 6. bots
 a=s.index("function mkBot(){");b=s.index("function free_(")
-s=s[:a]+rd('soldier_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('soldier.js')+rd('bots.js')+s[b:]
+s=s[:a]+rd('soldier_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('soldier.js')+rd('voix.js')+rd('bots.js')+s[b:]
 rep("b.dead=0;b.g.visible=true;pick(b)}","b.dead=0;b.fall=0;b.g.rotation.x=0;b.g.visible=true;botLook(b,i);pick(b)}")
 rep("b.g.visible=false;P.kills++","botDeath(b,head);P.kills++")
 rep("const px=P.x-g.position.x,pz=P.z-g.position.z,pd=Math.hypot(px,pz);g.rotation.y=Math.atan2(px,pz);",
@@ -120,6 +120,10 @@ rep("P.x=Math.max(-29.4,Math.min(29.4,P.x));P.z=Math.max(-29.4,Math.min(29.4,P.z
 rep("x=rnd(-27,27);z=rnd(-27,10)","x=rnd(-MH+5,MH-5);z=rnd(-MH+5,MH-5)")
 rep("b.tx=Math.max(-27,Math.min(27,x));b.tz=Math.max(-27,Math.min(27,z))","b.tx=Math.max(-MH+5,Math.min(MH-5,x));b.tz=Math.max(-MH+5,Math.min(MH-5,z))")
 rep("b.visM.emissive.setHex(i===3?0xaa1111:0x000000);","sldLook(b,i);b.visM.emissive.setHex(i===3?0xaa1111:0x000000);")
+rep("function aiHit(b){if(b.dead)return;","function aiHit(b){if(b.dead)return;vxSay(b,'hit');")
+rep("function botDie(b){if(b.dead)return;","function botDie(b){if(b.dead)return;{let n=null,nd=30;for(const o of bots){if(o===b||o.dead)continue;const dd=Math.hypot(o.g.position.x-b.g.position.x,o.g.position.z-b.g.position.z);if(dd<nd){nd=dd;n=o}}if(n)vxSay(n,'down',true)}")
+rep("b.thr=.55;","b.thr=.55;vxSay(b,'grenade');")
+rep("function aiUpdate(dt,inz){","function aiUpdate(dt,inz){vxTick(dt);")
 rep("function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;","function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;sldUpdate(b,dt,mv);")
 rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;sldUpdate(b,dt,0);")
 rep("b.mat=m;S.add(g);spawn(b);bots.push(b)}","b.mat=m;sldAttach(b);S.add(g);spawn(b);bots.push(b)}")

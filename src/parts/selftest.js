@@ -37,6 +37,7 @@ if(!msg){set();const b=bots.find(q=>!q.dead);if(b){const g0=b.g.position.clone()
 Object.assign(s,{x:sv.x,z:sv.z,bx:sv.bx,bz:sv.bz,th:sv.th,st:sv.st,hp:sv.hp,dead:sv.dead,tr:sv.tr});snkPlace(s);P.x=sv.px;P.z=sv.pz;P.gy=sv.pgy;return msg});
 T('Sons : 7 échantillons embarqués',()=>{const ks=['smg','rifle','shotgun','echo','reload','empty','cock'];for(const q of ks)if(!SMD[q]||SMD[q].length<2000)return'manquant : '+q;return typeof smpPlay==='function'?'':'lecteur absent'});
 T('Soldats Mixamo : 33 os, 7 clips, poses finies sur tous les bots',()=>{if(SLS.nb!==33)return'os '+SLS.nb;for(const k of ['walk','run','fire','reload','death','strafe','idle'])if(!SLA[k]||SLA[k].n<4)return'clip '+k;for(const b of bots){if(!b.sld)return'bot sans soldat';sldUpdate(b,.05,true);const p=b.sld.bones[5].position;if(!isFinite(p.x+p.y+p.z)||p.y<1.2||p.y>1.9)return'tête hors plage '+p.y}return true});
+T('Voix des bots : phrases définies, annonce sans erreur',()=>{for(const k of ['contact','hit','reload','grenade','down','flank','cover','lost','ack'])if(!VX.L[k]||!VX.L[k].length)return'manque '+k;const b=bots.find(o=>!o.dead);if(!b)return true;b.vxCd=0;VX.last=0;vxSay(b,'hit');return typeof vxTick==='function'});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
