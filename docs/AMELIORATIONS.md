@@ -461,3 +461,6 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Regroupement : hors contact, les membres à plus de 28 m du chef sont rappelés.
 - Chaque bot désigné répond (« Reçu », « Compris »…) avec un léger décalage. Les phrases d'ordre sont dans `VX.L` (`oFlank`, `oCover`, `oGren`, `oRet`, `oReg`).
 - Tests : `Effort : souffle retenu stabilise la visée puis essouffle, saut et visée limités par la charge`, `Ordres d'escouade : le chef parle, les bots désignés exécutent, repli annoncé`.
+
+### v30b — Endurance recalée sur un soldat entraîné
+Constantes regroupées dans `STA` (`src/parts/effort.js`) : sprint ≈ 22 s à charge légère (≈ 13 s à pleine charge) au lieu de 10 s, récupération complète en ≈ 6 s en marchant (≈ 4 s à l’arrêt), marche fatigante seulement au-delà de 70 % de charge, saut deux fois moins coûteux, souffle retenu jusqu'à 6 s, fin d'essoufflement à 25 %. Test : `Endurance de soldat entraîné`.

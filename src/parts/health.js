@@ -90,7 +90,7 @@ let base=0;for(const z of HZ){const l=hlLvl(z);base+=l===1?.06:l===2?.2:0}HM.pai
 if(HM.conc>0)HM.conc=Math.max(0,HM.conc-dt);
 // endurance
 const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&!ads&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
-if(spr)HM.sta=Math.max(0,HM.sta-dt*.1*dis*(1+Math.max(0,invLoad()-.5)*1.4));else HM.sta=Math.min(1,HM.sta+dt*.22/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.3)HM.exh=0;
+if(spr)HM.sta=Math.max(0,HM.sta-dt*STA.spr*dis*(1+Math.max(0,invLoad()-.5)*1.4));else HM.sta=Math.min(1,HM.sta+dt*STA.reg*(mv?1:1.6)/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.25)HM.exh=0;
 // jambes brisées : on ne peut plus que ramper
 if(hlLegs()===2&&P.st<2&&!P.mant)P.st=2;if(hlLegs()>=1&&P.vy>0&&P.air&&!HJMP())P.vy=0;
 // soins en cours

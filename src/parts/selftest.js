@@ -53,6 +53,7 @@ T('Ordres d\u2019escouade : le chef parle, les bots désignés exécutent, repli
 let msg='';try{al.forEach(b=>{b.see=false;b.dorm=0;b.stun=0;b.blind=0;b.heal=null;b.lvl=0;b.route=null;b.unarm=0;b.fleeT=0;b.mag=20;b.nadeCd=99;b.ordCover=0;b.cd=9});AI.nadeCd=99;AI.budget=6;q.t=5;q.ret=0;q.oT=0;q.flT=-99;q.lk.x=P.x;q.lk.z=P.z+30;const n0=ORD.n;sqOrders(q,al,.05);
 if(ORD.n!==n0+1)msg='aucun ordre donné';else if(!al.some(b=>b.ordCover>0||b.st==='flk'))msg='aucun bot n\u2019exécute l\u2019ordre';
 if(!msg&&!(sqLeader(al)&&['oFlank','oCover','oGren','oRet','oReg'].every(x=>VX.L[x]&&VX.L[x].length)))msg='phrases d\u2019ordre manquantes'}finally{al.forEach((b,i)=>keys.forEach((k,j)=>b[k]=sv[i][j]));q.t=sq0[0];q.ret=sq0[1];q.oT=sq0[2];q.lk.x=sq0[3];q.lk.z=sq0[4];q.flT=sq0[5];AI.nadeCd=ng;AI.budget=bg}return msg});
+T('Endurance de soldat entraîné : sprint long, récupération rapide',()=>{const sp=1/STA.spr,full=sp/(1+Math.max(0,1-.5)*1.4),rec=1/STA.reg;if(sp<18||sp>30)return'sprint léger '+sp.toFixed(1)+' s';if(full<11)return'sprint pleine charge '+full.toFixed(1)+' s';if(rec>8)return'récupération '+rec.toFixed(1)+' s';return''});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
