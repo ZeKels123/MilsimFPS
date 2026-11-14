@@ -92,6 +92,13 @@ wetTick(1000,1);if(!(WET.v>.9))return'sol non mouillé '+WET.v;if(WET.mat&&!(WET
 const n0=FP.n;fpAdd(P.x+3,P.z+3,.5);if(FP.n!==n0+1)return'empreinte non ajoutée';const mm=new THREE.Matrix4();FP.im.getMatrixAt(n0%FP.max,mm);if(mm.elements[0]===0&&mm.elements[10]===0)return'empreinte invisible';
 const sh=shells.length;eject(WC[0]);if(shells.length!==sh+1||shells[shells.length-1].t<30)return'douille non persistante'}
 finally{nvSet(m0);WET.v=w0;wetTick(0,0)}return msg});
+T('Survie : soif, faim, froid, boire/manger, ramassage chronométré',()=>{const ovd=$('ov').style.display;$('ov').style.display='none';const sv=[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta,free];let msg='';
+try{SUR.on=true;SUR.act=null;SUR.pk=null;
+if(!(survColdRate(0,false,false,false,0)<0&&survColdRate(0,true,false,false,0)>0&&survColdRate(0,false,false,false,1)<survColdRate(0,false,false,false,0)&&survColdRate(0,false,true,false,0)>0&&survColdRate(20,false,false,false,0)>=0))return'modèle de froid';
+SUR.w=.2;SUR.f=.1;SUR.c=.9;HM.inv.bt=1;HM.inv.rt=1;HM.sta=1;const t0=hlTremor();survTick(.5);if(!(HM.sta<1))return'la soif n’épuise pas';survStart('drink');if(!SUR.act)return'boire refusé';survTick(3);if(SUR.act||!(SUR.w>.5)||HM.inv.bt!==0)return'gourde '+SUR.w+' '+HM.inv.bt;survStart('eat');survTick(4);if(!(SUR.f>.5)||HM.inv.rt!==0)return'ration '+SUR.f;
+survStart('drink');if(SUR.act)return'boire sans gourde';SUR.c=.1;survTick(.5);if(!(SUR.tr>.2))return'frissons '+SUR.tr;
+SUR.c=1;SUR.w=1;SUR.f=1;const n=INV.gnd.length,e=invSpawn('pl',1,P.x+.4,P.gy,P.z,0,0);e.fall=false;e.m.position.y=P.gy;invPick();if(!SUR.pk)return'ramassage instantané';survTick(.1);if(!SUR.pk)return'ramassage annulé trop tôt';survTick(5);if(SUR.pk||INV.gnd.includes(e))return'ramassage non terminé'}
+finally{[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta]=sv;SUR.tr=0;$('ov').style.display=ovd}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

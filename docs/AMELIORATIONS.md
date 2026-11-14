@@ -496,3 +496,9 @@ Voitures et véhicules ont 700 PV (balles ×6 pour compenser la taille du volume
 - **Douilles persistantes** : 60 s au sol, 90 maximum.
 - Mode de tir = clic molette, nettoyage = maintenir H (C et L étaient déjà pris) ; indicateur d'arme intégré au bloc munitions.
 Test : « Vision nocturne/thermique, sol mouillé, empreintes, douilles persistantes » (39/39).
+
+## v35 — Survie et ramassage chronométré (`survie.js`)
+- **Soif, faim, froid** (jauges visibles sous 70 %). Soif et faim baissent plus vite avec l'effort et la chaleur ; le froid dépend de l'heure (5 à 19 °C), de la pluie, de l'abri (bâtiment) et des feux proches. Effets : endurance qui s'épuise, tremblement de la visée, plafond d'endurance en cas de manque critique. Non létal.
+- **Boire** : F au bord de l'eau (4,5 s) ou touche **=** (gourde, 2,5 s) ; **manger** : touche **-** (ration, 3,5 s). Départ : 2 gourdes, 2 rations ; les éliminations en rapportent. **\\** active/désactive la survie (mémorisé), pour les missions courtes.
+- **Ramassage chronométré** : durée selon la masse de l'objet (0,3 à 2,2 s, sac 2,5 s), interrompu si on bouge ou si on est touché.
+Test : « Survie : soif, faim, froid, boire/manger, ramassage chronométré » (40/40).

@@ -1858,7 +1858,7 @@ AD.el.querySelectorAll('[data-k]').forEach(n=>n.onclick=()=>{AD.m[n.dataset.k]=!
 // 7 zones : tête, thorax, ventre, bras gauche/droit, jambe gauche/droite.
 // Les impacts sont calculés par la géométrie : rayon de la balle contre les volumes du corps, couvert compris.
 const HZ=['h','t','a','la','ra','ll','rl'],HZN={h:'Tête',t:'Thorax',a:'Ventre',la:'Bras gauche',ra:'Bras droit',ll:'Jambe gauche',rl:'Jambe droite'},HMAX={h:35,t:85,a:70,la:60,ra:60,ll:65,rl:65},
-HINV0={bd:3,tq:1,sp:2,mo:2,kit:1},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
+HINV0={bd:3,tq:1,sp:2,mo:2,kit:1,bt:2,rt:2},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
 const HM={z:{},bl:100,bd:{},fx:{},tq:{},pain:0,mor:0,hl:30,sta:1,exh:0,act:null,inv:{},dead:0,why:'',conc:0,fl:{},hurtK:0,hurtS:1,clin:0,msgT:0,fs:'',hudT:0,last:''};
 const hlLimb=z=>z==='la'||z==='ra'||z==='ll'||z==='rl';
 function hlReset(){HM.z={};HZ.forEach(z=>HM.z[z]=HMAX[z]);HM.bl=100;HM.bd={};HM.fx={};HM.tq={};HM.pain=0;HM.mor=0;HM.hl=30;HM.sta=1;HM.exh=0;HM.act=null;HM.inv=Object.assign({},HINV0);HM.dead=0;HM.conc=0;HM.fl={};HM.hurtK=0;HM.clin=0;P.hp=100}
@@ -1916,7 +1916,7 @@ function HNOADS(){return KNF.on||(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3|
 function hlTremor0(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
 function hlCam(dt){if(ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001,tr=hlTremor();if(tr>.02){C.rotation.x+=(Math.sin(t*9.1)*.004+Math.sin(t*23.3)*.002)*tr;C.rotation.y+=(Math.sin(t*7.7+1)*.004+Math.sin(t*19.1)*.002)*tr}
 if(HM.hurtK>0){C.rotation.z+=HM.hurtS*HM.hurtK*.07;HM.hurtK=Math.max(0,HM.hurtK-dt*4)}if(HM.bl<35)C.rotation.z+=Math.sin(t*1.3)*.03*(1-HM.bl/35)}
-function hlKill(head){const k=P.kills;if(k%3===0)HM.inv.bd=Math.min(5,HM.inv.bd+1);if(k%5===0)HM.inv.mo=Math.min(3,HM.inv.mo+1);HM.pain*=.6;HM.sta=Math.min(1,HM.sta+.25);snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350)}
+function hlKill(head){const k=P.kills;if(k%3===0)HM.inv.bd=Math.min(5,HM.inv.bd+1);if(k%5===0)HM.inv.mo=Math.min(3,HM.inv.mo+1);if(k%4===0)HM.inv.bt=Math.min(4,(HM.inv.bt||0)+1);if(k%6===0)HM.inv.rt=Math.min(4,(HM.inv.rt||0)+1);HM.pain*=.6;HM.sta=Math.min(1,HM.sta+.25);snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350)}
 // ---- soins
 function hlUse(k){if(HM.dead||HM.act||ac.on||bench||P.mant)return;const inv=HM.inv;
 if(k==='bd'){const zs=HZ.filter(z=>HM.bd[z]>0);if(!zs.length)return hlMsg('Aucun saignement');if(inv.bd<1)return hlMsg('Plus de bandages');zs.sort((a,b)=>HM.bd[b]-HM.bd[a]);HM.act={k,z:zs[0],t:0,T:3.2}}
@@ -2078,7 +2078,7 @@ const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&!invSlotFor(+e.id[
 const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
 function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
-function invPick(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
+function invPick0(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
 function invLoot(b){const p=b.g.position,r=Math.random,sp=()=>[p.x+rnd(-.7,.7),p.y+.6,p.z+rnd(-.7,.7)];
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.8,.8),rnd(-.8,.8),bag)};
 if(r()<.75)add('z'+[0,0,1,2,3][(r()*5)|0],r()<.5?30:15);
@@ -2237,7 +2237,7 @@ function brnSnd(x,y,z){const T=performance.now();if(T-brnLast<350||Math.hypot(x-
 function wingSnd(x,y,z){const T=performance.now();if(T-wingLast<1800||Math.hypot(x-P.x,z-P.z)>60)return;wingLast=T;auInit();if(!AU.ready)return;const o=sp3(x,y,z,{ref:12,roll:.9,ad:60});for(let k=0;k<4;k++)setTimeout(()=>{try{nz(.09,'bandpass',1200,.6,.28,o,1.4,.02)}catch(e){}},k*85)}
 function brnCrack(b,big,bot){b.br=1;b.t=90;b.m.scale.x=.5;b.m.rotation.z=.5;b.m.position.y+=.03;const y=GH(b.x,b.z)+.3;brnSnd(b.x,y,b.z);
 for(let i=0;i<4;i++)emit(_no.set(b.x,y-.2,b.z),_e.set(rnd(-1,1),rnd(.5,1.4),rnd(-1,1)),{color:0x8a6a40,size:.03,life:.4,g:6});if(!bot)noise(b.x,b.z,big?34:22)}
-function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);effTick(dt);dstTick(dt);nightTick(dt);BRN.t+=dt;
+function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);effTick(dt);dstTick(dt);nightTick(dt);survTick(dt);BRN.t+=dt;
 if(BRN.t>=.12){const st=BRN.t;BRN.t=0;const wk=[];if(!ac.on&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD))wk.push({x:P.x,z:P.z,p:P.st===0?(K.ShiftLeft?1:.9):P.st===1?.3:.08,big:K.ShiftLeft,bot:0});for(const b of bots){if(b.dead)continue;const g=b.g.position;if(Math.abs(g.x-P.x)<80&&Math.abs(g.z-P.z)<80)wk.push({x:g.x,z:g.z,p:b.cr?.25:.5,big:0,bot:1})}
 for(const b of BRN.list){if(b.br){b.t-=st;if(b.t<=0){b.br=0;b.m.scale.x=1;b.m.rotation.z=0;b.m.position.y=GH(b.x,b.z)+.02}continue}
 if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90){b.m.visible=false;continue}b.m.visible=Math.abs(b.x-P.x)<75&&Math.abs(b.z-P.z)<75;for(const w of wk){if(Math.abs(w.x-b.x)<.55&&Math.abs(w.z-b.z)<.55&&Math.hypot(w.x-b.x,w.z-b.z)<.55){if(Math.random()<w.p*(b.big?1.15:1))brnCrack(b,w.big||b.big,w.bot);else b.t=0;break}}}
@@ -2288,7 +2288,7 @@ const effJump=()=>(1-.22*Math.min(1,effK()))*(HM.sta<.08?.75:1);
 const effJumpCost=()=>{HM.sta=Math.max(0,HM.sta-STA.jump*(1+effK()))};
 const effADS=()=>1-.3*Math.min(1,effK())-(HM.sta<.25?.15:0);
 // tremblement et dispersion : on enveloppe les versions de health.js
-function hlTremor() {return Math.min(1.6,(hlTremor0()+effK()*.2)*(EFF.gasp>0?1.8:1)*(1-.85*EFF.hb))}
+function hlTremor() {return Math.min(1.6,(hlTremor0()+effK()*.2+(SUR.on?SUR.tr:0))*(EFF.gasp>0?1.8:1)*(1-.85*EFF.hb))}
 function HAIM() {return HAIM0()*(1+.25*effK())*(1-.3*EFF.hb)*(EFF.gasp>0?1.2:1)}
 function effBar(){if(HM.sta>.995&&!EFF.hb&&!EFF.gasp)return'';const c=HM.sta<.25?'#e04a3a':HM.sta<.5?'#e6c04a':'#8fae5a';
 return'<div style="width:96px;height:4px;background:#2a2f2a;margin-top:3px"><i style="display:block;height:4px;width:'+Math.round(HM.sta*100)+'%;background:'+c+'"></i></div>'+(EFF.gasp>0?'<span style="color:#e04a3a;font-size:11px">à bout de souffle</span>':EFF.hb>.3?'<span style="color:#cfe3c0;font-size:11px">souffle retenu</span>':'')}
@@ -2404,6 +2404,42 @@ function sfxFoot(x,y,z,kind,vol,bot) {sfxFoot0(x,y,z,kind,vol,bot);try{if(kind!=
 if(bot){if(Math.hypot(x-P.x,z-P.z)>45)return;fpAdd(x,z,bot.g?bot.g.rotation.y:Math.random()*6.28)}else{fpAdd(x,z,P.yaw);if(WET.v>.4&&typeof AU!=='undefined'&&AU.ready)nz(.06,'bandpass',1700+rnd(-200,200),.9,.05*WET.v,AOUT(),.8,.1)}}catch(e){}}
 function nightTick(dt){nvTick(dt);wetTick(dt);fpTick(dt)}
 addEventListener('keydown',e=>{if(e.code==='Backquote'&&!e.repeat&&$('ov').style.display==='none'&&!ac.on&&!bench){e.preventDefault();nvSet((NVG.m+1)%3)}});
+// ================= v35 : survie (soif, faim, froid) et ramassage chronométré =================
+// Soif et faim baissent avec l'effort ; le froid dépend de l'heure, de la pluie, de l'abri (bâtiment) et des feux proches.
+// Boire : F au bord de l'eau, ou [=] une gourde ; manger : [-] une ration. \\ active/désactive la survie (mode long).
+// Ramasser un objet prend du temps (selon sa masse) et s'interrompt si on bouge ou si on est touché.
+var SUR={on:(function(){try{return localStorage.getItem('mfps_surv')!=='0'}catch(e){return true}})(),w:1,f:1,c:1,tr:0,act:null,pk:null,el:null,t:0,m:[0,0,0],ph:0};
+function survAmb(){const sun=Math.max(0,Math.sin((TOD.t-6)/12*Math.PI)),rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);return 5+14*sun-4*rain}
+function survFire(){if(typeof BRL==='undefined')return 0;for(const b of BRL){const q=b.userData.barrel;if(q&&typeof brFireR==='function'&&brFireR(q)>0&&Math.hypot(q.x-P.x,q.z-P.z)<5)return 1}return 0}
+// froid : variation par seconde
+function survColdRate(amb,indoor,fire,mv,rain){let r=0;if(amb<11)r-=(11-amb)/11*.0012*(1+rain*1.5)*(mv?.7:1);if(indoor)r+=.0025;else if(amb>13)r+=.0008*Math.min(1,(amb-13)/6);if(fire)r+=.012;return r}
+function survMsg(t){if(typeof hlMsg==='function')hlMsg(t)}
+function survStart(k){if(SUR.act||HM.dead||ac.on||bench)return;const i=HM.inv;
+if(k==='eat'){if(i.rt<1)return survMsg('Plus de rations');if(SUR.f>.9)return survMsg('Pas faim');SUR.act={k,t:0,T:3.5,l:'Repas…'}}
+else if(k==='drink'){if(i.bt<1)return survMsg('Plus de gourdes');if(SUR.w>.9)return survMsg('Pas soif');SUR.act={k,t:0,T:2.5,l:'Boire…'}}
+else if(k==='lake'){if(SUR.w>.92)return survMsg('Pas soif');SUR.act={k,t:0,T:4.5,l:'Boire à la source…'}}snd(300,.08,.1,'triangle')}
+function survDone(a){if(a.k==='eat'){HM.inv.rt--;SUR.f=Math.min(1,SUR.f+.45)}else if(a.k==='drink'){HM.inv.bt--;SUR.w=Math.min(1,SUR.w+.4)}else SUR.w=Math.min(1,SUR.w+.45);snd(520,.1,.12,'sine')}
+function survWater(){if(typeof wDep!=='function')return 0;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);return wDep(P.x,P.z)>.02||wDep(P.x+fx*1.2,P.z+fz*1.2)>.02?1:0}
+function invPick() {if(SUR.pk)return;const e=invNear();if(!e)return;const kg=e.id==='B'?3:Math.min(4,(invDef(e.id).kg||.1)*(e.q||1)),T=e.id==='B'?2.5:Math.min(2.2,.3+.5*kg);if(T<.4){invPick0();return}SUR.pk={t:0,T,e,hp:P.hp,m:0}}
+function survTick(dt){
+if(SUR.pk){const k=SUR.pk,mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD;if(mv||P.hp<k.hp-.1||HM.dead||!INV.gnd.includes(k.e)||invNear()!==k.e){SUR.pk=null;survMsg('Ramassage interrompu')}else{k.t+=dt;k.m-=dt;if(k.m<=0){k.m=.25;survMsg('Ramassage… '+Math.round(k.t/k.T*100)+' %')}if(k.t>=k.T){SUR.pk=null;invPick0()}}}
+if(SUR.act){const a=SUR.act;if(K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD)||mdown||HM.dead){SUR.act=null;survMsg('Action interrompue')}else{a.t+=dt;a.m=(a.m||0)-dt;if(a.m<=0){a.m=.3;survMsg(a.l+' '+Math.round(a.t/a.T*100)+' %')}if(a.t>=a.T){SUR.act=null;survDone(a)}}}
+if(!SUR.on||P.gy===undefined||HM.dead||$('ov').style.display!=='none'){if(SUR.el&&SUR.el.style.display!=='none')SUR.el.style.display='none';return}
+const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,ef=typeof effK==='function'?effK():0,rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0),amb=survAmb();
+SUR.w=Math.max(0,SUR.w-dt*.0004*(1+1.5*ef+(amb>22?.5:0)));SUR.f=Math.max(0,SUR.f-dt*.00018*(1+ef));
+SUR.c=Math.max(0,Math.min(1,SUR.c+dt*survColdRate(amb,typeof inRoom==='function'&&inRoom(P.x,P.z)>=0,survFire(),mv,rain)));
+let tr=0;if(SUR.w<.25){HM.sta=Math.max(0,HM.sta-dt*.005*(1-SUR.w/.25));tr+=(1-SUR.w/.25)*.25;if(SUR.w<.08)HM.sta=Math.min(HM.sta,.6)}
+if(SUR.f<.2){HM.sta=Math.max(0,HM.sta-dt*.003*(1-SUR.f/.2));tr+=(1-SUR.f/.2)*.12}
+if(SUR.c<.45){tr+=(1-SUR.c/.45)*.45;HM.sta=Math.max(0,HM.sta-dt*.004*(1-SUR.c/.45));if(SUR.c<.12)HM.sta=Math.min(HM.sta,.5)}
+SUR.tr=tr;const lv=[SUR.w<.3?1:0,SUR.f<.3?1:0,SUR.c<.5?1:0];['Tu as soif','Tu as faim','Tu as froid'].forEach((t,i)=>{if(lv[i]&&!SUR.m[i])survMsg(t);SUR.m[i]=lv[i]});
+SUR.t-=dt;if(SUR.t<=0){SUR.t=.5;survHud()}}
+function survHud(){if(!SUR.el){const d=document.createElement('div');d.style.cssText='position:fixed;left:14px;bottom:262px;z-index:6;pointer-events:none;font:11px monospace;color:#dfe8d0;text-shadow:0 0 3px #000;width:96px';document.body.appendChild(d);SUR.el=d}
+const L=[['Soif',SUR.w],['Faim',SUR.f],['Chaleur',SUR.c]].filter(q=>q[1]<.7),w=survWater()&&SUR.w<.9;let h='';for(const q of L){const c=q[1]<.25?'#e04a3a':q[1]<.5?'#e6c04a':'#8fae5a';h+='<div>'+q[0]+'<div style="height:3px;background:#2a2f2a"><i style="display:block;height:3px;width:'+Math.round(q[1]*100)+'%;background:'+c+'"></i></div></div>'}
+if(w&&!SUR.act)h+='<div style="margin-top:3px;color:#9fd0ff">[F] boire</div>';SUR.el.innerHTML=h;SUR.el.style.display=h?'block':'none'}
+addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
+if(e.code==='Minus')survStart('eat');else if(e.code==='Equal')survStart('drink');
+else if(e.code==='KeyF'&&SUR.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
+else if(e.code==='Backslash'){SUR.on=!SUR.on;try{localStorage.setItem('mfps_surv',SUR.on?'1':'0')}catch(x){}survMsg(SUR.on?'Survie activée (soif, faim, froid)':'Survie désactivée')}});
 // ================= BARILS DE CARBURANT : fuite, incendie, explosion retardée =================
 // Seuls les barils rouges contiennent du carburant. Une balle les perce (fuite, flaque) et peut enflammer les vapeurs (20 %).
 // Un baril en feu explose après 2,5 à 6 s s'il lui reste assez de carburant, sinon il brûle sans exploser.
@@ -4118,6 +4154,13 @@ wetTick(1000,1);if(!(WET.v>.9))return'sol non mouillé '+WET.v;if(WET.mat&&!(WET
 const n0=FP.n;fpAdd(P.x+3,P.z+3,.5);if(FP.n!==n0+1)return'empreinte non ajoutée';const mm=new THREE.Matrix4();FP.im.getMatrixAt(n0%FP.max,mm);if(mm.elements[0]===0&&mm.elements[10]===0)return'empreinte invisible';
 const sh=shells.length;eject(WC[0]);if(shells.length!==sh+1||shells[shells.length-1].t<30)return'douille non persistante'}
 finally{nvSet(m0);WET.v=w0;wetTick(0,0)}return msg});
+T('Survie : soif, faim, froid, boire/manger, ramassage chronométré',()=>{const ovd=$('ov').style.display;$('ov').style.display='none';const sv=[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta,free];let msg='';
+try{SUR.on=true;SUR.act=null;SUR.pk=null;
+if(!(survColdRate(0,false,false,false,0)<0&&survColdRate(0,true,false,false,0)>0&&survColdRate(0,false,false,false,1)<survColdRate(0,false,false,false,0)&&survColdRate(0,false,true,false,0)>0&&survColdRate(20,false,false,false,0)>=0))return'modèle de froid';
+SUR.w=.2;SUR.f=.1;SUR.c=.9;HM.inv.bt=1;HM.inv.rt=1;HM.sta=1;const t0=hlTremor();survTick(.5);if(!(HM.sta<1))return'la soif n’épuise pas';survStart('drink');if(!SUR.act)return'boire refusé';survTick(3);if(SUR.act||!(SUR.w>.5)||HM.inv.bt!==0)return'gourde '+SUR.w+' '+HM.inv.bt;survStart('eat');survTick(4);if(!(SUR.f>.5)||HM.inv.rt!==0)return'ration '+SUR.f;
+survStart('drink');if(SUR.act)return'boire sans gourde';SUR.c=.1;survTick(.5);if(!(SUR.tr>.2))return'frissons '+SUR.tr;
+SUR.c=1;SUR.w=1;SUR.f=1;const n=INV.gnd.length,e=invSpawn('pl',1,P.x+.4,P.gy,P.z,0,0);e.fall=false;e.m.position.y=P.gy;invPick();if(!SUR.pk)return'ramassage instantané';survTick(.1);if(!SUR.pk)return'ramassage annulé trop tôt';survTick(5);if(SUR.pk||INV.gnd.includes(e))return'ramassage non terminé'}
+finally{[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta]=sv;SUR.tr=0;$('ov').style.display=ovd}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

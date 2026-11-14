@@ -2,7 +2,7 @@
 // 7 zones : tête, thorax, ventre, bras gauche/droit, jambe gauche/droite.
 // Les impacts sont calculés par la géométrie : rayon de la balle contre les volumes du corps, couvert compris.
 const HZ=['h','t','a','la','ra','ll','rl'],HZN={h:'Tête',t:'Thorax',a:'Ventre',la:'Bras gauche',ra:'Bras droit',ll:'Jambe gauche',rl:'Jambe droite'},HMAX={h:35,t:85,a:70,la:60,ra:60,ll:65,rl:65},
-HINV0={bd:3,tq:1,sp:2,mo:2,kit:1},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
+HINV0={bd:3,tq:1,sp:2,mo:2,kit:1,bt:2,rt:2},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
 const HM={z:{},bl:100,bd:{},fx:{},tq:{},pain:0,mor:0,hl:30,sta:1,exh:0,act:null,inv:{},dead:0,why:'',conc:0,fl:{},hurtK:0,hurtS:1,clin:0,msgT:0,fs:'',hudT:0,last:''};
 const hlLimb=z=>z==='la'||z==='ra'||z==='ll'||z==='rl';
 function hlReset(){HM.z={};HZ.forEach(z=>HM.z[z]=HMAX[z]);HM.bl=100;HM.bd={};HM.fx={};HM.tq={};HM.pain=0;HM.mor=0;HM.hl=30;HM.sta=1;HM.exh=0;HM.act=null;HM.inv=Object.assign({},HINV0);HM.dead=0;HM.conc=0;HM.fl={};HM.hurtK=0;HM.clin=0;P.hp=100}
@@ -60,7 +60,7 @@ function HNOADS(){return KNF.on||(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3|
 function hlTremor(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
 function hlCam(dt){if(ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001,tr=hlTremor();if(tr>.02){C.rotation.x+=(Math.sin(t*9.1)*.004+Math.sin(t*23.3)*.002)*tr;C.rotation.y+=(Math.sin(t*7.7+1)*.004+Math.sin(t*19.1)*.002)*tr}
 if(HM.hurtK>0){C.rotation.z+=HM.hurtS*HM.hurtK*.07;HM.hurtK=Math.max(0,HM.hurtK-dt*4)}if(HM.bl<35)C.rotation.z+=Math.sin(t*1.3)*.03*(1-HM.bl/35)}
-function hlKill(head){const k=P.kills;if(k%3===0)HM.inv.bd=Math.min(5,HM.inv.bd+1);if(k%5===0)HM.inv.mo=Math.min(3,HM.inv.mo+1);HM.pain*=.6;HM.sta=Math.min(1,HM.sta+.25);snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350)}
+function hlKill(head){const k=P.kills;if(k%3===0)HM.inv.bd=Math.min(5,HM.inv.bd+1);if(k%5===0)HM.inv.mo=Math.min(3,HM.inv.mo+1);if(k%4===0)HM.inv.bt=Math.min(4,(HM.inv.bt||0)+1);if(k%6===0)HM.inv.rt=Math.min(4,(HM.inv.rt||0)+1);HM.pain*=.6;HM.sta=Math.min(1,HM.sta+.25);snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350)}
 // ---- soins
 function hlUse(k){if(HM.dead||HM.act||ac.on||bench||P.mant)return;const inv=HM.inv;
 if(k==='bd'){const zs=HZ.filter(z=>HM.bd[z]>0);if(!zs.length)return hlMsg('Aucun saignement');if(inv.bd<1)return hlMsg('Plus de bandages');zs.sort((a,b)=>HM.bd[b]-HM.bd[a]);HM.act={k,z:zs[0],t:0,T:3.2}}

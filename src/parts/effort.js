@@ -11,7 +11,7 @@ const effJump=()=>(1-.22*Math.min(1,effK()))*(HM.sta<.08?.75:1);
 const effJumpCost=()=>{HM.sta=Math.max(0,HM.sta-STA.jump*(1+effK()))};
 const effADS=()=>1-.3*Math.min(1,effK())-(HM.sta<.25?.15:0);
 // tremblement et dispersion : on enveloppe les versions de health.js
-function hlTremor() {return Math.min(1.6,(hlTremor0()+effK()*.2)*(EFF.gasp>0?1.8:1)*(1-.85*EFF.hb))}
+function hlTremor() {return Math.min(1.6,(hlTremor0()+effK()*.2+(SUR.on?SUR.tr:0))*(EFF.gasp>0?1.8:1)*(1-.85*EFF.hb))}
 function HAIM() {return HAIM0()*(1+.25*effK())*(1-.3*EFF.hb)*(EFF.gasp>0?1.2:1)}
 function effBar(){if(HM.sta>.995&&!EFF.hb&&!EFF.gasp)return'';const c=HM.sta<.25?'#e04a3a':HM.sta<.5?'#e6c04a':'#8fae5a';
 return'<div style="width:96px;height:4px;background:#2a2f2a;margin-top:3px"><i style="display:block;height:4px;width:'+Math.round(HM.sta*100)+'%;background:'+c+'"></i></div>'+(EFF.gasp>0?'<span style="color:#e04a3a;font-size:11px">à bout de souffle</span>':EFF.hb>.3?'<span style="color:#cfe3c0;font-size:11px">souffle retenu</span>':'')}
