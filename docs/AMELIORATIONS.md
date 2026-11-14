@@ -396,3 +396,7 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ### v26 — Écran de chargement
 - Écran affiché dès l'ouverture du fichier (`src/parts/loading.html`) : titre, fausse barre de progression en CSS (avance de 0 à ≈93 % en 16 s sans dépendre du thread principal, puis se complète à 100 % au chargement), astuces tournantes, fondu de sortie à la première image rendue une fois le décor fusionné.
 - Le script du jeu est désormais exécuté après le premier affichage (`type="text/plain"` puis injection après `requestAnimationFrame`), pour garantir que l'écran de chargement apparaît avant le gros calcul.
+
+### v26b — Correctif des armes (rechargement, accroupi, marche)
+- Avant : l'arme était orientée d'après la position des deux mains, ce qui donnait des armes tombant au sol quand les mains ne tiennent pas l'arme (animations de rechargement et d'accroupi).
+- Maintenant : la pose à deux mains n'est utilisée qu'en position de tir ; elle sert à mémoriser, par type d'arme, la position de l'arme relative à la main droite, puis ce décalage est réutilisé dans toutes les autres animations.
