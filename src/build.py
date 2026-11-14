@@ -78,7 +78,7 @@ rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.b
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -112,7 +112,7 @@ rep("function sfxFoot(x,y,z,kind,vol,bot){","function sfxFoot0(x,y,z,kind,vol,bo
 rep("function invPick(){const e=invNear();","function invPick0(){const e=invNear();")
 rep("const f=ac.on?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=ac.on?0:(K.KeyD?1:0)-(K.KeyA?1:0);","const f=(ac.on||DRV.on)?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=(ac.on||DRV.on)?0:(K.KeyD?1:0)-(K.KeyA?1:0);")
 rep("function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);","function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);drvTick(dt);")
-rep("P.z+rz*off);","P.z+rz*off);if(DRV.on)drvCam();")
+rep("P.z+rz*off);","P.z+rz*off);if(DRV.on)drvCam();bleCam();")
 rep("function nadeBoom(n){","function nadeBoom(n){dstBlast(n.p.x,n.p.y,n.p.z,7);")
 rep("$('scope').style.display=sc?'block':'none';","$('scope').style.display=sc?'block':'none';balRet(sc,dt);")
 rep("scBI.visible=!(A.scope||A.angled||A.holo","(sigM.compensater||[]).forEach(m=>{m.visible=!A.supp});scBI.visible=!(A.scope||A.angled||A.holo")

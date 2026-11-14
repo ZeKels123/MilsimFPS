@@ -128,6 +128,29 @@ if(q){const al=q.m.filter(b=>!b.dead);try{al.forEach(b=>{b.see=false;b.heal=null
  q.m.forEach(b=>{b.evac=null;b.evacBy=null;b.fleeT=0;b.pnc=0;b.mor=1});q.t=0;q.bd=null;if(q.m.length)q.m.forEach(b=>b.ordCover=0)}
 if(msg)return msg;
 const nf=FP.n;fpAdd(x0,z0,0);return''});
+T('Perception : reconnaissance progressive (posture, distance), bruit de pas par sol, fatigue des bots',()=>{const b=bots.find(o=>!o.dead);if(!b)return'pas de bot';const g=b.g.position,st0=P.st,px=P.x,pz=P.z,al0=b.alert,sv=b.see,hv=AI.heat;
+P.x=g.x;P.z=g.z+50;AI.heat=0;b.alert=0;b.see=false;PERC.v=1;b.yaw=Math.atan2(P.x-g.x,P.z-g.z);
+P.st=0;b.rcg=0;const r1=percGate(b,true,50,.25),c1=b.rcg;let n1=1;while(!percGate(b,true,50,.25)&&n1<60)n1++;
+P.st=2;b.rcg=0;b.alert=0;let n2=1;while(!percGate(b,true,50,.25)&&n2<200)n2++;
+b.rcg=.6;percGate(b,false,50,.5);const dec=b.rcg<.6;
+b.rcg=0;const near=percGate(b,true,5,.25);
+P.st=st0;P.x=px;P.z=pz;b.alert=al0;b.see=sv;AI.heat=hv;b.rcg=0;
+if(r1||c1<=0||c1>=1)return'pas progressif '+c1;if(n2<=n1)return'couché pas plus discret '+n1+'/'+n2;if(!dec)return'pas de décroissance';if(!near)return'proche pas immédiat';
+const n0=NZ.n;P.st=0;sfxFoot(P.x,P.gy,P.z,'step',1,false);const rg=NZ.r,rn=NZ.n;if(rn===n0){P.st=st0;return'pas sans bruit'}P.st=2;sfxFoot(P.x,P.gy,P.z,'step',1,false);const rp=NZ.r;P.st=st0;if(!(rp<rg))return'bruit couché '+rp+'/'+rg;
+b.path=[[g.x+30,g.z]];b.spK=2.4;b.stm=.01;percTired(b,.5);const tired=b.tired===1&&b.spK<=1.3;b.path=null;b.stm=1;b.tired=0;if(!tired)return'fatigue absente';return''});
+T('Blessures du joueur : vision tunnel, boiterie, perte de connaissance et rétablissement',()=>{if(HM.z.t===undefined)hlReset();const bl=HM.bl,pn=HM.pain,hz=HM.z.ll;
+HM.bl=20;HM.pain=.2;const s1=bleSev();HM.bl=100;HM.pain=0;const s0=bleSev();if(!(s1>.5&&s0<.05))return'gravité '+s0+'/'+s1;
+HM.z.ll=0;const l2=bleLimp();HM.z.ll=hz;if(l2<1)return'boiterie non détectée';
+BLE.out=0;BLE.cd=0;bleFaint();const v=HMV(),o=BLE.out>0;BLE.out=.01;bleTick(.05);bleTick(.05);const rec=BLE.rec>0&&HMV()>0&&HMV()<=HMV0();
+BLE.out=0;BLE.rec=0;BLE.cd=0;HM.bl=bl;HM.pain=pn;BLE.dip=0;if(!o||v!==0)return'évanouissement sans blocage';if(!rec)return'pas de rétablissement';return''});
+T('Monde vivant : feu d’herbe qui se propage, vent qui varie, oiseaux qui s’envolent',()=>{const wet=WET.v;WET.v=0;let msg='';try{
+let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60,60);if(fireCan(x,z)&&fireCan(x+5,z)&&fireCan(x-5,z)&&fireCan(x,z+5)&&fireCan(x,z-5))spot=[x,z]}
+if(!spot)msg+='pas d’herbe ';else{const n=fireIgnite(spot[0],spot[1],3);if(n<3)msg+='allumage '+n+' ';const c0=MON.fire.length;const rr=Math.random;Math.random=()=>0;for(let i=0;i<4;i++)fireTick(1);Math.random=rr;if(MON.fire.length<=c0)msg+='pas de propagation ';
+ WET.v=.9;const c1=MON.fire.length;if(fireIgnite(spot[0]+30,spot[1],3)!==0)msg+='sol mouillé s’allume ';WET.v=.9;
+ for(let i=0;i<80;i++)fireTick(1);if(MON.fire.length)msg+='le feu ne s’éteint pas ';}
+const s0=WND.s.value;MON.ht=0;for(let i=0;i<30;i++)windTick(.5);if(WND.s.value===s0)msg+='vent constant ';
+birdTick(.1);const fl=MON.birds.find(f=>f.x<9e4);if(fl){fl.st=0;P.x=fl.x+3;P.z=fl.z;birdTick(.1);if(fl.st!==1)msg+='oiseaux immobiles ';birdTick(1);if(!fl.b.some(b=>b.y>1))msg+='pas de décollage '}else msg+='aucun oiseau '}catch(e){msg+='erreur '+e.message}
+WET.v=wet;MON.fire.length=0;MON.fmap.clear();return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

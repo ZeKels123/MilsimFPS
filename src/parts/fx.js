@@ -10,7 +10,7 @@ const holeT=fxT(64,(x,w)=>{const g=x.createRadialGradient(32,32,0,32,32,30);g.ad
 const scorchT=fxT(128,(x,w)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(10,8,6,.9)');g.addColorStop(.55,'rgba(14,11,8,.65)');g.addColorStop(1,'rgba(14,11,8,0)');x.fillStyle=g;x.fillRect(0,0,w,w)});
 const _n=new THREE.Vector3(),_p=new THREE.Vector3(),_p2=new THREE.Vector3(),_e=new THREE.Vector3(),MZ=new THREE.Vector3();
 // --- particules (pool de sprites)
-const PN=240,pPool=[];let pI=0;
+const PN=600,pPool=[];let pI=0;
 for(let i=0;i<PN;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:puffT,transparent:true,depthWrite:false}));s.visible=false;S.add(s);pPool.push({s,v:new THREE.Vector3(),life:0,max:1,a:1,gr:0,grow:0,drag:0,size:.1})}
 function emit(pos,vel,o){const p=pPool[pI=(pI+1)%PN],m=p.s.material;p.s.position.copy(pos);p.v.copy(vel);p.life=p.max=o.life;p.a=o.a==null?1:o.a;p.gr=o.g||0;p.grow=o.grow||0;p.drag=o.drag||0;p.size=o.size;m.map=o.map||puffT;m.color.setHex(o.color==null?0xffffff:o.color);m.blending=o.add?THREE.AdditiveBlending:THREE.NormalBlending;m.rotation=Math.random()*6.28;m.opacity=p.a;p.s.scale.setScalar(p.size);p.s.visible=true}
 function pUpdate(dt){for(const p of pPool){if(!p.s.visible)continue;p.life-=dt;if(p.life<=0){p.s.visible=false;continue}const k=p.life/p.max;p.v.y-=p.gr*dt;p.v.multiplyScalar(Math.max(0,1-p.drag*dt));p.s.position.addScaledVector(p.v,dt);p.size+=p.grow*dt;p.s.scale.setScalar(p.size);p.s.material.opacity=p.a*(k<.5?k*2:1)}}

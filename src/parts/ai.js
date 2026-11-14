@@ -84,8 +84,8 @@ for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b
 const g=b.g.position,bx0=g.x,bz0=g.z,bt=b.T,px=P.x-g.x,pz=P.z-g.z,pd=Math.hypot(px,pz);
 b.stun=Math.max(0,b.stun-dt);b.blind=Math.max(0,b.blind-dt);b.thr=Math.max(0,b.thr-dt);b.nadeCd-=dt;b.seenT+=dt;bhUpdate(b,dt);if(b.dead>0)continue;
 // perception
-b.seeT-=dt;if(b.seeT<=0){b.seeT=rnd(.18,.3);let s=false;if(tgt&&b.blind<=0&&b.stun<=0){const rg=Math.min(95,bt.rng*1.5)*vis;if(pd<rg){let da=Math.atan2(px,pz)-b.yaw;da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da)));if(pd<7||da<1.75||b.alert)s=losClear(g.x,g.y+1.55*bt.sc-b.crA*.4,g.z,P.x,P.gy+P.bh,P.z)}}
-if(s&&!b.see){if(!b.alert||b.seenT>3)b.react=rnd(.35,.8)*(b.ty===2?1.5:1);b.decT=Math.min(b.decT,.1);b.alert=1}b.see=s;
+b.seeT-=dt;if(b.seeT<=0){b.seeT=rnd(.18,.3);const sdt_=b.seeT;let s=false;if(tgt&&b.blind<=0&&b.stun<=0){const rg=Math.min(95,bt.rng*1.5)*vis;if(pd<rg){let da=Math.atan2(px,pz)-b.yaw;da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da)));if(pd<7||da<1.75||b.alert)s=losClear(g.x,g.y+1.55*bt.sc-b.crA*.4,g.z,P.x,P.gy+P.bh,P.z)}}
+s=percGate(b,s,pd,sdt_);if(s&&!b.see){if(!b.alert||b.seenT>3)b.react=rnd(.35,.8)*(b.ty===2?1.5:1);b.decT=Math.min(b.decT,.1);b.alert=1}b.see=s;
 if(s){b.lk.x=P.x;b.lk.z=P.z;b.seenT=0;b.srch=0;for(const o of bots)if(o!==b&&!o.dead&&!o.see&&o.seenT>2&&Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z)<32)aiAlert(o,P.x+rnd(-2,2),P.z+rnd(-2,2),1.5)}}
 // grenades proches : fuite
 if(b.fleeT>0)b.fleeT-=dt;else if(b.stun<=0&&!b.lvl&&!b.route)for(const n of NADE.list){if(n.type||n.t>2.4)continue;const d=Math.hypot(n.p.x-g.x,n.p.z-g.z);if(d<6.5&&(b.blind<=0)){const a=Math.atan2(g.x-n.p.x,g.z-n.p.z)+rnd(-.5,.5);AI.budget++;if(goTo(b,g.x+Math.sin(a)*11,g.z+Math.cos(a)*11,2.7,'fle')){b.fleeT=n.t+.3;b.decT=b.fleeT}break}}
