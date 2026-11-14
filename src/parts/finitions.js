@@ -31,7 +31,7 @@ wpHud=function(){const am=balAm(WC[WSEL]);return wpHud1()+(am==='bk'?'':'<small 
 // ---- bots : signes de la main, abri contre la pluie, relève de garde la nuit
 const GRD={posts:[],n:{relief:0,shel:0,sign:0},sT:0,gT:0,sg:8};
 function grdBot(b){return !b.dead&&!b.dorm&&!b.alert&&!b.see&&b.stun<=0&&b.blind<=0&&b.fleeT<=0&&!b.lvl&&!b.route&&!b.sur&&!b.heal&&b.seenT>20}
-function grdSign(b,txt){if(!VX.on||Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)>45)return;vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] ✋ '+txt);GRD.n.sign++}
+function grdSign(b,txt){anmSign(b);if(!VX.on||Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)>45)return;vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] ✋ '+txt);GRD.n.sign++}
 function grdGo(b,x,z,k){AI.budget=Math.max(AI.budget,1);return goTo(b,x,z,k,'pat')}
 function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);
  // signes : un chef silencieux (hors alerte) signale à ses hommes
@@ -51,4 +51,4 @@ function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefin
   if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){let best=null,bd=70;for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<bd){bd=d;best=r}}if(best&&grdGo(b,best.x,best.z,1.3)){b.shel=best;GRD.n.shel++}}}
    else if(b.alert||b.see)b.shel=0;else if(inRoom(g.x,g.z)>=0){b.path=null;b.decT=Math.max(b.decT,2.5)}else if(!b.path)grdGo(b,b.shel.x,b.shel.z,1.3)}
   else if(rain<.15&&b.shel)b.shel=0}}}
-function finTick(dt){AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
+function finTick(dt){anmTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}

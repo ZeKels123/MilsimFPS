@@ -166,6 +166,22 @@ const b=cand[0];AI.budget=99;rainU.uAmt.value=.9;GRD.sT=0;const n0=GRD.n.shel;le
 for(const c of cand){if(inRoom(c.g.position.x,c.g.position.z)>=0)continue}grdTick(.1);Math.random=rr;if(GRD.n.shel===n0)msg+='pas d’abri ';rainU.uAmt.value=0;GRD.sT=0;grdTick(.1);if(cand.some(c=>c.shel))msg+='abri non quitté ';
 TOD.t=23;b.g.position.set(P.x+20,b.g.position.y,P.z);GRD.posts.length=0;GRD.gT=0;AI.budget=99;grdTick(.1);if(!GRD.posts.length)msg+='pas de sentinelle ';else{const p=GRD.posts[0],s=p.b;const o2=cand.find(c=>c!==s);o2.g.position.set(p.x+12,o2.g.position.y,p.z);o2.sent=0;o2.relf=0;p.t=0;AI.budget=99;grdTick(.1);if(!p.rel)msg+='pas de relève ';else{p.rel.g.position.set(p.x+1,p.rel.g.position.y,p.z);const r=p.rel;grdTick(.1);if(p.b!==r||GRD.n.relief<1)msg+='relève non effectuée '}}
 const sg=GRD.n.sign;TOD.t=12;GRD.posts.length=0;cand.forEach(c=>{c.sent=0;c.relf=0;c.shel=0});}catch(e){msg+='erreur '+e.message}TOD.t=t0;rainU.uAmt.value=ru;return msg});
+T('Établi : canon, crosse et chargeur modifient vitesse, recul, dispersion, capacité et rechargement',()=>{const w=WSEL,wm=JSON.stringify(WMOD[w]||null),a0=ammo,rs=reserve,bn=bench,nb0=nb;
+try{if(/pompe|Pistolet/.test(WC[w].n))return'';bench=true;WMOD[w]={b:0,s:0,m:0};const rc0=wpRecoil(),sp0=wpSpread(),mg0=magMax(),h0=HMV(),v0=wmK('v');
+wmCycle('b');wmCycle('b');const vL=wmK('v');wmCycle('b');wmCycle('s');const rcH=wpRecoil();wmCycle('s');wmCycle('s');wmCycle('m');const mgE=magMax(),rtE=(reloading=0,wmTick(),RT);wmCycle('m');const rtR=(wmTick(),RT);wmCycle('m');wmTick();
+const ok=vL>v0&&rcH<rc0&&mgE>mg0&&rtE>WC[w].rt&&rtR<WC[w].rt&&RT===WC[w].rt;
+const sn=JSON.stringify(PERS.snap().wm);bench=bn;
+if(!ok)return'effets '+[vL,v0,rcH,rc0,mgE,mg0,rtE,rtR].join('/');if(!sn.includes('"b":0'))return'persistance';return''}finally{bench=bn;nb=nb0;if(wm==='null')delete WMOD[w];else WMOD[w]=JSON.parse(wm);ammo=a0;reserve=rs;wmTick()}});
+T('Animations des bots : bras levés (reddition, signe) et mise à jour du squelette',()=>{const b=bots.find(o=>!o.dead&&o.sld);if(!b)return'pas de bot';const g=b.g.position,p0=g.clone(),P0=[P.x,P.z],cp0=C.position.clone(),cam0=(C.position.set(P.x,P.gy+1.6,P.z),C.position),fw0=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);g.set(cam0.x+fw0.x*8,g.y,cam0.z+fw0.z*8);let msg='';
+try{b.dorm=0;b.armK=0;const up=()=>{for(let i=0;i<4;i++)sldUpdate(b,.016,false)};up();const L=SLS.ix.LeftArm,H=SLS.ix.LeftHand,y0=b.sld.bones[H].position.y-b.sld.bones[L].position.y;
+b.armM='up';b.armK=1;up();const y1=b.sld.bones[H].position.y-b.sld.bones[L].position.y;if(!(y1>y0+.3))msg+='bras non levés '+[y0,y1]+' ';
+b.armM='sign';b.armK=1;up();const ry=b.sld.bones[SLS.ix.RightHand].position.y;b.armK=0;up();if(Math.abs(b.sld.bones[SLS.ix.RightHand].position.y-ry)>.05)msg+='signe: bras droit levé ';
+b.armT=1.8;b.sur=0;anmSign(b);if(b.armM!=='sign')msg+='signe absent ';b.armT=0;b.armK=0;
+// derrière la caméra : plus rendu
+const c0=ANM.n.cull;const cp=C.position,fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);g.set(cp.x-fw.x*30,g.y,cp.z-fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul!==1||b.sld.sg.visible||ANM.n.cull!==c0+1)msg+='soldat derrière non masqué ';
+g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul)msg+='soldat devant masqué ';
+g.set(cp.x+fw.x*120,g.y,cp.z+fw.z*120);anmTick(.016);if(b.sld.sm.castShadow)msg+='ombre lointaine ';g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);anmTick(.016);if(!b.sld.sm.castShadow)msg+='ombre proche absente '}catch(e){msg+='erreur '+e.message}
+g.copy(p0);C.position.copy(cp0);b.armK=0;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

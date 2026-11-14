@@ -1560,7 +1560,7 @@ const WC=[
 {n:'Pistolet',rate:.16,rec:1.2,mag:15,res:75,dmg:36,pel:1,sp:.028,semi:1,rb:{scope:-.1,angled:-.12,holo:-.08,mg:.03},hb:{ry:-.07,rz:-.04,ly:-.08,lz:-.06,zM:-.04,zS:-.06},iy:-.048,wz:.22,mz:-.235,my:.015,gz:-.17,snd:[260,.09,.22],rt:1.5,amp:.03,lock:1},
 {n:'Fusil \u00e0 pompe',rate:.85,rec:2.8,mag:6,res:36,dmg:20,pel:9,sp:.07,semi:1,rb:{scope:-.05,angled:-.2,holo:-.1,mg:.02},hb:{ry:-.09,rz:.15,ly:-.1,lz:-.36,zM:0,zS:-.05},iy:-.075,wz:.06,mz:-.56,my:.022,gz:-.3,snd:[90,.3,.45],rt:2.6,cyc:1,amp:.07},
 {n:'Fusil de pr\u00e9cision',rate:1.3,rec:3.2,mag:5,res:30,dmg:100,pel:1,sp:.05,semi:1,rb:{scope:-.04,angled:-.2,holo:-.14,mg:-.02},hb:{ry:-.1,rz:.2,ly:-.06,lz:-.3,zM:0,zS:-.05},iy:-.1,wz:.2,mz:-.76,my:.015,gz:-.35,snd:[70,.35,.5],rt:2.4,cyc:1,amp:.06}];
-Object.assign(WC[3],{n:'Reclamer 12',hb:{ry:-.11,rz:.01,ly:-.07,lz:-.456,zM:0,zS:-.05},mz:-.73,my:0,iy:-.06,rate:.8,rec:2.6,dmg:18,pel:9,sp:.065,snd:[85,.3,.5]});Object.assign(WC[4],{hb:{ry:-.1,rz:.04,ly:-.06,lz:-.27,zM:0,zS:-.05},n:'Signal 50',rate:.5,rec:2.7,dmg:125,cyc:0,amp:.045,mz:-.72,snd:[62,.4,.55],rt:2.2});WC.push(HMGC);const AMM=[30,30,15,6,5,100],RSV=[120,120,75,36,30,300],magMax=()=>WC[WSEL].mag+(A.ext?10:0);
+Object.assign(WC[3],{n:'Reclamer 12',hb:{ry:-.11,rz:.01,ly:-.07,lz:-.456,zM:0,zS:-.05},mz:-.73,my:0,iy:-.06,rate:.8,rec:2.6,dmg:18,pel:9,sp:.065,snd:[85,.3,.5]});Object.assign(WC[4],{hb:{ry:-.1,rz:.04,ly:-.06,lz:-.27,zM:0,zS:-.05},n:'Signal 50',rate:.5,rec:2.7,dmg:125,cyc:0,amp:.045,mz:-.72,snd:[62,.4,.55],rt:2.2});WC.push(HMGC);const AMM=[30,30,15,6,5,100],RSV=[120,120,75,36,30,300],magMax=()=>Math.max(1,Math.round((WC[WSEL].mag+(A.ext?10:0))*(typeof wmMagK==='function'?wmMagK():1)));
 function toggleAtt(a){A[a]=!A[a];if(A[a]){if(['scope','angled','holo'].includes(a))sel=a;if(a==='supp')A.brake=false;if(a==='brake')A.supp=false}if(ammo>magMax()){reserve+=ammo-magMax();ammo=magMax()}if(bench)upBench()}
 let sprA=0,drawT=0,inspT=0,rlS=0,reloadEmpty=false,slideK=0,WZ=0,po=0,RT=1.9,mdPrev=false;let WSEL=0;const WP={rate:.09,rec:1},RB={scope:-.04,angled:-.2,holo:-.14,mg:-.02};
 function equip(i,am,rs){WSEL=i;ammo=am;reserve=rs;const c=WC[i];reloading=0;
@@ -2971,6 +2971,53 @@ function birdTick(dt){if(!MON.bi)birdInit();let wi=0;
    for(const sd of [1,-1]){_mbe.set(0,yaw+(sd<0?Math.PI:0),wing*(sd<0?-1:1));_mbq.setFromEuler(_mbe);_mbm.compose(_mbp,_mbq,_mbs.clone().multiplyScalar(k));MON.wi.setMatrixAt(wi++,_mbm)}}}
  MON.bi.instanceMatrix.needsUpdate=true;MON.wi.instanceMatrix.needsUpdate=true}
 function monTick(dt){windTick(dt);fireTick(dt);birdTick(dt)}
+// ================= ÉTABLI : MODIFICATION D'ARME (v40) — canon, crosse, chargeur =================
+const WMOD={};
+const WMD={b:[{n:'Standard'},{n:'Court',v:.93,sp:1.12,w:1.015,rc:1.05,i:'vitesse −7 %, dispersion +12 %, +maniable'},{n:'Long',v:1.07,sp:.9,w:.97,rc:.97,i:'vitesse +7 %, dispersion −10 %, −maniable'}],
+ s:[{n:'Standard'},{n:'Lourde',rc:.82,sp:.96,w:.97,i:'recul −18 %, −mobilité'},{n:'Légère',rc:1.18,w:1.02,i:'recul +18 %, +mobilité'}],
+ m:[{n:'Standard'},{n:'Étendu',cap:1.5,rt:1.2,w:.98,i:'capacité +50 %, rechargement +20 %'},{n:'Rapide',cap:.8,rt:.75,i:'rechargement −25 %, capacité −20 %'}]};
+const WMN={b:'Canon',s:'Crosse',m:'Chargeur'};
+function wmGet(i){return WMOD[i]||(WMOD[i]={b:0,s:0,m:0})}
+function wmCan(i,k){return !(k==='m'&&/pompe/.test(WC[i].n))&&!(k==='b'&&/Pistolet/.test(WC[i].n)&&false)}
+function wmK(f,i){i=i===undefined?WSEL:i;const m=wmGet(i);let r=1;for(const k of 'bsm')if(wmCan(i,k)){const v=WMD[k][m[k]][f];if(v)r*=v}return r}
+function wmMagK(){return wmK('cap')}
+function wmCycle(k){if(!bench&&!nb)return;const m=wmGet(WSEL);if(!wmCan(WSEL,k)){wpnMsg(WMN[k]+' : non disponible sur cette arme');return}m[k]=(m[k]+1)%WMD[k].length;
+ if(ammo>magMax()){reserve+=ammo-magMax();ammo=magMax()}snd(300,.06,.15,'square');if(bench)upBench();wmUi()}
+function wmUi(){let d=document.getElementById('wm_ui');const bp=document.querySelector('#bench .bp');if(!bp)return;if(!d){d=document.createElement('div');d.id='wm_ui';d.className='bg';d.style.marginTop='8px';bp.appendChild(d)}
+ let h='<div style="font-size:12px;opacity:.7;grid-column:1/-1">Modifications de l\'arme active (propres à chaque arme)</div>';const m=wmGet(WSEL);
+ for(const k of 'bsm'){const o=WMD[k][m[k]],ok=wmCan(WSEL,k);h+='<button onclick="wmCycle(\''+k+'\')"'+(ok?'':' disabled style="opacity:.4"')+' class="'+(m[k]?'on':'')+'">'+WMN[k]+' <em>'+(ok?o.n:'—')+'</em><small>'+(ok&&o.i?o.i:'Clique pour changer')+'</small></button>'}
+ if(d.dataset.h!==h){d.dataset.h=h;d.innerHTML=h}}
+const upBench1=upBench;upBench=function(){upBench1();wmUi()};
+const wpRecoil1=wpRecoil;wpRecoil=function(){return wpRecoil1()*wmK('rc')};
+const wpSpread1=wpSpread;wpSpread=function(){return wpSpread1()*wmK('sp')};
+const balSpawn2=balSpawn;balSpawn=function(o,d,am,x){if(x&&x.src==='p'&&am!=='bk')x.vk=(x.vk||1)*wmK('v');return balSpawn2(o,d,am,x)};
+const HMV2=HMV;HMV=function(){return HMV2()*wmK('w')};
+function wmTick(){if(!reloading)RT=WC[WSEL].rt*wmK('rt')}
+// ================= ANIMATIONS DES BOTS ET PERFORMANCE (v40) =================
+// Bras levés (reddition, signes) : rotation de la chaîne du bras autour de l'épaule, appliquée après le placement de l'arme.
+const ANM={n:{sign:0,cull:0,shadow:0},ch:null};
+function anmChains(){if(ANM.ch)return ANM.ch;const B=SLD.bones,ch={};for(const side of['Left','Right']){const r=SLS.ix[side+'Arm'],l=[r];for(let i=0;i<B.length;i++){let p=B[i].par;while(p>=0){if(p===r){l.push(i);break}p=B[p].par}}ch[side]=l}return ANM.ch=ch}
+const _aq=new THREE.Quaternion(),_ak=new THREE.Quaternion(),_ad=new THREE.Vector3(),_at=new THREE.Vector3(),_ap=new THREE.Vector3(),_aI=new THREE.Quaternion();
+function sldArms(b,sd){const ch=anmChains(),k=b.armK;for(const side of['Left','Right']){if(b.armM==='sign'&&side==='Right')continue;
+  const sx=side==='Left'?1:-1,bn=sd.bones,r=bn[SLS.ix[side+'Arm']],f=bn[SLS.ix[side+'ForeArm']];_ap.copy(r.position);_ad.copy(f.position).sub(_ap).normalize();
+  if(b.armM==='up')_at.set(sx*.3,1,.12);else _at.set(sx*.45,.85,.3);_at.normalize();_aq.setFromUnitVectors(_ad,_at);_ak.copy(_aI).slerp(_aq,k);
+  for(const i of ch[side]){const o=bn[i];o.position.sub(_ap).applyQuaternion(_ak).add(_ap);o.quaternion.premultiply(_ak)}}}
+function anmSign(b){b.armM='sign';b.armT=1.8;ANM.n.sign++}
+function anmTick(dt){wmTick();let sh=0;const cam=C.position;
+ for(const b of bots){const sd=b.sld;if(!sd)continue;
+  // cibles d'animation des bras
+  let tg=0;if(b.dead){tg=0}else if(b.sur){b.armM='up';tg=1}else if(b.armT>0){b.armT-=dt;tg=Math.sin(Math.min(1,b.armT/1.8)*Math.PI)>.05?1:0}
+  b.armK=(b.armK||0)+(tg-(b.armK||0))*Math.min(1,dt*(tg?5:3));if(b.armK<.01)b.armK=0;
+  // blessé évacué : démarche baissée
+  const e=b.evac;if(e&&e.ph===1&&e.w&&!e.w.dead)e.w.crA=Math.max(e.w.crA,.9);
+  if(!b.dead&&!b.dorm){const g=b.g.position,d=Math.hypot(g.x-cam.x,g.z-cam.z);const sc=d<70;if(sd.sm.castShadow!==sc){sd.sm.castShadow=sc;sh++}}}
+ ANM.n.shadow+=sh}
+
+// soldiers derrière la caméra (à plus de 14 m) : ni animation ni rendu
+const sldUpdate1=sldUpdate;
+sldUpdate=function(b,dt,mv){const sd=b.sld;if(sd&&!b.dead){const g=b.g.position,cam=C.position,dx=g.x-cam.x,dz=g.z-cam.z,d=Math.hypot(dx,dz);_at.set(0,0,-1).applyQuaternion(C.quaternion);
+  if(d>14&&(dx*_at.x+dz*_at.z)/d<-.45){if(!sd.cul){sd.cul=1;ANM.n.cull++}sd.sg.visible=false;return}}
+ if(sd)sd.cul=0;sldUpdate1(b,dt,mv)};
 // ================= FINITIONS (v39) : audio réaliste, munitions spéciales et hausse, bots (signes, abri pluie, relève de garde) =================
 const AUD={delayed:0,cracks:0,urb:1,ut:0,tin:0};
 // ---- retard du son : 343 m/s, les tirs et explosions lointains arrivent après l'impact visuel
@@ -3004,7 +3051,7 @@ wpHud=function(){const am=balAm(WC[WSEL]);return wpHud1()+(am==='bk'?'':'<small 
 // ---- bots : signes de la main, abri contre la pluie, relève de garde la nuit
 const GRD={posts:[],n:{relief:0,shel:0,sign:0},sT:0,gT:0,sg:8};
 function grdBot(b){return !b.dead&&!b.dorm&&!b.alert&&!b.see&&b.stun<=0&&b.blind<=0&&b.fleeT<=0&&!b.lvl&&!b.route&&!b.sur&&!b.heal&&b.seenT>20}
-function grdSign(b,txt){if(!VX.on||Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)>45)return;vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] ✋ '+txt);GRD.n.sign++}
+function grdSign(b,txt){anmSign(b);if(!VX.on||Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)>45)return;vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] ✋ '+txt);GRD.n.sign++}
 function grdGo(b,x,z,k){AI.budget=Math.max(AI.budget,1);return goTo(b,x,z,k,'pat')}
 function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);
  // signes : un chef silencieux (hors alerte) signale à ses hommes
@@ -3024,7 +3071,7 @@ function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefin
   if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){let best=null,bd=70;for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<bd){bd=d;best=r}}if(best&&grdGo(b,best.x,best.z,1.3)){b.shel=best;GRD.n.shel++}}}
    else if(b.alert||b.see)b.shel=0;else if(inRoom(g.x,g.z)>=0){b.path=null;b.decT=Math.max(b.decT,2.5)}else if(!b.path)grdGo(b,b.shel.x,b.shel.z,1.3)}
   else if(rain<.15&&b.shel)b.shel=0}}}
-function finTick(dt){AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
+function finTick(dt){anmTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
 // mise à zéro de l'arme, énergie restante -> dégâts, pénétration des portes/vitres, balles traversantes (7.62, .50).
@@ -4308,7 +4355,7 @@ ENM.off=1;mmShow('home');mmLoad();
 // Déjà sauvegardé par menu0.js : volume, sensibilité, qualité (menu), touches, skins d'arme, tenue.
 // Ajouté ici : qualité choisie avec [O], accessoires et viseur, loupe holo, grenade sélectionnée, heure et météo, dernier mode.
 const PERS={key:'mfps_ext',v:1,sig:'',last:null};
-PERS.snap=()=>({v:PERS.v,A:Object.assign({},A),sel,mgIn,nsel:NADE.sel,gfx:GQ.mode,tod:+TOD.t.toFixed(2),wx:TOD.tgt,mode:GM.mode,fl:typeof flOn!=='undefined'?!!flOn:false});
+PERS.snap=()=>({v:PERS.v,A:Object.assign({},A),sel,mgIn,nsel:NADE.sel,gfx:GQ.mode,tod:+TOD.t.toFixed(2),wx:TOD.tgt,mode:GM.mode,wm:typeof WMOD!=='undefined'?JSON.parse(JSON.stringify(WMOD)):{},fl:typeof flOn!=='undefined'?!!flOn:false});
 PERS.read=()=>{try{const o=JSON.parse(localStorage.getItem(PERS.key)||'null');return o&&o.v===PERS.v?o:null}catch(e){return null}};
 PERS.write=()=>{try{const o=PERS.snap(),s=JSON.stringify(o);if(s===PERS.sig)return false;PERS.sig=s;localStorage.setItem(PERS.key,s);if(SET.gfx!==o.gfx){SET.gfx=o.gfx;setSave()}return true}catch(e){return false}};
 PERS.apply=o=>{o=o||PERS.read();if(!o)return false;
@@ -4319,6 +4366,7 @@ if(Number.isInteger(o.nsel)&&o.nsel>=0&&o.nsel<3)NADE.sel=o.nsel;
 if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5){GQ.mode=o.gfx;SET.gfx=o.gfx}
 if(isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
 if(Number.isInteger(o.wx)&&o.wx>=0&&o.wx<5)TOD.tgt=o.wx;
+if(o.wm&&typeof o.wm==='object'&&typeof WMOD!=='undefined'){for(const i in o.wm){const m=o.wm[i];if(m&&[0,1,2].includes(m.b)&&[0,1,2].includes(m.s)&&[0,1,2].includes(m.m))WMOD[i]={b:m.b,s:m.s,m:m.m}}}
 if(o.fl&&typeof flOn!=='undefined')flOn=true;
 PERS.sig=JSON.stringify(PERS.snap());return true};
 PERS.reset=()=>{try{localStorage.removeItem(PERS.key);localStorage.removeItem('mfps_set')}catch(e){}};
@@ -4492,6 +4540,22 @@ const b=cand[0];AI.budget=99;rainU.uAmt.value=.9;GRD.sT=0;const n0=GRD.n.shel;le
 for(const c of cand){if(inRoom(c.g.position.x,c.g.position.z)>=0)continue}grdTick(.1);Math.random=rr;if(GRD.n.shel===n0)msg+='pas d’abri ';rainU.uAmt.value=0;GRD.sT=0;grdTick(.1);if(cand.some(c=>c.shel))msg+='abri non quitté ';
 TOD.t=23;b.g.position.set(P.x+20,b.g.position.y,P.z);GRD.posts.length=0;GRD.gT=0;AI.budget=99;grdTick(.1);if(!GRD.posts.length)msg+='pas de sentinelle ';else{const p=GRD.posts[0],s=p.b;const o2=cand.find(c=>c!==s);o2.g.position.set(p.x+12,o2.g.position.y,p.z);o2.sent=0;o2.relf=0;p.t=0;AI.budget=99;grdTick(.1);if(!p.rel)msg+='pas de relève ';else{p.rel.g.position.set(p.x+1,p.rel.g.position.y,p.z);const r=p.rel;grdTick(.1);if(p.b!==r||GRD.n.relief<1)msg+='relève non effectuée '}}
 const sg=GRD.n.sign;TOD.t=12;GRD.posts.length=0;cand.forEach(c=>{c.sent=0;c.relf=0;c.shel=0});}catch(e){msg+='erreur '+e.message}TOD.t=t0;rainU.uAmt.value=ru;return msg});
+T('Établi : canon, crosse et chargeur modifient vitesse, recul, dispersion, capacité et rechargement',()=>{const w=WSEL,wm=JSON.stringify(WMOD[w]||null),a0=ammo,rs=reserve,bn=bench,nb0=nb;
+try{if(/pompe|Pistolet/.test(WC[w].n))return'';bench=true;WMOD[w]={b:0,s:0,m:0};const rc0=wpRecoil(),sp0=wpSpread(),mg0=magMax(),h0=HMV(),v0=wmK('v');
+wmCycle('b');wmCycle('b');const vL=wmK('v');wmCycle('b');wmCycle('s');const rcH=wpRecoil();wmCycle('s');wmCycle('s');wmCycle('m');const mgE=magMax(),rtE=(reloading=0,wmTick(),RT);wmCycle('m');const rtR=(wmTick(),RT);wmCycle('m');wmTick();
+const ok=vL>v0&&rcH<rc0&&mgE>mg0&&rtE>WC[w].rt&&rtR<WC[w].rt&&RT===WC[w].rt;
+const sn=JSON.stringify(PERS.snap().wm);bench=bn;
+if(!ok)return'effets '+[vL,v0,rcH,rc0,mgE,mg0,rtE,rtR].join('/');if(!sn.includes('"b":0'))return'persistance';return''}finally{bench=bn;nb=nb0;if(wm==='null')delete WMOD[w];else WMOD[w]=JSON.parse(wm);ammo=a0;reserve=rs;wmTick()}});
+T('Animations des bots : bras levés (reddition, signe) et mise à jour du squelette',()=>{const b=bots.find(o=>!o.dead&&o.sld);if(!b)return'pas de bot';const g=b.g.position,p0=g.clone(),P0=[P.x,P.z],cp0=C.position.clone(),cam0=(C.position.set(P.x,P.gy+1.6,P.z),C.position),fw0=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);g.set(cam0.x+fw0.x*8,g.y,cam0.z+fw0.z*8);let msg='';
+try{b.dorm=0;b.armK=0;const up=()=>{for(let i=0;i<4;i++)sldUpdate(b,.016,false)};up();const L=SLS.ix.LeftArm,H=SLS.ix.LeftHand,y0=b.sld.bones[H].position.y-b.sld.bones[L].position.y;
+b.armM='up';b.armK=1;up();const y1=b.sld.bones[H].position.y-b.sld.bones[L].position.y;if(!(y1>y0+.3))msg+='bras non levés '+[y0,y1]+' ';
+b.armM='sign';b.armK=1;up();const ry=b.sld.bones[SLS.ix.RightHand].position.y;b.armK=0;up();if(Math.abs(b.sld.bones[SLS.ix.RightHand].position.y-ry)>.05)msg+='signe: bras droit levé ';
+b.armT=1.8;b.sur=0;anmSign(b);if(b.armM!=='sign')msg+='signe absent ';b.armT=0;b.armK=0;
+// derrière la caméra : plus rendu
+const c0=ANM.n.cull;const cp=C.position,fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);g.set(cp.x-fw.x*30,g.y,cp.z-fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul!==1||b.sld.sg.visible||ANM.n.cull!==c0+1)msg+='soldat derrière non masqué ';
+g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul)msg+='soldat devant masqué ';
+g.set(cp.x+fw.x*120,g.y,cp.z+fw.z*120);anmTick(.016);if(b.sld.sm.castShadow)msg+='ombre lointaine ';g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);anmTick(.016);if(!b.sld.sm.castShadow)msg+='ombre proche absente '}catch(e){msg+='erreur '+e.message}
+g.copy(p0);C.position.copy(cp0);b.armK=0;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
@@ -4556,6 +4620,7 @@ const hb=sd.bones[sd.hand],hr=hb.position,hl=sd.bones[sd.hl].position,wi=b.wi;if
 if(sd.cur==='fire'||!SLS.rel[wi]){_slf.subVectors(hl,hr);const fl=_slf.length();if(fl>.05){_slf.divideScalar(fl);_slu.set(0,1,0).addScaledVector(_slf,-_slf.y).normalize();_slx.crossVectors(_slu,_slf);_slw.makeBasis(_slx,_slu,_slf);b.wp.quaternion.setFromRotationMatrix(_slw);b.wp.position.copy(hr).addScaledVector(_slu,.02).addScaledVector(_slf,(fl-BWG[wi][1])*.5-.02);
 if(sd.cur==='fire'&&sd.bl>=1){b.wp.updateMatrix();_slo.compose(hb.position,hb.quaternion,_slv1);SLS.rel[wi]=_slo.clone().invert().multiply(b.wp.matrix)}}}
 else{_slo.compose(hb.position,hb.quaternion,_slv1).multiply(SLS.rel[wi]);_slo.decompose(b.wp.position,b.wp.quaternion,_slv2)}
+if(b.armK>.01&&!b.dead)sldArms(b,sd);
 }}
 // ---- déclinaisons par type : teinte, casque, gilet, sac, épaulières attachés aux os (offsets exprimés dans le repère monde de la pose de repos)
 const SLT=[0x9fa68c,0xc2c6ce,0xadb58c,0x6a6f76];

@@ -215,7 +215,7 @@ const WC=[
 {n:'Pistolet',rate:.16,rec:1.2,mag:15,res:75,dmg:36,pel:1,sp:.028,semi:1,rb:{scope:-.1,angled:-.12,holo:-.08,mg:.03},hb:{ry:-.07,rz:-.04,ly:-.08,lz:-.06,zM:-.04,zS:-.06},iy:-.048,wz:.22,mz:-.235,my:.015,gz:-.17,snd:[260,.09,.22],rt:1.5,amp:.03,lock:1},
 {n:'Fusil \u00e0 pompe',rate:.85,rec:2.8,mag:6,res:36,dmg:20,pel:9,sp:.07,semi:1,rb:{scope:-.05,angled:-.2,holo:-.1,mg:.02},hb:{ry:-.09,rz:.15,ly:-.1,lz:-.36,zM:0,zS:-.05},iy:-.075,wz:.06,mz:-.56,my:.022,gz:-.3,snd:[90,.3,.45],rt:2.6,cyc:1,amp:.07},
 {n:'Fusil de pr\u00e9cision',rate:1.3,rec:3.2,mag:5,res:30,dmg:100,pel:1,sp:.05,semi:1,rb:{scope:-.04,angled:-.2,holo:-.14,mg:-.02},hb:{ry:-.1,rz:.2,ly:-.06,lz:-.3,zM:0,zS:-.05},iy:-.1,wz:.2,mz:-.76,my:.015,gz:-.35,snd:[70,.35,.5],rt:2.4,cyc:1,amp:.06}];
-const AMM=[30,30,15,6,5],RSV=[120,120,75,36,30],magMax=()=>WC[WSEL].mag+(A.ext?10:0);
+const AMM=[30,30,15,6,5],RSV=[120,120,75,36,30],magMax=()=>Math.max(1,Math.round((WC[WSEL].mag+(A.ext?10:0))*(typeof wmMagK==='function'?wmMagK():1)));
 function toggleAtt(a){A[a]=!A[a];if(A[a]){if(['scope','angled','holo'].includes(a))sel=a;if(a==='supp')A.brake=false;if(a==='brake')A.supp=false}if(ammo>magMax()){reserve+=ammo-magMax();ammo=magMax()}if(bench)upBench()}
 let sprA=0,drawT=0,inspT=0,rlS=0,reloadEmpty=false,slideK=0,WZ=0,po=0,RT=1.9,mdPrev=false;let WSEL=0;const WP={rate:.09,rec:1},RB={scope:-.04,angled:-.2,holo:-.14,mg:-.02};
 function equip(i,am,rs){WSEL=i;ammo=am;reserve=rs;const c=WC[i];reloading=0;
