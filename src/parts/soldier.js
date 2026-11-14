@@ -42,5 +42,22 @@ else{sd.sg.quaternion.identity();sd.sg.position.set(0,0,0)}
 const hx=b.dead?0:o.p[0],hz=b.dead?0:o.p[2];
 for(let i=0;i<SLS.nb;i++){const bn=sd.bones[i];bn.position.set(o.p[i*3]-hx,o.p[i*3+1],o.p[i*3+2]-hz);_slq.set(o.q[i*4],o.q[i*4+1],o.q[i*4+2],o.q[i*4+3]);bn.quaternion.copy(_slq)}
 // arme dans la main droite
-const hr=sd.bones[sd.hand].position,hl=sd.bones[sd.hl].position;_slf.subVectors(hl,hr);const fl=_slf.length();if(fl>.05){_slf.divideScalar(fl);_slu.set(0,1,0).addScaledVector(_slf,-_slf.y).normalize();_slx.crossVectors(_slu,_slf);_slw.makeBasis(_slx,_slu,_slf);b.wp.quaternion.setFromRotationMatrix(_slw);b.wp.position.copy(hr).addScaledVector(_slu,.02).addScaledVector(_slf,-.03)}
+const hr=sd.bones[sd.hand].position,hl=sd.bones[sd.hl].position;_slf.subVectors(hl,hr);const fl=_slf.length();if(fl>.05){_slf.divideScalar(fl);_slu.set(0,1,0).addScaledVector(_slf,-_slf.y).normalize();_slx.crossVectors(_slu,_slf);_slw.makeBasis(_slx,_slu,_slf);b.wp.quaternion.setFromRotationMatrix(_slw);b.wp.position.copy(hr).addScaledVector(_slu,.02).addScaledVector(_slf,(fl-BWG[b.wi][1])*.5-.02)}
 }}
+// ---- déclinaisons par type : teinte, casque, gilet, sac, épaulières attachés aux os (offsets exprimés dans le repère monde de la pose de repos)
+const SLT=[0x9fa68c,0xc2c6ce,0xadb58c,0x6a6f76];
+function sldAcc(sd,bone,mesh,d,list){const i=SLS.ix[bone],q=new THREE.Quaternion().setFromRotationMatrix(SLS.rest[i]).invert();mesh.position.set(d[0],d[1],d[2]).applyQuaternion(q);mesh.quaternion.copy(q);mesh.castShadow=true;sd.bones[i].add(mesh);Object.defineProperty(mesh,'visible',{get(){return this._v!==false},set(v){this._v=v}});list.push(mesh);return mesh}
+function sldBuild(b){const sd=b.sld;sd.var=[[],[],[],[]];const BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d),SP=(r,a)=>new THREE.SphereGeometry(r,14,10,0,6.2832,0,a||1.9),M=(c,o)=>L(c,Object.assign({roughness:.85},o||{}));
+sd.mats=SLT.map(c=>{const m=SLS.mat.clone();m.color.setHex(c);return m});
+for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
+ const vest=M(T.vc||0x3b4a5a);
+ if(t===0){sldAcc(sd,H,new THREE.Mesh(SP(.13,1.45),M(0x2b3138)),[0,.1,.005],v);sldAcc(sd,H,new THREE.Mesh(BX(.1,.04,.04),M(0x111111)),[0,.17,.12],v)}
+ if(t===1){sldAcc(sd,H,new THREE.Mesh(SP(.135,1.5),M(0x4b5a44)),[0,.105,.005],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.055,.05),M(0x0a0a0a,{metalness:.8,roughness:.2})),[0,.11,.115],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[.13,.06,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.035,.1,.06),M(0x111111)),[-.13,.06,0],v)}
+ if(t===2){sldAcc(sd,H,new THREE.Mesh(SP(.125,1.45),M(T.col)),[0,.11,0],v);sldAcc(sd,H,new THREE.Mesh(new THREE.CylinderGeometry(.23,.23,.012,18),M(T.col)),[0,.125,0],v)}
+ if(t===3){sldAcc(sd,H,new THREE.Mesh(SP(.155,1.6),M(0x1c1e22)),[0,.1,0],v);sldAcc(sd,H,new THREE.Mesh(BX(.22,.06,.05),new THREE.MeshBasicMaterial({color:0xaa1111})),[0,.1,.14],v);sldAcc(sd,H,new THREE.Mesh(BX(.2,.1,.08),M(0x111111)),[0,.0,.1],v)}
+ if(t!==2){sldAcc(sd,C,new THREE.Mesh(BX(.34,.3,.08),vest),[0,.02,.13],v);sldAcc(sd,C,new THREE.Mesh(BX(.3,.1,.07),M(0x555555)),[0,-.2,.14],v)}
+ if(t===1||t===2)sldAcc(sd,C,new THREE.Mesh(BX(.3,.38,.17),M(new THREE.Color(T.col).multiplyScalar(.8).getHex())),[0,0,-.17],v);
+ if(t===2)sldAcc(sd,C,new THREE.Mesh(BX(.36,.07,.2),M(0x4a4a38)),[0,.18,-.1],v);
+ if(t===3){[-.24,.24].forEach(x=>sldAcc(sd,C,new THREE.Mesh(BX(.16,.09,.24),M(0x25282c)),[x,.15,0],v));sldAcc(sd,C,new THREE.Mesh(BX(.34,.34,.1),M(0x2b2f34)),[0,.0,-.15],v)}
+}}
+function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}

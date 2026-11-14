@@ -380,3 +380,7 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Les anciennes boîtes du corps restent comme **hitbox invisibles** (zones tête/torse/bras/jambes inchangées).
 - Selftest ajouté (« Soldats Mixamo »).
 - À faire : ennemis avec `military_armor_3d_model.glb` (mesh statique sans squelette), calage fin de l'arme par type, animation de rechargement liée à l'IA.
+
+### v24b — Déclinaisons des 4 types d'ennemis
+- Chaque type a sa teinte de tenue, son couvre-chef (casque sombre / casque + visière / chapeau de brousse / casque lourd à visière rouge), son gilet, son sac (type 1 et 2) et ses épaulières (type 3), attachés aux os du soldat (`sldBuild`/`sldLook` dans `soldier.js`).
+- L'arme de chaque type (pistolet-mitrailleur, fusil, tireur d'élite, mitrailleuse lourde) est calée entre la main droite (poignée) et la main gauche (garde-main) selon sa longueur.

@@ -119,6 +119,7 @@ rep("box(0,-30,60,4,1,0x6b6b60);box(0,30,60,4,1,0x6b6b60);box(-30,0,1,4,60,0x6b6
 rep("P.x=Math.max(-29.4,Math.min(29.4,P.x));P.z=Math.max(-29.4,Math.min(29.4,P.z));","P.x=Math.max(-MH+.6,Math.min(MH-.6,P.x));P.z=Math.max(-MH+.6,Math.min(MH-.6,P.z));")
 rep("x=rnd(-27,27);z=rnd(-27,10)","x=rnd(-MH+5,MH-5);z=rnd(-MH+5,MH-5)")
 rep("b.tx=Math.max(-27,Math.min(27,x));b.tz=Math.max(-27,Math.min(27,z))","b.tx=Math.max(-MH+5,Math.min(MH-5,x));b.tz=Math.max(-MH+5,Math.min(MH-5,z))")
+rep("b.visM.emissive.setHex(i===3?0xaa1111:0x000000);","sldLook(b,i);b.visM.emissive.setHex(i===3?0xaa1111:0x000000);")
 rep("function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;","function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;sldUpdate(b,dt,mv);")
 rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;sldUpdate(b,dt,0);")
 rep("b.mat=m;S.add(g);spawn(b);bots.push(b)}","b.mat=m;sldAttach(b);S.add(g);spawn(b);bots.push(b)}")
