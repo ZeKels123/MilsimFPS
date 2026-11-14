@@ -23,8 +23,12 @@ const _drf=new THREE.Vector3();
 const _drc=new THREE.Raycaster(),_dro=new THREE.Vector3(),_drd=new THREE.Vector3();
 function drvCam(){if(DRV.fp){C.position.set(P.x,DRV.cy,P.z);return}
 const cp=Math.cos(P.pitch);_drd.set(-Math.sin(P.yaw)*cp,Math.sin(P.pitch),-Math.cos(P.yaw)*cp);_dro.set(DRV.x,DRV.cy-1.18+DRV.hgt+.2,DRV.z);let D=DRV.len*1.45+1.5;
-_drc.set(_dro,_drd.clone().negate());_drc.far=D;const hs=_drc.intersectObjects(ray,false).filter(h=>h.object!==DRV.r.px);if(hs.length)D=Math.max(1.2,hs[0].distance-.4);
-C.position.copy(_dro).addScaledVector(_drd,-D);C.position.y+=.3}
+const D0=D;DRV.cam=drvCamDist(D0);C.position.copy(_dro).addScaledVector(_drd,-DRV.cam);C.position.y+=.3;const gy=GH(C.position.x,C.position.z)+.45;if(C.position.y<gy)C.position.y=gy}
+// collision caméra : 5 rayons (centre + écarts latéraux/verticaux) pour ne pas traverser les angles de bâtiments, recul immédiat, retour progressif
+function drvCamDist(D){const back=_drd.clone().negate(),rx=_drd.z,rz=-_drd.x,rl=Math.hypot(rx,rz)||1;let m=D;
+ for(const [lx,ly] of [[0,0],[.5,0],[-.5,0],[0,.45],[0,-.3]]){_dv.set(_dro.x+rx/rl*lx,_dro.y+ly,_dro.z+rz/rl*lx);_drc.set(_dv,back);_drc.far=D;const hs=_drc.intersectObjects(ray,false).filter(h=>h.object!==DRV.r.px);if(hs.length)m=Math.min(m,Math.max(1.2,hs[0].distance-.5))}
+ if(DRV.cam===undefined||m<DRV.cam)return m;return Math.min(m,DRV.cam+.18)}
+const _dv=new THREE.Vector3();
 function drvTick(dt){
 if(!DRV.on){DRV.ht-=dt;if(DRV.ht<=0){DRV.ht=.3;const n=P.gy!==undefined&&!HM.dead&&!ac.on&&!bench&&$('ov').style.display==='none'&&!nb&&!ndR&&!invNear()?drvNear():null;if(!DRV.hint){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:150px;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 0 4px #000;pointer-events:none;z-index:6;display:none';document.body.appendChild(d);DRV.hint=d}
 DRV.hint.textContent='F — Conduire';DRV.hint.style.display=n?'block':'none'}return}

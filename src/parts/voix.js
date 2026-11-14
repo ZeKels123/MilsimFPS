@@ -17,6 +17,6 @@ try{const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';const bi=bots.index
 if(!noAck&&key!=='ack'&&key!=='lost'){let best=null,bd=40;for(const o of bots){if(o===b||o.dead)continue;const dd=Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z);if(dd<bd){bd=dd;best=o}}if(best)setTimeout(()=>vxSay(best,'ack',true),1100+Math.random()*600)}}
 function vxTick(dt){VX.t+=dt;if(VX.subT>0){VX.subT-=dt;if(VX.subT<=0&&VX.sub)VX.sub.style.opacity=0}
 for(const b of bots){if(b.dead){b.vxDead=1;continue}
-const s=b.see?1:0;if(s&&!b.vxSee)vxSay(b,'contact');if(!s&&b.vxSee&&b.alert)vxSay(b,'lost');b.vxSee=s;
+const s=b.see?1:0;if(s&&!b.vxSee)tacCall(b,'contact');if(!s&&b.vxSee&&b.alert)tacCall(b,'lost');b.vxSee=s;
 if(b.relT>0&&!b.vxRel)vxSay(b,'reload');b.vxRel=b.relT>0;
 if(b.st==='cov'&&b.vxSt!=='cov')vxSay(b,'cover');if(b.st==='fla'&&b.vxSt!=='fla')vxSay(b,'flank');b.vxSt=b.st}}

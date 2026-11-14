@@ -110,6 +110,24 @@ finally{K.KeyW=sv[5];K.KeyA=sv[6];K.Space=sv[7];if(DRV.on){DRV.on=0;drvSound(fal
 T('Touches : toutes les actions du jeu sont redéfinissables',()=>{const d=KBD.map(k=>k[2]),dup=d.filter((c,i)=>d.indexOf(c)!==i);if(dup.length)return'doublons '+dup;
 for(const c of['KeyJ','KeyY','KeyI','Comma','Period','KeyX','KeyK','KeyB','KeyN','KeyM','KeyU','KeyO','KeyV','Backquote','Minus','Equal','Backslash','Semicolon','Digit0','Digit1','Digit8','KeyW','Space','KeyR','KeyF','KeyH','KeyC','KeyL','KeyG','KeyT','KeyZ','Tab'])if(!d.includes(c))return'action non redéfinissable : '+c;
 const sv=SET.keys.fwd;SET.keys.nvg='KeyY';SET.keys.tq='KeyU';SET.keys.nsel='KeyI';SET.keys.sp='KeyO';SET.keys.qual='KeyY';kbBuild();const ok=KMAP.KeyY==='Backquote'&&KMAP.KeyU==='KeyY';delete SET.keys.nvg;delete SET.keys.tq;delete SET.keys.nsel;delete SET.keys.sp;delete SET.keys.qual;kbBuild();if(!ok)return'échange de touches';return''});
+T('Tactique : annonce horaire + distance, fumigène bloque la vue, bonds, moral/reddition/fouille, évacuation, relief des traces',()=>{if(!sqInit_)sqBuild();
+const b0=bots.find(b=>!b.dead);if(!b0)return'pas de bot';const g0=b0.g.position,sy=b0.yaw;b0.yaw=0;
+const c9=tacClock(b0,g0.x+50,g0.z),c12=tacClock(b0,g0.x,g0.z+50),c3=tacClock(b0,g0.x-50,g0.z),c6=tacClock(b0,g0.x,g0.z-50);b0.yaw=sy;
+if(c9!==9||c12!==12||c3!==3||c6!==6)return'heures '+[c9,c12,c3,c6];
+const d=tacDist(b0,g0.x+203,g0.z);if(d!==200)return'distance '+d;
+const x0=g0.x,z0=g0.z;const ay=GH(x0,z0)+1.5;TAC.smk.push({x:x0+8,z:z0,r:4,rm:6,t:1,pop:0,life:20});
+const blocked=losClear(x0,ay,z0,x0+16,ay,z0)===false;const free=losClear(x0,ay,z0,x0-16,ay,z0)!==undefined;TAC.smk.length=0;if(!blocked)return'fumigène sans effet';
+const q=SQ.find(o=>o.m.filter(b=>!b.dead).length>=4);let msg='';
+if(q){const al=q.m.filter(b=>!b.dead);try{al.forEach(b=>{b.see=false;b.heal=null;b.lvl=0;b.route=null;b.stun=0;b.blind=0;b.unarm=0;b.fleeT=0;b.mag=20;b.ordCover=0;b.sur=0;b.evac=null});q.ret=0;q.t=6;const gg=al[0].g.position;q.lk.x=gg.x+50;q.lk.z=gg.z;q.bd=null;AI.budget=99;tacBound(q,al,0.1);
+ if(!q.bd||!al.some(b=>b.ordCover>0))msg+='bonds sans couverture ';
+ al.forEach(b=>{b.mor=1;b.hpM=undefined});const v=al[1];v.mor=0.05;v.see=true;v.ty=1;P.x=v.g.position.x+10;P.z=v.g.position.z;q.n0=al.length;q.t=6;tacMorale(q,al,0.1);if(!v.sur&&!(v.pnc>0))msg+='moral sans effet ';
+ if(v.sur){if(!v.unarm||v.see)msg+='reddition incomplète ';v.sur=0;v.unarm=0}
+ const w=al[2],h=al[3];w.zh&&Object.keys(w.zh).forEach(z=>w.zh[z]=w.zm[z]*.3);h.zh&&Object.keys(h.zh).forEach(z=>h.zh[z]=h.zm[z]);h.g.position.set(w.g.position.x+3,w.g.position.y,w.g.position.z+2);w.evacBy=null;w.heal=null;q.evT=0;q.ret=0;q.t=6;AI.budget=99;P.x=w.g.position.x+40;P.z=w.g.position.z;al.forEach(b=>{b.see=false;b.evac=null});tacEvac(q,al,0.1);
+ if(!al.some(b=>b.evac&&b.evac.w===w))msg+='pas d’évacuation ';
+ }catch(e){msg+='erreur '+e.message}
+ q.m.forEach(b=>{b.evac=null;b.evacBy=null;b.fleeT=0;b.pnc=0;b.mor=1});q.t=0;q.bd=null;if(q.m.length)q.m.forEach(b=>b.ordCover=0)}
+if(msg)return msg;
+const nf=FP.n;fpAdd(x0,z0,0);return''});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

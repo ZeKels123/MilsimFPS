@@ -510,3 +510,12 @@ Test : « Conduite : accélération, direction, collision, freinage, descente »
 
 ## v36b — Toutes les touches redéfinissables
 Le menu des touches couvre maintenant toutes les actions clavier : déplacement, soins (bandage, garrot, attelle, morphine, trousse), loupe, AC-130, pièges, heure, météo, type de grenade, qualité, jeter le sac, vision nocturne, manger, boire, survie, mode de tir (clavier : `;`, en plus du clic molette), lumières intérieures et accessoires 1 à 8. Restent fixes : Échap, F8, F9, 9 et les boutons de la souris. Test « Touches » (42/42).
+
+## v37 — Tactique, moral et finitions (`src/parts/tactic.js`)
+- **Annonces** : « Contact 2 heures, 200 mètres ! » (heure relative à l'orientation du bot, distance arrondie à 10 m) ; « Perdu de vue, dernier contact … » sur la dernière position connue ; appels « À court de munitions ! » et « Médic ! » (blessé > 30 %).
+- **Bonds / couverture** : à ≥ 4 hommes libres, hors vue, 25–85 m de la dernière position connue, un groupe avance de ≤ 15 m pendant que l'autre fait un tir de couverture ; inversion toutes les 4,2 s.
+- **Fumigène** : posé 7 m devant le bot vers le joueur lors d'un repli ou d'une évacuation sous le feu ; nuage de particules 20 s (rayon 1 → 6,5 m) qui bloque `losClear` (les bots ne voient plus à travers).
+- **Moral** : 0–1 par bot, chute avec les pertes de l'escouade, les blessures et le joueur proche ; remonte hors contact et près du chef. < 0,3 : panique (fuite 7 s) ; < 0,12 seul ou très blessé et joueur < 30 m : **reddition** (arme lâchée, à genoux, ne tire plus). Fouille d'un prisonnier à < 2,3 m (butin).
+- **Évacuation** : blessé > 45 % → un coéquipier sain le rejoint puis ils se replient ensemble vers un abri (≥ 25 m du joueur), soins passifs à l'arrivée.
+- **Finitions** : traces de pas inclinées selon la pente ; caméra de conduite avec 5 rayons (angles de bâtiments), recul immédiat/retour progressif, sol non traversé ; légende des touches complétée.
+- Test intégré : heures/distances, fumigène vs `losClear`, bonds, moral/reddition, évacuation.

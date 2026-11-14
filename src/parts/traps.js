@@ -85,7 +85,7 @@ function brnSnd(x,y,z){const T=performance.now();if(T-brnLast<350||Math.hypot(x-
 function wingSnd(x,y,z){const T=performance.now();if(T-wingLast<1800||Math.hypot(x-P.x,z-P.z)>60)return;wingLast=T;auInit();if(!AU.ready)return;const o=sp3(x,y,z,{ref:12,roll:.9,ad:60});for(let k=0;k<4;k++)setTimeout(()=>{try{nz(.09,'bandpass',1200,.6,.28,o,1.4,.02)}catch(e){}},k*85)}
 function brnCrack(b,big,bot){b.br=1;b.t=90;b.m.scale.x=.5;b.m.rotation.z=.5;b.m.position.y+=.03;const y=GH(b.x,b.z)+.3;brnSnd(b.x,y,b.z);
 for(let i=0;i<4;i++)emit(_no.set(b.x,y-.2,b.z),_e.set(rnd(-1,1),rnd(.5,1.4),rnd(-1,1)),{color:0x8a6a40,size:.03,life:.4,g:6});if(!bot)noise(b.x,b.z,big?34:22)}
-function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);effTick(dt);dstTick(dt);nightTick(dt);survTick(dt);BRN.t+=dt;
+function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);effTick(dt);dstTick(dt);nightTick(dt);survTick(dt);tacTick(dt);BRN.t+=dt;
 if(BRN.t>=.12){const st=BRN.t;BRN.t=0;const wk=[];if(!ac.on&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD))wk.push({x:P.x,z:P.z,p:P.st===0?(K.ShiftLeft?1:.9):P.st===1?.3:.08,big:K.ShiftLeft,bot:0});for(const b of bots){if(b.dead)continue;const g=b.g.position;if(Math.abs(g.x-P.x)<80&&Math.abs(g.z-P.z)<80)wk.push({x:g.x,z:g.z,p:b.cr?.25:.5,big:0,bot:1})}
 for(const b of BRN.list){if(b.br){b.t-=st;if(b.t<=0){b.br=0;b.m.scale.x=1;b.m.rotation.z=0;b.m.position.y=GH(b.x,b.z)+.02}continue}
 if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90){b.m.visible=false;continue}b.m.visible=Math.abs(b.x-P.x)<75&&Math.abs(b.z-P.z)<75;for(const w of wk){if(Math.abs(w.x-b.x)<.55&&Math.abs(w.z-b.z)<.55&&Math.hypot(w.x-b.x,w.z-b.z)<.55){if(Math.random()<w.p*(b.big?1.15:1))brnCrack(b,w.big||b.big,w.bot);else b.t=0;break}}}
