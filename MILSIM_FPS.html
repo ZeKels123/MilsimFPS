@@ -2371,7 +2371,7 @@ const bob=Math.sin(Date.now()*.0026)*.004;
 KN.position.set(px,py-.5*(1-KNF.s)+bob,pz);KN.rotation.set(rx-.05,ry,rz);}
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
-const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
+const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={dorm:220,flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
 const nIdx=(x,z)=>{const i=Math.floor((x+MH)/NS),j=Math.floor((z+MH)/NS);return i<0||j<0||i>=NGN||j>=NGN?-1:j*NGN+i},nFree=(x,z)=>{const k=nIdx(x,z);return k>=0&&!NAVB[k]},nX=k=>-MH+(k%NGN+.5)*NS,nZ=k=>-MH+((k/NGN|0)+.5)*NS;
 function navBuild(){NAVB.fill(0);NAVC.fill(0);const db=new Set(doors.map(d=>d.box)),m=.3;
 for(const o of boxes){if(db.has(o)||o.y0>1.7)continue;const i0=Math.max(0,Math.ceil((o.x0-m+MH)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+MH)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+MH)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+MH)/NS-.5));for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++)NAVB[j*NGN+i]=1}
@@ -2450,6 +2450,7 @@ function aiUpdate(dt,inz){vxTick(dt);dwUpdate(dt);AI.budget=2;sqTick(dt);AI.heat
 if(NZ.n!==AI.nz){AI.nz=NZ.n;for(const b of bots){if(b.dead)continue;const d=Math.hypot(b.g.position.x-NZ.x,b.g.position.z-NZ.z);if(d<NZ.r&&!b.see){const e=1+d*.07;aiAlert(b,NZ.x+rnd(-e,e),NZ.z+rnd(-e,e),1.2)}}}
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*3|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
+{const dx_=b.g.position.x-P.x,dz_=b.g.position.z-P.z;if(dx_*dx_+dz_*dz_>AI.dorm*AI.dorm){if(!b.dorm){b.dorm=1;b.g.visible=false;b.see=false}continue}else if(b.dorm){b.dorm=0;b.g.visible=true}}
 const g=b.g.position,bx0=g.x,bz0=g.z,bt=b.T,px=P.x-g.x,pz=P.z-g.z,pd=Math.hypot(px,pz);
 b.stun=Math.max(0,b.stun-dt);b.blind=Math.max(0,b.blind-dt);b.thr=Math.max(0,b.thr-dt);b.nadeCd-=dt;b.seenT+=dt;bhUpdate(b,dt);if(b.dead>0)continue;
 // perception
@@ -3743,6 +3744,7 @@ if(!msg){set();const b=bots.find(q=>!q.dead);if(b){const g0=b.g.position.clone()
 Object.assign(s,{x:sv.x,z:sv.z,bx:sv.bx,bz:sv.bz,th:sv.th,st:sv.st,hp:sv.hp,dead:sv.dead,tr:sv.tr});snkPlace(s);P.x=sv.px;P.z=sv.pz;P.gy=sv.pgy;return msg});
 T('Sons : 7 échantillons embarqués',()=>{const ks=['smg','rifle','shotgun','echo','reload','empty','cock'];for(const q of ks)if(!SMD[q]||SMD[q].length<2000)return'manquant : '+q;return typeof smpPlay==='function'?'':'lecteur absent'});
 T('Soldats Mixamo : 33 os, 7 clips, poses finies sur tous les bots',()=>{if(SLS.nb!==33)return'os '+SLS.nb;for(const k of ['walk','run','fire','reload','death','strafe','idle'])if(!SLA[k]||SLA[k].n<4)return'clip '+k;for(const b of bots){if(!b.sld)return'bot sans soldat';sldUpdate(b,.05,true);const p=b.sld.bones[5].position;if(!isFinite(p.x+p.y+p.z)||p.y<1.2||p.y>1.9)return'tête hors plage '+p.y}return true});
+T('Mise en veille : un bot à 400 m n\'est ni mis à jour ni affiché',()=>{const b=bots.find(o=>!o.dead);if(!b)return true;const g=b.g.position,x=g.x,z=g.z,v=b.g.visible;g.x=P.x+400;g.z=P.z;aiUpdate(.05,false);const ok=b.dorm===1&&b.g.visible===false;g.x=P.x+30;aiUpdate(.05,false);const ok2=!b.dorm&&b.g.visible;g.x=x;g.z=z;b.g.visible=v;b.dorm=0;return ok&&ok2||'veille '+ok+' réveil '+ok2});
 T('Voix des bots : phrases définies, annonce sans erreur',()=>{for(const k of ['contact','hit','reload','grenade','down','flank','cover','lost','ack'])if(!VX.L[k]||!VX.L[k].length)return'manque '+k;const b=bots.find(o=>!o.dead);if(!b)return true;b.vxCd=0;VX.last=0;vxSay(b,'hit');return typeof vxTick==='function'});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
@@ -3786,7 +3788,7 @@ function sldPick(b,mv){if(b.dead)return'death';if(b.relT>0)return'reload';if(b.c
 const _slg=new THREE.Quaternion(),_sly=new THREE.Quaternion(),_sle=new THREE.Euler(0,0,0,'YXZ'),_slw=new THREE.Matrix4(),_slo=new THREE.Matrix4().compose(new THREE.Vector3(0,0,0),new THREE.Quaternion(),new THREE.Vector3(1,1,1));
 const _slf=new THREE.Vector3(),_slu=new THREE.Vector3(),_slx=new THREE.Vector3();const _slv1=new THREE.Vector3(1,1,1),_slv2=new THREE.Vector3();var SLW={p:[.0,.0,.0],r:[0,0,0]};
 function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);
-sd.acc+=dt;const every=d<45||b.dead?1:d<110?2:4;if((++SLS.fr+(b.tm*0|0))%every&&!b.dead){/* pose gardée */}else{dt=sd.acc;sd.acc=0;
+sd.sg.visible=d<230;if(d>=230){sd.acc=0;return}sd.acc+=dt;const every=d<45||b.dead?1:d<110?2:4;if((++SLS.fr+(b.tm*0|0))%every&&!b.dead){/* pose gardée */}else{dt=sd.acc;sd.acc=0;
 const want=sldPick(b,mv);if(want!==sd.cur){sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=want==='death'?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||want==='death')sd.t=0}
 const rate=sd.cur==='fire'?(b.fl>0?1:0):sd.cur==='walk'?Math.max(.5,b.T.sp*(b.spK||1)/1.5):sd.cur==='run'?Math.max(.7,b.T.sp*(b.spK||1)/4.2):1;
 sd.t+=dt*rate;sd.bl=Math.min(1,sd.bl+dt*7);
@@ -3963,7 +3965,7 @@ const fl=t>.5;fingers(b.aR,fl?.55:.2);fingers(b.aL,fl?.55:.2);b.eyes.forEach(q=>
 function free_(x,z){return !boxes.some(o=>x>o.x0-.5&&x<o.x1+.5&&z>o.z0-.5&&z<o.z1+.5)&&!(x>ZN.x0-2&&x<ZN.x1+2&&z>ZN.z0-2)}
 function spawn(b){let x,z;do{x=rnd(-MH+5,MH-5);z=rnd(-MH+5,MH-5)}while(!free_(x,z)||!aiSpawnOk(x,z));b.g.position.set(x,0,z);let i=pickT();if(i===3&&bots.some(o=>o!==b&&!o.dead&&o.T===BT[3]))i=1;const t=BT[i];b.T=t;b.hp=t.hp;b.ar=t.ar;b.g.scale.setScalar(t.sc);b.mat.color.setHex(ac.on?0xffffff:t.col);b.vest.material.color.setHex(t.vc);b.vest.visible=t.ar>0;b.gun.scale.set(t.gun[0],t.gun[1],t.gun[2]);b.gun.position.z=.15+t.gun[2]/2;b.dead=0;b.fall=0;b.g.rotation.x=0;b.g.visible=true;botLook(b,i);aiReset(b,i)}
 function pick(b){let x,z,n=0;do{x=b.g.position.x+rnd(-8,8);z=b.g.position.z+rnd(-8,8);n++}while(!free_(x,z)&&n<20);b.tx=Math.max(-MH+5,Math.min(MH-5,x));b.tz=Math.max(-MH+5,Math.min(MH-5,z));b.t=rnd(2,5)}
-for(let i=0;i<18;i++)mkBot();
+for(let i=0;i<36;i++)mkBot();
 // ---- Audio
 let AC;function snd(f,d,v,type){if(typeof sfx==='function'){sfx(f,d,v,type);return}try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sawtooth';o.frequency.setValueAtTime(f,AC.currentTime);o.frequency.exponentialRampToValueAtTime(40,AC.currentTime+d);g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g).connect(AOUT());auSend(g);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 // ---- État arme

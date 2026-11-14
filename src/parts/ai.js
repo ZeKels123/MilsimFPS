@@ -1,6 +1,6 @@
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
-const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
+const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={dorm:220,flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
 const nIdx=(x,z)=>{const i=Math.floor((x+MH)/NS),j=Math.floor((z+MH)/NS);return i<0||j<0||i>=NGN||j>=NGN?-1:j*NGN+i},nFree=(x,z)=>{const k=nIdx(x,z);return k>=0&&!NAVB[k]},nX=k=>-MH+(k%NGN+.5)*NS,nZ=k=>-MH+((k/NGN|0)+.5)*NS;
 function navBuild(){NAVB.fill(0);NAVC.fill(0);const db=new Set(doors.map(d=>d.box)),m=.3;
 for(const o of boxes){if(db.has(o)||o.y0>1.7)continue;const i0=Math.max(0,Math.ceil((o.x0-m+MH)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+MH)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+MH)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+MH)/NS-.5));for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++)NAVB[j*NGN+i]=1}
@@ -79,6 +79,7 @@ function aiUpdate(dt,inz){dwUpdate(dt);AI.budget=2;sqTick(dt);AI.heat=Math.max(0
 if(NZ.n!==AI.nz){AI.nz=NZ.n;for(const b of bots){if(b.dead)continue;const d=Math.hypot(b.g.position.x-NZ.x,b.g.position.z-NZ.z);if(d<NZ.r&&!b.see){const e=1+d*.07;aiAlert(b,NZ.x+rnd(-e,e),NZ.z+rnd(-e,e),1.2)}}}
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*3|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
+{const dx_=b.g.position.x-P.x,dz_=b.g.position.z-P.z;if(dx_*dx_+dz_*dz_>AI.dorm*AI.dorm){if(!b.dorm){b.dorm=1;b.g.visible=false;b.see=false}continue}else if(b.dorm){b.dorm=0;b.g.visible=true}}
 const g=b.g.position,bx0=g.x,bz0=g.z,bt=b.T,px=P.x-g.x,pz=P.z-g.z,pd=Math.hypot(px,pz);
 b.stun=Math.max(0,b.stun-dt);b.blind=Math.max(0,b.blind-dt);b.thr=Math.max(0,b.thr-dt);b.nadeCd-=dt;b.seenT+=dt;bhUpdate(b,dt);if(b.dead>0)continue;
 // perception

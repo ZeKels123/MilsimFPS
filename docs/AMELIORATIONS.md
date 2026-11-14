@@ -400,3 +400,7 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ### v26b — Correctif des armes (rechargement, accroupi, marche)
 - Avant : l'arme était orientée d'après la position des deux mains, ce qui donnait des armes tombant au sol quand les mains ne tiennent pas l'arme (animations de rechargement et d'accroupi).
 - Maintenant : la pose à deux mains n'est utilisée qu'en position de tir ; elle sert à mémoriser, par type d'arme, la position de l'arme relative à la main droite, puis ce décalage est réutilisé dans toutes les autres animations.
+
+### v27 — Plus d'ennemis, mise en veille à distance
+- 36 ennemis au lieu de 18 (4 escouades de 9), apparition aléatoire sur toute la carte (inchangée).
+- **Mise en veille** : au-delà de 220 m du joueur (hors portée d'audition max. 90 m et de vue), un bot n'est ni mis à jour (IA, animation) ni affiché ; il se réveille quand le joueur approche (`AI.dorm`). Les morts continuent leur animation puis réapparaissent normalement.

@@ -131,7 +131,7 @@ rep("</script></body></html>","</script><script>requestAnimationFrame(function()
 rep("function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;","function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;sldUpdate(b,dt,mv);")
 rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;sldUpdate(b,dt,0);")
 rep("b.mat=m;S.add(g);spawn(b);bots.push(b)}","b.mat=m;sldAttach(b);S.add(g);spawn(b);bots.push(b)}")
-rep("for(let i=0;i<7;i++)mkBot();","for(let i=0;i<18;i++)mkBot();")
+rep("for(let i=0;i<7;i++)mkBot();","for(let i=0;i<36;i++)mkBot();")
 rep("C.position.set(Math.cos(ac.a)*48,62,Math.sin(ac.a)*48-6)","C.position.set(Math.cos(ac.a)*90,115,Math.sin(ac.a)*90-6)")
 rep("ac.tx=Math.max(-29,Math.min(29,ac.tx+(dx*-fz-dy*fx)*k));ac.tz=Math.max(-29,Math.min(29,ac.tz+(dx*fx-dy*fz)*k))","ac.tx=Math.max(-MH+1,Math.min(MH-1,ac.tx+(dx*-fz-dy*fx)*k));ac.tz=Math.max(-MH+1,Math.min(MH-1,ac.tz+(dx*fx-dy*fz)*k))")
 # 12. un seul bunker : celui d'apparition ; plus de maisons
