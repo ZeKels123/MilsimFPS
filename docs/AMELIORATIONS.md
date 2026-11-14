@@ -384,3 +384,6 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ### v24b — Déclinaisons des 4 types d'ennemis
 - Chaque type a sa teinte de tenue, son couvre-chef (casque sombre / casque + visière / chapeau de brousse / casque lourd à visière rouge), son gilet, son sac (type 1 et 2) et ses épaulières (type 3), attachés aux os du soldat (`sldBuild`/`sldLook` dans `soldier.js`).
 - L'arme de chaque type (pistolet-mitrailleur, fusil, tireur d'élite, mitrailleuse lourde) est calée entre la main droite (poignée) et la main gauche (garde-main) selon sa longueur.
+
+### v24c — Gilet par balle fourni
+- Le modèle `military_armor_3d_model.glb` (21 030 triangles) est allégé à ≈8 400 triangles, mis à l'échelle sur le torse du soldat et embarqué (`src/parts/vest_data.js`, texture JPEG 1024). Il est attaché à l'os `Spine2` et partagé par tous les bots, avec une teinte par type. Il remplace les anciennes plaques en boîtes.
