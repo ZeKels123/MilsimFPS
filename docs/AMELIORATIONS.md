@@ -420,3 +420,4 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 ## v28b — Casques recalés
 - Casques (types 0, 1, 3) recalculés depuis les modèles d'origine : sommet à 1,83 m, centrés sur le crâne, inclinés de ~10° (l'avant remonte) pour suivre la tête de la pose de tir. Vérifié en rendu sous 4 azimuts en pose animée.
 - Casque type 1 : orientation avant/arrière inversée (rotation de 180° autour de l'axe vertical, triangles réorientés).
+- Taille des casques réduite (type 0 ×0,92, type 1 ×0,88, type 3 ×0,78), sommet à 1,82 m, pour des proportions cohérentes avec la tête.
