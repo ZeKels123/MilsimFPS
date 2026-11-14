@@ -1621,10 +1621,23 @@ const holeT=fxT(64,(x,w)=>{const g=x.createRadialGradient(32,32,0,32,32,30);g.ad
 const scorchT=fxT(128,(x,w)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(10,8,6,.9)');g.addColorStop(.55,'rgba(14,11,8,.65)');g.addColorStop(1,'rgba(14,11,8,0)');x.fillStyle=g;x.fillRect(0,0,w,w)});
 const _n=new THREE.Vector3(),_p=new THREE.Vector3(),_p2=new THREE.Vector3(),_e=new THREE.Vector3(),MZ=new THREE.Vector3();
 // --- particules (pool de sprites)
-const PN=600,pPool=[];let pI=0;
-for(let i=0;i<PN;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:puffT,transparent:true,depthWrite:false}));s.visible=false;S.add(s);pPool.push({s,v:new THREE.Vector3(),life:0,max:1,a:1,gr:0,grow:0,drag:0,size:.1})}
-function emit(pos,vel,o){const p=pPool[pI=(pI+1)%PN],m=p.s.material;p.s.position.copy(pos);p.v.copy(vel);p.life=p.max=o.life;p.a=o.a==null?1:o.a;p.gr=o.g||0;p.grow=o.grow||0;p.drag=o.drag||0;p.size=o.size;m.map=o.map||puffT;m.color.setHex(o.color==null?0xffffff:o.color);m.blending=o.add?THREE.AdditiveBlending:THREE.NormalBlending;m.rotation=Math.random()*6.28;m.opacity=p.a;p.s.scale.setScalar(p.size);p.s.visible=true}
-function pUpdate(dt){for(const p of pPool){if(!p.s.visible)continue;p.life-=dt;if(p.life<=0){p.s.visible=false;continue}const k=p.life/p.max;p.v.y-=p.gr*dt;p.v.multiplyScalar(Math.max(0,1-p.drag*dt));p.s.position.addScaledVector(p.v,dt);p.size+=p.grow*dt;p.s.scale.setScalar(p.size);p.s.material.opacity=p.a*(k<.5?k*2:1)}}
+// ---- particules (v41) : instances de quads par (texture, mélange) au lieu d'un sprite (et d'un appel de rendu) par particule
+const PN=600,pPool=[],PBT={};let pI=0;const pcol=new THREE.Color(),pqG=new THREE.PlaneGeometry(1,1);
+function pBatch(map,add){const k=map.uuid+(add?'a':'n');let b=PBT[k];if(b)return b;
+const g=new THREE.InstancedBufferGeometry();g.index=pqG.index;g.setAttribute('position',pqG.attributes.position);g.setAttribute('uv',pqG.attributes.uv);
+const off=new THREE.InstancedBufferAttribute(new Float32Array(PN*4),4),col=new THREE.InstancedBufferAttribute(new Float32Array(PN*4),4),rot=new THREE.InstancedBufferAttribute(new Float32Array(PN),1);
+[off,col,rot].forEach(a=>a.setUsage(THREE.DynamicDrawUsage));g.setAttribute('aOff',off);g.setAttribute('aCol',col);g.setAttribute('aRot',rot);g.instanceCount=0;
+const m=new THREE.ShaderMaterial({uniforms:{map:{value:map},uRight:{value:new THREE.Vector3(1,0,0)},uUp:{value:new THREE.Vector3(0,1,0)},uFogC:{value:new THREE.Color(0x9fb0a0)},uFogR:{value:new THREE.Vector2(14,60)},uAdd:{value:add?1:0}},transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending,
+vertexShader:'attribute vec4 aOff;attribute vec4 aCol;attribute float aRot;uniform vec3 uRight;uniform vec3 uUp;varying vec2 vUv;varying vec4 vCol;varying float vD;void main(){vUv=uv;vCol=aCol;float c=cos(aRot),s=sin(aRot);vec2 p=position.xy;vec2 r=vec2(c*p.x-s*p.y,s*p.x+c*p.y);vec3 w=aOff.xyz+(uRight*r.x+uUp*r.y)*aOff.w;vec4 mv=viewMatrix*vec4(w,1.);vD=-mv.z;gl_Position=projectionMatrix*mv;}',
+fragmentShader:'uniform sampler2D map;uniform vec3 uFogC;uniform vec2 uFogR;uniform float uAdd;varying vec2 vUv;varying vec4 vCol;varying float vD;void main(){vec4 t=texture2D(map,vUv);vec4 c=vec4(vCol.rgb*t.rgb,vCol.a*t.a);float f=smoothstep(uFogR.x,uFogR.y,vD);if(uAdd>.5)c.a*=1.-f;else c.rgb=mix(c.rgb,uFogC,f);gl_FragColor=c;}'});
+const mesh=new THREE.Mesh(g,m);mesh.frustumCulled=false;mesh.renderOrder=2;mesh.userData.keep=1;S.add(mesh);return PBT[k]={mesh,g,off,col,rot,n:0,m}}
+for(let i=0;i<PN;i++)pPool.push({on:false,b:null,pos:new THREE.Vector3(),v:new THREE.Vector3(),r:1,g:1,bl:1,rot:0,life:0,max:1,a:1,gr:0,grow:0,drag:0,size:.1});
+function emit(pos,vel,o){const p=pPool[pI=(pI+1)%PN];p.pos.copy(pos);p.v.copy(vel);p.life=p.max=o.life;p.a=o.a==null?1:o.a;p.gr=o.g||0;p.grow=o.grow||0;p.drag=o.drag||0;p.size=o.size;p.b=pBatch(o.map||puffT,!!o.add);pcol.setHex(o.color==null?0xffffff:o.color);p.r=pcol.r;p.g=pcol.g;p.bl=pcol.b;p.rot=Math.random()*6.28;p.on=true}
+function pUpdate(dt){for(const k in PBT)PBT[k].n=0;
+for(const p of pPool){if(!p.on)continue;p.life-=dt;if(p.life<=0){p.on=false;continue}const k=p.life/p.max;p.v.y-=p.gr*dt;p.v.multiplyScalar(Math.max(0,1-p.drag*dt));p.pos.addScaledVector(p.v,dt);p.size+=p.grow*dt;
+const b=p.b,i=b.n++,o=b.off.array,c=b.col.array;o[i*4]=p.pos.x;o[i*4+1]=p.pos.y;o[i*4+2]=p.pos.z;o[i*4+3]=p.size;c[i*4]=p.r;c[i*4+1]=p.g;c[i*4+2]=p.bl;c[i*4+3]=p.a*(k<.5?k*2:1);b.rot.array[i]=p.rot}
+C.updateMatrixWorld();const e=C.matrixWorld.elements,fg=S.fog;
+for(const k in PBT){const b=PBT[k];b.g.instanceCount=b.n;b.mesh.visible=b.n>0;if(!b.n)continue;b.off.needsUpdate=b.col.needsUpdate=b.rot.needsUpdate=true;const u=b.m.uniforms;u.uRight.value.set(e[0],e[1],e[2]);u.uUp.value.set(e[4],e[5],e[6]);if(fg){u.uFogC.value.copy(fg.color);u.uFogR.value.set(fg.near||14,fg.far||60)}}}
 // --- impacts / décals
 const dcG=new THREE.PlaneGeometry(.16,.16),dcM=new THREE.MeshBasicMaterial({map:holeT,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}),dcP=[];let dcI=0;
 for(let i=0;i<48;i++){const m=new THREE.Mesh(dcG,dcM);m.visible=false;S.add(m);dcP.push(m)}
@@ -2547,7 +2560,7 @@ const tre=window.TRE||[];
 const free=(x,z,hw,hd)=>!boxes.some(o=>x+hw>o.x0-1&&x-hw<o.x1+1&&z+hd>o.z0-1&&z-hd<o.z1+1)&&!tre.some(t=>Math.hypot(t.x-x,t.z-z)<Math.max(hw,hd)+2.5);
 const flat=(x,z,hw,hd)=>{const h=[GH(x-hw,z-hd),GH(x+hw,z-hd),GH(x-hw,z+hd),GH(x+hw,z+hd),GH(x,z)];return Math.max(...h)-Math.min(...h)<.7};
 const put=(n,x,z,ry,hw,hd,hh)=>{const e=mdl(n),y=Math.max(GH(x-hw*.8,z-hd*.8),GH(x+hw*.8,z-hd*.8),GH(x-hw*.8,z+hd*.8),GH(x+hw*.8,z+hd*.8),GH(x,z));
-e.position.set(x,y-.03,z);e.rotation.y=ry;e.traverse(m=>{if(m.isMesh&&!m.material.transparent){m.castShadow=true;m.receiveShadow=true}});S.add(e);(window.VEHS=window.VEHS||[]).push([n,x,z,ry]);
+e.position.set(x,y-.03,z);e.rotation.y=ry;e.traverse(m=>{if(m.isMesh&&!m.material.transparent){m.castShadow=true;m.receiveShadow=true}});e.userData.dyn=1;S.add(e);(window.VEHS=window.VEHS||[]).push([n,x,z,ry]);
 const bx={x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:y,y1:y+hh};boxes.push(bx);const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,y+hh/2,z);px.visible=false;S.add(px);solids.push(px);ray.push(px);dstVeh(e,px,bx,x,y,z);return e};
 // --- tracteurs dans les cours de ferme
 (window.FYARD||[]).forEach(([cx,cz])=>{const x=cx+9.5,z=cz-6;if(free(x,z,2.4,1.3))put('lambo',x,z,Math.PI/2*(vr()<.5?1:-1),2.3,1.2,2.9)});
@@ -2928,8 +2941,8 @@ function bleTick(dt){if(!BLE.tun){const t=document.createElement('div');t.style.
  BLE.dip=l?Math.max(0,Math.sin(BLE.ph))*(l===2?.075:.035):0}
 function bleFaint(){BLE.out=rnd(4,7);BLE.faints++;HM.act=null;try{feed('Vous perdez connaissance')}catch(e){}}
 function bleCam(){if(BLE.dip>0)C.position.y-=BLE.dip}
-// ================= MONDE VIVANT (v38) : feu d'herbe qui se propage, rafales de vent, oiseaux =================
-const MON={fire:[],fmap:new Map(),birds:[],t:0,bi:null,wi:null,n:{ign:0,spread:0,flush:0},ft:0,ht:0};
+// ================= MONDE VIVANT (v38) : feu d'herbe qui se propage, rafales de vent (la faune — oiseaux, lapins, chevreuils — est dans nature2.js) =================
+const MON={fire:[],fmap:new Map(),t:0,n:{ign:0,spread:0},ft:0,ht:0};
 const FC=2.5;
 function fireKey(x,z){return Math.round(x/FC)+','+Math.round(z/FC)}
 function fireCan(x,z){return WET.v<=.55&&grassOk(x,z)}
@@ -2948,29 +2961,7 @@ function fireTick(dt){const wd=WND.d.value,wl=Math.hypot(wd.x,wd.y)||1,wx=wd.x/w
   for(const b of bots){if(b.dead||b.dorm)continue;const g=b.g.position;if(Math.abs(f.x-g.x)<FC&&Math.abs(f.z-g.z)<FC){if(b.fleeT<=0&&!b.lvl&&!b.route){const a=Math.atan2(g.x-f.x,g.z-f.z)+rnd(-.5,.5);AI.budget=Math.max(AI.budget,1);if(goTo(b,g.x+Math.sin(a)*10,g.z+Math.cos(a)*10,2.4,'fle'))b.fleeT=3}b.burn=(b.burn||0)+dt;if(b.burn>1.5){b.burn=0;b.hp-=b.T.hp*.12;if(b.hp<=0)botDie(b)}}}}}
 // rafales : la force et la direction du vent (donc aussi la balistique) varient lentement
 function windTick(dt){MON.ht+=dt;const g=Math.max(0,Math.sin(MON.ht*.37)*Math.sin(MON.ht*.91+1))*(.25+wcur[6]*.6);WND.s.value+=g*dt*1.5;const d=WND.d.value,a=Math.atan2(d.y,d.x)+Math.sin(MON.ht*.05)*dt*.12,l=Math.hypot(d.x,d.y)||1;d.set(Math.cos(a)*l,Math.sin(a)*l)}
-// oiseaux : volées au sol qui s'envolent au bruit ou à l'approche, et alertent les bots proches
-const NB=6,PB=5;
-function birdInit(){const bg=new THREE.SphereGeometry(.09,5,4);bg.scale(1,.8,1.7);const wg=new THREE.PlaneGeometry(.34,.14);wg.rotateX(-Math.PI/2);wg.translate(.17,0,0);
- MON.bi=new THREE.InstancedMesh(bg,new THREE.MeshBasicMaterial({color:0x1a1a1c}),NB*PB);MON.wi=new THREE.InstancedMesh(wg,new THREE.MeshBasicMaterial({color:0x222226,side:THREE.DoubleSide}),NB*PB*2);
- for(const m of [MON.bi,MON.wi]){m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);S.add(m)}
- for(let f=0;f<NB;f++){const fl={x:0,z:0,st:0,t:0,b:[],dir:0};for(let i=0;i<PB;i++)fl.b.push({ox:rnd(-2,2),oz:rnd(-2,2),y:0,ph:rnd(0,6),h:rnd(1,3)});birdPlace(fl);MON.birds.push(fl)}}
-function birdPlace(fl){for(let n=0;n<30;n++){const a=Math.random()*6.28,r=rnd(35,110),x=P.x+Math.cos(a)*r,z=P.z+Math.sin(a)*r;if(nFree(x,z)&&grassOk(x,z)&&Math.abs(x)<(typeof AR!=='undefined'?AR-10:300)){fl.x=x;fl.z=z;fl.st=0;fl.t=0;fl.b.forEach(b=>{b.y=0});return}}fl.x=1e5;fl.z=1e5;fl.st=0}
-const _mbm=new THREE.Matrix4(),_mbq=new THREE.Quaternion(),_mbp=new THREE.Vector3(),_mbs=new THREE.Vector3(1,1,1),_mbe=new THREE.Euler();
-function birdTick(dt){if(!MON.bi)birdInit();let wi=0;
- for(let f=0;f<NB;f++){const fl=MON.birds[f],d=Math.hypot(fl.x-P.x,fl.z-P.z);
-  if(fl.st===0){if(d>170)birdPlace(fl);
-   const loud=NZ.n!==fl.nz&&Math.hypot(NZ.x-fl.x,NZ.z-fl.z)<Math.max(25,NZ.r*1.6);fl.nz=NZ.n;
-   if(d<9||(loud&&d<120)){fl.st=1;fl.t=0;fl.dir=Math.atan2(fl.x-P.x,fl.z-P.z)+rnd(-.6,.6);MON.n.flush++;for(const b of bots){if(b.dead||b.see||b.alert)continue;if(Math.hypot(b.g.position.x-fl.x,b.g.position.z-fl.z)<30)aiAlert(b,fl.x,fl.z,3)}}}
-  else{fl.t+=dt;fl.x+=Math.sin(fl.dir)*7*dt;fl.z+=Math.cos(fl.dir)*7*dt;if(fl.t>14||d>190){birdPlace(fl)}}
-  const gy=GH(fl.x,fl.z);
-  for(let i=0;i<PB;i++){const b=fl.b[i];let y,x=fl.x+b.ox,z=fl.z+b.oz,wing=0;
-   if(fl.st===0){y=gy+.05;b.ph+=dt*(1+i*.3);wing=-.25;_mbs.set(1,1+Math.max(0,Math.sin(b.ph*3))*.1,1)}
-   else{b.y=Math.min(b.y+dt*(2.2+b.h*.6),6+b.h*2.5);y=gy+b.y;b.ph+=dt*22;wing=Math.sin(b.ph)*.9;_mbs.set(1,1,1)}
-   const yaw=fl.st?fl.dir:i*1.3;_mbe.set(0,yaw,0);_mbq.setFromEuler(_mbe);_mbp.set(x,y,z);const k=fl.x>9e4?0:1;
-   _mbm.compose(_mbp,_mbq,_mbs.clone().multiplyScalar(k));MON.bi.setMatrixAt(f*PB+i,_mbm);
-   for(const sd of [1,-1]){_mbe.set(0,yaw+(sd<0?Math.PI:0),wing*(sd<0?-1:1));_mbq.setFromEuler(_mbe);_mbm.compose(_mbp,_mbq,_mbs.clone().multiplyScalar(k));MON.wi.setMatrixAt(wi++,_mbm)}}}
- MON.bi.instanceMatrix.needsUpdate=true;MON.wi.instanceMatrix.needsUpdate=true}
-function monTick(dt){windTick(dt);fireTick(dt);birdTick(dt)}
+function monTick(dt){windTick(dt);fireTick(dt)}
 // ================= ÉTABLI : MODIFICATION D'ARME (v40) — canon, crosse, chargeur =================
 const WMOD={};
 const WMD={b:[{n:'Standard'},{n:'Court',v:.93,sp:1.12,w:1.015,rc:1.05,i:'vitesse −7 %, dispersion +12 %, +maniable'},{n:'Long',v:1.07,sp:.9,w:.97,rc:.97,i:'vitesse +7 %, dispersion −10 %, −maniable'}],
@@ -2993,6 +2984,17 @@ const wpSpread1=wpSpread;wpSpread=function(){return wpSpread1()*wmK('sp')};
 const balSpawn2=balSpawn;balSpawn=function(o,d,am,x){if(x&&x.src==='p'&&am!=='bk')x.vk=(x.vk||1)*wmK('v');return balSpawn2(o,d,am,x)};
 const HMV2=HMV;HMV=function(){return HMV2()*wmK('w')};
 function wmTick(){if(!reloading)RT=WC[WSEL].rt*wmK('rt')}
+// ================= PERFORMANCE (v41) : ombres des petits objets et des intérieurs, particules par lots (fx.js) =================
+// La passe d'ombres redessine chaque objet qui projette une ombre dans le champ du soleil. Les accessoires d'intérieur ne se voient que depuis
+// l'intérieur, et les petits objets lointains ne produisent pas d'ombre lisible : on coupe leur castShadow selon la position du joueur.
+const PRF={int:[],tiny:[],built:0,t:0,off:0,n:{}};
+function perfBuild(){if(PRF.built||typeof MERGED==='undefined'||!MERGED.out)return;PRF.built=1;const dyn=new Set();doors.forEach(d=>d.pv&&dyn.add(d.pv));if(window.VEHS)for(const v of(Array.isArray(VEHS)?VEHS:Object.values(VEHS)))if(v&&v.g)dyn.add(v.g);
+ S.updateMatrixWorld(true);const sk=(o)=>{for(let p=o;p;p=p.parent)if(dyn.has(p)||p.userData&&(p.userData.door||p.userData.keep||p.userData.dyn))return true;return false};
+ S.traverse(o=>{if(!o.isMesh||o.isSkinnedMesh||o.isInstancedMesh||!o.castShadow||o.userData.merged||sk(o))return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=o.geometry.boundingSphere.radius*Math.max(o.scale.x,o.scale.y,o.scale.z),e=o.matrixWorld.elements,x=e[12],y=e[13],z=e[14];
+  if(r<1.3&&inRoom(x,z)>=0&&y<roofTop(x,z)-.2)PRF.int.push({o,x,z});else if(r<.3)PRF.tiny.push({o,x,z})})}
+function perfShadowSet(ins,px,pz){let off=0;for(const e of PRF.int){const d=Math.abs(e.x-px)+Math.abs(e.z-pz),c=ins&&d<40;if(e.o.castShadow!==c){e.o.castShadow=c}if(!c)off++}
+ for(const e of PRF.tiny){const c=Math.abs(e.x-px)+Math.abs(e.z-pz)<30;if(e.o.castShadow!==c)e.o.castShadow=c;if(!c)off++}PRF.off=off;return off}
+function perfTick(dt){PRF.t-=dt;if(PRF.t>0)return;PRF.t=.6;PRF.rb=(PRF.rb||0)+1;if(PRF.rb%25===0){PRF.built=0;PRF.int.length=0;PRF.tiny.length=0}perfBuild();if(!PRF.built)return;const ri=inRoom(P.x,P.z);perfShadowSet(ri>=0&&P.gy<roofTop(P.x,P.z)+.2,P.x,P.z)}
 // ================= ANIMATIONS DES BOTS ET PERFORMANCE (v40) =================
 // Bras levés (reddition, signes) : rotation de la chaîne du bras autour de l'épaule, appliquée après le placement de l'arme.
 const ANM={n:{sign:0,cull:0,shadow:0},ch:null};
@@ -3071,7 +3073,7 @@ function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefin
   if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){let best=null,bd=70;for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<bd){bd=d;best=r}}if(best&&grdGo(b,best.x,best.z,1.3)){b.shel=best;GRD.n.shel++}}}
    else if(b.alert||b.see)b.shel=0;else if(inRoom(g.x,g.z)>=0){b.path=null;b.decT=Math.max(b.decT,2.5)}else if(!b.path)grdGo(b,b.shel.x,b.shel.z,1.3)}
   else if(rain<.15&&b.shel)b.shel=0}}}
-function finTick(dt){anmTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
+function finTick(dt){anmTick(dt);perfTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
 // mise à zéro de l'arme, énergie restante -> dégâts, pénétration des portes/vitres, balles traversantes (7.62, .50).
@@ -4517,13 +4519,13 @@ HM.bl=20;HM.pain=.2;const s1=bleSev();HM.bl=100;HM.pain=0;const s0=bleSev();if(!
 HM.z.ll=0;const l2=bleLimp();HM.z.ll=hz;if(l2<1)return'boiterie non détectée';
 BLE.out=0;BLE.cd=0;bleFaint();const v=HMV(),o=BLE.out>0;BLE.out=.01;bleTick(.05);bleTick(.05);const rec=BLE.rec>0&&HMV()>0&&HMV()<=HMV0();
 BLE.out=0;BLE.rec=0;BLE.cd=0;HM.bl=bl;HM.pain=pn;BLE.dip=0;if(!o||v!==0)return'évanouissement sans blocage';if(!rec)return'pas de rétablissement';return''});
-T('Monde vivant : feu d’herbe qui se propage, vent qui varie, oiseaux qui s’envolent',()=>{const wet=WET.v;WET.v=0;let msg='';try{
+T('Monde vivant : feu d’herbe qui se propage, vent qui varie',()=>{const wet=WET.v;WET.v=0;let msg='';try{
 let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60,60);if(fireCan(x,z)&&fireCan(x+5,z)&&fireCan(x-5,z)&&fireCan(x,z+5)&&fireCan(x,z-5))spot=[x,z]}
 if(!spot)msg+='pas d’herbe ';else{const n=fireIgnite(spot[0],spot[1],3);if(n<3)msg+='allumage '+n+' ';const c0=MON.fire.length;const rr=Math.random;Math.random=()=>0;for(let i=0;i<4;i++)fireTick(1);Math.random=rr;if(MON.fire.length<=c0)msg+='pas de propagation ';
  WET.v=.9;const c1=MON.fire.length;if(fireIgnite(spot[0]+30,spot[1],3)!==0)msg+='sol mouillé s’allume ';WET.v=.9;
  for(let i=0;i<80;i++)fireTick(1);if(MON.fire.length)msg+='le feu ne s’éteint pas ';}
 const s0=WND.s.value;MON.ht=0;for(let i=0;i<30;i++)windTick(.5);if(WND.s.value===s0)msg+='vent constant ';
-birdTick(.1);const fl=MON.birds.find(f=>f.x<9e4);if(fl){fl.st=0;P.x=fl.x+3;P.z=fl.z;birdTick(.1);if(fl.st!==1)msg+='oiseaux immobiles ';birdTick(1);if(!fl.b.some(b=>b.y>1))msg+='pas de décollage '}else msg+='aucun oiseau '}catch(e){msg+='erreur '+e.message}
+}catch(e){msg+='erreur '+e.message}
 WET.v=wet;MON.fire.length=0;MON.fmap.clear();return msg});
 T('Audio : retard du son, claquement supersonique, écho urbain',()=>{const d0=AUD.delayed;const t=audDelay(C.position.x+343,C.position.y,C.position.z);if(Math.abs(t-1)>.02)return'retard '+t;
 sfxShot(C.position.x+200,C.position.y,C.position.z,1,1);sfxBoom(C.position.x+400,C.position.y,C.position.z,1);if(AUD.delayed!==d0+2)return'tirs lointains non retardés '+(AUD.delayed-d0);
@@ -4556,6 +4558,16 @@ const c0=ANM.n.cull;const cp=C.position,fw=new THREE.Vector3(0,0,-1).applyQuater
 g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul)msg+='soldat devant masqué ';
 g.set(cp.x+fw.x*120,g.y,cp.z+fw.z*120);anmTick(.016);if(b.sld.sm.castShadow)msg+='ombre lointaine ';g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);anmTick(.016);if(!b.sld.sm.castShadow)msg+='ombre proche absente '}catch(e){msg+='erreur '+e.message}
 g.copy(p0);C.position.copy(cp0);b.armK=0;return msg});
+T('Performance : particules en lots (peu d’appels de rendu), ombres des accessoires d’intérieur et petits objets coupées',()=>{let msg='';
+const nb0=Object.keys(PBT).length;for(let i=0;i<300;i++)emit(C.position.clone().add(new THREE.Vector3(rnd(-3,3),rnd(-1,2),-6)),new THREE.Vector3(0,.5,0),{life:2,size:.5,color:i%2?0xff7a22:0xd2d4d2,add:i%3===0});for(let i=0;i<20;i++)emit(C.position.clone().add(new THREE.Vector3(0,0,-5)),new THREE.Vector3(),{map:sparkT,life:1,size:.1,add:1});
+pUpdate(.016);let draws=0,inst=0;for(const k in PBT){const b=PBT[k];if(b.mesh.visible){draws++;inst+=b.g.instanceCount}}
+if(inst<300)msg+='instances '+inst+' ';if(draws>6)msg+='trop de lots '+draws+' ';
+for(const p of pPool)p.on=false;pUpdate(.016);if(Object.values(PBT).some(b=>b.mesh.visible))msg+='lots non masqués ';
+const mk=()=>{const o=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2));o.castShadow=true;return o};PRF.int.length=0;PRF.tiny.length=0;perfBuild();PRF.int.length=0;PRF.tiny.length=0;PRF.int.push({o:mk(),x:5e4,z:5e4});PRF.tiny.push({o:mk(),x:6e4,z:6e4});
+const on0=PRF.int.filter(e=>e.o.castShadow).length;const off=perfShadowSet(false,1e5,1e5);if(PRF.int.some(e=>e.o.castShadow)||off<PRF.int.length)msg+='intérieurs encore actifs ';
+const e0=PRF.int[0];const ins=perfShadowSet(true,e0.x,e0.z);if(!e0.o.castShadow)msg+='intérieur proche sans ombre ';
+const t0=PRF.tiny[0];perfShadowSet(false,t0.x,t0.z);if(!t0.o.castShadow)msg+='petit objet proche sans ombre ';perfShadowSet(false,0,0);if(t0.o.castShadow)msg+='petit objet lointain avec ombre ';
+PRF.int.length=0;PRF.tiny.length=0;PRF.built=0;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

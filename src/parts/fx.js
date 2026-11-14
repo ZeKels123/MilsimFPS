@@ -10,10 +10,23 @@ const holeT=fxT(64,(x,w)=>{const g=x.createRadialGradient(32,32,0,32,32,30);g.ad
 const scorchT=fxT(128,(x,w)=>{const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(10,8,6,.9)');g.addColorStop(.55,'rgba(14,11,8,.65)');g.addColorStop(1,'rgba(14,11,8,0)');x.fillStyle=g;x.fillRect(0,0,w,w)});
 const _n=new THREE.Vector3(),_p=new THREE.Vector3(),_p2=new THREE.Vector3(),_e=new THREE.Vector3(),MZ=new THREE.Vector3();
 // --- particules (pool de sprites)
-const PN=600,pPool=[];let pI=0;
-for(let i=0;i<PN;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:puffT,transparent:true,depthWrite:false}));s.visible=false;S.add(s);pPool.push({s,v:new THREE.Vector3(),life:0,max:1,a:1,gr:0,grow:0,drag:0,size:.1})}
-function emit(pos,vel,o){const p=pPool[pI=(pI+1)%PN],m=p.s.material;p.s.position.copy(pos);p.v.copy(vel);p.life=p.max=o.life;p.a=o.a==null?1:o.a;p.gr=o.g||0;p.grow=o.grow||0;p.drag=o.drag||0;p.size=o.size;m.map=o.map||puffT;m.color.setHex(o.color==null?0xffffff:o.color);m.blending=o.add?THREE.AdditiveBlending:THREE.NormalBlending;m.rotation=Math.random()*6.28;m.opacity=p.a;p.s.scale.setScalar(p.size);p.s.visible=true}
-function pUpdate(dt){for(const p of pPool){if(!p.s.visible)continue;p.life-=dt;if(p.life<=0){p.s.visible=false;continue}const k=p.life/p.max;p.v.y-=p.gr*dt;p.v.multiplyScalar(Math.max(0,1-p.drag*dt));p.s.position.addScaledVector(p.v,dt);p.size+=p.grow*dt;p.s.scale.setScalar(p.size);p.s.material.opacity=p.a*(k<.5?k*2:1)}}
+// ---- particules (v41) : instances de quads par (texture, mélange) au lieu d'un sprite (et d'un appel de rendu) par particule
+const PN=600,pPool=[],PBT={};let pI=0;const pcol=new THREE.Color(),pqG=new THREE.PlaneGeometry(1,1);
+function pBatch(map,add){const k=map.uuid+(add?'a':'n');let b=PBT[k];if(b)return b;
+const g=new THREE.InstancedBufferGeometry();g.index=pqG.index;g.setAttribute('position',pqG.attributes.position);g.setAttribute('uv',pqG.attributes.uv);
+const off=new THREE.InstancedBufferAttribute(new Float32Array(PN*4),4),col=new THREE.InstancedBufferAttribute(new Float32Array(PN*4),4),rot=new THREE.InstancedBufferAttribute(new Float32Array(PN),1);
+[off,col,rot].forEach(a=>a.setUsage(THREE.DynamicDrawUsage));g.setAttribute('aOff',off);g.setAttribute('aCol',col);g.setAttribute('aRot',rot);g.instanceCount=0;
+const m=new THREE.ShaderMaterial({uniforms:{map:{value:map},uRight:{value:new THREE.Vector3(1,0,0)},uUp:{value:new THREE.Vector3(0,1,0)},uFogC:{value:new THREE.Color(0x9fb0a0)},uFogR:{value:new THREE.Vector2(14,60)},uAdd:{value:add?1:0}},transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending,
+vertexShader:'attribute vec4 aOff;attribute vec4 aCol;attribute float aRot;uniform vec3 uRight;uniform vec3 uUp;varying vec2 vUv;varying vec4 vCol;varying float vD;void main(){vUv=uv;vCol=aCol;float c=cos(aRot),s=sin(aRot);vec2 p=position.xy;vec2 r=vec2(c*p.x-s*p.y,s*p.x+c*p.y);vec3 w=aOff.xyz+(uRight*r.x+uUp*r.y)*aOff.w;vec4 mv=viewMatrix*vec4(w,1.);vD=-mv.z;gl_Position=projectionMatrix*mv;}',
+fragmentShader:'uniform sampler2D map;uniform vec3 uFogC;uniform vec2 uFogR;uniform float uAdd;varying vec2 vUv;varying vec4 vCol;varying float vD;void main(){vec4 t=texture2D(map,vUv);vec4 c=vec4(vCol.rgb*t.rgb,vCol.a*t.a);float f=smoothstep(uFogR.x,uFogR.y,vD);if(uAdd>.5)c.a*=1.-f;else c.rgb=mix(c.rgb,uFogC,f);gl_FragColor=c;}'});
+const mesh=new THREE.Mesh(g,m);mesh.frustumCulled=false;mesh.renderOrder=2;mesh.userData.keep=1;S.add(mesh);return PBT[k]={mesh,g,off,col,rot,n:0,m}}
+for(let i=0;i<PN;i++)pPool.push({on:false,b:null,pos:new THREE.Vector3(),v:new THREE.Vector3(),r:1,g:1,bl:1,rot:0,life:0,max:1,a:1,gr:0,grow:0,drag:0,size:.1});
+function emit(pos,vel,o){const p=pPool[pI=(pI+1)%PN];p.pos.copy(pos);p.v.copy(vel);p.life=p.max=o.life;p.a=o.a==null?1:o.a;p.gr=o.g||0;p.grow=o.grow||0;p.drag=o.drag||0;p.size=o.size;p.b=pBatch(o.map||puffT,!!o.add);pcol.setHex(o.color==null?0xffffff:o.color);p.r=pcol.r;p.g=pcol.g;p.bl=pcol.b;p.rot=Math.random()*6.28;p.on=true}
+function pUpdate(dt){for(const k in PBT)PBT[k].n=0;
+for(const p of pPool){if(!p.on)continue;p.life-=dt;if(p.life<=0){p.on=false;continue}const k=p.life/p.max;p.v.y-=p.gr*dt;p.v.multiplyScalar(Math.max(0,1-p.drag*dt));p.pos.addScaledVector(p.v,dt);p.size+=p.grow*dt;
+const b=p.b,i=b.n++,o=b.off.array,c=b.col.array;o[i*4]=p.pos.x;o[i*4+1]=p.pos.y;o[i*4+2]=p.pos.z;o[i*4+3]=p.size;c[i*4]=p.r;c[i*4+1]=p.g;c[i*4+2]=p.bl;c[i*4+3]=p.a*(k<.5?k*2:1);b.rot.array[i]=p.rot}
+C.updateMatrixWorld();const e=C.matrixWorld.elements,fg=S.fog;
+for(const k in PBT){const b=PBT[k];b.g.instanceCount=b.n;b.mesh.visible=b.n>0;if(!b.n)continue;b.off.needsUpdate=b.col.needsUpdate=b.rot.needsUpdate=true;const u=b.m.uniforms;u.uRight.value.set(e[0],e[1],e[2]);u.uUp.value.set(e[4],e[5],e[6]);if(fg){u.uFogC.value.copy(fg.color);u.uFogR.value.set(fg.near||14,fg.far||60)}}}
 // --- impacts / décals
 const dcG=new THREE.PlaneGeometry(.16,.16),dcM=new THREE.MeshBasicMaterial({map:holeT,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}),dcP=[];let dcI=0;
 for(let i=0;i<48;i++){const m=new THREE.Mesh(dcG,dcM);m.visible=false;S.add(m);dcP.push(m)}

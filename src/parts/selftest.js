@@ -143,13 +143,13 @@ HM.bl=20;HM.pain=.2;const s1=bleSev();HM.bl=100;HM.pain=0;const s0=bleSev();if(!
 HM.z.ll=0;const l2=bleLimp();HM.z.ll=hz;if(l2<1)return'boiterie non détectée';
 BLE.out=0;BLE.cd=0;bleFaint();const v=HMV(),o=BLE.out>0;BLE.out=.01;bleTick(.05);bleTick(.05);const rec=BLE.rec>0&&HMV()>0&&HMV()<=HMV0();
 BLE.out=0;BLE.rec=0;BLE.cd=0;HM.bl=bl;HM.pain=pn;BLE.dip=0;if(!o||v!==0)return'évanouissement sans blocage';if(!rec)return'pas de rétablissement';return''});
-T('Monde vivant : feu d’herbe qui se propage, vent qui varie, oiseaux qui s’envolent',()=>{const wet=WET.v;WET.v=0;let msg='';try{
+T('Monde vivant : feu d’herbe qui se propage, vent qui varie',()=>{const wet=WET.v;WET.v=0;let msg='';try{
 let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60,60);if(fireCan(x,z)&&fireCan(x+5,z)&&fireCan(x-5,z)&&fireCan(x,z+5)&&fireCan(x,z-5))spot=[x,z]}
 if(!spot)msg+='pas d’herbe ';else{const n=fireIgnite(spot[0],spot[1],3);if(n<3)msg+='allumage '+n+' ';const c0=MON.fire.length;const rr=Math.random;Math.random=()=>0;for(let i=0;i<4;i++)fireTick(1);Math.random=rr;if(MON.fire.length<=c0)msg+='pas de propagation ';
  WET.v=.9;const c1=MON.fire.length;if(fireIgnite(spot[0]+30,spot[1],3)!==0)msg+='sol mouillé s’allume ';WET.v=.9;
  for(let i=0;i<80;i++)fireTick(1);if(MON.fire.length)msg+='le feu ne s’éteint pas ';}
 const s0=WND.s.value;MON.ht=0;for(let i=0;i<30;i++)windTick(.5);if(WND.s.value===s0)msg+='vent constant ';
-birdTick(.1);const fl=MON.birds.find(f=>f.x<9e4);if(fl){fl.st=0;P.x=fl.x+3;P.z=fl.z;birdTick(.1);if(fl.st!==1)msg+='oiseaux immobiles ';birdTick(1);if(!fl.b.some(b=>b.y>1))msg+='pas de décollage '}else msg+='aucun oiseau '}catch(e){msg+='erreur '+e.message}
+}catch(e){msg+='erreur '+e.message}
 WET.v=wet;MON.fire.length=0;MON.fmap.clear();return msg});
 T('Audio : retard du son, claquement supersonique, écho urbain',()=>{const d0=AUD.delayed;const t=audDelay(C.position.x+343,C.position.y,C.position.z);if(Math.abs(t-1)>.02)return'retard '+t;
 sfxShot(C.position.x+200,C.position.y,C.position.z,1,1);sfxBoom(C.position.x+400,C.position.y,C.position.z,1);if(AUD.delayed!==d0+2)return'tirs lointains non retardés '+(AUD.delayed-d0);
@@ -182,6 +182,16 @@ const c0=ANM.n.cull;const cp=C.position,fw=new THREE.Vector3(0,0,-1).applyQuater
 g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);sldUpdate(b,.016,false);if(b.sld.cul)msg+='soldat devant masqué ';
 g.set(cp.x+fw.x*120,g.y,cp.z+fw.z*120);anmTick(.016);if(b.sld.sm.castShadow)msg+='ombre lointaine ';g.set(cp.x+fw.x*30,g.y,cp.z+fw.z*30);anmTick(.016);if(!b.sld.sm.castShadow)msg+='ombre proche absente '}catch(e){msg+='erreur '+e.message}
 g.copy(p0);C.position.copy(cp0);b.armK=0;return msg});
+T('Performance : particules en lots (peu d’appels de rendu), ombres des accessoires d’intérieur et petits objets coupées',()=>{let msg='';
+const nb0=Object.keys(PBT).length;for(let i=0;i<300;i++)emit(C.position.clone().add(new THREE.Vector3(rnd(-3,3),rnd(-1,2),-6)),new THREE.Vector3(0,.5,0),{life:2,size:.5,color:i%2?0xff7a22:0xd2d4d2,add:i%3===0});for(let i=0;i<20;i++)emit(C.position.clone().add(new THREE.Vector3(0,0,-5)),new THREE.Vector3(),{map:sparkT,life:1,size:.1,add:1});
+pUpdate(.016);let draws=0,inst=0;for(const k in PBT){const b=PBT[k];if(b.mesh.visible){draws++;inst+=b.g.instanceCount}}
+if(inst<300)msg+='instances '+inst+' ';if(draws>6)msg+='trop de lots '+draws+' ';
+for(const p of pPool)p.on=false;pUpdate(.016);if(Object.values(PBT).some(b=>b.mesh.visible))msg+='lots non masqués ';
+const mk=()=>{const o=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2));o.castShadow=true;return o};PRF.int.length=0;PRF.tiny.length=0;perfBuild();PRF.int.length=0;PRF.tiny.length=0;PRF.int.push({o:mk(),x:5e4,z:5e4});PRF.tiny.push({o:mk(),x:6e4,z:6e4});
+const on0=PRF.int.filter(e=>e.o.castShadow).length;const off=perfShadowSet(false,1e5,1e5);if(PRF.int.some(e=>e.o.castShadow)||off<PRF.int.length)msg+='intérieurs encore actifs ';
+const e0=PRF.int[0];const ins=perfShadowSet(true,e0.x,e0.z);if(!e0.o.castShadow)msg+='intérieur proche sans ombre ';
+const t0=PRF.tiny[0];perfShadowSet(false,t0.x,t0.z);if(!t0.o.castShadow)msg+='petit objet proche sans ombre ';perfShadowSet(false,0,0);if(t0.o.castShadow)msg+='petit objet lointain avec ombre ';
+PRF.int.length=0;PRF.tiny.length=0;PRF.built=0;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
