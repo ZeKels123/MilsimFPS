@@ -105,7 +105,7 @@ const BT=[
 function pickT(){let r=Math.random(),s=0;for(let i=0;i<BT.length;i++){s+=BT[i].w;if(r<s)return i}return 1}
 const ac={on:false,t:0,w:0,cd:0,tx:0,tz:0,a:0},expl=[],fog0=S.fog;
 function feed(t,hot){const d=document.createElement('div');d.textContent=t;d.style.cssText='transition:opacity .6s;'+(hot?'color:#ffd24a;font-size:15px':'');$('feed').appendChild(d);setTimeout(()=>d.style.opacity=0,hot?4000:2200);setTimeout(()=>d.remove(),hot?4700:2900);while($('feed').children.length>4)$('feed').firstChild.remove()}
-function onKill(b,head){b.dead=b.T===BT[3]?6:3;b.g.visible=false;P.kills++;P.streak++;if(P.kills%2===0)P.plates=Math.min(5,P.plates+1);if(b.T===BT[3])P.plates=Math.min(5,P.plates+2);
+function onKill(b,head){b.dead=BOT_CORPSE;b.g.visible=false;P.kills++;P.streak++;if(P.kills%2===0)P.plates=Math.min(5,P.plates+1);if(b.T===BT[3])P.plates=Math.min(5,P.plates+2);
 P.hp=Math.min(100,P.hp+(head?15:10));snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350);
 feed('Éliminé : '+b.T.n+(head?' (headshot)':'')+' · série '+P.streak);if(P.streak%10===0){P.acReady=true;feed('SÉRIE '+P.streak+' : AC-130 DISPONIBLE — appuie sur K',1)}}
 function bombBot(b,dm){if(b.dead)return;if(b.ar>0){b.ar-=dm;if(b.ar<=0){b.hp+=b.ar;b.ar=0;b.vest.visible=false;crack()}}else b.hp-=dm;if(b.hp<=0)onKill(b,false)}

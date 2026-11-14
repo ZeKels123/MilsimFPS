@@ -12,9 +12,7 @@ b.fl=.07;b.rec=1;sfxShot(g.x,g.y+1.4,g.z,b.ty,1);AI.heat=Math.min(9,(AI.heat||0)
 const dx=_lb.x-_la.x,dy=_lb.y-_la.y,dz=_lb.z-_la.z,L=Math.hypot(dx,dy,dz)||1;_fv3.set(dx/L,dy/L,dz/L);
 const pd=Math.hypot(_lb.x-P.x,_lb.z-P.z);
 if(pd<3.2)hlBullet(_la,_lb,.45,bt.dmg*(.8+Math.random()*.4),b);
-else if(!losBlock(_la,_fv3,L))tracer(_la.clone().addScaledVector(_fv3,.5),_lb);
-// balle qui passe près du joueur : claquement et secousse
-{_fv4.set(P.x-_la.x,P.gy+P.eh*.6-_la.y,P.z-_la.z);const t=Math.max(0,Math.min(L,_fv4.dot(_fv3))),dd=_fv4.sub(_fv3.clone().multiplyScalar(t)).length();if(dd<1.6&&t>2){FXP.shake=Math.max(FXP.shake,.22);snd(rnd(1700,2500),.04,.07,'square');HM.pain=Math.min(1,HM.pain+.01)}}
+else balBot(_la,_lb,.12,bt.dmg*(.8+Math.random()*.4),b,1);
 if(b.mag<=0){b.relT=b.ty===3?3.6:2.1}}
 const _fv3=new THREE.Vector3(),_fv4=new THREE.Vector3();
 function sqTick(dt){if(!sqInit_)sqBuild();

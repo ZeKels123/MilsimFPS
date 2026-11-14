@@ -1,3 +1,4 @@
+const BOT_CORPSE=60;
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
 const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={dorm:220,flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
@@ -71,7 +72,7 @@ if(d<.35){if(++b.pi>=b.path.length){b.path=null;if(b.st==='ups'&&b.after){b.rout
 for(const o of doors){if(o.dead||o.open>.85)continue;const q=Math.hypot(o.x-g.x,o.z-g.z);if(q<1.5){if(!o.tgt){if(o.max>200)continue;o.tgt=1;if(Math.hypot(o.x-P.x,o.z-P.z)<25)sndAt(o.x,1.2,o.z,170,.22,.12,'sawtooth',{ref:3})}if(q<1.15&&o.open<.6)return}}
 const sp=b.T.sp*b.spK*(b.hm||1)*(wDep(g.x,g.z)>.15?.6:1)*dt,nx=g.x+dx/d*sp,nz=g.z+dz/d*sp;
 if(nFree(nx,nz)){g.x=nx;g.z=nz;b.stuck=0}else if(nFree(nx,g.z)){g.x=nx;b.stuck+=dt*.5}else if(nFree(g.x,nz)){g.z=nz;b.stuck+=dt*.5}else b.stuck+=dt;if(b.stuck>.5){b.path=null;b.stuck=0;b.decT=0}}
-function botDie(b){if(b.dead)return;b.dead=b.T===BT[3]?6:3;botDeath(b,false)}
+function botDie(b){if(b.dead)return;b.dead=BOT_CORPSE;botDeath(b,false)}
 // ombre : à l'ombre (abri du soleil ou pièce non éclairée) les bots te voient moins loin
 const SHD={t:0,k:1,v:1};
 function shadeK(dt){SHD.t-=dt;if(SHD.t<=0){SHD.t=.35;let sh=false;if(P.gy!==undefined){const ri=inRoom(P.x,P.z);if(ri>=0&&P.gy+1<roofTop(P.x,P.z))sh=!(typeof ILON!=='undefined'&&ILON);else if(SUND.y>.12){_la.set(P.x,P.gy+P.bh,P.z);RC.set(_la,SUND);RC.far=60;for(const h of RC.intersectObjects(ray))if(!h.object.userData.glass){sh=true;break}}}SHD.k=sh?.62:1}SHD.v+=(SHD.k-SHD.v)*Math.min(1,dt*3);return SHD.v}

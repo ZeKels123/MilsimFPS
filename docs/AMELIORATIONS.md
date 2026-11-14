@@ -421,3 +421,18 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Casques (types 0, 1, 3) recalculés depuis les modèles d'origine : sommet à 1,83 m, centrés sur le crâne, inclinés de ~10° (l'avant remonte) pour suivre la tête de la pose de tir. Vérifié en rendu sous 4 azimuts en pose animée.
 - Casque type 1 : orientation avant/arrière inversée (rotation de 180° autour de l'axe vertical, triangles réorientés).
 - Taille des casques réduite (type 0 ×0,92, type 1 ×0,88, type 3 ×0,78), sommet à 1,82 m, pour des proportions cohérentes avec la tête.
+
+## v29 — Balistique réaliste + cadavres persistants
+**Balistique** (`src/parts/ballistics.js`) : plus aucun tir instantané, toutes les balles (joueur et bots) sont de vrais projectiles.
+- Physique : gravité 9,81 m/s², traînée aérodynamique `a = ½·ρ·Cd(Mach)·A/m·v²` avec un Cd qui varie avec le Mach (pic transsonique), intégration à 240 Hz, un seul rayon par image sur la corde du segment.
+- Munitions : 5.56 (900 m/s), 7.62 (840), .50 HMG (890), 9 mm (400 MP9, 350 pistolet), chevrotine 12/70 (9 plombs, 400 m/s, sphériques). Masse, calibre et forme propres à chacune.
+- Vent : force de la météo (2 m/s par temps clair, jusqu'à ~9 m/s en orage) + rafales, direction `WND.d` ; la dérive est naturelle (la traînée agit sur la vitesse relative à l'air).
+- Réglage à zéro par arme (HMG/précision 200 m, fusil 100 m, MP9 50 m, pompe 35 m, pistolet 25 m) : la visée coïncide avec l'impact à cette distance, la balle tombe au-delà.
+- Dégâts : proportionnels à l'énergie restante `(v²/v0²)^0,65–0,9` (plancher 8 %) ; une balle lente fait moins mal.
+- Pénétration : vitres (−10 % de vitesse), portes (selon le pouvoir de pénétration), balles traversantes pour le 7.62 et le .50 (touchent un 2e bot, −45 % d'énergie).
+- Bots : erreur de visée gaussienne conservée, plus compensation de la chute (table d'angles par 25 m) et anticipation du déplacement du joueur (60 %, 100 % pour le tireur d'élite). Ils ne compensent pas le vent. Les tirs de suppression sont de vraies balles qui peuvent toucher le joueur ; le claquement de la balle qui passe est déclenché à son passage.
+- Traceurs : 1 balle sur 3 pour le joueur, 1 sur 4 pour les bots (pas pour la chevrotine).
+- Son : un tir à plus de 60 m arrive avec le retard dû à la vitesse du son (d/343).
+- Tests : `Balistique : chute, traînée, vent et réglage à zéro cohérents` et `Balistique : le projectile avance à vitesse finie, touche le sol et disparaît`.
+
+**Cadavres** : les bots morts restent 60 s au sol (`BOT_CORPSE`), leur pose est figée après 4 s (plus de calcul de squelette), puis ils réapparaissent loin du joueur.

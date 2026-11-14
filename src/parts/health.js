@@ -39,13 +39,7 @@ function hlHurt(d,k,o){if(k==='f')hlFall(o||9);else hlApply('t',d,'x',null)}
 function hlFall(v){const d=Math.max(0,(v-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
 // ---- balle d'un bot : le point visé est le centre du torse, l'écart suit la précision du bot (loi normale), puis le rayon décide
 function gauss(){let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)*1.73}
-function hlBullet(V,A,p,dmg,b){p=Math.max(.03,Math.min(.97,p));const sg=.3/Math.sqrt(-2*Math.log(1-p)),dx=A.x-V.x,dy=A.y-V.y,dz=A.z-V.z,D=Math.hypot(dx,dy,dz)||1,ux=dx/D,uy=dy/D,uz=dz/D;
-let ax=-uz,az=ux;const al=Math.hypot(ax,az)||1;ax/=al;az/=al;const vx=uy*az,vy=uz*ax-ux*az,vz=-uy*ax,g1=gauss()*sg,g2=gauss()*sg;
-_hv.set(A.x+ax*g1+vx*g2-V.x,A.y+vy*g2-V.y,A.z+az*g1+vz*g2-V.z).normalize();const dir=_hv.clone(),far=D+4;
-const hr=hlRay(V,dir,far);RC.set(V,dir);RC.far=far;const hs=RC.intersectObjects(ray);let wt=1e9,wp=null;
-for(const h of hs){if(h.object.userData.glass){if(h.distance<(hr?hr.t:1e9))glassHit(h.object,h.point,dir);continue}wt=h.distance;wp=h.point;break}
-let end;if(hr&&hr.t<wt){end=V.clone().addScaledVector(dir,hr.t);hlApply(hr.z,dmg,'b',b.g.position)}else end=wp||V.clone().addScaledVector(dir,D+10);
-_la.copy(V).addScaledVector(dir,.5);tracer(_la,end);return !!(hr&&hr.t<wt)}
+function hlBullet(V,A,p,dmg,b){balBot(V,A,p,dmg,b);return false}
 // ---- éclats de grenade sur le joueur : rayons répartis sur la surface du corps, bloqués par les murs
 function hlBlastPlayer(E,R,n){if(HM.dead||ac.on)return;const tx=P.x,tz=P.z,d=Math.hypot(tx-E.x,P.gy+P.eh*.5-E.y,tz-E.z);if(d>R)return;const k=1-d/R,nf=Math.min(16,Math.round(80/Math.max(1,d*d)));let hit=0;
 for(let i=0;i<nf;i++){const hh=.1+((i*.618034)%1)*(P.eh-.1),ll=(((i*.754877)%1)-.5)*.5,sn=Math.sin(P.yaw),cs=Math.cos(P.yaw);_hv.set(tx+cs*ll-E.x,P.gy+hh-E.y,tz-sn*ll-E.z);const L=_hv.length()||1;_hv.multiplyScalar(1/L);const dir=_hv.clone(),hr=hlRay(E,dir,L+.6);if(!hr)continue;
