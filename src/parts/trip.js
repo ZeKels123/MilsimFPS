@@ -5,7 +5,7 @@ const TRB={t:0,dur:1.1,cd:0,dp:0,m:1,px:0,pz:0,ok:0,n:0,p:0};
 function trbChance(){let p=.006;const st=P.st||0;if(st===1)p*=.4;if(K.ShiftLeft&&st===0)p*=2;if(ads)p*=1.3;
 const tn=TOD.t>20.3||TOD.t<5;if(tn)p*=1.6;if(wcur[2]>.4)p*=1.4;
 const sl=Math.abs(GH(P.x+.6,P.z)-GH(P.x-.6,P.z))+Math.abs(GH(P.x,P.z+.6)-GH(P.x,P.z-.6));p*=1+Math.min(1.5,sl*1.6);
-if(HM.z&&HMAX&&((HM.z.ll<HMAX.ll*.5)||(HM.z.rl<HMAX.rl*.5)))p*=2;if(HM.sta<.3)p*=1.6;return p}
+if(HM.z&&HMAX&&((HM.z.ll<HMAX.ll*.5)||(HM.z.rl<HMAX.rl*.5)))p*=2;if(HM.sta<.3)p*=1.6;p*=1+effK()*.8;return p}
 // obstacle derrière le joueur : cadavre ou objet bas (hauteur 0,15 à 0,7 m)
 function trbBehind(){const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),bx=P.x-fx*.55,bz=P.z-fz*.55;
 for(const b of bots){if(!(b.dead>0)||b.dorm)continue;const g=b.g.position;if(Math.abs(g.x-bx)<.6&&Math.abs(g.z-bz)<.6&&Math.hypot(g.x-bx,g.z-bz)<.6&&Math.abs(g.y-P.gy)<1)return'cadavre'}

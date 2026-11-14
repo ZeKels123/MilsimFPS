@@ -36,7 +36,7 @@ hlCheck()}
 function hlCheck(){if(HM.dead)return;if(HM.z.h<=0)hlDie('Tête');else if(HM.z.t<=0)hlDie('Thorax');else if(HM.bl<=0)hlDie('Hémorragie')}
 function hlDie(w){HM.dead=1;HM.why=w;HM.last=w;P.hp=0}
 function hlHurt(d,k,o){if(k==='f')hlFall(o||9);else hlApply('t',d,'x',null)}
-function hlFall(v){const d=Math.max(0,(v-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
+function hlFall(v){const d=Math.max(0,(v*(1+.25*Math.min(1.5,effLoad()))-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
 // ---- balle d'un bot : le point visé est le centre du torse, l'écart suit la précision du bot (loi normale), puis le rayon décide
 function gauss(){let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)*1.73}
 function hlBullet(V,A,p,dmg,b){balBot(V,A,p,dmg,b);return false}
@@ -89,7 +89,7 @@ if(bl>0)HM.bl-=bl*dt;
 let base=0;for(const z of HZ){const l=hlLvl(z);base+=l===1?.06:l===2?.2:0}HM.pain=Math.max(Math.min(1,base),HM.pain-dt*.05);if(HM.mor>0)HM.mor-=dt;
 if(HM.conc>0)HM.conc=Math.max(0,HM.conc-dt);
 // endurance
-const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
+const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&!ads&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
 if(spr)HM.sta=Math.max(0,HM.sta-dt*.1*dis*(1+Math.max(0,invLoad()-.5)*1.4));else HM.sta=Math.min(1,HM.sta+dt*.22/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.3)HM.exh=0;
 // jambes brisées : on ne peut plus que ramper
 if(hlLegs()===2&&P.st<2&&!P.mant)P.st=2;if(hlLegs()>=1&&P.vy>0&&P.air&&!HJMP())P.vy=0;

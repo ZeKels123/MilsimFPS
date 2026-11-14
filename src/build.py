@@ -78,7 +78,7 @@ rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.b
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -177,7 +177,7 @@ rep("if(reloading||plateT>0||ac.on)return;if(ammo<=0)","if(reloading||plateT>0||
 rep("cd=c.rate;kick=1;","cd=c.rate;kick=HKCK();")
 rep("const sp=(ads?c.sp*.07:c.sp*((A.laser||A.grip)?.44:1))+(moving?.012:0);","const sp=((ads?c.sp*.07:c.sp*((A.laser||A.grip)?.44:1))+(moving?.012:0))*HAIM();")
 rep("if(reloading>0){reloading-=dt;","if(reloading>0){reloading-=dt/HRLD();")
-rep("ads=ads&&!reloading&&!bench;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10);","ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS());")
+rep("ads=ads&&!reloading&&!bench;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10);","ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS());")
 rep("(K.ShiftLeft&&P.st===0?6.5:4)","(K.ShiftLeft&&P.st===0&&HSPR()&&invSprintOK()?6.5:4)")
 rep("*STS[P.st]*(P.air?.8:1);","*STS[P.st]*(P.air?.8:1)*HMV();")
 rep("spr=K.ShiftLeft&&l>0&&adsT<.1;","spr=K.ShiftLeft&&l>0&&adsT<.1&&!mdown&&!(kick>.08);")
@@ -225,6 +225,8 @@ rep("function faHit(a,pt,dm){if(a.dead)return false;","function faHit(a,pt,dm){i
 rep("faTick(dt);FA.rab.forEach","faTick(dt);snkTick(dt);FA.rab.forEach")
 rep("if(!best){snd(120,.05,.08,'square');return}","if(!best){if(snkKnife(o,d,9)){snd(90,.08,.2,'square');FXP&&(FXP.shake=Math.max(FXP.shake||0,.2));return}snd(120,.05,.08,'square');return}")
 rep("if(!pz_&&pd<R_){hlBlastPlayer(","snkBlast(x,y,z,R_,mine);if(!pz_&&pd<R_){hlBlastPlayer(")
+rep("function hlTremor(){","function hlTremor0(){")
+rep("function HAIM(){","function HAIM0(){")
 rep("*PWADE*PSTUN*STS[P.st]","*PWADE*PSTUN*TRB.m*STS[P.st]")
 rep("function sfxShot(x,y,z,ty,vol){","function sfxShot0(x,y,z,ty,vol){")
 rep("aiUpdate(dt,inz);nadeUpdate(dt,inz);\n","aiUpdate(dt,inz);nadeUpdate(dt,inz);balTick(dt);\n")

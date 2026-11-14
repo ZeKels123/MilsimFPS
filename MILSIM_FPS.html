@@ -1760,7 +1760,7 @@ function canStand(){RC.set(_la.set(P.x,P.gy+.3,P.z),_lb.set(0,1,0));RC.far=1.55;
 function lvMantle(){const fx_=-Math.sin(P.yaw),fz_=-Math.cos(P.yaw);let best=null,bd=1e9;
 for(const s of LSURF){if(!s.gl||!s.gl.userData.glass.dead)continue;const cx=(s.x0+s.x1)/2,cz=(s.z0+s.z1)/2,dx=cx-P.x,dz=cz-P.z,d=Math.hypot(dx,dz);if(d>1.7||d<.05||(dx*fx_+dz*fz_)/d<.4)continue;const dy=s.y-P.gy;if(dy<-.4||dy>1.35)continue;if(d<bd){bd=d;best=s}}
 if(!best)return false;const cx=(best.x0+best.x1)/2,cz=(best.z0+best.z1)/2;P.mant={t:0,x0:P.x,z0:P.z,y0:P.gy,x1:cx,z1:cz,y1:best.y};P.st=0;if(typeof sfxFoot==='function')sfxFoot(P.x,P.gy,P.z,'vault',1);return true}
-function lvJump(){if(!HJMP()||P.mant||P.vy>0||P.gy>groundAt(P.x,P.z,P.gy,.55)+.15)return;if(lvMantle())return;P.vy=5.6;P.air=1}
+function lvJump(){if(!HJMP()||P.mant||P.vy>0||P.gy>groundAt(P.x,P.z,P.gy,.55)+.15)return;if(lvMantle())return;P.vy=5.6*effJump();P.air=1;effJumpCost()}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
 if(e.code==='ControlLeft'){const n=(P.st+1)%3;if(n===0&&!canStand())return;P.st=n}else if(e.code==='KeyP'){if(P.st===2){if(canStand())P.st=1}else P.st=2}
 else if(e.code==='Space'){if(P.st>0){if(canStand())P.st=0}else lvJump()}});
@@ -1892,7 +1892,7 @@ hlCheck()}
 function hlCheck(){if(HM.dead)return;if(HM.z.h<=0)hlDie('Tête');else if(HM.z.t<=0)hlDie('Thorax');else if(HM.bl<=0)hlDie('Hémorragie')}
 function hlDie(w){HM.dead=1;HM.why=w;HM.last=w;P.hp=0}
 function hlHurt(d,k,o){if(k==='f')hlFall(o||9);else hlApply('t',d,'x',null)}
-function hlFall(v){const d=Math.max(0,(v-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
+function hlFall(v){const d=Math.max(0,(v*(1+.25*Math.min(1.5,effLoad()))-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
 // ---- balle d'un bot : le point visé est le centre du torse, l'écart suit la précision du bot (loi normale), puis le rayon décide
 function gauss(){let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)*1.73}
 function hlBullet(V,A,p,dmg,b){balBot(V,A,p,dmg,b);return false}
@@ -1908,12 +1908,12 @@ function HMV(){let p=0;['ll','rl'].forEach(z=>{const l=hlLvl(z);p+=l===1?.12:l==
 function HSPR(){return !HM.exh&&hlLegs()===0&&!HM.act&&HM.bl>35}
 function HJMP(){return hlLegs()===0&&HM.z.a>0}
 function hlRa(){return hlLvl('ra')}function hlLa(){return hlLvl('la')}
-function HAIM(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return[1,1.35,3][hlRa()]*[1,1.2,1.8][hlLa()]*(1+pn*.5)*(HM.bl<50?1.25:1)*(HM.sta<.2?1.3:1)}
+function HAIM0(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return[1,1.35,3][hlRa()]*[1,1.2,1.8][hlLa()]*(1+pn*.5)*(HM.bl<50?1.25:1)*(HM.sta<.2?1.3:1)}
 function HKCK(){return 1+[0,.25,.6][hlRa()]}
 function HRLD(){return[1,1.25,2.2][hlRa()]*[1,1.15,1.5][hlLa()]}
 function HADS(){return[1,.7,.4][hlLa()]}
 function HNOADS(){return KNF.on||(hlRa()===2&&WSEL!==2)||(hlLa()===2&&(WSEL===3||WSEL===4))}
-function hlTremor(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
+function hlTremor0(){const pn=HM.mor>0?HM.pain*.15:HM.pain;return Math.min(1.4,pn*.6+(HM.bl<60?(60-HM.bl)/60*.8:0)+[0,.12,.35][hlRa()]+(HM.sta<.25?(.25-HM.sta)*2:0))}
 function hlCam(dt){if(ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001,tr=hlTremor();if(tr>.02){C.rotation.x+=(Math.sin(t*9.1)*.004+Math.sin(t*23.3)*.002)*tr;C.rotation.y+=(Math.sin(t*7.7+1)*.004+Math.sin(t*19.1)*.002)*tr}
 if(HM.hurtK>0){C.rotation.z+=HM.hurtS*HM.hurtK*.07;HM.hurtK=Math.max(0,HM.hurtK-dt*4)}if(HM.bl<35)C.rotation.z+=Math.sin(t*1.3)*.03*(1-HM.bl/35)}
 function hlKill(head){const k=P.kills;if(k%3===0)HM.inv.bd=Math.min(5,HM.inv.bd+1);if(k%5===0)HM.inv.mo=Math.min(3,HM.inv.mo+1);HM.pain*=.6;HM.sta=Math.min(1,HM.sta+.25);snd(620,.18,.14,'sine');$('hpb').style.boxShadow='0 0 12px #9ccc4e';setTimeout(()=>$('hpb').style.boxShadow='none',350)}
@@ -1945,7 +1945,7 @@ if(bl>0)HM.bl-=bl*dt;
 let base=0;for(const z of HZ){const l=hlLvl(z);base+=l===1?.06:l===2?.2:0}HM.pain=Math.max(Math.min(1,base),HM.pain-dt*.05);if(HM.mor>0)HM.mor-=dt;
 if(HM.conc>0)HM.conc=Math.max(0,HM.conc-dt);
 // endurance
-const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
+const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,spr=K.ShiftLeft&&mv&&P.st===0&&!ads&&HSPR()&&invSprintOK();const dis=(HM.z.t<HMAX.t*.5||HM.z.a<HMAX.a*.5)?1.8:1;
 if(spr)HM.sta=Math.max(0,HM.sta-dt*.1*dis*(1+Math.max(0,invLoad()-.5)*1.4));else HM.sta=Math.min(1,HM.sta+dt*.22/dis*(HM.pain>.6&&HM.mor<=0?.7:1));if(HM.sta<=0)HM.exh=1;else if(HM.exh&&HM.sta>.3)HM.exh=0;
 // jambes brisées : on ne peut plus que ramper
 if(hlLegs()===2&&P.st<2&&!P.mant)P.st=2;if(hlLegs()>=1&&P.vy>0&&P.air&&!HJMP())P.vy=0;
@@ -2144,7 +2144,7 @@ for(let i=INV.gnd.length-1;i>=0;i--){const e=INV.gnd[i],p=e.m.position;e.age+=dt
 if(e.fall){e.vy-=9.8*dt;p.y+=e.vy*dt;p.x+=e.vx*dt;p.z+=e.vz*dt;e.vx*=1-Math.min(1,dt*.6);e.vz*=1-Math.min(1,dt*.6);const gy=invGY(e);if(p.y<=gy){p.y=gy;e.fall=false;e.vx=e.vz=0}}
 if(e.age>900&&e.id!=='B'&&Math.hypot(p.x-P.x,p.z-P.z)>40){S.remove(e.m);INV.gnd.splice(i,1)}}
 const r=invLoad(),lv=r<.5?0:r<.8?1:r<=1?2:3;if(lv!==INV.lv){if(lv>INV.lv&&lv>=2)hlMsg(lv===3?'Surcharge : sprint impossible':'Vous êtes chargé');INV.lv=lv}
-INV.t+=dt;if(INV.t>.25){INV.t=0;const c=r<.5?'#cfe3c0':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';ivw.innerHTML='<span style="color:'+c+'">⚖ '+invKg().toFixed(1)+' / '+INV.CAP+' kg</span> <span style="opacity:.6">· Tab : sac</span>';
+INV.t+=dt;if(INV.t>.25){INV.t=0;const c=r<.5?'#cfe3c0':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';ivw.innerHTML='<span style="color:'+c+'">⚖ '+invKg().toFixed(1)+' / '+INV.CAP+' kg</span> <span style="opacity:.6">· Tab : sac</span>'+effBar();
 const n=!INV.open&&!bench&&!nb&&!ndR?invNear():null;if(n){ivp.style.display='block';ivp.textContent='F — Ramasser : '+(n.id==='B'?BAGS[n.bag.kind].n:invDef(n.id).n+(n.q>1?' ×'+n.q:''))}else ivp.style.display='none'}}
 
 function invDeath(){const cont={};for(const x of invStacks())cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]=(cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]||0)+x.q;
@@ -2237,7 +2237,7 @@ function brnSnd(x,y,z){const T=performance.now();if(T-brnLast<350||Math.hypot(x-
 function wingSnd(x,y,z){const T=performance.now();if(T-wingLast<1800||Math.hypot(x-P.x,z-P.z)>60)return;wingLast=T;auInit();if(!AU.ready)return;const o=sp3(x,y,z,{ref:12,roll:.9,ad:60});for(let k=0;k<4;k++)setTimeout(()=>{try{nz(.09,'bandpass',1200,.6,.28,o,1.4,.02)}catch(e){}},k*85)}
 function brnCrack(b,big,bot){b.br=1;b.t=90;b.m.scale.x=.5;b.m.rotation.z=.5;b.m.position.y+=.03;const y=GH(b.x,b.z)+.3;brnSnd(b.x,y,b.z);
 for(let i=0;i<4;i++)emit(_no.set(b.x,y-.2,b.z),_e.set(rnd(-1,1),rnd(.5,1.4),rnd(-1,1)),{color:0x8a6a40,size:.03,life:.4,g:6});if(!bot)noise(b.x,b.z,big?34:22)}
-function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);BRN.t+=dt;
+function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);effTick(dt);BRN.t+=dt;
 if(BRN.t>=.12){const st=BRN.t;BRN.t=0;const wk=[];if(!ac.on&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD))wk.push({x:P.x,z:P.z,p:P.st===0?(K.ShiftLeft?1:.9):P.st===1?.3:.08,big:K.ShiftLeft,bot:0});for(const b of bots){if(b.dead)continue;const g=b.g.position;if(Math.abs(g.x-P.x)<80&&Math.abs(g.z-P.z)<80)wk.push({x:g.x,z:g.z,p:b.cr?.25:.5,big:0,bot:1})}
 for(const b of BRN.list){if(b.br){b.t-=st;if(b.t<=0){b.br=0;b.m.scale.x=1;b.m.rotation.z=0;b.m.position.y=GH(b.x,b.z)+.02}continue}
 if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90){b.m.visible=false;continue}b.m.visible=Math.abs(b.x-P.x)<75&&Math.abs(b.z-P.z)<75;for(const w of wk){if(Math.abs(w.x-b.x)<.55&&Math.abs(w.z-b.z)<.55&&Math.hypot(w.x-b.x,w.z-b.z)<.55){if(Math.random()<w.p*(b.big?1.15:1))brnCrack(b,w.big||b.big,w.bot);else b.t=0;break}}}
@@ -2256,7 +2256,7 @@ const TRB={t:0,dur:1.1,cd:0,dp:0,m:1,px:0,pz:0,ok:0,n:0,p:0};
 function trbChance(){let p=.006;const st=P.st||0;if(st===1)p*=.4;if(K.ShiftLeft&&st===0)p*=2;if(ads)p*=1.3;
 const tn=TOD.t>20.3||TOD.t<5;if(tn)p*=1.6;if(wcur[2]>.4)p*=1.4;
 const sl=Math.abs(GH(P.x+.6,P.z)-GH(P.x-.6,P.z))+Math.abs(GH(P.x,P.z+.6)-GH(P.x,P.z-.6));p*=1+Math.min(1.5,sl*1.6);
-if(HM.z&&HMAX&&((HM.z.ll<HMAX.ll*.5)||(HM.z.rl<HMAX.rl*.5)))p*=2;if(HM.sta<.3)p*=1.6;return p}
+if(HM.z&&HMAX&&((HM.z.ll<HMAX.ll*.5)||(HM.z.rl<HMAX.rl*.5)))p*=2;if(HM.sta<.3)p*=1.6;p*=1+effK()*.8;return p}
 // obstacle derrière le joueur : cadavre ou objet bas (hauteur 0,15 à 0,7 m)
 function trbBehind(){const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),bx=P.x-fx*.55,bz=P.z-fz*.55;
 for(const b of bots){if(!(b.dead>0)||b.dorm)continue;const g=b.g.position;if(Math.abs(g.x-bx)<.6&&Math.abs(g.z-bz)<.6&&Math.hypot(g.x-bx,g.z-bz)<.6&&Math.abs(g.y-P.gy)<1)return'cadavre'}
@@ -2275,6 +2275,36 @@ if(!TRB.ok){TRB.ok=1;return}
 if(TRB.cd>0||P.air||P.mant||(P.st||0)===2||!(K.KeyS&&!K.KeyW)||mv<1e-4||mv>1)return;
 const w=trbBehind();if(w){if(Math.random()<Math.min(1,dt*6)){trbFall(w)}return}
 if(Math.random()<trbChance()*mv)trbFall('')}
+// ================= EFFORT : poids, fatigue, souffle (v30) =================
+// Complète l'inventaire (charge -> vitesse) et l'endurance : la charge fatigue aussi à la marche et dans les côtes, réduit le saut,
+// ralentit le passage en visée, rend la visée instable et la chute plus dure. Maintenir [Maj] en visée retient le souffle.
+const EFF={hb:0,hbT:0,gasp:0,br:0,px:0,pz:0,pgy:0,ok:0,sl:0};
+const effLoad=()=>typeof invLoad==='function'?invLoad():0;
+// 0 sous 50 % de charge, 1 à 100 %, jusqu'à 1,6 en surcharge
+const effK=()=>Math.max(0,Math.min(1.6,(effLoad()-.5)/.5));
+const effJump=()=>(1-.22*Math.min(1,effK()))*(HM.sta<.08?.75:1);
+const effJumpCost=()=>{HM.sta=Math.max(0,HM.sta-.05*(1+effK()))};
+const effADS=()=>1-.3*Math.min(1,effK())-(HM.sta<.25?.15:0);
+// tremblement et dispersion : on enveloppe les versions de health.js
+function hlTremor() {return Math.min(1.6,(hlTremor0()+effK()*.2)*(EFF.gasp>0?1.8:1)*(1-.85*EFF.hb))}
+function HAIM() {return HAIM0()*(1+.25*effK())*(1-.3*EFF.hb)*(EFF.gasp>0?1.2:1)}
+function effBar(){if(HM.sta>.995&&!EFF.hb&&!EFF.gasp)return'';const c=HM.sta<.25?'#e04a3a':HM.sta<.5?'#e6c04a':'#8fae5a';
+return'<div style="width:96px;height:4px;background:#2a2f2a;margin-top:3px"><i style="display:block;height:4px;width:'+Math.round(HM.sta*100)+'%;background:'+c+'"></i></div>'+(EFF.gasp>0?'<span style="color:#e04a3a;font-size:11px">à bout de souffle</span>':EFF.hb>.3?'<span style="color:#cfe3c0;font-size:11px">souffle retenu</span>':'')}
+function effBreath(){try{if(typeof AC==='undefined'||!AC)return;auInit();if(!AU.ready)return;nz(.55,'bandpass',900,.8,.12,AOUT(),.9,.12)}catch(e){}}
+function effTick(dt){
+if(P.gy===undefined||HM.dead||ac.on||bench||free||$('ov').style.display!=='none'){EFF.ok=0;EFF.hb=0;return}
+const mx=P.x-EFF.px,mz=P.z-EFF.pz,m=Math.hypot(mx,mz),gy=GH(P.x,P.z),dgy=gy-EFF.pgy;EFF.px=P.x;EFF.pz=P.z;EFF.pgy=gy;
+if(!EFF.ok){EFF.ok=1;return}
+const mvg=m>.3*dt&&m<2*dt*8&&!P.air&&(P.st||0)<2,ld=effLoad();
+if(mvg&&HM.sta>0){const sl=dgy/Math.max(m,1e-3);EFF.sl=sl;const spr=K.ShiftLeft&&(P.st||0)===0&&!ads;
+let d=dt*.014*Math.max(0,ld-.6)/.4*((P.st||0)===1?.5:1);if(sl>.12)d+=dt*.05*Math.min(1,(sl-.12)*3)*(1+effK())*(spr?1.5:1);HM.sta=Math.max(0,HM.sta-d)}
+// retenue du souffle : [Maj] maintenu en visée
+const maxT=3.5*(.4+.6*HM.sta);
+if(EFF.gasp>0){EFF.gasp-=dt;EFF.hb=0}
+else if(ads&&K.ShiftLeft&&!reloading&&HM.sta>.08&&EFF.hbT<maxT){EFF.hb=Math.min(1,EFF.hb+dt*5);EFF.hbT+=dt;HM.sta=Math.max(0,HM.sta-dt*.04)}
+else{if(EFF.hb>.5&&EFF.hbT>=maxT){EFF.gasp=1.8;EFF.hb=0;effBreath()}EFF.hb=Math.max(0,EFF.hb-dt*3);EFF.hbT=Math.max(0,EFF.hbT-dt*(ads&&K.ShiftLeft?0:1.2))}
+// essoufflement audible
+EFF.br-=dt;if(HM.sta<.25&&EFF.br<=0){EFF.br=1.9-Math.min(.8,(.25-HM.sta)*3);effBreath();noise(P.x,P.z,9)}}
 // ================= BARILS DE CARBURANT : fuite, incendie, explosion retardée =================
 // Seuls les barils rouges contiennent du carburant. Une balle les perce (fuite, flaque) et peut enflammer les vapeurs (20 %).
 // Un baril en feu explose après 2,5 à 6 s s'il lui reste assez de carburant, sinon il brûle sans exploser.
@@ -2541,10 +2571,11 @@ if(al.some(b=>b.see)){q.lk.x=P.x;q.lk.z=P.z;q.t=7}else q.t=Math.max(0,q.t-dt);
 // pertes récentes
 const dead=q.n0-al.length;if(q.dead0===undefined)q.dead0=0;if(dead>q.dead0){q.lost=22;q.dead0=dead}q.lost=Math.max(0,q.lost-dt);if(dead===0)q.dead0=0;
 const hurt=al.reduce((s,b)=>s+sqHurt(b),0)/al.length;
-if(!q.ret&&q.t>0&&((q.lost>0&&al.length<=Math.ceil(q.n0/2))||hurt>.5)&&al.length>0){q.ret=22;q.fb=null;feed('Une escouade se replie')}
+if(!q.ret&&q.t>0&&((q.lost>0&&al.length<=Math.ceil(q.n0/2))||hurt>.5)&&al.length>0){q.ret=22;q.fb=null;feed('Une escouade se replie');{const l_=sqLeader(al);if(l_)sqIssue(q,'ret',l_,al.filter(b=>b!==l_))}}
 if(q.ret>0){q.ret-=dt;if(!q.fb||q.aT<=0){q.aT=5;const g0=al[0].g.position;let best=null;for(let n=0;n<24;n++){const a=Math.atan2(g0.x-P.x,g0.z-P.z)+rnd(-.6,.6),r=rnd(30,48),x=g0.x+Math.sin(a)*r,z=g0.z+Math.cos(a)*r;if(!nFree(x,z)||Math.hypot(x-P.x,z-P.z)<35)continue;best=[x,z];break}q.fb=best||(q.fb||[g0.x,g0.z]);
 al.forEach((b,i)=>{if(b.lvl||b.route)return;b.fleeT=6;b.heal=null;goTo(b,q.fb[0]+rnd(-3,3),q.fb[1]+rnd(-3,3),2.4,'cov')})}
 if(q.ret<=0)q.fb=null;continue}
+sqOrders(q,al,dt);
 // appui : tir de suppression sur la dernière position connue quand personne ne voit le joueur
 const s=q.sup;if(s&&q.t>0&&!s.see&&s.mag>0&&s.relT<=0&&s.stun<=0&&s.blind<=0&&!s.heal&&!s.lvl&&!s.route&&!s.unarm){const d=Math.hypot(q.lk.x-s.g.position.x,q.lk.z-s.g.position.z);
 if(d<s.T.rng*1.2&&d>8){s.path=null;s.cr=1;s.decT=Math.max(s.decT,.4);s.st='atk';s.yaw=Math.atan2(q.lk.x-s.g.position.x,q.lk.z-s.g.position.z);s.cd-=0;if(s.cd<=0)sqFire(s,q,dt)}}
@@ -2559,6 +2590,42 @@ if(b===q.med&&(sqHurt(b)>.3||b.bdz)){b.heal={t:5,tgt:null};continue}
 if(w&&q.med&&!q.med.heal&&!q.med.see&&q.med.stun<=0&&!q.med.lvl&&!q.med.route){const d=Math.hypot(w.g.position.x-q.med.g.position.x,w.g.position.z-q.med.g.position.z);if(d<28){if(d<2.6){q.med.heal={t:4,tgt:w};w.heal={t:4,tgt:null,passive:1};w.path=null}else if(q.med.decT<.2||!q.med.path)goTo(q.med,w.g.position.x,w.g.position.z,2,'hnt')}}
 else if(w&&(!q.med||q.med.dead)&&b.seenT>5)b.heal={t:6,tgt:null}}}
 }
+// ================= ORDRES D'ESCOUADE (v30) =================
+// Le chef (soldat d'assaut, sinon tireur) analyse la situation et donne un ordre vocal : grenade, contournement, tir de couverture,
+// repli, regroupement. Les bots désignés répondent et exécutent ; le joueur entend (et lit) les ordres à moins de 45 m.
+function ordInit(){ORD.i=1;Object.assign(VX.L,{
+ oFlank:['Vous deux, contournez par le flanc !','Flanquez-le, on le fixe ici !','Deux hommes sur la droite, allez-y !'],
+ oCover:['Feu de couverture, maintenant !','Couvrez-nous, tirez !','Arrosez sa position !'],
+ oGren:['Grenade sur sa position !','Balance une grenade !','Dégoupille, grenade !'],
+ oRet:['Repli ! Repli !','On décroche, tout le monde !','Repliez-vous, vite !'],
+ oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !']})}
+const ORD={n:0,log:[],i:0};
+function sqLeader(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
+function sqSay(b,key){if(!ORD.i)ordInit();vxSay(b,key,true,true)}
+function sqAck(list){list.forEach((b,i)=>setTimeout(()=>{if(!b.dead)vxSay(b,'ack',true,true)},900+i*650))}
+function sqIssue(q,k,ld,who){ORD.n++;q.last=k;q.lastT=VX.t;ORD.log.push(k);if(ORD.log.length>20)ORD.log.shift();sqSay(ld,k==='flank'?'oFlank':k==='cover'?'oCover':k==='gren'?'oGren':k==='ret'?'oRet':'oReg');sqAck(who)}
+// tir de couverture d'un bot désigné
+function sqCoverFire(b,q,dt){if(b.mag<=0||b.relT>0||b.stun>0||b.blind>0||b.heal||b.lvl||b.route||b.unarm)return;
+const g=b.g.position;b.path=null;b.cr=1;b.decT=Math.max(b.decT,.4);if(!b.see){b.st='atk';b.yaw=Math.atan2(q.lk.x-g.x,q.lk.z-g.z)}if(b.cd<=0&&Math.hypot(q.lk.x-g.x,q.lk.z-g.z)<b.T.rng*1.2)sqFire(b,q,dt)}
+function sqOrders(q,al,dt){if(!ORD.i)ordInit();
+for(const b of al)if(b.ordCover>0){b.ordCover-=dt;sqCoverFire(b,q,dt)}
+q.oT=(q.oT===undefined?rnd(2,5):q.oT)-dt;if(q.oT>0)return;
+const ld=sqLeader(al);if(!ld||al.length<2||ld.stun>0||ld.blind>0||ld.heal||ld.lvl||ld.route){q.oT=2;return}
+const lg=ld.g.position,free=al.filter(b=>b!==ld&&!b.heal&&!b.lvl&&!b.route&&b.stun<=0&&b.blind<=0&&!b.unarm&&b.fleeT<=0&&!b.dorm&&!(b.ordCover>0));
+// hors contact : regrouper les membres éparpillés
+if(q.t<=0){q.oT=rnd(14,24);const far=free.filter(b=>!b.alert&&b.seenT>8&&Math.hypot(b.g.position.x-lg.x,b.g.position.z-lg.z)>28);
+if(far.length&&!ld.alert&&q.ret<=0){let n=0;far.forEach(b=>{if(goTo(b,lg.x+rnd(-4,4),lg.z+rnd(-4,4),1.5,'pat'))n++});if(n)sqIssue(q,'reg',ld,far)}return}
+if(!free.length||q.ret>0){q.oT=3;return}
+const seen=al.some(b=>b.see),lkd=Math.hypot(q.lk.x-lg.x,q.lk.z-lg.z);let k=null,who=[];
+// 1. grenade sur la dernière position connue quand personne ne voit le joueur
+const gb=!seen&&q.t>1&&AI.nadeCd<=0?free.find(b=>b.ty<2&&b.nadeCd<=0&&inRoom(b.g.position.x,b.g.position.z)<0&&(d=>d>9&&d<30)(Math.hypot(q.lk.x-b.g.position.x,q.lk.z-b.g.position.z))):null;
+if(gb){gb.lk.x=q.lk.x;gb.lk.z=q.lk.z;if(botThrow(gb,Math.random()<.72?0:(Math.random()<.5?1:2))){k='gren';who=[gb]}}
+// 2. contournement par deux hommes pendant que le reste fixe le joueur
+if(!k&&(seen||q.t>2)&&free.length>=2&&lkd>12&&lkd<75&&(q.lastO!=='flank'||VX.t-(q.lastT||0)>18)&&VX.t-(q.flT||0)>18){const fl=free.filter(b=>b.ty<2).slice(0,2);let n=0;const got=[];for(const b of fl){if(aiFlank(b,P.x,P.z)){n++;got.push(b)}}
+if(n){q.flT=VX.t;k='flank';who=got;const cv=al.filter(b=>!got.includes(b)&&b!==ld&&!b.heal);const c1=cv.find(b=>b===q.sup)||cv[0];if(c1)c1.ordCover=7;who=got.concat(c1?[c1]:[])}}
+// 3. tir de couverture quand le joueur est bloqué ou masqué
+if(!k&&q.t>0&&free.length>=1){const c=free.find(b=>b===q.sup)||free[0];if(c&&c.mag>6){c.ordCover=6;k='cover';who=[c]}}
+if(k)sqIssue(q,k,ld,who);q.oT=k?rnd(8,13):2.5}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
 // mise à zéro de l'arme, énergie restante -> dégâts, pénétration des portes/vitres, balles traversantes (7.62, .50).
@@ -3861,6 +3928,14 @@ T('Balistique : le projectile avance à vitesse finie, touche le sol et dispara�
 let got=0;const q2=balSpawn(new THREE.Vector3(P.x+3,GH(P.x+3,P.z)+3,P.z),new THREE.Vector3(0,-1,0),'r556',{src:'p',c:WC[WSEL],cb:()=>got++});for(let k=0;k<6;k++)balTick(.02);return BAL.bl.indexOf(q2)<0?'':'balle encore en vol'});
 T('Branches cassantes : nombreuses, bruit au passage',()=>{if(!BRN.init)brnInit();if(BRN.list.length<1500)return'branches : '+BRN.list.length;const b=BRN.list.find(q=>!q.br&&Math.abs(q.x-P.x)<90&&Math.abs(q.z-P.z)<90);if(!b)return'';const n0=NZ.n;brnCrack(b,true,0);const ok=b.br===1&&NZ.n>n0;b.br=0;b.m.scale.x=1;b.m.rotation.z=0;return ok?'':'la branche ne craque pas'});
 T('Trébuchement en reculant : chute, ralentissement, vue rétablie',()=>{const p0=P.pitch,h0=Object.assign({},HM.z),c0=TRB.cd;TRB.cd=0;const c=trbChance();if(!(c>.001&&c<.05))return'chance par mètre : '+c;trbFall('');if(!(TRB.t>0))return'pas de chute';const fr0=free,ov0=$('ov').style.display;free=false;$('ov').style.display='none';let mn=1;for(let i=0;i<40&&TRB.t>0;i++){trbTick(.05);mn=Math.min(mn,TRB.m)}free=fr0;$('ov').style.display=ov0;const ok=TRB.m===1&&Math.abs(P.pitch-p0)<.02&&mn<.1;P.pitch=p0;HM.z=h0;TRB.cd=c0;return ok?'':'état final : m='+TRB.m+' pitch='+(P.pitch-p0).toFixed(3)});
+T('Effort : souffle retenu stabilise la visée puis essouffle, saut et visée limités par la charge',()=>{const sv={ads,sh:K.ShiftLeft,fr:free,ov:$('ov').style.display,pain:HM.pain,sta:HM.sta,mor:HM.mor};free=false;$('ov').style.display='none';ads=true;K.ShiftLeft=true;HM.pain=.8;HM.mor=0;HM.sta=1;EFF.hb=0;EFF.hbT=0;EFF.gasp=0;EFF.ok=0;
+let msg='';try{effTick(.05);const t0=hlTremor();for(let i=0;i<10;i++)effTick(.05);const t1=hlTremor();if(!(EFF.hb>.9&&t1<t0*.4))msg='tremblement '+t0.toFixed(2)+' -> '+t1.toFixed(2);
+for(let i=0;i<160&&!(EFF.gasp>0);i++)effTick(.05);if(!msg&&!(EFF.gasp>0&&hlTremor()>t0))msg='pas de souffle coupé';
+if(!msg&&!(effJump()>.7&&effJump()<=1&&effADS()>.4&&effADS()<=1))msg='limites de charge : '+effJump()+' '+effADS()}finally{ads=sv.ads;K.ShiftLeft=sv.sh;free=sv.fr;$('ov').style.display=sv.ov;HM.pain=sv.pain;HM.sta=sv.sta;HM.mor=sv.mor;EFF.hb=0;EFF.hbT=0;EFF.gasp=0;EFF.ok=0}return msg});
+T('Ordres d\u2019escouade : le chef parle, les bots désignés exécutent, repli annoncé',()=>{if(!sqInit_)sqBuild();const q=SQ.find(o=>o.m.filter(b=>!b.dead).length>=3);if(!q)return'';const al=sqRoles(q),keys=['see','dorm','stun','blind','heal','lvl','route','unarm','fleeT','mag','nadeCd','ordCover','st','path','cd'],sv=al.map(b=>keys.map(k=>b[k])),sq0=[q.t,q.ret,q.oT,q.lk.x,q.lk.z,q.flT],ng=AI.nadeCd,bg=AI.budget;
+let msg='';try{al.forEach(b=>{b.see=false;b.dorm=0;b.stun=0;b.blind=0;b.heal=null;b.lvl=0;b.route=null;b.unarm=0;b.fleeT=0;b.mag=20;b.nadeCd=99;b.ordCover=0;b.cd=9});AI.nadeCd=99;AI.budget=6;q.t=5;q.ret=0;q.oT=0;q.flT=-99;q.lk.x=P.x;q.lk.z=P.z+30;const n0=ORD.n;sqOrders(q,al,.05);
+if(ORD.n!==n0+1)msg='aucun ordre donné';else if(!al.some(b=>b.ordCover>0||b.st==='flk'))msg='aucun bot n\u2019exécute l\u2019ordre';
+if(!msg&&!(sqLeader(al)&&['oFlank','oCover','oGren','oRet','oReg'].every(x=>VX.L[x]&&VX.L[x].length)))msg='phrases d\u2019ordre manquantes'}finally{al.forEach((b,i)=>keys.forEach((k,j)=>b[k]=sv[i][j]));q.t=sq0[0];q.ret=sq0[1];q.oT=sq0[2];q.lk.x=sq0[3];q.lk.z=sq0[4];q.flT=sq0[5];AI.nadeCd=ng;AI.budget=bg}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
@@ -3961,10 +4036,10 @@ const VX={on:true,t:0,last:0,q:[],sub:null,L:{
  lost:['Je l\'ai perdu.','Plus de contact.','Où est-il passé ?'],
  ack:['Reçu.','Compris.','Je vous couvre.','Ok, j\'arrive.']}};
 function vxSub(t){if(!VX.sub){const e=document.createElement('div');e.style.cssText='position:fixed;left:50%;bottom:19%;transform:translateX(-50%);padding:3px 10px;background:rgba(10,14,12,.6);color:#d8e6c8;font:13px monospace;border-left:3px solid #8fae5a;pointer-events:none;z-index:9;opacity:0;transition:opacity .2s';document.body.appendChild(e);VX.sub=e}VX.sub.textContent=t;VX.sub.style.opacity=1;VX.subT=2.2}
-function vxSay(b,key,noAck){if(!VX.on||b.dead||typeof speechSynthesis==='undefined')return;const g=b.g.position,d=Math.hypot(g.x-P.x,g.z-P.z);if(d>45)return;
-if((b.vxCd||0)>VX.t||VX.last>VX.t)return;const L=VX.L[key],txt=L[Math.random()*L.length|0];b.vxCd=VX.t+(key==='ack'?3:5);VX.last=VX.t+.9;
+function vxSay(b,key,noAck,force){if(!VX.on||b.dead||typeof speechSynthesis==='undefined')return;const g=b.g.position,d=Math.hypot(g.x-P.x,g.z-P.z);if(d>45)return;
+if(!force&&((b.vxCd||0)>VX.t||VX.last>VX.t))return;const L=VX.L[key],txt=L[Math.random()*L.length|0];b.vxCd=VX.t+(key==='ack'?3:5);VX.last=VX.t+.9;
 vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] '+txt);
-try{const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';const bi=bots.indexOf(b);u.pitch=.55+(bi%5)*.14+(b.ty===3?-.15:0);u.rate=1.18;u.volume=Math.max(.1,1-d/45);if(speechSynthesis.speaking&&speechSynthesis.pending)return;speechSynthesis.speak(u)}catch(e){}
+try{const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';const bi=bots.indexOf(b);u.pitch=.55+(bi%5)*.14+(b.ty===3?-.15:0);u.rate=1.18;u.volume=Math.max(.1,1-d/45);if(speechSynthesis.speaking&&speechSynthesis.pending&&!force)return;speechSynthesis.speak(u)}catch(e){}
 if(!noAck&&key!=='ack'&&key!=='lost'){let best=null,bd=40;for(const o of bots){if(o===b||o.dead)continue;const dd=Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z);if(dd<bd){bd=dd;best=o}}if(best)setTimeout(()=>vxSay(best,'ack',true),1100+Math.random()*600)}}
 function vxTick(dt){VX.t+=dt;if(VX.subT>0){VX.subT-=dt;if(VX.subT<=0&&VX.sub)VX.sub.style.opacity=0}
 for(const b of bots){if(b.dead){b.vxDead=1;continue}
@@ -4126,7 +4201,7 @@ const clock=new THREE.Clock(),V=new THREE.Vector3(),W=new THREE.Vector3();
 function loop(){requestAnimationFrame(loop);window.ldDone();const dt=Math.min(clock.getDelta(),.05);
 
 P.pitch=Math.max(-1.4,Math.min(1.4,P.pitch));
-const sk=sight(),inz=inZ(P.x,P.z),nearB=inz&&Math.hypot(P.x-BENCH.x,P.z-BENCH.z)<2.7;nb=nearB;ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS());
+const sk=sight(),inz=inZ(P.x,P.z),nearB=inz&&Math.hypot(P.x-BENCH.x,P.z-BENCH.z)<2.7;nb=nearB;ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS());
 // déplacement
 const f=ac.on?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=ac.on?0:(K.KeyD?1:0)-(K.KeyA?1:0);
 const spd=(ads?2.2:(K.ShiftLeft&&P.st===0&&HSPR()&&invSprintOK()&&!mdown?6.5:4)*(Math.abs(P.lean)>.5?.7:1))*PWADE*PSTUN*TRB.m*STS[P.st]*(P.air?.8:1)*HMV();

@@ -144,7 +144,7 @@ for(let i=INV.gnd.length-1;i>=0;i--){const e=INV.gnd[i],p=e.m.position;e.age+=dt
 if(e.fall){e.vy-=9.8*dt;p.y+=e.vy*dt;p.x+=e.vx*dt;p.z+=e.vz*dt;e.vx*=1-Math.min(1,dt*.6);e.vz*=1-Math.min(1,dt*.6);const gy=invGY(e);if(p.y<=gy){p.y=gy;e.fall=false;e.vx=e.vz=0}}
 if(e.age>900&&e.id!=='B'&&Math.hypot(p.x-P.x,p.z-P.z)>40){S.remove(e.m);INV.gnd.splice(i,1)}}
 const r=invLoad(),lv=r<.5?0:r<.8?1:r<=1?2:3;if(lv!==INV.lv){if(lv>INV.lv&&lv>=2)hlMsg(lv===3?'Surcharge : sprint impossible':'Vous êtes chargé');INV.lv=lv}
-INV.t+=dt;if(INV.t>.25){INV.t=0;const c=r<.5?'#cfe3c0':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';ivw.innerHTML='<span style="color:'+c+'">⚖ '+invKg().toFixed(1)+' / '+INV.CAP+' kg</span> <span style="opacity:.6">· Tab : sac</span>';
+INV.t+=dt;if(INV.t>.25){INV.t=0;const c=r<.5?'#cfe3c0':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';ivw.innerHTML='<span style="color:'+c+'">⚖ '+invKg().toFixed(1)+' / '+INV.CAP+' kg</span> <span style="opacity:.6">· Tab : sac</span>'+effBar();
 const n=!INV.open&&!bench&&!nb&&!ndR?invNear():null;if(n){ivp.style.display='block';ivp.textContent='F — Ramasser : '+(n.id==='B'?BAGS[n.bag.kind].n:invDef(n.id).n+(n.q>1?' ×'+n.q:''))}else ivp.style.display='none'}}
 
 function invDeath(){const cont={};for(const x of invStacks())cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]=(cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]||0)+x.q;

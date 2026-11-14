@@ -442,3 +442,22 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - **Trébuchement** (`src/parts/trip.js`) : en reculant (S sans W), chance de base 0,6 % par mètre, ×2 en sprint, ×1,3 en visée, ×0,4 accroupi, ×1,6 de nuit, ×1,4 sous la pluie, jusqu'à ×2,5 en pente, ×2 jambe blessée, ×1,6 essoufflé. Un cadavre ou un objet bas (0,15–0,7 m) juste derrière fait trébucher presque à coup sûr. Pas de chute couché, en l'air ou en escalade ; 6 s de délai entre deux chutes.
 - Effets : vue basculée vers le haut puis rétablie, déplacement bloqué 0,4 s puis ralenti, tir retardé, bruit audible par les bots (26 m), choc sourd, petite blessure à une jambe, message à l'écran.
 - Tests : `Branches cassantes : nombreuses, bruit au passage`, `Trébuchement en reculant : chute, ralentissement, vue rétablie`.
+
+## v30 — Poids/endurance (#36) et ordres d'escouade (#38)
+**Effort** (`src/parts/effort.js`) : complète l'inventaire et l'endurance qui existaient déjà (charge → vitesse, sprint, tremblement à bout de souffle).
+- Fatigue à la marche en charge : au-delà de 60 % de la capacité, la marche vide l'endurance (jusqu'à 1,4 %/s à pleine charge, moitié moins accroupi) ; les côtes (> 12 % de pente) coûtent en plus, ×1,5 en sprint.
+- Saut : hauteur réduite jusqu'à −22 % selon la charge, coût d'endurance ; chute plus dure (vitesse d'impact ×(1+0,25·charge)).
+- Visée : passage en visée plus lent (jusqu'à −30 % chargé, −15 % essoufflé), visée plus instable et dispersion +25 % en charge.
+- Souffle : [Maj] maintenu en visée retient le souffle (tremblement −85 %, dispersion −30 %) pendant 1,4 à 3,5 s selon l'endurance, puis expiration forcée de 1,8 s (tremblement ×1,8).
+- Essoufflement sous 25 % d'endurance : respiration audible, entendue des bots à 9 m. Trébuchement en reculant plus probable en charge.
+- Correction : [Maj] en visée ne consomme plus d'endurance comme un sprint.
+- HUD : barre d'endurance sous l'indicateur de poids quand elle n'est pas pleine, avec « souffle retenu » / « à bout de souffle ».
+
+**Ordres d'escouade** (`src/parts/orders.js`) : un chef (soldat d'assaut, sinon recrue ou tireur) évalue la situation toutes les 8–13 s en contact et donne un ordre vocal, sous-titré à moins de 45 m.
+- Grenade : si personne ne voit le joueur, un lanceur disponible (9–30 m de la dernière position connue) lance la grenade sur l'ordre du chef.
+- Contournement : deux bots partent par le flanc (`aiFlank`) pendant que le soutien fixe le joueur par un tir de couverture de 7 s.
+- Couverture : un bot désigné tire 6 s sur la dernière position connue.
+- Repli : annoncé vocalement par le chef quand l'escouade bat en retraite.
+- Regroupement : hors contact, les membres à plus de 28 m du chef sont rappelés.
+- Chaque bot désigné répond (« Reçu », « Compris »…) avec un léger décalage. Les phrases d'ordre sont dans `VX.L` (`oFlank`, `oCover`, `oGren`, `oRet`, `oReg`).
+- Tests : `Effort : souffle retenu stabilise la visée puis essouffle, saut et visée limités par la charge`, `Ordres d'escouade : le chef parle, les bots désignés exécutent, repli annoncé`.
