@@ -65,7 +65,7 @@ function auUpdate(dt){if(!AC)return;auInit();if(!AU.ready)return;AU.occB=7;
 const l=AC.listener,p=C.position;_la.set(0,0,-1).applyQuaternion(C.quaternion);_lb.set(0,1,0).applyQuaternion(C.quaternion);
 if(l.positionX){l.positionX.value=p.x;l.positionY.value=p.y;l.positionZ.value=p.z;l.forwardX.value=_la.x;l.forwardY.value=_la.y;l.forwardZ.value=_la.z;l.upX.value=_lb.x;l.upY.value=_lb.y;l.upZ.value=_lb.z}else{l.setPosition(p.x,p.y,p.z);l.setOrientation(_la.x,_la.y,_la.z,_lb.x,_lb.y,_lb.z)}
 const k=inRoom(p.x,p.z),ins=k>=0&&p.y<roofTop(p.x,p.z),bun=ins&&ROOMS[k].bun;AU.room=ins?k:-1;
-const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075],ks=Math.min(1,dt*3);AU.wH.gain.value+=(th_[0]-AU.wH.gain.value)*ks;AU.wB.gain.value+=(th_[1]-AU.wB.gain.value)*ks;AU.wE.gain.value+=(th_[2]-AU.wE.gain.value)*ks;
+const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075*audUrb()],ks=Math.min(1,dt*3);AU.wH.gain.value+=(th_[0]-AU.wH.gain.value)*ks;AU.wB.gain.value+=(th_[1]-AU.wB.gain.value)*ks;AU.wE.gain.value+=(th_[2]-AU.wE.gain.value)*ks;
 // pas du joueur
 if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);sfxFoot(P.x,P.gy,P.z,'step',vol);noise(P.x,P.z,[sp?13:7,2.8,1.1][P.st])}}}
 // pas des bots proches

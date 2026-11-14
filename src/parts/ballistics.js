@@ -45,7 +45,7 @@ const L=sup?0:(b.ty===2?1:.6);_bq.set(A.x+BAL.pv.x*cp.tof*L,A.y+Dh*Math.tan(cp.a
 const ex=-dz/Dh,ez=dx/Dh,g1=gauss()*sg,g2=gauss()*sg;_bq.x+=ex*g1;_bq.z+=ez*g1;_bq.y+=g2;
 _bd.set(_bq.x-V.x,_bq.y-V.y,_bq.z-V.z).normalize();balSpawn(V,_bd,am,{src:'b',bot:b,dmg,vk:.98+Math.random()*.04,tr:BAL.tn++%4===0,off:_bp.set(0,0,0)})}
 // impact d'une balle du joueur (reprend les règles de fire() avec les dégâts réduits par l'énergie restante)
-function balPHit(h,q,fac){const c=q.c,u=h.object.userData,dm0=c.dmg*fac;let hit=0,hitA=0,brk=0;
+function balPHit(h,q,fac){const c=q.c,u=h.object.userData,dm0=c.dmg*fac*(q.dk||1);let hit=0,hitA=0,brk=0;
 if(u.an){if(faHit(u.an,h.point,dm0)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}
 if(u.bot&&!u.bot.dead){const b=u.bot,dm=dm0*SKM.dmg*(A.supp?.9:1);{b.pk=1;const hr=bhHit(b,u.head?'h':(u.zone||'t'),dm,'b');hitA=hr.a;brk=hr.brk}hit=1;hitT=.2;hitFx.call(null,h,hitA,brk,u.head,b);aiHit(b);$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':(brk?'#fc0':(hitA?'#6cf':'#fff'));if(b.hp<=0)onKill(b,u.head)}
 else if(u.mq){mqHit(u.mq,u,dm0*SKM.dmg*(A.supp?.9:1),h.point);hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':'#fff'}
@@ -67,7 +67,7 @@ if((q.rc|0)<2&&cs<mt.r&&rr<(1-cs/mt.r)*.9+.1){const dn=dir.dot(_bn);_bx.copy(dir
 q.vx=_bx.x*v;q.vy=_bx.y*v;q.vz=_bx.z*v;q.px=h.point.x+_bn.x*(dn<0?.04:-.04);q.py=h.point.y+_bn.y*(dn<0?.04:-.04);q.pz=h.point.z+_bn.z*(dn<0?.04:-.04);q.rc=(q.rc|0)+1;BAL.ric=(BAL.ric|0)+1;
 if(Math.hypot(h.point.x-P.x,h.point.z-P.z)<90){for(let i=0;i<4;i++){_bp.copy(h.point);emit(_bp,_e.set(_bx.x*3+rnd(-1,1),_bx.y*3+rnd(0,1.5),_bx.z*3+rnd(-1,1)),{color:0xffe0a0,size:.07,grow:0,life:.22,a:.9,drag:1})}snd(rnd(2400,3400),.14,.06,'sawtooth');setTimeout(()=>snd(rnd(1500,2100),.1,.04,'triangle'),60)}
 return 0}
-const D=q.a.pen*mt.k*Math.pow(sp/q.a.v,2);let x,th;if(mt.th){th=mt.th;x={point:_bx.copy(h.point).addScaledVector(dir,.05)}}else{_bx.copy(h.point).addScaledVector(dir,1.5);_br.set(_bx,_bn.copy(dir).negate());_br.far=1.5;
+const D=q.a.pen*(q.apk||1)*mt.k*Math.pow(sp/q.a.v,2);let x,th;if(mt.th){th=mt.th;x={point:_bx.copy(h.point).addScaledVector(dir,.05)}}else{_bx.copy(h.point).addScaledVector(dir,1.5);_br.set(_bx,_bn.copy(dir).negate());_br.far=1.5;
 x=_br.intersectObject(h.object,false)[0];if(!x)return 1;th=Math.max(.005,1.5-x.distance)}if(th>=D)return 1;
 const kv=Math.max(.3,1-.75*th/D),j=.012*th/D;q.vx=(q.vx+(Math.random()-.5)*sp*j)*kv;q.vy=(q.vy+(Math.random()-.5)*sp*j)*kv;q.vz=(q.vz+(Math.random()-.5)*sp*j)*kv;
 q.px=x.point.x+dir.x*.03;q.py=x.point.y+dir.y*.03;q.pz=x.point.z+dir.z*.03;BAL.pen=(BAL.pen|0)+1;
@@ -85,7 +85,7 @@ if(q.cb){q.cb(h,q);return 1}
 balPHit(h,q,fac);
 if(u.bot&&q.a.thru&&sp>350){q.sk.add(u.bot);q.vx*=.55;q.vy*=.55;q.vz*=.55;org.copy(h.point).addScaledVector(dir,.05);far-=h.distance+.05;continue}
 if(!u.bot&&!u.mq&&!u.an&&!u.barrel&&!u.door&&!u.glass&&!u.cb){if(balWall(h,q,org,dir)===0)return 0}
-if(u.door&&q.a.pen*sp/900>.15){q.vx*=.6;q.vy*=.6;q.vz*=.6;q.px=h.point.x+dir.x*.08;q.py=h.point.y+dir.y*.08;q.pz=h.point.z+dir.z*.08;return 0}
+if(u.door&&q.a.pen*(q.apk||1)*sp/900>.15){q.vx*=.6;q.vy*=.6;q.vz*=.6;q.px=h.point.x+dir.x*.08;q.py=h.point.y+dir.y*.08;q.pz=h.point.z+dir.z*.08;return 0}
 return 1}
 // balle d'un bot : murs, puis le joueur
 RC.set(org,dir);RC.far=far;let wt=1e9,wh=null;for(const x of RC.intersectObjects(ray)){if(x.object.userData.glass){if(x.distance<wt)glassHit(x.object,x.point,dir);continue}wt=x.distance;wh=x;break}

@@ -122,7 +122,7 @@ if(q){const al=q.m.filter(b=>!b.dead);try{al.forEach(b=>{b.see=false;b.heal=null
  if(!q.bd||!al.some(b=>b.ordCover>0))msg+='bonds sans couverture ';
  al.forEach(b=>{b.mor=1;b.hpM=undefined});const v=al[1];v.mor=0.05;v.see=true;v.ty=1;P.x=v.g.position.x+10;P.z=v.g.position.z;q.n0=al.length;q.t=6;tacMorale(q,al,0.1);if(!v.sur&&!(v.pnc>0))msg+='moral sans effet ';
  if(v.sur){if(!v.unarm||v.see)msg+='reddition incomplète ';v.sur=0;v.unarm=0}
- const w=al[2],h=al[3];w.zh&&Object.keys(w.zh).forEach(z=>w.zh[z]=w.zm[z]*.3);h.zh&&Object.keys(h.zh).forEach(z=>h.zh[z]=h.zm[z]);h.g.position.set(w.g.position.x+3,w.g.position.y,w.g.position.z+2);w.evacBy=null;w.heal=null;q.evT=0;q.ret=0;q.t=6;AI.budget=99;P.x=w.g.position.x+40;P.z=w.g.position.z;al.forEach(b=>{b.see=false;b.evac=null});tacEvac(q,al,0.1);
+ const w=al[2],h=al[3];w.zh&&Object.keys(w.zh).forEach(z=>w.zh[z]=w.zm[z]*.3);h.zh&&Object.keys(h.zh).forEach(z=>h.zh[z]=h.zm[z]);h.g.position.set(w.g.position.x+3,w.g.position.y,w.g.position.z+2);w.evacBy=null;w.heal=null;q.evT=0;q.ret=0;q.t=6;AI.budget=99;P.x=w.g.position.x+40;P.z=w.g.position.z;al.forEach(b=>{b.see=false;b.evac=null});for(let tr=0;tr<6&&!al.some(b=>b.evac);tr++){q.evT=0;AI.budget=99;tacEvac(q,al,0.1)}
  if(!al.some(b=>b.evac&&b.evac.w===w))msg+='pas d’évacuation ';
  }catch(e){msg+='erreur '+e.message}
  q.m.forEach(b=>{b.evac=null;b.evacBy=null;b.fleeT=0;b.pnc=0;b.mor=1});q.t=0;q.bd=null;if(q.m.length)q.m.forEach(b=>b.ordCover=0)}
@@ -151,6 +151,21 @@ if(!spot)msg+='pas d’herbe ';else{const n=fireIgnite(spot[0],spot[1],3);if(n<3
 const s0=WND.s.value;MON.ht=0;for(let i=0;i<30;i++)windTick(.5);if(WND.s.value===s0)msg+='vent constant ';
 birdTick(.1);const fl=MON.birds.find(f=>f.x<9e4);if(fl){fl.st=0;P.x=fl.x+3;P.z=fl.z;birdTick(.1);if(fl.st!==1)msg+='oiseaux immobiles ';birdTick(1);if(!fl.b.some(b=>b.y>1))msg+='pas de décollage '}else msg+='aucun oiseau '}catch(e){msg+='erreur '+e.message}
 WET.v=wet;MON.fire.length=0;MON.fmap.clear();return msg});
+T('Audio : retard du son, claquement supersonique, écho urbain',()=>{const d0=AUD.delayed;const t=audDelay(C.position.x+343,C.position.y,C.position.z);if(Math.abs(t-1)>.02)return'retard '+t;
+sfxShot(C.position.x+200,C.position.y,C.position.z,1,1);sfxBoom(C.position.x+400,C.position.y,C.position.z,1);if(AUD.delayed!==d0+2)return'tirs lointains non retardés '+(AUD.delayed-d0);
+const o=C.position,q={src:'b',px:o.x+1.2,py:o.y,pz:o.z-30,vx:0,vy:0,vz:-900,a:BAM.r556},c0=AUD.cracks;const ok=audCrackSeg(q,o.x+1.2,o.y,o.z+60);const again=audCrackSeg(q,o.x+1.2,o.y,o.z+60);const far=audCrackSeg({src:'b',px:o.x+30,py:o.y,pz:o.z-30,vx:0,vy:0,vz:-900,a:BAM.r556},o.x+30,o.y,o.z+30);
+if(!ok||again||far)return'claquement '+[ok,again,far];AUD.ut=0;audUrbTick(.1);if(!(AUD.urb>=1))return'écho urbain';return''});
+T('Armes : munitions perforantes/traçantes et hausse réglable',()=>{const w=WSEL,am=balAm(WC[w]);if(am==='bk')return'';const o=new THREE.Vector3(P.x,P.gy+1.6,P.z+200),d=new THREE.Vector3(0,0,1);
+const n0=BAL.bl.length;WAM[w]=0;const q0=balSpawn(o,d.clone(),am,{src:'p',c:WC[w],n:0});WAM[w]=2;const q2=balSpawn(o,d.clone(),am,{src:'p',c:WC[w],n:0});WAM[w]=1;const q1=balSpawn(o,d.clone(),am,{src:'p',c:WC[w],n:0});
+const r=[q0.apk,q2.apk,!!q1.m];BAL.bl.splice(n0);[q0,q1,q2].forEach(q=>{if(q.m)q.m.visible=false});
+if(!(q2.apk>q0.apk)||!q1.m)return'munitions '+r;WAM[w]=0;const z0=BAM[am].z,a0=balZero(am);zeroNext();const a1=balZero(am),z1=BAM[am].z;BAM[am].z=z0;delete BAL.zr[am];delete BAL.tab[am];
+if(z1===z0||a1===a0)return'hausse sans effet '+[z0,z1,a0,a1];return''});
+T('Bots : abri contre la pluie et relève de garde de nuit, signes de la main',()=>{const t0=TOD.t,ru=rainU.uAmt.value;let msg='';try{
+const cand=bots.filter(b=>!b.dead).slice(0,6);cand.forEach(b=>{b.dorm=0;b.alert=0;b.see=false;b.stun=0;b.blind=0;b.fleeT=0;b.lvl=0;b.route=null;b.seenT=99;b.st='pat';b.ty=Math.min(b.ty,1);b.sent=0;b.relf=0;b.shel=0;b.heal=null;b.sur=0});
+const b=cand[0];AI.budget=99;rainU.uAmt.value=.9;GRD.sT=0;const n0=GRD.n.shel;let k=0;const rr=Math.random;Math.random=()=>0;
+for(const c of cand){if(inRoom(c.g.position.x,c.g.position.z)>=0)continue}grdTick(.1);Math.random=rr;if(GRD.n.shel===n0)msg+='pas d’abri ';rainU.uAmt.value=0;GRD.sT=0;grdTick(.1);if(cand.some(c=>c.shel))msg+='abri non quitté ';
+TOD.t=23;b.g.position.set(P.x+20,b.g.position.y,P.z);GRD.posts.length=0;GRD.gT=0;AI.budget=99;grdTick(.1);if(!GRD.posts.length)msg+='pas de sentinelle ';else{const p=GRD.posts[0],s=p.b;const o2=cand.find(c=>c!==s);o2.g.position.set(p.x+12,o2.g.position.y,p.z);o2.sent=0;o2.relf=0;p.t=0;AI.budget=99;grdTick(.1);if(!p.rel)msg+='pas de relève ';else{p.rel.g.position.set(p.x+1,p.rel.g.position.y,p.z);const r=p.rel;grdTick(.1);if(p.b!==r||GRD.n.relief<1)msg+='relève non effectuée '}}
+const sg=GRD.n.sign;TOD.t=12;GRD.posts.length=0;cand.forEach(c=>{c.sent=0;c.relf=0;c.shel=0});}catch(e){msg+='erreur '+e.message}TOD.t=t0;rainU.uAmt.value=ru;return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
