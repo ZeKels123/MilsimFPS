@@ -436,3 +436,9 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 - Tests : `Balistique : chute, traînée, vent et réglage à zéro cohérents` et `Balistique : le projectile avance à vitesse finie, touche le sol et disparaît`.
 
 **Cadavres** : les bots morts restent 60 s au sol (`BOT_CORPSE`), leur pose est figée après 4 s (plus de calcul de squelette), puis ils réapparaissent loin du joueur.
+
+## v29b — Branches cassantes et trébuchement
+- **Branches** : 2600 branches mortes sur la carte (260 avant), dont 25 % de grosses branches plus bruyantes et un peu plus fragiles, avec une densité renforcée à moins de 240 m du centre. Seules celles à moins de 75 m sont affichées (coût de rendu constant). Elles craquent sous le joueur comme sous les bots, et le bruit alerte les bots (rayon 22 m, 34 m en sprint ou grosse branche).
+- **Trébuchement** (`src/parts/trip.js`) : en reculant (S sans W), chance de base 0,6 % par mètre, ×2 en sprint, ×1,3 en visée, ×0,4 accroupi, ×1,6 de nuit, ×1,4 sous la pluie, jusqu'à ×2,5 en pente, ×2 jambe blessée, ×1,6 essoufflé. Un cadavre ou un objet bas (0,15–0,7 m) juste derrière fait trébucher presque à coup sûr. Pas de chute couché, en l'air ou en escalade ; 6 s de délai entre deux chutes.
+- Effets : vue basculée vers le haut puis rétablie, déplacement bloqué 0,4 s puis ralenti, tir retardé, bruit audible par les bots (26 m), choc sourd, petite blessure à une jambe, message à l'écran.
+- Tests : `Branches cassantes : nombreuses, bruit au passage`, `Trébuchement en reculant : chute, ralentissement, vue rétablie`.

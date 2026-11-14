@@ -76,17 +76,19 @@ if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&!(typeof inRoom==='function'&&inRo
 // ---------- indices naturels : branches qui craquent, oiseaux qui s'envolent (donnent la direction de qui marche) ----------
 const BRN={list:[],init:false,cue:null,t:0,prev:[]};
 const bce=document.createElement('div');bce.style.cssText='position:fixed;left:50%;top:15%;transform:translateX(-50%);z-index:6;pointer-events:none;font:700 15px "Segoe UI",sans-serif;color:#f0e0a0;text-shadow:0 1px 3px #000;text-align:center;display:none';document.body.appendChild(bce);
-function brnInit(){BRN.init=true;const bg=new THREE.BoxGeometry(.7,.025,.035);for(let i=0,n=0;i<900&&n<260;i++){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,MH-5);if(!trapOk(x,z)||(typeof inRoom==='function'&&inRoom(x,z)>=0))continue;const m=new THREE.Mesh(bg,igMat(0x5a4326));m.position.set(x,GH(x,z)+.02,z);m.rotation.y=rnd(0,6.28);m.rotation.z=rnd(-.08,.08);S.add(m);BRN.list.push({x,z,m,br:0,t:0});n++}}
+function brnInit(){BRN.init=true;const bg=new THREE.BoxGeometry(.7,.025,.035),bg2=new THREE.BoxGeometry(1,.045,.055),mk=(x,z)=>{const big=Math.random()<.25,m=new THREE.Mesh(big?bg2:bg,igMat(big?0x4a361f:0x5a4326));m.position.set(x,GH(x,z)+.02,z);m.rotation.y=rnd(0,6.28);m.rotation.z=rnd(-.08,.08);m.visible=false;S.add(m);BRN.list.push({x,z,m,br:0,t:0,big})};
+for(let i=0,n=0;i<16000&&n<1900;i++){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,MH-5);if(!trapOk(x,z)||(typeof inRoom==='function'&&inRoom(x,z)>=0))continue;mk(x,z);n++}
+for(let i=0,n=0;i<4000&&n<700;i++){const x=rnd(-240,240),z=rnd(-240,240);if(!trapOk(x,z)||(typeof inRoom==='function'&&inRoom(x,z)>=0))continue;mk(x,z);n++}}
 function natCue(){}
 let brnLast=0,wingLast=0;
 function brnSnd(x,y,z){const T=performance.now();if(T-brnLast<350||Math.hypot(x-P.x,z-P.z)>70)return;brnLast=T;auInit();if(!AU.ready)return;const o=sp3(x,y,z,{ref:10,roll:.9,ad:70});nz(.05,'bandpass',2800,1.2,.8,o,1.3,.001);nz(.14,'lowpass',800,.8,.55,o,.8,.003)}
 function wingSnd(x,y,z){const T=performance.now();if(T-wingLast<1800||Math.hypot(x-P.x,z-P.z)>60)return;wingLast=T;auInit();if(!AU.ready)return;const o=sp3(x,y,z,{ref:12,roll:.9,ad:60});for(let k=0;k<4;k++)setTimeout(()=>{try{nz(.09,'bandpass',1200,.6,.28,o,1.4,.02)}catch(e){}},k*85)}
 function brnCrack(b,big,bot){b.br=1;b.t=90;b.m.scale.x=.5;b.m.rotation.z=.5;b.m.position.y+=.03;const y=GH(b.x,b.z)+.3;brnSnd(b.x,y,b.z);
 for(let i=0;i<4;i++)emit(_no.set(b.x,y-.2,b.z),_e.set(rnd(-1,1),rnd(.5,1.4),rnd(-1,1)),{color:0x8a6a40,size:.03,life:.4,g:6});if(!bot)noise(b.x,b.z,big?34:22)}
-function natCues(dt){if(!BRN.init)brnInit();BRN.t+=dt;
+function natCues(dt){if(!BRN.init)brnInit();trbTick(dt);BRN.t+=dt;
 if(BRN.t>=.12){const st=BRN.t;BRN.t=0;const wk=[];if(!ac.on&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD))wk.push({x:P.x,z:P.z,p:P.st===0?(K.ShiftLeft?1:.9):P.st===1?.3:.08,big:K.ShiftLeft,bot:0});for(const b of bots){if(b.dead)continue;const g=b.g.position;if(Math.abs(g.x-P.x)<80&&Math.abs(g.z-P.z)<80)wk.push({x:g.x,z:g.z,p:b.cr?.25:.5,big:0,bot:1})}
 for(const b of BRN.list){if(b.br){b.t-=st;if(b.t<=0){b.br=0;b.m.scale.x=1;b.m.rotation.z=0;b.m.position.y=GH(b.x,b.z)+.02}continue}
-if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90)continue;for(const w of wk){if(Math.abs(w.x-b.x)<.55&&Math.abs(w.z-b.z)<.55&&Math.hypot(w.x-b.x,w.z-b.z)<.55){if(Math.random()<w.p)brnCrack(b,w.big,w.bot);else b.t=0;break}}}
+if(Math.abs(b.x-P.x)>90||Math.abs(b.z-P.z)>90){b.m.visible=false;continue}b.m.visible=Math.abs(b.x-P.x)<75&&Math.abs(b.z-P.z)<75;for(const w of wk){if(Math.abs(w.x-b.x)<.55&&Math.abs(w.z-b.z)<.55&&Math.hypot(w.x-b.x,w.z-b.z)<.55){if(Math.random()<w.p*(b.big?1.15:1))brnCrack(b,w.big||b.big,w.bot);else b.t=0;break}}}
 // oiseaux effrayés par un bot
 FA.birds.forEach((q,i)=>{const was=BRN.prev[i];BRN.prev[i]=q.st;if(was===1&&q.st===0&&!q.dead&&q.perch){const d=Math.hypot(q.perch.x-P.x,q.perch.z-P.z);if(d>8&&d<80){wingSnd(q.perch.x,q.perch.y||8,q.perch.z)}}})}
 if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='none'}else{const dx=c.x-P.x,dz=c.z-P.z,fa=dx*-Math.sin(P.yaw)+dz*-Math.cos(P.yaw),ra=dx*Math.cos(P.yaw)+dz*-Math.sin(P.yaw),ang=Math.atan2(ra,fa)*57.3;bce.style.display='block';bce.style.opacity=Math.min(1,c.t);bce.innerHTML='<span style="display:inline-block;transform:rotate('+ang.toFixed(0)+'deg);font-size:20px">▲</span><br>'+c.txt+' · '+Math.round(Math.hypot(dx,dz))+' m'}}}
