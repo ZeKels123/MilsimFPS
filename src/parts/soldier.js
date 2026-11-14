@@ -28,7 +28,7 @@ const SLC={walk:1,run:1,fire:1,reload:1,death:0,strafe:1,idle:1};
 function sldPick(b,mv){if(b.dead)return'death';if(b.relT>0)return'reload';if(b.crA>.4)return'idle';if(mv&&b.mvA>.25){return b.T.sp*(b.spK||1)>3.4?'run':'walk'}return'fire'}
 const _slg=new THREE.Quaternion(),_sly=new THREE.Quaternion(),_sle=new THREE.Euler(0,0,0,'YXZ'),_slw=new THREE.Matrix4(),_slo=new THREE.Matrix4().compose(new THREE.Vector3(0,0,0),new THREE.Quaternion(),new THREE.Vector3(1,1,1));
 const _slf=new THREE.Vector3(),_slu=new THREE.Vector3(),_slx=new THREE.Vector3();const _slv1=new THREE.Vector3(1,1,1),_slv2=new THREE.Vector3();var SLW={p:[.0,.0,.0],r:[0,0,0]};
-function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);
+function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);sldLodTick(b,d);
 sd.sg.visible=d<230;if(d>=230){sd.acc=0;return}sd.acc+=dt;const every=d<45||b.dead?1:d<110?2:4;if((++SLS.fr+(b.tm*0|0))%every&&!b.dead){/* pose gardée */}else{dt=sd.acc;sd.acc=0;
 const want=sldPick(b,mv);if(want!==sd.cur){sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=want==='death'?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||want==='death')sd.t=0}
 const rate=sd.cur==='fire'?(b.fl>0?1:0):sd.cur==='walk'?Math.max(.5,b.T.sp*(b.spK||1)/1.5):sd.cur==='run'?Math.max(.7,b.T.sp*(b.spK||1)/4.2):1;
@@ -59,7 +59,21 @@ for(let t=0;t<4;t++){const v=sd.var[t],T=BT[t],H='Head',C='Spine2';
  if(t===1||t===2){const pm=new THREE.Mesh(sldPackGeo(),SLS.pm[t]);pm.castShadow=true;sd.bones[SLS.ix.Spine2].add(pm);Object.defineProperty(pm,'visible',{get(){return this._v!==false},set(v_){this._v=v_}});v.push(pm)}
  if(t===3){[-.24,.24].forEach(x=>sldAcc(sd,C,new THREE.Mesh(BX(.16,.09,.24),M(0x25282c)),[x,.15,0],v));sldAcc(sd,C,new THREE.Mesh(BX(.34,.34,.1),M(0x2b2f34)),[0,.0,-.15],v)}
 }}
-function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.sm.material=sd.mats[i];sd.sm.geometry=(i===0||i===1||i===3)?SLS.geoNH:SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>m.visible=k===i))}
+// ---- niveaux de détail : corps ~7 300 triangles (au lieu de 22 000), gilet ~2 300 (au lieu de 8 400), sac ~730 (au lieu de 6 000)
+function sldGeoL(){if(SLS.geoL)return SLS.geoL;const g=new THREE.BufferGeometry(),n=SLL.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2),W_=new Float32Array(n*4);
+for(let i=0;i<n*3;i++){P_[i]=SLL.p[i]/1e4;N_[i]=SLL.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=SLL.u[i]/1e3;for(let i=0;i<n*4;i++)W_[i]=SLL.w[i]/100;
+g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setAttribute('skinIndex',new THREE.BufferAttribute(new Uint16Array(SLL.s),4));g.setAttribute('skinWeight',new THREE.BufferAttribute(W_,4));
+g.setIndex(new THREE.BufferAttribute(new Uint16Array(SLL.i),1));g.boundingSphere=sldGeo().boundingSphere;SLS.geoL=g;
+const g2=new THREE.BufferGeometry();for(const k in g.attributes)g2.setAttribute(k,g.attributes[k]);g2.setIndex(new THREE.BufferAttribute(new Uint16Array(SLL.i.slice(0,SLL.hs)),1));g2.boundingSphere=g.boundingSphere;SLS.geoLNH=g2;return g}
+function sldVestGeoL(){if(SLS.vgL)return SLS.vgL;sldVestGeo();const g=new THREE.BufferGeometry(),n=VSL.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2);for(let i=0;i<n*3;i++){P_[i]=VSL.p[i]/1e4;N_[i]=VSL.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=VSL.u[i]/1e3;
+g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setIndex(new THREE.BufferAttribute(new Uint16Array(VSL.i),1));g.applyMatrix4(SLS.inv[SLS.ix.Spine2]);g.computeBoundingSphere();return SLS.vgL=g}
+function sldPackGeoL(){if(SLS.pgL)return SLS.pgL;sldPackGeo();const g=new THREE.BufferGeometry(),n=PKL.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),C_=new Float32Array(n*3);for(let i=0;i<n*3;i++){P_[i]=PKL.p[i]/1e4;N_[i]=PKL.nr[i]/100;C_[i]=PKL.c[i]/255}
+g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('color',new THREE.BufferAttribute(C_,3));g.setIndex(new THREE.BufferAttribute(new Uint16Array(PKL.i),1));g.applyMatrix4(SLS.inv[SLS.ix.Spine2]);g.computeBoundingSphere();return SLS.pgL=g}
+// lod 0 : proche, 1 : > 50 m, 2 : > 145 m (gilet et sac masqués) ; hystérésis pour éviter les va-et-vient
+function sldLod(b){const sd=b.sld,i=sd.ti;if(i===undefined||!sd.var)return;const L=sd.lod>0,nh=i===0||i===1||i===3;sldGeoL();sd.sm.geometry=nh?(L?SLS.geoLNH:SLS.geoNH):(L?SLS.geoL:SLS.geo);
+const hide=sd.lod>1;sd.var[i].forEach(m=>{const g=m.geometry;if(g===SLS.vg||g===SLS.vgL){m.geometry=L?sldVestGeoL():SLS.vg;m.visible=!hide}else if(g===SLS.pg||g===SLS.pgL){m.geometry=L?sldPackGeoL():SLS.pg;m.visible=!hide}})}
+function sldLodTick(b,d){const sd=b.sld;if(!sd||!sd.var)return;const l=d>(sd.lod?42:50)?(d>(sd.lod>1?130:145)?2:1):0;if(l!==(sd.lod|0)){sd.lod=l;sldLod(b)}}
+function sldLook(b,i){const sd=b.sld;if(!sd)return;if(!sd.var)sldBuild(b);sd.ti=i;sd.sm.material=sd.mats[i];sd.sm.geometry=(i===0||i===1||i===3)?SLS.geoNH:SLS.geo;sd.var.forEach((l,k)=>l.forEach(m=>{m.visible=k===i;if(k===i&&(m.geometry===SLS.vgL||m.geometry===SLS.pgL)){m.geometry=m.geometry===SLS.vgL?SLS.vg:SLS.pg}}));sd.lod=0;sldLodTick(b,Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z))}
 
 function sldVestGeo(){if(SLS.vg)return SLS.vg;const g=new THREE.BufferGeometry(),n=VSD.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),U_=new Float32Array(n*2);for(let i=0;i<n*3;i++){P_[i]=VSD.p[i]/1e4;N_[i]=VSD.nr[i]/100}for(let i=0;i<n*2;i++)U_[i]=VSD.u[i]/1e3;
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('uv',new THREE.BufferAttribute(U_,2));g.setIndex(new THREE.BufferAttribute(new Uint16Array(VSD.i),1));

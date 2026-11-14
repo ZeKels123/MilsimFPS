@@ -54,6 +54,21 @@ let msg='';try{al.forEach(b=>{b.see=false;b.dorm=0;b.stun=0;b.blind=0;b.heal=nul
 if(ORD.n!==n0+1)msg='aucun ordre donné';else if(!al.some(b=>b.ordCover>0||b.st==='flk'))msg='aucun bot n\u2019exécute l\u2019ordre';
 if(!msg&&!(sqLeader(al)&&['oFlank','oCover','oGren','oRet','oReg'].every(x=>VX.L[x]&&VX.L[x].length)))msg='phrases d\u2019ordre manquantes'}finally{al.forEach((b,i)=>keys.forEach((k,j)=>b[k]=sv[i][j]));q.t=sq0[0];q.ret=sq0[1];q.oT=sq0[2];q.lk.x=sq0[3];q.lk.z=sq0[4];q.flT=sq0[5];AI.nadeCd=ng;AI.budget=bg}return msg});
 T('Endurance de soldat entraîné : sprint long, récupération rapide',()=>{const sp=1/STA.spr,full=sp/(1+Math.max(0,1-.5)*1.4),rec=1/STA.reg;if(sp<18||sp>30)return'sprint léger '+sp.toFixed(1)+' s';if(full<11)return'sprint pleine charge '+full.toFixed(1)+' s';if(rec>8)return'récupération '+rec.toFixed(1)+' s';return''});
+T('Soldats : niveaux de détail corps/gilet/sac selon la distance',()=>{const b=bots.find(o=>o.sld&&o.sld.var&&!o.dead);if(!b)return'';const g=b.g.position,x=g.x,z=g.z,sd=b.sld,n=()=>sd.sm.geometry.index.count/3,vs=()=>sd.var[sd.ti].filter(m=>m.geometry===SLS.vg||m.geometry===SLS.vgL||m.geometry===SLS.pg||m.geometry===SLS.pgL);
+let msg='';try{g.x=P.x+10;g.z=P.z;sldUpdate(b,.05,false);const a=n(),vn=vs().map(m=>m.geometry.index.count/3);g.x=P.x+80;sldUpdate(b,.05,false);const m=n(),vm=vs().map(q=>q.geometry.index.count/3),vis1=vs().every(q=>q.visible);g.x=P.x+180;sldUpdate(b,.05,false);const f=n(),vis2=vs().some(q=>q.visible);g.x=P.x+10;sldUpdate(b,.05,false);const a2=n(),vis3=vs().every(q=>q.visible);
+if(!(a>15000&&m<9000&&f<9000&&a2>15000))msg='triangles corps '+[a,m,f,a2].join('/');else if(!(Math.max(...vm)<Math.min(...vn)*2&&vm.every((q,i)=>q<vn[i])))msg='accessoires non allégés '+vn+' / '+vm;else if(!vis1||vis2||!vis3)msg='masquage gilet/sac : '+[vis1,vis2,vis3]}finally{g.x=x;g.z=z;sldUpdate(b,.05,false)}return msg});
+T('Balistique : pénétration selon le matériau, ricochet rasant, chevrotine',()=>{const mk=(col,t)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(6,3,t),new THREE.MeshLambertMaterial({color:col}));m.position.set(0,1.5,0);m.updateMatrixWorld();return m},rc=new THREE.Raycaster(),mkq=(v,am)=>({a:BAM[am||'r556'],vx:0,vy:0,vz:-v,px:0,py:1.5,pz:3,rc:0});
+const shoot=(m,q,d)=>{const org=new THREE.Vector3(q.px,q.py,q.pz);rc.set(org,d);const h=rc.intersectObject(m)[0];if(!h)return'pas de touche';return{r:balWall(h,q,org,d),h}};
+const fwd=new THREE.Vector3(0,0,-1);let msg='';BAL.fixed=0;try{
+const w=mk(0x8b5a2b,.1),q1=mkq(900),r1=shoot(w,q1,fwd.clone());if(!r1||r1.r!==0||q1.pz>-.04||Math.hypot(q1.vx,q1.vy,q1.vz)>=900||BMC.get(w).t!=='wood')return'bois .1 m : '+JSON.stringify(r1&&r1.r)+' '+q1.pz;
+const c=mk(0x808080,.5),q2=mkq(900),r2=shoot(c,q2,fwd.clone());if(!r2||r2.r!==1||BMC.get(c).t!=='conc')return'béton .5 m devrait arrêter '+(r2&&r2.r);
+const c2=mk(0x808080,.5),q3=mkq(900,'b50'),r3=shoot(c2,q3,fwd.clone());if(!r3||r3.r!==1)return'béton .5 m arrête aussi le .50';
+const st=mk(0x606878,.3);st.material.metalness=.9;const q4=mkq(900),r4=shoot(st,q4,fwd.clone());if(!r4||r4.r!==1)return'acier .3 m devrait arrêter';
+const g=mk(0x808080,.5),d=new THREE.Vector3(.99,0,-.12).normalize(),q5={a:BAM.r556,vx:d.x*900,vy:0,vz:d.z*900,px:-2.9,py:1.5,pz:.4,rc:0};const org=new THREE.Vector3(-2.9,1.5,.4);rc.set(org,d);const h5=rc.intersectObject(g)[0];
+if(h5){const r5=balWall(h5,q5,org,d);if(r5!==0||q5.rc!==1||q5.vz<=0||Math.hypot(q5.vx,q5.vy,q5.vz)>=900*.55)msg='ricochet : '+r5+' '+q5.rc+' vz='+q5.vz.toFixed(0)}else msg='ricochet : pas de touche';
+if(!msg){const a=BAM.bk,f=d_=>balFac({a,vx:0,vy:0,vz:-a.v*Math.pow(.97,d_/3),dist:d_});if(!(f(3)>f(20)&&f(20)>f(45)&&f(45)<.25&&f(3)>.8))msg='chevrotine '+[3,20,45].map(f).map(x=>x.toFixed(2))}
+if(!msg){balRet(true,1);const cv=BRT.c;if(!cv||cv.style.display!=='block')msg='réticule absent';balRet(false,0);if(cv&&cv.style.display!=='none')msg='réticule non masqué'}
+}finally{delete BAL.fixed}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

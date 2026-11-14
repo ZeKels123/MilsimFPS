@@ -61,7 +61,7 @@ rep("new THREE.MeshPhongMaterial({color:p.c,flatShading:true,shininess:25,specul
 rep("PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);","PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);PR.toneMapping=R.toneMapping;PR.toneMappingExposure=R.toneMappingExposure;PS.environment=mkEnv(PR);")
 # 6. bots
 a=s.index("function mkBot(){");b=s.index("function free_(")
-s=s[:a]+rd('soldier_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('pack_data.js')+rd('helm_data.js')+rd('soldier.js')+rd('voix.js')+rd('bots.js')+s[b:]
+s=s[:a]+rd('soldier_data.js')+rd('lod_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('pack_data.js')+rd('helm_data.js')+rd('soldier.js')+rd('voix.js')+rd('bots.js')+s[b:]
 rep("b.dead=0;b.g.visible=true;pick(b)}","b.dead=0;b.fall=0;b.g.rotation.x=0;b.g.visible=true;botLook(b,i);pick(b)}")
 rep("b.g.visible=false;P.kills++","botDeath(b,head);P.kills++")
 rep("const px=P.x-g.position.x,pz=P.z-g.position.z,pd=Math.hypot(px,pz);g.rotation.y=Math.atan2(px,pz);",
@@ -101,6 +101,7 @@ rep("Fusil à pompe <em","Reclamer 12 <em")
 rep("['w_0','w_1','w_2','w_3','w_4']","['w_0','w_1','w_2','w_3','w_4','w_5']")
 rep("if(WSEL===4)wm[4].rotation.z=-1.1*f;","")
 rep("an=ads&&adsT>.8&&sk==='angled';","an=ads&&adsT>.8&&sk==='angled';if(WSEL===4)wg[4].visible=!sc;")
+rep("$('scope').style.display=sc?'block':'none';","$('scope').style.display=sc?'block':'none';balRet(sc,dt);")
 rep("scBI.visible=!(A.scope||A.angled||A.holo","(sigM.compensater||[]).forEach(m=>{m.visible=!A.supp});scBI.visible=!(A.scope||A.angled||A.holo")
 rep('Fusil de précision <em></em></button>','Signal 50 <em></em></button><button id="w_5" onclick="setWeapon(5)">Mitrailleuse HMG <em></em></button>')
 rep("let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];","let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];const WA=wAnim(WSEL,ru,ip,rl,is);")
@@ -129,7 +130,7 @@ rep("function loop(){requestAnimationFrame(loop);","function loop(){requestAnima
 rep('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'+"\n<script>",'<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'+"\n<script type=\"text/plain\" id=\"gamesrc\">")
 rep("</script></body></html>","</script><script>requestAnimationFrame(function(){setTimeout(function(){var s=document.createElement('script');s.text=document.getElementById('gamesrc').textContent;document.head.appendChild(s)},80)})</script></body></html>")
 rep("function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;","function botAnim(b,dt,mv,mx_,mz_){b.tm+=dt;sldUpdate(b,dt,mv);")
-rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;if(b.fall>4)return;sldUpdate(b,dt,0);")
+rep("function botDead(b,dt){b.fall+=dt;","function botDead(b,dt){b.fall+=dt;if(b.fall>4){const sd_=b.sld;if(sd_){const d_=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);sldLodTick(b,d_);sd_.sg.visible=d_<230}return}sldUpdate(b,dt,0);")
 rep("b.mat=m;S.add(g);spawn(b);bots.push(b)}","b.mat=m;sldAttach(b);S.add(g);spawn(b);bots.push(b)}")
 rep("for(let i=0;i<7;i++)mkBot();","for(let i=0;i<36;i++)mkBot();")
 rep("C.position.set(Math.cos(ac.a)*48,62,Math.sin(ac.a)*48-6)","C.position.set(Math.cos(ac.a)*90,115,Math.sin(ac.a)*90-6)")

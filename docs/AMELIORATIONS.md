@@ -464,3 +464,15 @@ Le build (`build.py`) vérifie en plus la syntaxe du script final et échoue si 
 
 ### v30b — Endurance recalée sur un soldat entraîné
 Constantes regroupées dans `STA` (`src/parts/effort.js`) : sprint ≈ 22 s à charge légère (≈ 13 s à pleine charge) au lieu de 10 s, récupération complète en ≈ 6 s en marchant (≈ 4 s à l’arrêt), marche fatigante seulement au-delà de 70 % de charge, saut deux fois moins coûteux, souffle retenu jusqu'à 6 s, fin d'essoufflement à 25 %. Test : `Endurance de soldat entraîné`.
+
+## v31 — Performance (LOD des soldats) et balistique, suite
+
+**Performance.** Mesure (playwright, swiftshader : chiffres relatifs) : ~822 k triangles de soldats pour 36 bots, 800–1 035 appels de dessin. Les soldats ont maintenant 3 niveaux de détail (`lod_data.js`, `sldLodTick` dans `soldier.js`) : corps 22 k → 7,3 k triangles, gilet 8,4 k → 2,3 k, sac 6 k → 0,7 k au-delà de 50 m (hystérésis 42 m) ; gilet et sac masqués au-delà de 145 m. Appliqué aussi aux cadavres.
+
+**Ricochets et pénétration (`balWall`).** Chaque mur est classé (bois, brique, béton, acier, plâtre) d'après son matériau (nom, métallicité, couleur). Un impact rasant (sinus de l'incidence < seuil du matériau) ricoche (étincelles, sifflement, vitesse réduite, 2 ricochets max). Sinon la profondeur de pénétration `pen × k_matériau × (v/v0)²` est comparée à l'épaisseur réellement traversée (rayon retour) : la balle ressort ralentie et légèrement déviée, ou s'arrête. Vaut aussi pour les balles des bots.
+
+**Réticule de lunette (`balRet`).** Canvas dessiné en visée lunette : points mil (1 mrad, calibrés sur le FOV), repères de chute avec la distance correspondante (tous les 50 m) pour l'arme en main, flèche et force du vent, vent de travers et dérive à 300 m en mil (trait de correction).
+
+**Chevrotine.** Les dégâts décroissent aussi avec la distance parcourue (plein jusqu'à 8 m, ~10 % à 50 m) en plus de l'énergie perdue.
+
+Test : « Balistique : pénétration selon le matériau, ricochet rasant, chevrotine » et « Soldats : niveaux de détail » (36/36).
