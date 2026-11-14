@@ -46,7 +46,7 @@ return'<small style="color:'+col+'">'+m+'usure '+Math.round(s.wear*100)+' % · c
 // mode de tir : clic molette ; nettoyage : maintenir H (inspection) 1,2 s à l'arrêt
 function wpModeNext(){const m=wpModes(WSEL);if(m.length>1){const s=wpS(WSEL);s.mode=(s.mode+1)%m.length;s.bst=0;snd(420,.04,.1,'square');wpnMsg('Mode : '+WPMN[wpMode(WSEL)])}}
 addEventListener('mousedown',e=>{if(e.button!==1||$('ov').style.display!=='none'||ac.on||bench)return;e.preventDefault();wpModeNext()});
-addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat)WPN.h=0});
+addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat)WPN.h=0;if(e.code==='Semicolon'&&!e.repeat&&$('ov').style.display==='none'&&!ac.on&&!bench)wpModeNext()});
 // enveloppes des fonctions d'origine (renommées fire0 / reload0 à l'assemblage)
 function fire() {if(wpPre())return;const a=ammo;fire0();if(ammo<a)wpPost()}
 function reload() {if(wpClear())return;reload0()}

@@ -107,6 +107,9 @@ const hp0=r.hp;DRV.h=0;K.KeyW=true;for(let i=0;i<200&&r.hp===hp0;i++)drvTick(.05
 K.KeyW=false;DRV.v=10;K.Space=true;for(let i=0;i<30;i++)drvTick(.05);K.Space=false;if(Math.abs(DRV.v)>.5)return'frein à main '+DRV.v;
 drvExit();if(DRV.on||!boxes.includes(bx)||r.drv)return'descente'}
 finally{K.KeyW=sv[5];K.KeyA=sv[6];K.Space=sv[7];if(DRV.on){DRV.on=0;drvSound(false);gun.visible=true}[P.x,P.z,P.gy,P.st,P.yaw]=sv;$('ov').style.display=sv[8];let i=boxes.indexOf(bx);if(i>=0)boxes.splice(i,1);i=boxes.indexOf(wall);if(i>=0)boxes.splice(i,1);S.remove(e);S.remove(px);D.list.pop();if(DRV.spd)DRV.spd.style.display='none'}return msg});
+T('Touches : toutes les actions du jeu sont redéfinissables',()=>{const d=KBD.map(k=>k[2]),dup=d.filter((c,i)=>d.indexOf(c)!==i);if(dup.length)return'doublons '+dup;
+for(const c of['KeyJ','KeyY','KeyI','Comma','Period','KeyX','KeyK','KeyB','KeyN','KeyM','KeyU','KeyO','KeyV','Backquote','Minus','Equal','Backslash','Semicolon','Digit0','Digit1','Digit8','KeyW','Space','KeyR','KeyF','KeyH','KeyC','KeyL','KeyG','KeyT','KeyZ','Tab'])if(!d.includes(c))return'action non redéfinissable : '+c;
+const sv=SET.keys.fwd;SET.keys.nvg='KeyY';SET.keys.tq='KeyU';SET.keys.nsel='KeyI';SET.keys.sp='KeyO';SET.keys.qual='KeyY';kbBuild();const ok=KMAP.KeyY==='Backquote'&&KMAP.KeyU==='KeyY';delete SET.keys.nvg;delete SET.keys.tq;delete SET.keys.nsel;delete SET.keys.sp;delete SET.keys.qual;kbBuild();if(!ok)return'échange de touches';return''});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
