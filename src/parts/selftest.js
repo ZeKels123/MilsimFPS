@@ -99,6 +99,14 @@ SUR.w=.2;SUR.f=.1;SUR.c=.9;HM.inv.bt=1;HM.inv.rt=1;HM.sta=1;const t0=hlTremor();
 survStart('drink');if(SUR.act)return'boire sans gourde';SUR.c=.1;survTick(.5);if(!(SUR.tr>.2))return'frissons '+SUR.tr;
 SUR.c=1;SUR.w=1;SUR.f=1;const n=INV.gnd.length,e=invSpawn('pl',1,P.x+.4,P.gy,P.z,0,0);e.fall=false;e.m.position.y=P.gy;invPick();if(!SUR.pk)return'ramassage instantané';survTick(.1);if(!SUR.pk)return'ramassage annulé trop tôt';survTick(5);if(SUR.pk||INV.gnd.includes(e))return'ramassage non terminé'}
 finally{[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta]=sv;SUR.tr=0;$('ov').style.display=ovd}return msg});
+T('Conduite : accélération, direction, collision, freinage, descente',()=>{const D=dstS(),e=new THREE.Group(),sv=[P.x,P.z,P.gy,P.st,P.yaw,K.KeyW,K.KeyA,K.Space,$('ov').style.display],x0=P.x+40,z0=P.z+40;e.add(new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,4.6),new THREE.MeshStandardMaterial()));e.position.set(x0,GH(x0,z0),z0);S.add(e);
+const px=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.5,4.6),new THREE.MeshBasicMaterial()),bx={x0:x0-1.2,x1:x0+1.2,z0:z0-2.3,z1:z0+2.3,y0:0,y1:1.5},wall={x0:x0-3,x1:x0+3,z0:z0-34,z1:z0-30,y0:0,y1:3};boxes.push(bx,wall);px.position.set(x0,GH(x0,z0)+.75,z0);S.add(px);dstVeh(e,px,bx,x0,GH(x0,z0),z0);const r=px.userData.dst;let msg='';$('ov').style.display='none';
+try{P.x=x0+2;P.z=z0;if(drvNear()!==r)return'véhicule non détecté';drvEnter(r);if(!DRV.on||boxes.includes(bx))return'montée';K.KeyW=true;for(let i=0;i<60;i++)drvTick(.05);if(!(DRV.v>8)||!(DRV.z<z0-8))return'accélération '+DRV.v+' '+(z0-DRV.z);
+K.KeyA=true;const h0=DRV.h;for(let i=0;i<10;i++)drvTick(.05);K.KeyA=false;if(!(DRV.h>h0+.02))return'direction';
+const hp0=r.hp;DRV.h=0;K.KeyW=true;for(let i=0;i<200&&r.hp===hp0;i++)drvTick(.05);if(!(r.hp<hp0))return'pas de collision (z='+DRV.z.toFixed(1)+' mur '+wall.z1+')';if(DRV.z<wall.z1-.2)return'traverse le mur '+DRV.z;
+K.KeyW=false;DRV.v=10;K.Space=true;for(let i=0;i<30;i++)drvTick(.05);K.Space=false;if(Math.abs(DRV.v)>.5)return'frein à main '+DRV.v;
+drvExit();if(DRV.on||!boxes.includes(bx)||r.drv)return'descente'}
+finally{K.KeyW=sv[5];K.KeyA=sv[6];K.Space=sv[7];if(DRV.on){DRV.on=0;drvSound(false);gun.visible=true}[P.x,P.z,P.gy,P.st,P.yaw]=sv;$('ov').style.display=sv[8];let i=boxes.indexOf(bx);if(i>=0)boxes.splice(i,1);i=boxes.indexOf(wall);if(i>=0)boxes.splice(i,1);S.remove(e);S.remove(px);D.list.pop();if(DRV.spd)DRV.spd.style.display='none'}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

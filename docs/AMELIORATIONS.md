@@ -502,3 +502,8 @@ Test : « Vision nocturne/thermique, sol mouillé, empreintes, douilles persista
 - **Boire** : F au bord de l'eau (4,5 s) ou touche **=** (gourde, 2,5 s) ; **manger** : touche **-** (ration, 3,5 s). Départ : 2 gourdes, 2 rations ; les éliminations en rapportent. **\\** active/désactive la survie (mémorisé), pour les missions courtes.
 - **Ramassage chronométré** : durée selon la masse de l'objet (0,3 à 2,2 s, sac 2,5 s), interrompu si on bouge ou si on est touché.
 Test : « Survie : soif, faim, froid, boire/manger, ramassage chronométré » (40/40).
+
+## v36 — Véhicules conduisibles (`drive.js`)
+**F** près d'un véhicule garé (voitures de la ville, tracteurs et véhicules du décor) pour monter ; **W/S** accélérer / freiner / marche arrière, **A/D** diriger (braquage réduit avec la vitesse), **Espace** frein à main, **H** vue conducteur (par défaut caméra de poursuite, souris pour tourner autour), **F** descendre (à moins de 15 km/h). Vitesse max 100 km/h (voitures) ou 61 km/h (grands véhicules), tangage selon le relief. Collisions contre les obstacles (le véhicule et, au-delà de 43 km/h, le conducteur encaissent des dégâts, fumée puis incendie via `destruct.js` ; un véhicule en feu éjecte le conducteur), soldats écrasés au-delà de 9 km/h, moteur sonore, compteur. Le véhicule reste solide et destructible (volume de tir déplacé avec lui). Armes masquées et tir bloqué en conduisant.
+Limites : pas de phares ni de passagers, les bots ne conduisent pas, caméra sans collision fine avec les bâtiments (rayon simple).
+Test : « Conduite : accélération, direction, collision, freinage, descente » (41/41).

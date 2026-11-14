@@ -2333,7 +2333,7 @@ if(WPN.rng()<wpJamP(s)){s.jam=1;s.bst=0;cd=.3;snd(900,.03,.12,'square');wpnMsg('
 function wpPost(){const c=WC[WSEL],s=wpS(WSEL),rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);s.wear=Math.min(1,s.wear+.0004*(1+rain*.5));s.heat=Math.min(1.4,s.heat+wpHeatShot(c));if(s.bst>0)s.bst--;
 if(s.heat>=1&&/HMG/.test(c.n)&&!s.hot){s.hot=1;s.bst=0;wpnMsg('SURCHAUFFE — laisse refroidir le canon')}}
 // gâchette : modes de tir
-function wpTrig(){const s=wpS(WSEL);if(s.jam){if(!mdPrev){snd(900,.03,.12,'square');wpnMsg('ENRAYAGE — [R] pour dégager')}return false}
+function wpTrig(){if(DRV.on)return false;const s=wpS(WSEL);if(s.jam){if(!mdPrev){snd(900,.03,.12,'square');wpnMsg('ENRAYAGE — [R] pour dégager')}return false}
 if(s.clr>0||s.hot)return false;if(s.bst>0)return true;const m=wpMode(WSEL);if(m===0)return true;if(mdPrev)return false;if(m===2)s.bst=3;return true}
 function wpBst(){const s=wpS(WSEL);return s.bst>0&&!s.jam&&!s.hot&&s.clr<=0}
 // R : dégager un enrayage (prend du temps, la cartouche est éjectée)
@@ -2438,8 +2438,57 @@ const L=[['Soif',SUR.w],['Faim',SUR.f],['Chaleur',SUR.c]].filter(q=>q[1]<.7),w=s
 if(w&&!SUR.act)h+='<div style="margin-top:3px;color:#9fd0ff">[F] boire</div>';SUR.el.innerHTML=h;SUR.el.style.display=h?'block':'none'}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
 if(e.code==='Minus')survStart('eat');else if(e.code==='Equal')survStart('drink');
-else if(e.code==='KeyF'&&SUR.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
+else if(e.code==='KeyF'&&SUR.on&&!DRV.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
 else if(e.code==='Backslash'){SUR.on=!SUR.on;try{localStorage.setItem('mfps_surv',SUR.on?'1':'0')}catch(x){}survMsg(SUR.on?'Survie activée (soif, faim, froid)':'Survie désactivée')}});
+// ================= v36 : VÉHICULES CONDUISIBLES (voitures et véhicules garées) =================
+// F près d'un véhicule : monter ; W/S accélérer, freiner, marche arrière ; A/D diriger ; Espace frein à main ; F : descendre (à l'arrêt).
+// Collisions avec les obstacles (dégâts du véhicule et du conducteur), soldats écrasés, fumée/incendie via destruct.js, moteur sonore.
+var DRV={on:0,r:null,v:0,h:0,st:0,x:0,z:0,len:4.6,wid:2.2,hgt:1.5,vmax:28,yo:0,cd:0,hint:null,ht:0,snd:null,pit:0,bump:0};
+function drvNear(){let b=null,bd=3.6;for(const r of dstS().list){if(r.st>0||r.hp<=0||r.drv)continue;const d=Math.hypot(r.x-P.x,r.z-P.z);if(d<bd){bd=d;b=r}}return b}
+function drvSound(on){try{if(!on){if(DRV.snd){DRV.snd.o.stop();DRV.snd=null}return}AC=AC||new AudioContext();const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';f.type='lowpass';f.frequency.value=700;g.gain.value=.05;o.connect(f);f.connect(g);g.connect(AOUT());o.start();DRV.snd={o,g,f}}catch(e){}}
+function drvEnter(r){if(DRV.on||HM.dead||ac.on||bench)return;const g=r.px.geometry.parameters,len=Math.max(g.width,g.depth),wid=Math.min(g.width,g.depth),hh=g.height;
+if(r.h===undefined)r.h=r.e.rotation.y;r.drv=1;const i=boxes.indexOf(r.bx);if(i>=0)boxes.splice(i,1);
+r.px.geometry.dispose();r.px.geometry=new THREE.BoxGeometry(wid,hh,len);r.px.rotation.y=r.h;r.e.rotation.order='YXZ';
+Object.assign(DRV,{on:1,r,v:0,h:r.h,st:0,x:r.x,z:r.z,len,wid,hgt:hh,vmax:len>6?17:28,yo:r.y-GH(r.x,r.z),cd:0,pit:0,bump:0});
+gun.visible=false;P.yaw=DRV.h;P.pitch=-.2;DRV.fp=0;P.st=1;mdown=false;ads=false;drvSound(true);hlMsg('Conduite : W/S, A/D, Espace frein à main, H vue conducteur, F sortir');snd(220,.12,.12,'square')}
+function drvExit(force){if(!DRV.on)return;const r=DRV.r;if(!force&&Math.abs(DRV.v)>4)return hlMsg('Arrête-toi pour descendre');
+const c=Math.cos(DRV.h),s=Math.sin(DRV.h),d=DRV.wid/2+.9;P.x=DRV.x-c*d;P.z=DRV.z+s*d;P.gy=GH(P.x,P.z);P.vy=0;P.air=0;
+r.drv=0;DRV.on=0;DRV.v=0;gun.visible=true;if(typeof canStand==='function'&&canStand())P.st=0;drvSound(false);
+const w=Math.abs(Math.sin(DRV.h))*DRV.len/2+Math.abs(Math.cos(DRV.h))*DRV.wid/2,l=Math.abs(Math.cos(DRV.h))*DRV.len/2+Math.abs(Math.sin(DRV.h))*DRV.wid/2;
+r.bx.x0=DRV.x-w;r.bx.x1=DRV.x+w;r.bx.z0=DRV.z-l;r.bx.z1=DRV.z+l;if(!boxes.includes(r.bx))boxes.push(r.bx);if(DRV.hint)DRV.hint.style.display='none'}
+function drvCol(nx,nz,gy){let imp=0;const f=_drf.set(-Math.sin(DRV.h),0,-Math.cos(DRV.h)),rad=DRV.wid/2,L=DRV.len;
+for(const off of[-L/2+rad,0,L/2-rad]){let px=nx+f.x*off,pz=nz+f.z*off;for(const o of boxes){if(o.y0!==undefined&&(o.y1<gy+.35||o.y0>gy+1.5))continue;const cx=Math.max(o.x0,Math.min(px,o.x1)),cz=Math.max(o.z0,Math.min(pz,o.z1)),ax=px-cx,az=pz-cz,dd=Math.hypot(ax,az);
+if(dd<rad){let pen=rad-dd,nxn,nzn;if(dd>1e-4){nxn=ax/dd;nzn=az/dd}else{nxn=px-(o.x0+o.x1)/2;nzn=pz-(o.z0+o.z1)/2;const l=Math.hypot(nxn,nzn)||1;nxn/=l;nzn/=l;pen=rad}nx+=nxn*pen;nz+=nzn*pen;px+=nxn*pen;pz+=nzn*pen;imp=1}}}
+return[nx,nz,imp]}
+const _drf=new THREE.Vector3();
+// caméra : poursuite autour du véhicule (souris pour tourner autour), H pour la vue du conducteur
+const _drc=new THREE.Raycaster(),_dro=new THREE.Vector3(),_drd=new THREE.Vector3();
+function drvCam(){if(DRV.fp){C.position.set(P.x,DRV.cy,P.z);return}
+const cp=Math.cos(P.pitch);_drd.set(-Math.sin(P.yaw)*cp,Math.sin(P.pitch),-Math.cos(P.yaw)*cp);_dro.set(DRV.x,DRV.cy-1.18+DRV.hgt+.2,DRV.z);let D=DRV.len*1.45+1.5;
+_drc.set(_dro,_drd.clone().negate());_drc.far=D;const hs=_drc.intersectObjects(ray,false).filter(h=>h.object!==DRV.r.px);if(hs.length)D=Math.max(1.2,hs[0].distance-.4);
+C.position.copy(_dro).addScaledVector(_drd,-D);C.position.y+=.3}
+function drvTick(dt){
+if(!DRV.on){DRV.ht-=dt;if(DRV.ht<=0){DRV.ht=.3;const n=P.gy!==undefined&&!HM.dead&&!ac.on&&!bench&&$('ov').style.display==='none'&&!nb&&!ndR&&!invNear()?drvNear():null;if(!DRV.hint){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:150px;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 0 4px #000;pointer-events:none;z-index:6;display:none';document.body.appendChild(d);DRV.hint=d}
+DRV.hint.textContent='F — Conduire';DRV.hint.style.display=n?'block':'none'}return}
+gun.visible=false;const r=DRV.r;if(HM.dead||r.st>=1||r.hp<=0){if(r.st>=1||r.hp<=0)hlMsg('Le véhicule est en feu !');drvExit(true);return}
+const f=(K.KeyW?1:0)-(K.KeyS?1:0),s=(K.KeyA?1:0)-(K.KeyD?1:0),hb=K.Space;let v=DRV.v,a;
+if(hb)a=-Math.sign(v)*Math.min(Math.abs(v)/dt,16);else if(f>0)a=v<0?-Math.sign(v)*14:7*Math.max(0,1-v/DRV.vmax);else if(f<0)a=v>.3?-14:(v>-8?-4:0);else a=-Math.sign(v)*Math.min(Math.abs(v)/dt,2.2);
+v+=a*dt*(1-Math.min(.5,r.hp<r.max*.3?(1-r.hp/(r.max*.3))*.5:0));DRV.v=v;
+const tg=s*.55/(1+Math.abs(v)/9);DRV.st+=(tg-DRV.st)*Math.min(1,dt*6);DRV.h+=(v/(DRV.len*.6))*Math.tan(DRV.st)*dt;
+let nx=DRV.x-Math.sin(DRV.h)*v*dt,nz=DRV.z-Math.cos(DRV.h)*v*dt;const gy=GH(DRV.x,DRV.z),lim=(typeof MH!=='undefined'?MH:500)-4;nx=Math.max(-lim,Math.min(lim,nx));nz=Math.max(-lim,Math.min(lim,nz));
+const q=drvCol(nx,nz,gy);nx=q[0];nz=q[1];DRV.cd-=dt;
+if(q[2]&&DRV.cd<=0){const sp=Math.abs(v);if(sp>3.5){DRV.cd=.3;const dm=(sp-3.5)*18;dstHit(r,null,dm);snd(rnd(80,140),.2,.25,'sawtooth');if(sp>12)hlApply('t',(sp-12)*2.2,'x',null);FXP.shake=Math.max(FXP.shake||0,Math.min(.8,sp/25))}DRV.v*=-.2}
+for(const b of bots){if(b.dead>0||b.bout)continue;const g=b.g.position,dx=g.x-nx+Math.sin(DRV.h)*DRV.len*.3,dz=g.z-nz+Math.cos(DRV.h)*DRV.len*.3;if(Math.abs(dx)<DRV.len&&Math.abs(dz)<DRV.len&&Math.hypot(dx,dz)<DRV.wid/2+.55&&Math.abs(v)>2.5){bhHit(b,'t',90*Math.abs(v)/10,'o');b.pk=1;aiHit(b);if(b.hp<=0)onKill(b,false);DRV.v*=.93;snd(rnd(100,160),.15,.2,'square')}}
+if(Math.abs(v)>3&&!DRV.fp){let df=DRV.h-P.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));P.yaw+=df*Math.min(1,dt*1.2)*Math.min(1,Math.abs(v)/12)*(v>0?1:0)}
+DRV.x=nx;DRV.z=nz;const gc=GH(nx,nz),fx=-Math.sin(DRV.h),fz=-Math.cos(DRV.h),yF=GH(nx+fx*DRV.len/2,nz+fz*DRV.len/2),yB=GH(nx-fx*DRV.len/2,nz-fz*DRV.len/2);DRV.pit+=(Math.atan2(yF-yB,DRV.len)-DRV.pit)*Math.min(1,dt*8);
+const e=r.e;e.position.set(nx,gc+DRV.yo,nz);e.rotation.y=DRV.h;e.rotation.x=DRV.pit;r.x=nx;r.z=nz;r.h=DRV.h;r.px.position.set(nx,gc+DRV.yo+DRV.hgt/2,nz);r.px.rotation.y=DRV.h;r.px.updateMatrixWorld();
+const c=Math.cos(DRV.h),sn=Math.sin(DRV.h),lx=-.42,lz=-DRV.len*.06;P.x=nx+lx*c+lz*sn;P.z=nz-lx*sn+lz*c;P.gy=gc;P.vy=0;P.air=0;P.st=1;
+DRV.cy=gc+DRV.yo+1.18+Math.sin(performance.now()*.03*Math.min(1,Math.abs(v)/20))*.012*Math.min(1,Math.abs(v)/10);DRV.bump=0;
+if(DRV.snd&&AC){const th=f>0?1:0;DRV.snd.o.frequency.value=38+Math.abs(v)*5.5+th*10;DRV.snd.g.gain.value=.03+.03*Math.min(1,Math.abs(v)/15)+th*.015}
+if(!DRV.spd){const d=document.createElement('div');d.style.cssText='position:fixed;right:24px;bottom:110px;font:20px monospace;color:#dfe8d0;text-shadow:0 0 4px #000;pointer-events:none;z-index:6';document.body.appendChild(d);DRV.spd=d}
+DRV.spd.style.display='block';DRV.spd.textContent=Math.round(Math.abs(v)*3.6)+' km/h'+(r.hp<r.max*.6?' · ⚠':'');if(DRV.hint)DRV.hint.style.display='none'}
+addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&DRV.on){DRV.fp=!DRV.fp;if(DRV.fp)P.pitch=0}});
+addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyF'||$('ov').style.display!=='none'||ac.on||bench)return;if(DRV.on){drvExit();if(!DRV.on&&DRV.spd)DRV.spd.style.display='none'}else if(!nb&&!ndR&&!invNear()){const r=drvNear();if(r)drvEnter(r)}});
 // ================= BARILS DE CARBURANT : fuite, incendie, explosion retardée =================
 // Seuls les barils rouges contiennent du carburant. Une balle les perce (fuite, flaque) et peut enflammer les vapeurs (20 %).
 // Un baril en feu explose après 2,5 à 6 s s'il lui reste assez de carburant, sinon il brûle sans exploser.
@@ -4161,6 +4210,14 @@ SUR.w=.2;SUR.f=.1;SUR.c=.9;HM.inv.bt=1;HM.inv.rt=1;HM.sta=1;const t0=hlTremor();
 survStart('drink');if(SUR.act)return'boire sans gourde';SUR.c=.1;survTick(.5);if(!(SUR.tr>.2))return'frissons '+SUR.tr;
 SUR.c=1;SUR.w=1;SUR.f=1;const n=INV.gnd.length,e=invSpawn('pl',1,P.x+.4,P.gy,P.z,0,0);e.fall=false;e.m.position.y=P.gy;invPick();if(!SUR.pk)return'ramassage instantané';survTick(.1);if(!SUR.pk)return'ramassage annulé trop tôt';survTick(5);if(SUR.pk||INV.gnd.includes(e))return'ramassage non terminé'}
 finally{[SUR.on,SUR.w,SUR.f,SUR.c,SUR.act,SUR.pk,HM.inv.bt,HM.inv.rt,HM.sta]=sv;SUR.tr=0;$('ov').style.display=ovd}return msg});
+T('Conduite : accélération, direction, collision, freinage, descente',()=>{const D=dstS(),e=new THREE.Group(),sv=[P.x,P.z,P.gy,P.st,P.yaw,K.KeyW,K.KeyA,K.Space,$('ov').style.display],x0=P.x+40,z0=P.z+40;e.add(new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,4.6),new THREE.MeshStandardMaterial()));e.position.set(x0,GH(x0,z0),z0);S.add(e);
+const px=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.5,4.6),new THREE.MeshBasicMaterial()),bx={x0:x0-1.2,x1:x0+1.2,z0:z0-2.3,z1:z0+2.3,y0:0,y1:1.5},wall={x0:x0-3,x1:x0+3,z0:z0-34,z1:z0-30,y0:0,y1:3};boxes.push(bx,wall);px.position.set(x0,GH(x0,z0)+.75,z0);S.add(px);dstVeh(e,px,bx,x0,GH(x0,z0),z0);const r=px.userData.dst;let msg='';$('ov').style.display='none';
+try{P.x=x0+2;P.z=z0;if(drvNear()!==r)return'véhicule non détecté';drvEnter(r);if(!DRV.on||boxes.includes(bx))return'montée';K.KeyW=true;for(let i=0;i<60;i++)drvTick(.05);if(!(DRV.v>8)||!(DRV.z<z0-8))return'accélération '+DRV.v+' '+(z0-DRV.z);
+K.KeyA=true;const h0=DRV.h;for(let i=0;i<10;i++)drvTick(.05);K.KeyA=false;if(!(DRV.h>h0+.02))return'direction';
+const hp0=r.hp;DRV.h=0;K.KeyW=true;for(let i=0;i<200&&r.hp===hp0;i++)drvTick(.05);if(!(r.hp<hp0))return'pas de collision (z='+DRV.z.toFixed(1)+' mur '+wall.z1+')';if(DRV.z<wall.z1-.2)return'traverse le mur '+DRV.z;
+K.KeyW=false;DRV.v=10;K.Space=true;for(let i=0;i<30;i++)drvTick(.05);K.Space=false;if(Math.abs(DRV.v)>.5)return'frein à main '+DRV.v;
+drvExit();if(DRV.on||!boxes.includes(bx)||r.drv)return'descente'}
+finally{K.KeyW=sv[5];K.KeyA=sv[6];K.Space=sv[7];if(DRV.on){DRV.on=0;drvSound(false);gun.visible=true}[P.x,P.z,P.gy,P.st,P.yaw]=sv;$('ov').style.display=sv[8];let i=boxes.indexOf(bx);if(i>=0)boxes.splice(i,1);i=boxes.indexOf(wall);if(i>=0)boxes.splice(i,1);S.remove(e);S.remove(px);D.list.pop();if(DRV.spd)DRV.spd.style.display='none'}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
@@ -4440,12 +4497,12 @@ document.addEventListener('pointerlockerror',()=>{if(ever)$('ov').style.display=
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()});
 // ---- Boucle
 const clock=new THREE.Clock(),V=new THREE.Vector3(),W=new THREE.Vector3();
-function loop(){requestAnimationFrame(loop);window.ldDone();const dt=Math.min(clock.getDelta(),.05);
+function loop(){requestAnimationFrame(loop);window.ldDone();const dt=Math.min(clock.getDelta(),.05);drvTick(dt);
 
 P.pitch=Math.max(-1.4,Math.min(1.4,P.pitch));
 const sk=sight(),inz=inZ(P.x,P.z),nearB=inz&&Math.hypot(P.x-BENCH.x,P.z-BENCH.z)<2.7;nb=nearB;ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS());
 // déplacement
-const f=ac.on?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=ac.on?0:(K.KeyD?1:0)-(K.KeyA?1:0);
+const f=(ac.on||DRV.on)?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=(ac.on||DRV.on)?0:(K.KeyD?1:0)-(K.KeyA?1:0);
 const spd=(ads?2.2:(K.ShiftLeft&&P.st===0&&HSPR()&&invSprintOK()&&!mdown?6.5:4)*(Math.abs(P.lean)>.5?.7:1))*PWADE*PSTUN*TRB.m*STS[P.st]*(P.air?.8:1)*HMV();
 let dx=-Math.sin(P.yaw)*f+Math.cos(P.yaw)*r,dz=-Math.cos(P.yaw)*f-Math.sin(P.yaw)*r;const l=Math.hypot(dx,dz);
 if(l>0){dx/=l;dz/=l;P.x+=dx*spd*dt;P.z+=dz*spd*dt;bob+=dt*spd*2}
@@ -4457,7 +4514,7 @@ lvStep(dt);
 const lt=(K.KeyE?1:0)-(K.KeyQ?1:0);P.lean+=(lt-P.lean)*Math.min(1,dt*9);
 const rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);let off=P.lean*.5;
 if(Math.abs(off)>.02){V.set(P.x,P.eh-.1+P.gy,P.z);W.set(rx*Math.sign(off),0,rz*Math.sign(off));RC.set(V,W);RC.far=.75;const h=RC.intersectObjects(solids)[0];if(h)off=Math.sign(off)*Math.min(Math.abs(off),Math.max(0,h.distance-.2))}
-if(ac.on)acCam(dt);else{C.position.set(P.x+rx*off,P.eh+P.gy-Math.abs(P.lean)*.14+Math.sin(bob)*.02*(l>0),P.z+rz*off);
+if(ac.on)acCam(dt);else{C.position.set(P.x+rx*off,P.eh+P.gy-Math.abs(P.lean)*.14+Math.sin(bob)*.02*(l>0),P.z+rz*off);if(DRV.on)drvCam();
 C.rotation.set(P.pitch,P.yaw,-P.lean*.3);camFx(dt);hlCam(dt)}
 const sf=(sk==='scope'||(sk==='iron'&&WSEL===4))?62/mag:sk==='holo'&&mgIn?62/3:SIGHT[sk].fov,tf=75+(sf-75)*adsT;if(!ac.on){C.fov+=(tf-C.fov)*.5;C.updateProjectionMatrix()}
 // arme
@@ -4502,6 +4559,6 @@ let nd=null,nds=2.3;doors.forEach(d=>{if(d.dead)return;const q=Math.hypot(P.x-d.
 const ho=ads&&adsT>.8&&sk==='holo';$('holo').style.display=ho?'block':'none';
 const sc=ads&&adsT>.8&&(sk==='scope'||ho&&mgIn||(sk==='iron'&&WSEL===4)),an=ads&&adsT>.8&&sk==='angled';if(WSEL===4)wg[4].visible=!sc;
 $('scope').style.display=sc?'block':'none';balRet(sc,dt);$('rdot').style.display=an?'block':'none';$('cross').style.display=(adsT>.3||ac.on)?'none':'block';
-if(bench){gun.position.set(0,0,0);gun.rotation.set(.12,pry,0);if(!pdrag)pry+=dt*.3;PR.render(PS,PC)}fxFrame(dt);gqFrame(dt);ppRender(dt)}
+if(bench){gun.position.set(0,0,0);gun.rotation.set(.12,pry,0);if(!pdrag)pry+=dt*.3;PR.render(PS,PC)}fxFrame(dt);if(DRV.on)gun.visible=false;gqFrame(dt);ppRender(dt)}
 loop();
 </script><script>requestAnimationFrame(function(){setTimeout(function(){var s=document.createElement('script');s.text=document.getElementById('gamesrc').textContent;document.head.appendChild(s)},80)})</script></body></html>

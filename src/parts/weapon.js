@@ -24,7 +24,7 @@ if(WPN.rng()<wpJamP(s)){s.jam=1;s.bst=0;cd=.3;snd(900,.03,.12,'square');wpnMsg('
 function wpPost(){const c=WC[WSEL],s=wpS(WSEL),rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);s.wear=Math.min(1,s.wear+.0004*(1+rain*.5));s.heat=Math.min(1.4,s.heat+wpHeatShot(c));if(s.bst>0)s.bst--;
 if(s.heat>=1&&/HMG/.test(c.n)&&!s.hot){s.hot=1;s.bst=0;wpnMsg('SURCHAUFFE — laisse refroidir le canon')}}
 // gâchette : modes de tir
-function wpTrig(){const s=wpS(WSEL);if(s.jam){if(!mdPrev){snd(900,.03,.12,'square');wpnMsg('ENRAYAGE — [R] pour dégager')}return false}
+function wpTrig(){if(DRV.on)return false;const s=wpS(WSEL);if(s.jam){if(!mdPrev){snd(900,.03,.12,'square');wpnMsg('ENRAYAGE — [R] pour dégager')}return false}
 if(s.clr>0||s.hot)return false;if(s.bst>0)return true;const m=wpMode(WSEL);if(m===0)return true;if(mdPrev)return false;if(m===2)s.bst=3;return true}
 function wpBst(){const s=wpS(WSEL);return s.bst>0&&!s.jam&&!s.hot&&s.clr<=0}
 // R : dégager un enrayage (prend du temps, la cartouche est éjectée)

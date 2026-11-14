@@ -32,5 +32,5 @@ const L=[['Soif',SUR.w],['Faim',SUR.f],['Chaleur',SUR.c]].filter(q=>q[1]<.7),w=s
 if(w&&!SUR.act)h+='<div style="margin-top:3px;color:#9fd0ff">[F] boire</div>';SUR.el.innerHTML=h;SUR.el.style.display=h?'block':'none'}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
 if(e.code==='Minus')survStart('eat');else if(e.code==='Equal')survStart('drink');
-else if(e.code==='KeyF'&&SUR.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
+else if(e.code==='KeyF'&&SUR.on&&!DRV.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
 else if(e.code==='Backslash'){SUR.on=!SUR.on;try{localStorage.setItem('mfps_surv',SUR.on?'1':'0')}catch(x){}survMsg(SUR.on?'Survie activée (soif, faim, froid)':'Survie désactivée')}});
