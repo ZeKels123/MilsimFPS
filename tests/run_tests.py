@@ -40,5 +40,8 @@ if errors:
     print("  ÉCHEC Erreurs de page :", *errors[:5], sep="\n    "); fail += 1
 if load_s > MAX_LOAD_S:
     print("  ÉCHEC Chargement trop long"); fail += 1
+import subprocess
+if subprocess.run([sys.executable, str(__import__("pathlib").Path(__file__).resolve().parent.parent / "tools" / "voix_liste.py"), "--check"]).returncode:
+    print("  ÉCHEC Liste des voix docs/VOIX.md pas à jour"); fail += 1
 print(f"\n{res['pass']}/{res['total']} tests du jeu réussis · IA {res.get('aiMs') or 0:.1f} ms/mise à jour")
 sys.exit(1 if fail else 0)
