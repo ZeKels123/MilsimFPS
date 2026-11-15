@@ -3199,7 +3199,7 @@ function enfHud(){
 // ---------- tick global ----------
 function reaTick(dt){
  if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{fouBuild()}catch(e){console.error('rea',e)}}
- vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt);enfHud()}
+ vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt);if(typeof blsTick==='function')blsTick(dt);enfHud()}
 // ================= HITBOX DES BOTS (v43.5) : capsules sur le squelette réel =================
 // Les anciennes boîtes invisibles restaient sur l'ancien squelette procédural (debout, jambes figées) alors que le soldat visible court, s'accroupit ou tombe.
 // Les zones de tir (tête, thorax, ventre, bras, jambes) sont désormais des capsules qui suivent les os du modèle animé.
@@ -3236,7 +3236,7 @@ const sldU2=sldUpdate;sldUpdate=function(b,dt,mv){sldU2(b,dt,mv);try{hbxUpdate(b
 // ---- collision des cadavres avec les murs/obstacles (boxes) : le corps est repoussé hors du mur, il ne finit plus à travers
 const DCP=['Head','Spine2','Hips','LeftHand','RightHand','LeftLeg','RightLeg','LeftFoot','RightFoot'],_dcV=new THREE.Vector3();
 function dcolPush(b){
- if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||(b.fall||0)>4)return 0;
+ if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||((b.fall||0)>4&&!b.drgP))return 0;
  const g=b.g;if(Math.hypot(g.position.x-P.x,g.position.z-P.z)>90)return 0;
  g.updateMatrixWorld(true);const bn=b.sld.bones,ix=SLS.ix,sg=b.sld.sg,gy=g.position.y,R=.2,pts=[];
  for(const n of DCP){const q=bn[ix[n]];if(!q)continue;_dcV.copy(q.position);sg.localToWorld(_dcV);pts.push([_dcV.x,_dcV.y,_dcV.z])}
@@ -3254,6 +3254,71 @@ function dcolPush(b){
  if(moved){g.position.x+=sx;g.position.z+=sz;g.updateMatrixWorld(true);b.dcPush=(b.dcPush||0)+Math.hypot(sx,sz)}
  return moved}
 {const sU3=sldUpdate;sldUpdate=function(b,dt,mv){sU3(b,dt,mv);if(b.dead>0){try{dcolPush(b)}catch(e){console.error('dcol',e)}}}}
+// ================= v44 : blessés qui réagissent, traînage d'un blessé, cadavres physiques =================
+const BLS={n:{cov:0,sur:0,drag:0,pull:0},pull:null,hint:null,hT:0};
+const blsFwd=(y,k)=>[Math.sin(y)*k,Math.cos(y)*k];
+// ---- 1. Réactions : jambe brisée = abri et tir depuis l'abri (pas de flanc), jambes brisées = se traîne, sans arme = abri ou reddition
+function blsThink(b){
+ if(b.drg){b.path=null;b.decT=.5;return true}
+ const g=b.g.position,pd=Math.hypot(P.x-g.x,P.z-g.z),eng=b.see||(b.alert&&b.seenT<6);
+ if(b.unarm&&!b.sur){
+  if(b.see&&pd<9&&!b.fleeT){tacSurrender(b);BLS.n.sur++;return true}
+  if(eng&&(b.wFle||0)<TAC.t){b.wFle=TAC.t+7;const c=findCover(b,P.x,P.z,26);if(c&&goTo(b,c[0],c[1],2.4,'cov')){BLS.n.cov++;tacSay(b,'pan');b.decT=1;return true}}
+  if(!b.path){b.cr=1;b.decT=.7;return true}
+  return false}
+ if(b.hm>=.8)return false;
+ if(eng){
+  if((b.wCov||0)<TAC.t&&!(b.st==='cov'&&b.path)){b.wCov=TAC.t+9;const c=findCover(b,P.x,P.z,b.hm<.35?7:12);if(c&&goTo(b,c[0],c[1],b.hm<.35?1:1.3,'cov')){BLS.n.cov++;b.decT=1;return true}}
+  if(b.st==='cov'&&b.path)return true;
+  b.path=null;b.cr=1;b.st='atk';b.decT=.6;return true}
+ if(b.hm<.5){b.path=null;b.cr=1;b.decT=.8;return true}
+ return false}
+{const aT0=aiThink;aiThink=function(b){if(b.zh&&!b.dead&&!b.sur&&!b.route&&!b.lvl){try{if(blsThink(b))return}catch(e){console.error('bls',e)}}aT0(b)}}
+// ---- 2. Pose : boiterie, corps qui se traîne, blessé traîné par un camarade (tête vers lui, penché en arrière)
+function blsPose(b,dt,mv){
+ const sd=b.sld,g=b.g;if(!sd||!sd.sg)return;
+ const h=b.drg;
+ if(h&&!h.dead&&h.evac&&h.evac.w===b){
+  const hy=h.g.rotation.y,[fx,fz]=blsFwd(hy,1.55),tx=h.g.position.x-fx,tz=h.g.position.z-fz;
+  const k=Math.min(1,dt*9),nx=g.position.x+(tx-g.position.x)*k,nz=g.position.z+(tz-g.position.z)*k;
+  if(nFree(nx,nz)){g.position.x=nx;g.position.z=nz}
+  g.rotation.y=hy+Math.PI;g.rotation.x+=(-1.2-g.rotation.x)*Math.min(1,dt*6);b.cr=0;b.crA=0;b.blsLean=1;b.path=null;BLS.n.pull+=dt;return}
+ if(b.drg){b.drg=null}
+ if(b.blsLean){g.rotation.x+=(0-g.rotation.x)*Math.min(1,dt*6);if(Math.abs(g.rotation.x)<.02){g.rotation.x=0;b.blsLean=0}}
+ const w=1-(b.hm===undefined?1:b.hm);
+ if(w>.15&&mv&&b.hm>.35){sd.sg.rotation.z=Math.sin(b.ph*1.0)*.12*w*2;sd.sg.position.y-=.06*w*(.5+.5*Math.sin(b.ph*2))}
+ else if(b.hm<=.35&&mv){sd.sg.rotation.x=.55;sd.sg.position.y-=.1;sd.sg.rotation.z=Math.sin(b.ph*.8)*.1}}
+{const sU5=sldUpdate;sldUpdate=function(b,dt,mv){sU5(b,dt,mv);if(!(b.dead>0)&&b.zh){try{blsPose(b,dt,mv)}catch(e){console.error('blsPose',e)}}}}
+// le blessé évacué est traîné : on l'accroche au camarade pendant la phase de repli
+function blsDrag(){for(const h of bots){const e=h.evac;if(!e||h.dead)continue;const w=e.w;if(!w||w.dead)continue;
+ if(e.ph===1){if(!w.drg){BLS.n.drag++}w.drg=h}else if(w.drg===h&&e.ph!==1){w.drg=null}}}
+// ---- 3. Cadavres : empilés les uns sur les autres, traînés par le joueur (maintenir F + avancer)
+function blsStack(b){let n=0;const g=b.g.position,i=bots.indexOf(b);
+ for(let j=0;j<i;j++){const o=bots[j];if(!(o.dead>0)||o.dead>50||(o.fall||0)<1)continue;if(Math.abs(o.g.position.x-g.x)<.75&&Math.abs(o.g.position.z-g.z)<.75)n++}
+ b.stk=Math.min(2,n);if(n)g.y+=.16*b.stk}
+{const sU6=sldUpdate;sldUpdate=function(b,dt,mv){sU6(b,dt,mv);if(b.dead>0&&b.dead<50&&(b.fall||0)>1){try{blsStack(b)}catch(e){}}}}
+function blsCorpseNear(r){let bb=null,bd=r;for(const o of bots){if(!(o.dead>0)||o.dead>50||(o.fall||0)<1)continue;const d=Math.hypot(o.g.position.x-P.x,o.g.position.z-P.z);if(d<bd){bd=d;bb=o}}return bb}
+function blsHint(t){if(!BLS.hint){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:22%;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 1px 3px #000;pointer-events:none;z-index:6;text-align:center;display:none';document.body.appendChild(d);BLS.hint=d}
+ BLS.hint.style.display=t?'block':'none';if(t)BLS.hint.textContent=t}
+function blsPullTick(dt){
+ const mv=K.KeyW||K.KeyA||K.KeyS||K.KeyD,held=!!K.KeyF,off=ac.on||HM.dead||DRV.on||INV.open||(typeof bench!=='undefined'&&bench);
+ let c=BLS.pull;
+ if(c){if(!held||off||c.dead<=0||c.dead>50||Math.hypot(c.g.position.x-P.x,c.g.position.z-P.z)>3){BLS.pull=null;c.drgP=0;blsHint('');return}}
+ else{if(off){blsHint('');return}const o=blsCorpseNear(1.7);if(!o){blsHint('');return}
+  if(held&&mv){BLS.pull=c=o;o.drgP=1;BLS.n.pull++}else{blsHint(fouTarget()?'':'Maintiens [F] + avance : traîner le corps');return}}
+ blsHint('');
+ // le corps suit derrière le joueur, tête vers lui
+ const sy=Math.sin(P.yaw),cy=Math.cos(P.yaw),tx=P.x+sy*1.25,tz=P.z+cy*1.25,g=c.g.position,k=Math.min(1,dt*7),nx=g.x+(tx-g.x)*k,nz=g.z+(tz-g.z)*k;
+ if(nFree(nx,nz)){g.x=nx;g.z=nz}
+ const dir=Math.atan2(P.x-g.x,P.z-g.z),want=c.dk===1?dir:dir+Math.PI;let dy=want-c.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));c.g.rotation.y+=dy*Math.min(1,dt*6);
+ c.dead=Math.max(c.dead,20);c.fall=Math.max(c.fall,4.2);if(!c.dcDone)c.dcDone=1;
+ if(!(BLS.nz>0))BLS.nz=.7;BLS.nz-=dt;if(BLS.nz<=0){BLS.nz=.8;noise(P.x,P.z,5)}}
+{const HM0=HMV;HMV=function(){return HM0()*(BLS.pull?.5:1)}}
+function blsTick(dt){try{blsDrag();blsPullTick(dt)}catch(e){console.error('blsTick',e)}}
+// ---- armes lâchées : rebond sur les murs au début de leur course
+{const dw0=dwUpdate;dwUpdate=function(dt){dw0(dt);for(const d of DW){if(d.rest||d.t>2.5)continue;const p=d.m.position;
+ for(const o of boxes){if(o.y1<p.y-.1||o.y0>p.y+.2)continue;if(p.x<o.x0||p.x>o.x1||p.z<o.z0||p.z>o.z1)continue;const pl=p.x-o.x0,pr=o.x1-p.x,pb=p.z-o.z0,pf=o.z1-p.z,m=Math.min(pl,pr,pb,pf);
+  if(m===pl){p.x=o.x0-.02;d.v.x=-Math.abs(d.v.x)*.4}else if(m===pr){p.x=o.x1+.02;d.v.x=Math.abs(d.v.x)*.4}else if(m===pb){p.z=o.z0-.02;d.v.z=-Math.abs(d.v.z)*.4}else{p.z=o.z1+.02;d.v.z=Math.abs(d.v.z)*.4}break}}}}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
 // mise à zéro de l'arme, énergie restante -> dégâts, pénétration des portes/vitres, balles traversantes (7.62, .50).
@@ -4851,6 +4916,21 @@ for(let i=0;i<40;i++){botDead(b,.05);sldUpdate(b,.05,false)}}finally{P.x=pxz[0];
 const dz=b.g.position.z-bz;b.g.updateMatrixWorld(true);const sg=b.sld.sg,v=new THREE.Vector3();let worst=0;for(const n of['Head','Hips','LeftFoot','RightFoot','LeftHand','RightHand']){v.copy(b.sld.bones[SLS.ix[n]].position);sg.localToWorld(v);if(v.x>o.x0+.05&&v.x<o.x1-.05&&v.z>o.z0+.05&&v.z<o.z1-.05&&v.y>GH(v.x,v.z)+.1&&v.y<o.y1)worst=Math.max(worst,Math.min(v.z-o.z0,o.z1-v.z))}
 if(worst>.05)msg='membre dans le mur '+worst.toFixed(2)+' m (poussée '+(b.dcPush||0).toFixed(2)+')';
 if(!(b.dcPush>0.02)&&dz>-.55)msg+=' corps jamais repoussé (dz='+dz.toFixed(2)+')'}finally{b.g.position.copy(sv.pos);b.g.rotation.y=sv.ry;b.dead=sv.dead;b.fall=sv.fall;b.dk=sv.dk;b.dcPush=0}return msg});
+T('Blessés : jambes brisées = abri ou accroupi (pas de flanc), sans arme = abri ou reddition',()=>{const b=bots.find(x=>!(x.dead>0)&&!x.sur&&!x.unarm);if(!b)return'';const sv={pos:b.g.position.clone(),see:b.see,alert:b.alert,st:b.st,unarm:b.unarm,fxl:b.fxl,zh:b.zh&&Object.assign({},b.zh),sur:b.sur,path:b.path,cr:b.cr};let msg='';
+try{const x=P.x+14,z=P.z;b.g.position.set(x,GH(x,z),z);b.dorm=0;bhInit(b);b.zh.ll=0;b.zh.rl=0;b.fxl=12;bhUpdate(b,.1);if(!(b.hm<.3))msg+='jambes : hm '+b.hm.toFixed(2)+' ';b.see=true;b.alert=1;b.seenT=0;b.wCov=0;b.path=null;b.st='adv';b.cr=0;aiThink(b);if(b.st==='adv'||b.st==='flk')msg+='blessé avance quand même ('+b.st+') ';if(!(b.path&&b.st==='cov')&&b.cr!==1)msg+='ni abri ni accroupi ';
+b.zh.ll=b.zm.ll;b.zh.rl=b.zm.rl;b.fxl=0;bhUpdate(b,.1);b.unarm=1;b.sur=0;b.wFle=0;b.fleeT=0;b.g.position.set(P.x+6,GH(P.x+6,P.z),P.z);b.see=true;aiThink(b);if(!b.sur)msg+='sans arme à 6 m : pas de reddition '}
+finally{b.g.position.copy(sv.pos);b.see=sv.see;b.alert=sv.alert;b.st=sv.st;b.unarm=sv.unarm;b.fxl=sv.fxl;if(sv.zh)b.zh=sv.zh;b.sur=sv.sur;b.path=sv.path;b.cr=sv.cr;b.wCov=0;b.wFle=0}return msg});
+T('Évacuation : le blessé est traîné derrière le camarade, tête vers lui, penché en arrière',()=>{const h=bots.find(x=>!(x.dead>0)&&!x.sur),w=bots.find(x=>x!==h&&!(x.dead>0)&&!x.sur);if(!h||!w)return'';const sv={hp:h.g.position.clone(),hr:h.g.rotation.y,wp:w.g.position.clone(),wr:w.g.rotation.clone(),ev:h.evac,drg:w.drg};let msg='';
+try{h.dorm=0;w.dorm=0;h.g.position.set(P.x+10,GH(P.x+10,P.z),P.z);h.g.rotation.y=0;w.g.position.set(P.x+10,GH(P.x+10,P.z),P.z+1);h.evac={w,t:10,ph:1};w.drg=h;if(!w.zh)bhInit(w);
+for(let i=0;i<40;i++)blsPose(w,.05,false);const d=h.g.position.z-w.g.position.z;if(d<1.1||d>2.0)msg+='distance derrière '+d.toFixed(2)+' ';if(!(w.g.rotation.x<-1))msg+='pas penché '+w.g.rotation.x.toFixed(2)+' ';if(Math.abs(Math.cos(w.g.rotation.y)+1)>.15)msg+='pas tourné dos au sens de marche ';
+h.evac=null;for(let i=0;i<60;i++)blsPose(w,.05,false);if(Math.abs(w.g.rotation.x)>.05)msg+='ne se redresse pas '+w.g.rotation.x.toFixed(2)}
+finally{h.g.position.copy(sv.hp);h.g.rotation.y=sv.hr;w.g.position.copy(sv.wp);w.g.rotation.copy(sv.wr);h.evac=sv.ev;w.drg=sv.drg;w.blsLean=0}return msg});
+T('Cadavres : le joueur peut traîner un corps (F + avancer), il suit, et les corps s’empilent',()=>{const b=bots.find(x=>!(x.dead>0)&&!x.sur),c=bots.find(x=>x!==b&&!(x.dead>0)&&!x.sur&&bots.indexOf(x)>bots.indexOf(b));if(!b||!c)return'';const sv={bp:b.g.position.clone(),br:b.g.rotation.y,bd:b.dead,bf:b.fall,cp:c.g.position.clone(),cd:c.dead,cf:c.fall,K:{F:K.KeyF,W:K.KeyW}};let msg='';
+try{b.dorm=0;c.dorm=0;const px=P.x-Math.sin(P.yaw)*1.0,pz=P.z-Math.cos(P.yaw)*1.0;b.g.position.set(px,GH(px,pz),pz);b.dead=30;b.fall=5;b.dk=0;K.KeyF=1;K.KeyW=1;
+const hm0=HMV();for(let i=0;i<30;i++)blsPullTick(.05);if(BLS.pull!==b)msg+='corps non saisi ';const ex=P.x+Math.sin(P.yaw)*1.25,ez=P.z+Math.cos(P.yaw)*1.25;if(Math.hypot(b.g.position.x-ex,b.g.position.z-ez)>.8)msg+='le corps ne suit pas ('+Math.hypot(b.g.position.x-ex,b.g.position.z-ez).toFixed(2)+') ';if(!(HMV()<hm0*.9||hm0<=.001))msg+='joueur pas ralenti ';
+K.KeyF=0;blsPullTick(.05);if(BLS.pull)msg+='corps jamais lâché ';
+c.dead=30;c.fall=5;b.g.position.set(P.x+5,GH(P.x+5,P.z),P.z);c.g.position.copy(b.g.position);const y0=c.g.position.y;blsStack(c);if(!(c.g.position.y>y0+.1))msg+='pas d’empilement '}
+catch(e){msg+=(e.stack||'').split('\n').slice(0,3).join(' | ')}finally{K.KeyF=sv.K.F;K.KeyW=sv.K.W;BLS.pull=null;b.drgP=0;b.g.position.copy(sv.bp);b.g.rotation.y=sv.br;b.dead=sv.bd;b.fall=sv.bf;c.g.position.copy(sv.cp);c.dead=sv.cd;c.fall=sv.cf}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
@@ -4976,10 +5056,10 @@ vxSub('['+(['Assaut','Appui','Tireur','Lourd'][b.ty]||'Bot')+'] '+txt);
 try{const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';const bi=bots.indexOf(b);u.pitch=.55+(bi%5)*.14+(b.ty===3?-.15:0);u.rate=1.18;u.volume=Math.max(.1,1-d/45);if(speechSynthesis.speaking&&speechSynthesis.pending&&!force)return;speechSynthesis.speak(u)}catch(e){}
 if(!noAck&&key!=='ack'&&key!=='lost'){let best=null,bd=40;for(const o of bots){if(o===b||o.dead)continue;const dd=Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z);if(dd<bd){bd=dd;best=o}}if(best)setTimeout(()=>vxSay(best,'ack',true),1100+Math.random()*600)}}
 function vxTick(dt){VX.t+=dt;if(VX.subT>0){VX.subT-=dt;if(VX.subT<=0&&VX.sub)VX.sub.style.opacity=0}
-for(const b of bots){if(b.dead){b.vxDead=1;continue}
+for(const b of bots){if(b.dead){if(!b.vxDead&&b.dead>50===false){b.vxDead=1;let nb=null,nd=32;for(const o of bots){if(o===b||o.dead)continue;const dd=Math.hypot(o.g.position.x-b.g.position.x,o.g.position.z-b.g.position.z);if(dd<nd){nd=dd;nb=o}}if(nb&&Math.random()<.7)vxSay(nb,'down',true)}b.vxDead=1;continue}b.vxDead=0;
 const s=b.see?1:0;if(s&&!b.vxSee)tacCall(b,'contact');if(!s&&b.vxSee&&b.alert)tacCall(b,'lost');b.vxSee=s;
 if(b.relT>0&&!b.vxRel)vxSay(b,'reload');b.vxRel=b.relT>0;
-if(b.st==='cov'&&b.vxSt!=='cov')vxSay(b,'cover');if(b.st==='fla'&&b.vxSt!=='fla')vxSay(b,'flank');b.vxSt=b.st}}
+if(b.st==='cov'&&b.vxSt!=='cov')vxSay(b,'cover');if(b.st==='flk'&&b.vxSt!=='flk')vxSay(b,'flank');b.vxSt=b.st}}
 const T_camo=ctex(256,d=>{const a=fbm(256,4,4,4,41),b=fbm(256,9,9,3,77);for(let i=0;i<65536;i++){const v=a[i]<.4?.6:a[i]<.58?.78:1,w=b[i]>.62?.82:1,c=Math.min(1,v*w)*255;d[i*4]=c;d[i*4+1]=c;d[i*4+2]=c;d[i*4+3]=255}});
 // ================= BOTS (v5.1) : corps détaillé, arme par type, bras en cinématique inverse posés sur l'arme =================
 const BWG=[ // armes : origine = poignée pistolet, +z vers l'avant ; [géométrie, z garde-main, z bouche, crosse]

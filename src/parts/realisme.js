@@ -116,4 +116,4 @@ function enfHud(){
 // ---------- tick global ----------
 function reaTick(dt){
  if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{fouBuild()}catch(e){console.error('rea',e)}}
- vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt);enfHud()}
+ vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt);if(typeof blsTick==='function')blsTick(dt);enfHud()}

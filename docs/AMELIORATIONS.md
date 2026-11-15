@@ -580,3 +580,10 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 ## v43.7 — Collision des cadavres avec les murs
 - À chaque pose d'un bot mort (tête, torse, hanches, mains, jambes, pieds), les points du corps sont testés contre les obstacles (`boxes`) : si un membre entre dans un mur, tout le corps est repoussé du côté d'où il vient (3 passes). Le cadavre ne traverse plus les murs, et sa position finale dépend de l'obstacle et de l'angle de chute.
 - Calcul limité aux cadavres à moins de 90 m, pendant les 4 premières secondes après la mort.
+
+## v44 — Blessés, traînage, cadavres physiques
+Déjà présents avant v44 (vérifié dans le code) : escouades (appui/assaut/infirmier/repli), appels radio « Contact N heures, N mètres », bonds, moral et reddition, soin et évacuation en marche côte à côte.
+- **Blessés qui réagissent** (`blesses.js`) : jambe brisée → abri et tir depuis l'abri, plus de flanc ni d'avance ; deux jambes brisées → ils se traînent (accroupis, penchés en avant) à vitesse minimale ; boiterie visible (bascule du corps) dès que la marche est réduite ; bot sans arme → abri, ou reddition s'il est à moins de 9 m du joueur. Le tir moins précis du bras abîmé (`aimM`) existait déjà.
+- **Traînage** : pendant la phase de repli d'une évacuation, le camarade traîne vraiment le blessé : il le suit à 1,55 m derrière lui, tourné dos au sens de marche et penché en arrière (tête vers le camarade) ; il se redresse à l'arrivée.
+- **Cadavres** : empilés (jusqu'à +0,32 m) quand ils se chevauchent ; **maintenir F + avancer** près d'un corps le traîne derrière soi (joueur à demi vitesse, bruit de traînage, collision avec les murs) ; les armes lâchées rebondissent sur les murs.
+- **Radio** : l'appel « Je contourne ! » ne partait jamais (mauvais nom d'état `fla`, corrigé en `flk`) ; un camarade proche annonce maintenant « Homme à terre ! » à la mort d'un bot.

@@ -34,7 +34,7 @@ const sldU2=sldUpdate;sldUpdate=function(b,dt,mv){sldU2(b,dt,mv);try{hbxUpdate(b
 // ---- collision des cadavres avec les murs/obstacles (boxes) : le corps est repoussé hors du mur, il ne finit plus à travers
 const DCP=['Head','Spine2','Hips','LeftHand','RightHand','LeftLeg','RightLeg','LeftFoot','RightFoot'],_dcV=new THREE.Vector3();
 function dcolPush(b){
- if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||(b.fall||0)>4)return 0;
+ if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||((b.fall||0)>4&&!b.drgP))return 0;
  const g=b.g;if(Math.hypot(g.position.x-P.x,g.position.z-P.z)>90)return 0;
  g.updateMatrixWorld(true);const bn=b.sld.bones,ix=SLS.ix,sg=b.sld.sg,gy=g.position.y,R=.2,pts=[];
  for(const n of DCP){const q=bn[ix[n]];if(!q)continue;_dcV.copy(q.position);sg.localToWorld(_dcV);pts.push([_dcV.x,_dcV.y,_dcV.z])}
