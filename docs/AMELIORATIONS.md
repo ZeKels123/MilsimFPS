@@ -605,3 +605,6 @@ Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau
 ## v46 — Escouades géographiques, plus de gain à la mort
 - **Escouades** : jusqu'ici les 4 escouades étaient formées par `i%4` et leurs membres apparaissaient au hasard sur toute la carte. Chaque escouade a maintenant un point d'ancrage (≥ 70 m des autres) autour duquel ses membres apparaissent ; un membre qui réapparaît le fait près d'un camarade vivant, à ≥ 45 m du joueur. Test : distance médiane au centre ≤ 45 m et réapparition ≤ 40 m des camarades.
 - **Kill** : suppression de la plaque de blindage offerte tous les 2 kills (+2 pour un Mastodonte). Le butin passe uniquement par la fouille (maintenir F). Test : l'inventaire est identique avant/après un kill.
+
+## v46.1 — 8 escouades
+Passage de 4 à 8 escouades (constante `SQN` dans `squad.js`) et de 36 à 40 ennemis : 5 hommes par escouade, ancrages espacés d'au moins 48 m. Test : 8 escouades.
