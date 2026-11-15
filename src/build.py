@@ -78,7 +78,7 @@ rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.b
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -105,6 +105,7 @@ rep("function fire(){\n","function fire0(){\n")
 rep("function reload(){if(reloading||ammo>=magMax()||reserve<=0)return;","function reload0(){if(reloading||ammo>=magMax()+wpnCh()||reserve<=0)return;")
 rep("const n=Math.min(magMax()-ammo,reserve);ammo+=n;","const n=Math.min(magMax()+(ammo>0?wpnCh():0)-ammo,reserve);ammo+=n;")
 rep("*(A.supp?.88:1);P.pitch+=k*(ads?.7:1)","*(A.supp?.88:1)*wpRecoil();P.pitch+=k*(ads?.7:1)")
+rep("P.pitch+=k*(ads?.7:1);P.yaw+=rnd(-.35,.35)*k;","P.pitch+=k*(ads?.7:1);P.yaw+=rnd(-.35,.35)*k+wpDrift()*k*.6;")
 rep("&&(!WC[WSEL].semi||!mdPrev))fire();","&&wpTrig())fire();")
 rep("cd-=dt;if(mdown&&cd<=0","cd-=dt;wpTick(dt);if((mdown||wpBst())&&cd<=0")
 rep("' en réserve</small>';","' en réserve</small>'+wpHud();")

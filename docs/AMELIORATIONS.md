@@ -587,3 +587,10 @@ Déjà présents avant v44 (vérifié dans le code) : escouades (appui/assaut/in
 - **Traînage** : pendant la phase de repli d'une évacuation, le camarade traîne vraiment le blessé : il le suit à 1,55 m derrière lui, tourné dos au sens de marche et penché en arrière (tête vers le camarade) ; il se redresse à l'arrivée.
 - **Cadavres** : empilés (jusqu'à +0,32 m) quand ils se chevauchent ; **maintenir F + avancer** près d'un corps le traîne derrière soi (joueur à demi vitesse, bruit de traînage, collision avec les murs) ; les armes lâchées rebondissent sur les murs.
 - **Radio** : l'appel « Je contourne ! » ne partait jamais (mauvais nom d'état `fla`, corrigé en `flk`) ; un camarade proche annonce maintenant « Homme à terre ! » à la mort d'un bot.
+
+## v45 — Recul, fatigue, saleté
+Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau (bois, brique, béton, acier, plastique, véhicule) avec le pouvoir de pénétration et la vitesse du calibre ; enrayage selon usure, chaleur, pluie et silencieux ; nettoyage (H) ; recul propre à chaque arme (`c.rec`) et selon position/appui.
+- **Recul cumulé** : en rafale le recul grandit (+45 % au maximum) et retombe en ~0,4 s après l'arrêt du tir.
+- **Dérive latérale propre à chaque arme** : motif répétable (donc apprenable), différent d'une arme à l'autre, d'autant plus marqué que la rafale dure.
+- **Fatigue des bras** : en visée ou en tir, selon le poids de l'arme, la charge portée, l'endurance et l'appui (muret, couché) ; jusqu'à +40 % de recul et +50 % de dispersion ; message « Bras fatigués » ; récupération arme baissée.
+- **Saleté** : à plat ventre en mouvement, poussière au sec, boue sous la pluie (×2,5) ; une chute violente salit toutes les armes ; jusqu'à ×8 de risque d'enrayage ; affichée dans le HUD de l'arme (« saleté N % ») ; le nettoyage (H, 3 s à l'établi, 10 s sur le terrain) la remet à zéro, même si l'usure est faible.

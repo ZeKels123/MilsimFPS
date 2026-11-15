@@ -2,6 +2,7 @@
 window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message||e)));addEventListener('unhandledrejection',e=>window.__errs.push('promesse : '+(e.reason&&e.reason.message||e.reason)));
 function SELFTEST(){const RS=[];const T=(n,f)=>{try{const v=f();if(v===false||(typeof v==='string'&&v))RS.push({n,ok:false,m:typeof v==='string'?v:''});else RS.push({n,ok:true})}catch(e){RS.push({n,ok:false,m:String(e&&e.message||e)})}};
 const fin=x=>typeof x==='number'&&isFinite(x);
+const openSpot=(r)=>{for(let k=0;k<200;k++){const a=k*2.4,d=6+(k%20)*1.5,x=P.x+Math.cos(a)*d,z=P.z+Math.sin(a)*d;let ok=true;for(let u=-3;u<=3&&ok;u+=1)for(let v=-3;v<=3;v+=1)if(!nFree(x+u,z+v)){ok=false;break}if(ok&&Math.abs(x)<MH-8&&Math.abs(z)<MH-8)return[x,z]}return null};
 const camP=f=>{const cp=C.position.clone(),cq=C.quaternion.clone();C.position.set(P.x,(P.gy||0)+1.7,P.z);C.rotation.set(0,P.yaw,0);C.updateMatrixWorld();try{return f()}finally{C.position.copy(cp);C.quaternion.copy(cq);C.updateMatrixWorld()}};
 T('Fonctions principales présentes',()=>{const need=['fire','reload','equip','setWeapon','throwNade','nadeBoom','playerThrow','hlApply','hlReset','aiUpdate','mdl','GH','castShot','barrelHit','groundAt'];const miss=need.filter(n=>{try{return typeof eval(n)!=='function'}catch(e){return true}});return miss.length?'manquantes : '+miss.join(', '):''});
 T('Aucune erreur JavaScript au chargement',()=>window.__errs.length?window.__errs.slice(0,3).join(' | '):'');
@@ -298,16 +299,27 @@ try{const x=P.x+14,z=P.z;b.g.position.set(x,GH(x,z),z);b.dorm=0;bhInit(b);b.zh.l
 b.zh.ll=b.zm.ll;b.zh.rl=b.zm.rl;b.fxl=0;bhUpdate(b,.1);b.unarm=1;b.sur=0;b.wFle=0;b.fleeT=0;b.g.position.set(P.x+6,GH(P.x+6,P.z),P.z);b.see=true;aiThink(b);if(!b.sur)msg+='sans arme à 6 m : pas de reddition '}
 finally{b.g.position.copy(sv.pos);b.see=sv.see;b.alert=sv.alert;b.st=sv.st;b.unarm=sv.unarm;b.fxl=sv.fxl;if(sv.zh)b.zh=sv.zh;b.sur=sv.sur;b.path=sv.path;b.cr=sv.cr;b.wCov=0;b.wFle=0}return msg});
 T('Évacuation : le blessé est traîné derrière le camarade, tête vers lui, penché en arrière',()=>{const h=bots.find(x=>!(x.dead>0)&&!x.sur),w=bots.find(x=>x!==h&&!(x.dead>0)&&!x.sur);if(!h||!w)return'';const sv={hp:h.g.position.clone(),hr:h.g.rotation.y,wp:w.g.position.clone(),wr:w.g.rotation.clone(),ev:h.evac,drg:w.drg};let msg='';
-try{h.dorm=0;w.dorm=0;h.g.position.set(P.x+10,GH(P.x+10,P.z),P.z);h.g.rotation.y=0;w.g.position.set(P.x+10,GH(P.x+10,P.z),P.z+1);h.evac={w,t:10,ph:1};w.drg=h;if(!w.zh)bhInit(w);
+try{h.dorm=0;w.dorm=0;const os=openSpot();if(!os)return'';h.g.position.set(os[0],GH(os[0],os[1]),os[1]);h.g.rotation.y=0;w.g.position.set(os[0],GH(os[0],os[1]),os[1]+1);h.evac={w,t:10,ph:1};w.drg=h;if(!w.zh)bhInit(w);
 for(let i=0;i<40;i++)blsPose(w,.05,false);const d=h.g.position.z-w.g.position.z;if(d<1.1||d>2.0)msg+='distance derrière '+d.toFixed(2)+' ';if(!(w.g.rotation.x<-1))msg+='pas penché '+w.g.rotation.x.toFixed(2)+' ';if(Math.abs(Math.cos(w.g.rotation.y)+1)>.15)msg+='pas tourné dos au sens de marche ';
 h.evac=null;for(let i=0;i<60;i++)blsPose(w,.05,false);if(Math.abs(w.g.rotation.x)>.05)msg+='ne se redresse pas '+w.g.rotation.x.toFixed(2)}
 finally{h.g.position.copy(sv.hp);h.g.rotation.y=sv.hr;w.g.position.copy(sv.wp);w.g.rotation.copy(sv.wr);h.evac=sv.ev;w.drg=sv.drg;w.blsLean=0}return msg});
 T('Cadavres : le joueur peut traîner un corps (F + avancer), il suit, et les corps s’empilent',()=>{const b=bots.find(x=>!(x.dead>0)&&!x.sur),c=bots.find(x=>x!==b&&!(x.dead>0)&&!x.sur&&bots.indexOf(x)>bots.indexOf(b));if(!b||!c)return'';const sv={bp:b.g.position.clone(),br:b.g.rotation.y,bd:b.dead,bf:b.fall,cp:c.g.position.clone(),cd:c.dead,cf:c.fall,K:{F:K.KeyF,W:K.KeyW}};let msg='';
-try{b.dorm=0;c.dorm=0;const px=P.x-Math.sin(P.yaw)*1.0,pz=P.z-Math.cos(P.yaw)*1.0;b.g.position.set(px,GH(px,pz),pz);b.dead=30;b.fall=5;b.dk=0;K.KeyF=1;K.KeyW=1;
+const pxz0=[P.x,P.z];try{b.dorm=0;c.dorm=0;const os=openSpot();if(!os)return'';P.x=os[0];P.z=os[1];const px=P.x-Math.sin(P.yaw)*1.0,pz=P.z-Math.cos(P.yaw)*1.0;b.g.position.set(px,GH(px,pz),pz);b.dead=30;b.fall=5;b.dk=0;K.KeyF=1;K.KeyW=1;
 const hm0=HMV();for(let i=0;i<30;i++)blsPullTick(.05);if(BLS.pull!==b)msg+='corps non saisi ';const ex=P.x+Math.sin(P.yaw)*1.25,ez=P.z+Math.cos(P.yaw)*1.25;if(Math.hypot(b.g.position.x-ex,b.g.position.z-ez)>.8)msg+='le corps ne suit pas ('+Math.hypot(b.g.position.x-ex,b.g.position.z-ez).toFixed(2)+') ';if(!(HMV()<hm0*.9||hm0<=.001))msg+='joueur pas ralenti ';
 K.KeyF=0;blsPullTick(.05);if(BLS.pull)msg+='corps jamais lâché ';
 c.dead=30;c.fall=5;b.g.position.set(P.x+5,GH(P.x+5,P.z),P.z);c.g.position.copy(b.g.position);const y0=c.g.position.y;blsStack(c);if(!(c.g.position.y>y0+.1))msg+='pas d’empilement '}
-catch(e){msg+=(e.stack||'').split('\n').slice(0,3).join(' | ')}finally{K.KeyF=sv.K.F;K.KeyW=sv.K.W;BLS.pull=null;b.drgP=0;b.g.position.copy(sv.bp);b.g.rotation.y=sv.br;b.dead=sv.bd;b.fall=sv.bf;c.g.position.copy(sv.cp);c.dead=sv.cd;c.fall=sv.cf}return msg});
+catch(e){msg+=(e.stack||'').split('\n').slice(0,3).join(' | ')}finally{P.x=pxz0[0];P.z=pxz0[1];K.KeyF=sv.K.F;K.KeyW=sv.K.W;BLS.pull=null;b.drgP=0;b.g.position.copy(sv.bp);b.g.rotation.y=sv.br;b.dead=sv.bd;b.fall=sv.bf;c.g.position.copy(sv.cp);c.dead=sv.cd;c.fall=sv.cf}return msg});
+T('Armes : saleté augmente à plat ventre, fait enrayer davantage, le nettoyage la remet à zéro et le HUD l’affiche',()=>{const s=wpS(WSEL),st0=P.st,k0={W:K.KeyW},d0=s.dirt,w0=s.wear,j0=s.jam;let msg='';
+try{s.dirt=0;s.wear=0;s.jam=0;P.st=2;K.KeyW=1;for(let i=0;i<20;i++)wpxTick(1);if(!(s.dirt>.2))msg+='pas de saleté '+s.dirt+' ';const p1=wpJamP(s);s.dirt=0;const p0=wpJamP(s);if(!(p1>p0*2))msg+='enrayage '+p0+'→'+p1+' ';s.dirt=.5;if(!/saleté 50/.test(wpHud()))msg+='HUD sans saleté ';
+K.KeyW=0;K.KeyH=0;WPN.cl=0;const rs=reloading,bn=bench;reloading=0;wpCleanStart();if(!(WPN.cl>0))msg+='nettoyage non lancé ';else{WPN.cl=WPN.cT-.01;wpTick(.05);if(s.dirt!==0)msg+='saleté non effacée '+s.dirt}reloading=rs}
+finally{P.st=st0;K.KeyW=k0.W;s.dirt=d0;s.wear=w0;s.jam=j0;WPN.cl=0}return msg});
+T('Armes : recul cumulé en rafale, dérive propre à chaque arme, fatigue des bras avec le poids',()=>{const w0=WSEL,a0=ads,f0=WPX.fat,b0=WPX.bl,n0=WPX.n;let msg='';
+try{WPX.bl=0;WPX.n=0;WPX.fat=0;const r0=wpRecoil(),sp0=wpSpread();const seq=[];for(let i=0;i<12;i++)seq.push(+wpDrift().toFixed(3));const rB=wpRecoil();if(!(rB>r0*1.2))msg+='pas de cumul '+r0+'→'+rB+' ';
+WSEL=(w0+1)%WC.length;WPX.bl=0;WPX.n=0;const seq2=[];for(let i=0;i<12;i++)seq2.push(+wpDrift().toFixed(3));if(seq.join()===seq2.join())msg+='même motif pour deux armes ';
+WSEL=w0;for(let i=0;i<20;i++)wpxTick(.1);if(!(WPX.bl<.05))msg+='cumul ne retombe pas '+WPX.bl+' ';
+WPX.fat=0;ads=1;K.ShiftLeft=0;for(let i=0;i<300;i++)wpxTick(.2);if(!(WPX.fat>.2))msg+='pas de fatigue '+WPX.fat+' ';const rF=wpRecoil(),sF=wpSpread();WPX.fat=0;WPX.bl=0;if(!(rF>wpRecoil()*1.05&&sF>wpSpread()*1.05))msg+='fatigue sans effet ';
+ads=0;WPX.fat=.8;for(let i=0;i<100;i++)wpxTick(.2);if(!(WPX.fat<.1))msg+='fatigue ne retombe pas '+WPX.fat}
+finally{WSEL=w0;ads=a0;WPX.fat=f0;WPX.bl=b0;WPX.n=n0}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
