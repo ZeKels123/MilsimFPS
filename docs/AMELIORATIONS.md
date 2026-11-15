@@ -601,3 +601,7 @@ Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau
 - **Loot sans fouille** : les prisonniers aussi doivent être fouillés (maintenir F) ; plus aucun objet n'apparaît au sol à la mort/capture.
 - **Recul** (pompe ×1,75 caméra, ×1,8 visuel) : plancher de recul caméra par arme (Fusil et MP9 étaient à ~0,5–0,8°) et recul visuel de l'arme proportionnel au recul de chaque arme. Test : toutes les armes ≥ 1,2°.
 - **Voix** : les enregistrements (Contact !, Ennemi en vue !, Je le vois !) sont intégrés et privilégiés ; liste vivante dans `docs/VOIX.md`.
+
+## v46 — Escouades géographiques, plus de gain à la mort
+- **Escouades** : jusqu'ici les 4 escouades étaient formées par `i%4` et leurs membres apparaissaient au hasard sur toute la carte. Chaque escouade a maintenant un point d'ancrage (≥ 70 m des autres) autour duquel ses membres apparaissent ; un membre qui réapparaît le fait près d'un camarade vivant, à ≥ 45 m du joueur. Test : distance médiane au centre ≤ 45 m et réapparition ≤ 40 m des camarades.
+- **Kill** : suppression de la plaque de blindage offerte tous les 2 kills (+2 pour un Mastodonte). Le butin passe uniquement par la fouille (maintenir F). Test : l'inventaire est identique avant/après un kill.

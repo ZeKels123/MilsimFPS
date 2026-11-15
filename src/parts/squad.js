@@ -4,7 +4,7 @@
 const SQ=[];let sqInit_=false;
 function bhHeal(b,f,splint){if(!b.zh)return;for(const z in b.zh)b.zh[z]=Math.min(b.zm[z],b.zh[z]+b.zm[z]*f);b.bdz=null;if(splint)b.fxl=0;let s=0;for(const q in BHW)s+=BHW[q]*b.zh[q]/b.zm[q];b.hp=Math.max(1,b.T.hp*s);b.blood=Math.min(100,b.blood+30)}
 function sqHurt(b){if(!b.zh)return 0;let s=0,m=0;for(const z in b.zh){s+=b.zh[z];m+=b.zm[z]}return 1-s/m}
-function sqBuild(){bots.forEach((b,i)=>{const k=i%4;(SQ[k]=SQ[k]||{m:[],lk:{x:0,z:0},t:0,ret:0,fb:null,lost:0,aT:0,sup:null,med:null,n0:0}).m.push(b);b.sq=SQ[k]});SQ.forEach(q=>q.n0=q.m.length);sqInit_=true}
+function sqBuild(){bots.forEach((b,i)=>{const k=i%4;(SQ[k]=SQ[k]||{m:[],lk:{x:0,z:0},t:0,ret:0,fb:null,lost:0,aT:0,sup:null,med:null,n0:0}).m.push(b);b.sq=SQ[k]});bots.forEach(b=>{try{sqPlace(b,true)}catch(e){}});SQ.forEach(q=>q.n0=q.m.length);sqInit_=true}
 function sqRoles(q){const al=q.m.filter(b=>!b.dead);q.sup=al.find(b=>b.ty===3)||al.filter(b=>b.ty<2).pop()||null;q.med=al.find(b=>b.ty===1&&b!==q.sup)||null;return al}
 function sqFire(b,q,dt){const g=b.g.position,bt=b.T;b.cd=rnd(.1,.2)*(b.ty===3?1:2);b.mag--;b.shots++;if(b.shots%7===0)b.cd+=rnd(.5,1);
 _la.set(g.x,g.y+1.6*bt.sc-b.crA*.1,g.z);_lb.set(q.lk.x+rnd(-2.6,2.6),GH(q.lk.x,q.lk.z)+rnd(.5,1.8),q.lk.z+rnd(-2.6,2.6));
@@ -14,6 +14,16 @@ const pd=Math.hypot(_lb.x-P.x,_lb.z-P.z);
 if(pd<3.2)hlBullet(_la,_lb,.45,bt.dmg*(.8+Math.random()*.4),b);
 else balBot(_la,_lb,.12,bt.dmg*(.8+Math.random()*.4),b,1);
 if(b.mag<=0){b.relT=b.ty===3?3.6:2.1}}
+
+// ---- v46 : escouades géographiques. Chaque escouade a un point d'ancrage ; ses membres apparaissent et réapparaissent près de leurs camarades vivants (jamais à l'autre bout de la carte)
+const SQA=[];
+function sqK(b){const i=bots.indexOf(b);return(i<0?bots.length:i)%4}
+function sqAnchor(k){if(SQA[k])return SQA[k];let a=null;for(let t=0;t<120&&!a;t++){const x=rnd(-MH+30,MH-30),z=rnd(-MH+30,MH-30);if(!free_(x,z)||!nFree(x,z)||Math.hypot(x-P.x,z-P.z)<55)continue;if(SQA.some(o=>o&&Math.hypot(o[0]-x,o[1]-z)<70))continue;a=[x,z]}
+return SQA[k]=a||[rnd(-MH+30,MH-30),rnd(-MH+30,MH-30)]}
+function sqPlace(b,init){const k=sqK(b),mates=bots.filter((o,i)=>o!==b&&!o.dead&&i%4===k);let c;
+if(init||!mates.length)c=sqAnchor(k);else{const m=mates[(Math.random()*mates.length)|0];c=[m.g.position.x,m.g.position.z]}
+const r=init?13:9;for(let t=0;t<60;t++){const x=c[0]+rnd(-r,r),z=c[1]+rnd(-r,r);if(Math.abs(x)>MH-5||Math.abs(z)>MH-5||!free_(x,z)||!aiSpawnOk(x,z)||Math.hypot(x-P.x,z-P.z)<45)continue;b.g.position.set(x,0,z);b.fy=GH(x,z);return true}return false}
+{const sq_sp0=spawn;spawn=function(b){sq_sp0(b);try{sqPlace(b,false)}catch(e){}}}
 const _fv3=new THREE.Vector3(),_fv4=new THREE.Vector3();
 function sqTick(dt){if(!sqInit_)sqBuild();
 for(const q of SQ){const al=sqRoles(q);if(!al.length){q.ret=0;continue}q.aT-=dt;
