@@ -599,5 +599,5 @@ Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau
 - **Cadavre à cheval sur un angle de mur** : la collision cadavre/mur teste maintenant des points interpolés le long de tous les segments du corps (tête→bassin→jambes→bras), pas seulement les articulations ; si le corps traverse un angle, il pivote et glisse hors du mur. Test : angle isolé, 3 poses × 8 orientations.
 - **Pièges aux étages** : posés à la hauteur du sol réellement sous le joueur (`trapY`, étage/toit) au lieu du terrain ; fantôme de pose, validité et désamorçage tiennent compte de la hauteur.
 - **Loot sans fouille** : les prisonniers aussi doivent être fouillés (maintenir F) ; plus aucun objet n'apparaît au sol à la mort/capture.
-- **Recul** : plancher de recul caméra par arme (Fusil et MP9 étaient à ~0,5–0,8°) et recul visuel de l'arme proportionnel au recul de chaque arme. Test : toutes les armes ≥ 1,2°.
+- **Recul** (pompe ×1,75 caméra, ×1,8 visuel) : plancher de recul caméra par arme (Fusil et MP9 étaient à ~0,5–0,8°) et recul visuel de l'arme proportionnel au recul de chaque arme. Test : toutes les armes ≥ 1,2°.
 - **Voix** : les enregistrements (Contact !, Ennemi en vue !, Je le vois !) sont intégrés et privilégiés ; liste vivante dans `docs/VOIX.md`.

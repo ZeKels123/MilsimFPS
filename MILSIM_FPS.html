@@ -3334,7 +3334,7 @@ const WPX={bl:0,n:0,fat:0,msgF:0,t:0};
 function wpDrift(){const c=WC[WSEL]||{rec:1};WPX.bl=Math.min(1,WPX.bl+.05+(c.rec||1)*.03);WPX.n++;
  return Math.sin(WPX.n*(.55+.09*(WSEL%4))+WSEL*2.1)*.55*Math.min(1,.35+WPX.bl)}
 const wpxLoad=()=>Math.max(0,(typeof effK==='function'?effK():0));
-{const r0=wpRecoil;wpRecoil=function(){const c=WC[WSEL]||{rec:1},fl=c.rec<1.6?(1.6+(c.rec-1)*.5)/c.rec:1;return r0()*fl*(1+WPX.bl*.45)*(1+WPX.fat*.4)*(1+wpxLoad()*.12)};
+{const r0=wpRecoil;wpRecoil=function(){const c=WC[WSEL]||{rec:1},fl=c.rec<1.6?(1.6+(c.rec-1)*.5)/c.rec:1;return r0()*fl*(/Reclamer/.test(c.n)?1.75:1)*(1+WPX.bl*.45)*(1+WPX.fat*.4)*(1+wpxLoad()*.12)};
  const s0=wpSpread;wpSpread=function(){return s0()*(1+WPX.fat*.5)*(1+wpxLoad()*.1)};}
 // saleté : poussière à plat ventre au sec, boue à plat ventre sous la pluie, chute violente ; chaque arme a la sienne
 {const j0=wpJamP;wpJamP=function(s){return Math.min(.35,j0(s)*(1+(s.dirt||0)*7))};
@@ -5314,8 +5314,8 @@ if(reloading>0&&WSEL>1){const q=wHand(WSEL,ru,[HB.lx,HB.ly,HB.lz]);hp=q.h;mv=q.m
 let sl=slideK;if(ammo<=0&&!(reloading>0&&ru>.8))sl=1;mp9v.culasse.position.z=.035*sl;const sw=stockF;stockF+=Math.sign(stockT-stockF)*Math.min(Math.abs(stockT-stockF),dt*1.6);if(sw!==stockF&&stockF===stockT)snd(190,.08,.25,'square');stockP.rotation.y=Math.PI*stockF*stockF*(3-2*stockF);mp9v.trigger.position.z=mdown&&!inz?.004:0;
 const wc=WC[WSEL];po=0;if(wm[WSEL]){let s=slideK;if(wc.lock&&ammo<=0&&!(reloading>0&&ru>.8))s=1;const f=Math.max(wc.cyc?Math.sin(Math.PI*(1-s)):s,WA.cyc);wm[WSEL].position.z=wc.amp*f;if(WSEL===3)po=wc.amp*f}
 aSupp.visible=A.supp;aBrake.visible=A.brake;extV.forEach(m=>m.visible=!!A.ext);const es=A.ext?1.3:1;rifleParts[4].scale.y=es;mp9v.magazine.scale.y=es;
-if(!bench)gun.position.set(hip.x*(1-adsT)+t.x*adsT+Math.sin(bob*.5)*.004*(1-adsT)+WA.x-sprA*.06,hip.y*(1-adsT)+t.y*adsT+WA.y-dr*.3-THR.g*.6-sprA*.07+Math.abs(Math.sin(bob))*.006*(l>0),(hip.z+WZ)*(1-adsT)+(-.4+WZ)*adsT+kick*.04*(.5+.5*(WC[WSEL].rec||1))+WA.z);
-if(!bench)gun.rotation.set(kick*.04*(.5+.5*(WC[WSEL].rec||1))+WA.rx+dr*.7+sprA*.25,WA.ry+sprA*.55,t.roll*adsT+P.lean*.12+WA.rz);
+if(!bench)gun.position.set(hip.x*(1-adsT)+t.x*adsT+Math.sin(bob*.5)*.004*(1-adsT)+WA.x-sprA*.06,hip.y*(1-adsT)+t.y*adsT+WA.y-dr*.3-THR.g*.6-sprA*.07+Math.abs(Math.sin(bob))*.006*(l>0),(hip.z+WZ)*(1-adsT)+(-.4+WZ)*adsT+kick*.04*(.5+.5*(WC[WSEL].rec||1))*(WSEL===3?1.8:1)+WA.z);
+if(!bench)gun.rotation.set(kick*.04*(.5+.5*(WC[WSEL].rec||1))*(WSEL===3?1.8:1)+WA.rx+dr*.7+sprA*.25,WA.ry+sprA*.55,t.roll*adsT+P.lean*.12+WA.rz);
 aGrip.visible=A.grip;aLas.visible=A.laser;const hid=adsT>.6&&sk==='holo'&&mgIn;mgA+=((mgIn?0:1)-mgA)*Math.min(1,dt*8);aMgP.rotation.z=-mgA*1.5708;aHo.visible=A.holo&&!hid;aMgP.visible=A.holo&&!hid;
 aSc.visible=A.scope&&!(adsT>.6&&sk==='scope');aAn.visible=A.angled;aSc.position.z=RB.scope+RO.scope;aAn.position.z=RB.angled+RO.angled;aHo.position.z=RB.holo+RO.holo;aMgP.position.z=RB.mg+RO.holo;mp9v.viseur.visible=!(A.scope||A.angled||A.holo);rd.visible=mp9v.viseur.visible;(sigM.compensater||[]).forEach(m=>{m.visible=!A.supp});scBI.visible=!(A.scope||A.angled||A.holo)&&!(adsT>.6&&sk==='iron');
 flashT-=dt;flash.visible=flashT>0;
