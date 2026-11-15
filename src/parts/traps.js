@@ -95,5 +95,5 @@ if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='n
 
 // ---------- F8 : désactiver / réactiver les ennemis (test, exploration) ----------
 const ENM={off:0,fz:0};
-addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();if(!ENM.off&&!ENM.fz){ENM.off=1;hlMsg('Ennemis désactivés (F8 : les geler)')}else if(ENM.off){ENM.off=0;ENM.fz=1;enfFreeze();hlMsg('Ennemis gelés — F7 : en faire apparaître un · F8 : les réactiver')}else{ENM.fz=0;hlMsg('Ennemis réactivés')}}});
+addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();if(!ENM.off&&!ENM.fz){ENM.off=1;hlMsg('Ennemis désactivés (F8 : les geler)')}else if(ENM.off){ENM.off=0;ENM.fz=1;enfFreeze();hlMsg('Un ennemi gelé devant toi — F7 : en ajouter un · F8 : tout réactiver')}else{ENM.fz=0;ENF.keep.clear();bots.forEach(b=>{if(b.dead>50)b.dead=.3});hlMsg('Ennemis réactivés')}}});
 function enmTick(){if(!ENM.off)return;for(const b of bots){b.dead=99;b.g.visible=false}}

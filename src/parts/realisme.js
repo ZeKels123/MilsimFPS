@@ -95,20 +95,16 @@ function lumTick(dt){
   if(lit&&d>8&&d<60&&inRoom(g.x,g.z)<0&&Math.random()<.2&&!b.alert){LUM.n.fen++;aiAlert(b,P.x,P.z,2)}}}
 
 // ---------- 6. Outils de test : F8 (2e appui) gèle les bots, F7 fait apparaître un ennemi devant soi ----------
-const ENF={last:null,zone:'',dm:0,el:null};
+const ENF={keep:new Set(),last:null,zone:'',dm:0,el:null};
 const au0=aiUpdate;aiUpdate=function(dt,inz){if(!ENM.fz)return au0(dt,inz);
- for(const b of bots){if(b.dead>0){botDead(b,dt);continue}b.dorm=0;b.g.visible=true;b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0)}catch(e){}}};
+ for(const b of bots){if(b.dead>50&&!ENF.keep.has(b)){b.g.visible=false;continue}if(b.dead>0){botDead(b,dt);continue}b.dorm=0;b.g.visible=true;b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0);sldUpdate(b,.001,false)}catch(e){}}};
 const bh0=bhHit;bhHit=function(b,z,dm,k){const r=bh0(b,z,dm,k);ENF.last=b;ENF.zone=z;ENF.dm=dm;return r};
-function enfFreeze(){
- for(const b of bots)if(b.dead>50){b.dead=0;spawn(b)}
- const al=bots.filter(b=>!(b.dead>0)&&!b.sur).sort((a,c)=>Math.hypot(a.g.position.x-P.x,a.g.position.z-P.z)-Math.hypot(c.g.position.x-P.x,c.g.position.z-P.z));
- let k=0;for(const b of al){if(k>=10)break;let ok=0;for(let t=0;t<8&&!ok;t++){const a=P.yaw+(k-4.5)*.3+rnd(-.08,.08),d=7+(k%3)*5+t*1.5,x=P.x-Math.sin(a)*d,z=P.z-Math.cos(a)*d;if(typeof free_==='function'&&!free_(x,z))continue;b.g.position.set(x,GH(x,z),z);aiReset(b,b.ty);b.g.rotation.y=b.yaw=Math.atan2(P.x-x,P.z-z);b.g.visible=true;b.dorm=0;ok=1}if(ok)k++}
- return k}
+function enfFreeze(){ENF.keep=new Set();for(const b of bots)if(!(b.dead>50)&&!b.sur){b.dead=99;b.g.visible=false}return enfSpawn()?1:0}
 function enfSpawn(){
  if(ac.on||HM.dead)return;if(ENM.off){ENM.off=0;bots.forEach(b=>{if(b.dead>50){b.dead=0;spawn(b)}})}
- let c=bots.find(b=>b.dead>0),bd=-1;if(!c)for(const b of bots){if(b.sur)continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}
+ let c=bots.find(b=>b.dead>0&&!ENF.keep.has(b)),bd=-1;if(!c)for(const b of bots){if(b.sur||ENF.keep.has(b))continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}
  if(!c)return;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);let ok=0;
- for(const d of[9,7,12,5]){const x=P.x+fx*d,z=P.z+fz*d;if(typeof free_==='function'&&!free_(x,z))continue;spawn(c);c.g.position.set(x,GH(x,z),z);aiReset(c,c.ty);c.g.rotation.y=c.yaw=Math.atan2(P.x-x,P.z-z);c.g.visible=true;c.dorm=0;ok=1;if(!ENM.fz)aiAlert(c,P.x,P.z,0);break}
+ for(const d of[9,7,12,5]){const x=P.x+fx*d,z=P.z+fz*d;if(typeof free_==='function'&&!free_(x,z))continue;spawn(c);c.g.position.set(x,GH(x,z),z);aiReset(c,c.ty);c.g.rotation.y=c.yaw=Math.atan2(P.x-x,P.z-z);c.g.visible=true;c.dorm=0;ENF.keep.add(c);ok=1;if(!ENM.fz)aiAlert(c,P.x,P.z,0);break}
  hlMsg(ok?(ENM.fz?'Ennemi gelé devant toi':'Ennemi apparu devant toi'):'Pas de place devant toi');return ok?c:null}
 addEventListener('keydown',e=>{if(e.code==='F7'&&!e.repeat&&$('ov').style.display==='none'){e.preventDefault();enfSpawn()}});
 function enfHud(){

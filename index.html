@@ -2261,7 +2261,7 @@ if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='n
 
 // ---------- F8 : désactiver / réactiver les ennemis (test, exploration) ----------
 const ENM={off:0,fz:0};
-addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();if(!ENM.off&&!ENM.fz){ENM.off=1;hlMsg('Ennemis désactivés (F8 : les geler)')}else if(ENM.off){ENM.off=0;ENM.fz=1;enfFreeze();hlMsg('Ennemis gelés — F7 : en faire apparaître un · F8 : les réactiver')}else{ENM.fz=0;hlMsg('Ennemis réactivés')}}});
+addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();if(!ENM.off&&!ENM.fz){ENM.off=1;hlMsg('Ennemis désactivés (F8 : les geler)')}else if(ENM.off){ENM.off=0;ENM.fz=1;enfFreeze();hlMsg('Un ennemi gelé devant toi — F7 : en ajouter un · F8 : tout réactiver')}else{ENM.fz=0;ENF.keep.clear();bots.forEach(b=>{if(b.dead>50)b.dead=.3});hlMsg('Ennemis réactivés')}}});
 function enmTick(){if(!ENM.off)return;for(const b of bots){b.dead=99;b.g.visible=false}}
 // ================= TRÉBUCHEMENT EN RECULANT (v29b) =================
 // Reculer sans regarder derrière soi : petite chance de trébucher par mètre parcouru (plus forte en sprint, de nuit,
@@ -3173,20 +3173,16 @@ function lumTick(dt){
   if(lit&&d>8&&d<60&&inRoom(g.x,g.z)<0&&Math.random()<.2&&!b.alert){LUM.n.fen++;aiAlert(b,P.x,P.z,2)}}}
 
 // ---------- 6. Outils de test : F8 (2e appui) gèle les bots, F7 fait apparaître un ennemi devant soi ----------
-const ENF={last:null,zone:'',dm:0,el:null};
+const ENF={keep:new Set(),last:null,zone:'',dm:0,el:null};
 const au0=aiUpdate;aiUpdate=function(dt,inz){if(!ENM.fz)return au0(dt,inz);
- for(const b of bots){if(b.dead>0){botDead(b,dt);continue}b.dorm=0;b.g.visible=true;b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0)}catch(e){}}};
+ for(const b of bots){if(b.dead>50&&!ENF.keep.has(b)){b.g.visible=false;continue}if(b.dead>0){botDead(b,dt);continue}b.dorm=0;b.g.visible=true;b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0);sldUpdate(b,.001,false)}catch(e){}}};
 const bh0=bhHit;bhHit=function(b,z,dm,k){const r=bh0(b,z,dm,k);ENF.last=b;ENF.zone=z;ENF.dm=dm;return r};
-function enfFreeze(){
- for(const b of bots)if(b.dead>50){b.dead=0;spawn(b)}
- const al=bots.filter(b=>!(b.dead>0)&&!b.sur).sort((a,c)=>Math.hypot(a.g.position.x-P.x,a.g.position.z-P.z)-Math.hypot(c.g.position.x-P.x,c.g.position.z-P.z));
- let k=0;for(const b of al){if(k>=10)break;let ok=0;for(let t=0;t<8&&!ok;t++){const a=P.yaw+(k-4.5)*.3+rnd(-.08,.08),d=7+(k%3)*5+t*1.5,x=P.x-Math.sin(a)*d,z=P.z-Math.cos(a)*d;if(typeof free_==='function'&&!free_(x,z))continue;b.g.position.set(x,GH(x,z),z);aiReset(b,b.ty);b.g.rotation.y=b.yaw=Math.atan2(P.x-x,P.z-z);b.g.visible=true;b.dorm=0;ok=1}if(ok)k++}
- return k}
+function enfFreeze(){ENF.keep=new Set();for(const b of bots)if(!(b.dead>50)&&!b.sur){b.dead=99;b.g.visible=false}return enfSpawn()?1:0}
 function enfSpawn(){
  if(ac.on||HM.dead)return;if(ENM.off){ENM.off=0;bots.forEach(b=>{if(b.dead>50){b.dead=0;spawn(b)}})}
- let c=bots.find(b=>b.dead>0),bd=-1;if(!c)for(const b of bots){if(b.sur)continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}
+ let c=bots.find(b=>b.dead>0&&!ENF.keep.has(b)),bd=-1;if(!c)for(const b of bots){if(b.sur||ENF.keep.has(b))continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}
  if(!c)return;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);let ok=0;
- for(const d of[9,7,12,5]){const x=P.x+fx*d,z=P.z+fz*d;if(typeof free_==='function'&&!free_(x,z))continue;spawn(c);c.g.position.set(x,GH(x,z),z);aiReset(c,c.ty);c.g.rotation.y=c.yaw=Math.atan2(P.x-x,P.z-z);c.g.visible=true;c.dorm=0;ok=1;if(!ENM.fz)aiAlert(c,P.x,P.z,0);break}
+ for(const d of[9,7,12,5]){const x=P.x+fx*d,z=P.z+fz*d;if(typeof free_==='function'&&!free_(x,z))continue;spawn(c);c.g.position.set(x,GH(x,z),z);aiReset(c,c.ty);c.g.rotation.y=c.yaw=Math.atan2(P.x-x,P.z-z);c.g.visible=true;c.dorm=0;ENF.keep.add(c);ok=1;if(!ENM.fz)aiAlert(c,P.x,P.z,0);break}
  hlMsg(ok?(ENM.fz?'Ennemi gelé devant toi':'Ennemi apparu devant toi'):'Pas de place devant toi');return ok?c:null}
 addEventListener('keydown',e=>{if(e.code==='F7'&&!e.repeat&&$('ov').style.display==='none'){e.preventDefault();enfSpawn()}});
 function enfHud(){
@@ -4759,7 +4755,7 @@ const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET
 T('Test : F8 2e appui gèle les bots, F7 fait apparaître un ennemi devant, jambes touchées = marche ralentie',()=>{
 const o0=ENM.off,f0=ENM.fz,ovd=$('ov').style.display;let msg='';$('ov').style.display='none';
 const key=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c}));
-try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';{let n=0;for(const q of bots)if(!(q.dead>0)&&q.g.visible&&Math.hypot(q.g.position.x-P.x,q.g.position.z-P.z)<30)n++;if(n<5)msg+='bots gelés non visibles autour '+n+' '}
+try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';aiUpdate(.016,false);aiUpdate(.016,false);{let n=0;for(const q of bots)if(!(q.dead>0)&&q.g.visible&&(!q.sld||q.sld.sg.visible))n++;if(n!==1)msg+='gelés visibles '+n+' (attendu 1) '}
 const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;
 const x0=b.g.position.x,z0=b.g.position.z;b.path=[[x0+20,z0],[x0+30,z0]];b.pi=0;for(let i=0;i<10;i++)aiUpdate(.5,false);if(Math.hypot(b.g.position.x-x0,b.g.position.z-z0)>.01)msg+='bot gelé qui bouge ';
 bhInit(b);for(let i=0;i<20&&b.zh.ll>=b.zm.ll*.5;i++)bhHit(b,'ll',8,'b');aiUpdate(.1,false);const h1=b.hm;bhHit(b,'rl',b.zm.rl*1.2,'b');aiUpdate(.1,false);const h2=b.hm;
