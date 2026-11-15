@@ -61,7 +61,7 @@ trapBots(dt);natCues(dt)}
 // ---------- IA des bots : détection, évitement, désamorçage, pose par les « génies » ----------
 function trapBots(dt){TRP.bt+=dt;if(TRP.bt<.4)return;const st=TRP.bt;TRP.bt=0;if(typeof SQ==='undefined'||!SQ.length)return;const det=trapDetR()*.9;
 bots.forEach((b,i)=>{if(b.dead||b.stun>0)return;const g=b.g.position,sq=SQ.indexOf(b.sq);
-if(b.trp===undefined){b.trp=i%5===2?{xm:3,xw:2,xb:1}:null;b.tcd=rnd(6,16);b.tdis=null}
+if(b.trp===undefined){b.trp=(i>>3)===2?{xm:3,xw:2,xb:1}:null;b.tcd=rnd(6,16);b.tdis=null}
 // déjà en train de désamorcer
 if(b.tdis){b.tdis.t-=st;b.wait=Math.max(b.wait||0,.6);if(b.tdis.t<=0){const t=b.tdis.tr;b.tdis=null;if(TRP.list.includes(t)){trapRemove(t);if(b.trp)b.trp[t.ty]=(b.trp[t.ty]||0)+1}}return}
 // détection des pièges du joueur (partagée dans l'escouade)
@@ -73,7 +73,7 @@ if(d<2.8&&b.st!=='att'&&!b.see&&Math.random()<.35){b.tdis={t:2.6,tr:t};break}
 if(d<1.6&&d>.05){g.x+=dx/d*(1.7-d)*.6;g.z+=dz/d*(1.7-d)*.6}}
 // pose par les génies
 if(b.trp&&!b.see&&b.st==='pat'){b.tcd-=st;if(b.tcd<=0){const ks=Object.keys(b.trp).filter(k=>b.trp[k]>0);const pd=Math.hypot(g.x-P.x,g.z-P.z);
-if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&!(typeof inRoom==='function'&&inRoom(g.x,g.z)>=0)){const k=ks[(Math.random()*ks.length)|0];b.trp[k]--;const t=trapAdd(k,g.x+fx*1.6,g.z+fz*1.6,b.yaw,'b',2);t.kn[sq]=1;b.wait=Math.max(b.wait||0,2.5);b.cr=1}b.tcd=rnd(14,32)}}})}
+const up=Math.abs(g.y-GH(g.x,g.z))>.6;if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&(up||!(typeof inRoom==='function'&&inRoom(g.x,g.z)>=0))){const k=ks[(Math.random()*ks.length)|0];b.trp[k]--;const t=trapAdd(k,g.x+fx*1.6,g.z+fz*1.6,b.yaw,'b',2,up?g.y:undefined);t.kn[sq]=1;b.wait=Math.max(b.wait||0,2.5);b.cr=1}b.tcd=rnd(14,32)}}})}
 
 // ---------- indices naturels : branches qui craquent, oiseaux qui s'envolent (donnent la direction de qui marche) ----------
 const BRN={list:[],init:false,cue:null,t:0,prev:[]};

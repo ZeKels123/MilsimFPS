@@ -608,3 +608,11 @@ Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau
 
 ## v46.1 — 8 escouades
 Passage de 4 à 8 escouades (constante `SQN` dans `squad.js`) et de 36 à 40 ennemis : 5 hommes par escouade, ancrages espacés d'au moins 48 m. Test : 8 escouades.
+
+## v47 — Commandement d'escouade
+- **Chef explicite** (`q.chef`) : désigné par l'escouade, c'est lui qui donne tous les ordres. S'il meurt, un successeur est nommé et l'annonce (« Je prends le commandement ! »), le moral de l'escouade chute de 0,15, les tirs de couverture en cours sont annulés et les ordres sont suspendus 5 s. Message « Chef d'escouade éliminé » si le joueur est à moins de 90 m.
+- **Missions** hors contact : patrouille de secteur (4–5 points autour de l'ancrage), garde de position (cercle de 5 m, accroupis, regard vers l'extérieur) ou fouille de 3 bâtiments voisins. Halte à chaque point avec sécurité à 360°. Rotation toutes les 70–130 s. Un contact (alerte, vue, fuite) interrompt la mission et rend la main aux ordres de combat.
+- **Formations** : colonne en quinconce (plus de 45 m), ligne (approche), coin (fouille). Chaque homme vise son emplacement, rattrape à vitesse ×1,2 s'il traîne à plus de 14 m.
+- **Poseurs de pièges** : un par escouade (au lieu d'un bot sur cinq au hasard). En garde, il se place côté joueur à 9 m et pose sur l'axe d'approche. Les bots posent aussi aux étages (hauteur du sol réelle).
+- Nouvelles phrases (oSucc, oMove, oHalt) ; `docs/VOIX.md` couvre désormais aussi les ordres de `orders.js` (75 phrases).
+- Tests : succession et moral, emplacements de formation, mission + ordres de route, un poseur par escouade, piège posé à l'étage.

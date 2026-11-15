@@ -21,6 +21,14 @@ TRIG = {
  'bound': 'Le chef d\'escouade lance un bond (un groupe avance, l\'autre couvre)',
  'pan': 'Un bot panique et s\'enfuit / un bot sans arme fuit',
  'sur': 'Un bot se rend',
+ 'oFlank': 'Le chef ordonne le contournement à deux hommes',
+ 'oCover': 'Le chef ordonne un tir de couverture',
+ 'oGren': 'Le chef ordonne une grenade',
+ 'oRet': 'Le chef ordonne le repli',
+ 'oReg': 'Le chef regroupe l\'escouade',
+ 'oSucc': 'Le chef est tombé : un camarade prend le commandement',
+ 'oMove': 'Le chef lance un déplacement de l\'escouade (mission)',
+ 'oHalt': 'Le chef ordonne une halte (sécurité à 360°)',
  'evac': 'Un camarade évacue un blessé',
 }
 def entries(src):
@@ -31,7 +39,7 @@ def entries(src):
         ph = [p for p in ph if p]
         if ph and k in TRIG: out[k] = ph
     return out
-src = (R/'src/parts/voix.js').read_text() + (R/'src/parts/tactic.js').read_text()
+src = (R/'src/parts/voix.js').read_text() + (R/'src/parts/tactic.js').read_text() + (R/'src/parts/orders.js').read_text()
 cur = entries(src)
 prev = {}
 if OUT.exists():

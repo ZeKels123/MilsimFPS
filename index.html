@@ -2232,7 +2232,7 @@ trapBots(dt);natCues(dt)}
 // ---------- IA des bots : détection, évitement, désamorçage, pose par les « génies » ----------
 function trapBots(dt){TRP.bt+=dt;if(TRP.bt<.4)return;const st=TRP.bt;TRP.bt=0;if(typeof SQ==='undefined'||!SQ.length)return;const det=trapDetR()*.9;
 bots.forEach((b,i)=>{if(b.dead||b.stun>0)return;const g=b.g.position,sq=SQ.indexOf(b.sq);
-if(b.trp===undefined){b.trp=i%5===2?{xm:3,xw:2,xb:1}:null;b.tcd=rnd(6,16);b.tdis=null}
+if(b.trp===undefined){b.trp=(i>>3)===2?{xm:3,xw:2,xb:1}:null;b.tcd=rnd(6,16);b.tdis=null}
 // déjà en train de désamorcer
 if(b.tdis){b.tdis.t-=st;b.wait=Math.max(b.wait||0,.6);if(b.tdis.t<=0){const t=b.tdis.tr;b.tdis=null;if(TRP.list.includes(t)){trapRemove(t);if(b.trp)b.trp[t.ty]=(b.trp[t.ty]||0)+1}}return}
 // détection des pièges du joueur (partagée dans l'escouade)
@@ -2244,7 +2244,7 @@ if(d<2.8&&b.st!=='att'&&!b.see&&Math.random()<.35){b.tdis={t:2.6,tr:t};break}
 if(d<1.6&&d>.05){g.x+=dx/d*(1.7-d)*.6;g.z+=dz/d*(1.7-d)*.6}}
 // pose par les génies
 if(b.trp&&!b.see&&b.st==='pat'){b.tcd-=st;if(b.tcd<=0){const ks=Object.keys(b.trp).filter(k=>b.trp[k]>0);const pd=Math.hypot(g.x-P.x,g.z-P.z);
-if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&!(typeof inRoom==='function'&&inRoom(g.x,g.z)>=0)){const k=ks[(Math.random()*ks.length)|0];b.trp[k]--;const t=trapAdd(k,g.x+fx*1.6,g.z+fz*1.6,b.yaw,'b',2);t.kn[sq]=1;b.wait=Math.max(b.wait||0,2.5);b.cr=1}b.tcd=rnd(14,32)}}})}
+const up=Math.abs(g.y-GH(g.x,g.z))>.6;if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&(up||!(typeof inRoom==='function'&&inRoom(g.x,g.z)>=0))){const k=ks[(Math.random()*ks.length)|0];b.trp[k]--;const t=trapAdd(k,g.x+fx*1.6,g.z+fz*1.6,b.yaw,'b',2,up?g.y:undefined);t.kn[sq]=1;b.wait=Math.max(b.wait||0,2.5);b.cr=1}b.tcd=rnd(14,32)}}})}
 
 // ---------- indices naturels : branches qui craquent, oiseaux qui s'envolent (donnent la direction de qui marche) ----------
 const BRN={list:[],init:false,cue:null,t:0,prev:[]};
@@ -2785,7 +2785,7 @@ const r=init?13:9;for(let t=0;t<60;t++){const x=c[0]+rnd(-r,r),z=c[1]+rnd(-r,r);
 {const sq_sp0=spawn;spawn=function(b){sq_sp0(b);try{sqPlace(b,false)}catch(e){}}}
 const _fv3=new THREE.Vector3(),_fv4=new THREE.Vector3();
 function sqTick(dt){if(!sqInit_)sqBuild();
-for(const q of SQ){const al=sqRoles(q);if(!al.length){q.ret=0;continue}q.aT-=dt;
+for(const q of SQ){const al=sqRoles(q);if(!al.length){q.ret=0;continue}q.aT-=dt;sqChef(q,al);
 // contact : la position du joueur est partagée dans l'escouade
 if(al.some(b=>b.see)){q.lk.x=P.x;q.lk.z=P.z;q.t=7}else q.t=Math.max(0,q.t-dt);
 // pertes récentes
@@ -2795,7 +2795,7 @@ if(!q.ret&&q.t>0&&((q.lost>0&&al.length<=Math.ceil(q.n0/2))||hurt>.5)&&al.length
 if(q.ret>0){q.ret-=dt;if(!q.fb||q.aT<=0){q.aT=5;const g0=al[0].g.position;let best=null;for(let n=0;n<24;n++){const a=Math.atan2(g0.x-P.x,g0.z-P.z)+rnd(-.6,.6),r=rnd(30,48),x=g0.x+Math.sin(a)*r,z=g0.z+Math.cos(a)*r;if(!nFree(x,z)||Math.hypot(x-P.x,z-P.z)<35)continue;best=[x,z];break}q.fb=best||(q.fb||[g0.x,g0.z]);
 al.forEach((b,i)=>{if(b.lvl||b.route)return;b.fleeT=6;b.heal=null;goTo(b,q.fb[0]+rnd(-3,3),q.fb[1]+rnd(-3,3),2.4,'cov')})}
 if(q.ret<=0)q.fb=null;continue}
-sqOrders(q,al,dt);
+sqCmd(q,al,dt);sqOrders(q,al,dt);
 // appui : tir de suppression sur la dernière position connue quand personne ne voit le joueur
 const s=q.sup;if(s&&q.t>0&&!s.see&&s.mag>0&&s.relT<=0&&s.stun<=0&&s.blind<=0&&!s.heal&&!s.lvl&&!s.route&&!s.unarm){const d=Math.hypot(q.lk.x-s.g.position.x,q.lk.z-s.g.position.z);
 if(d<s.T.rng*1.2&&d>8){s.path=null;s.cr=1;s.decT=Math.max(s.decT,.4);s.st='atk';s.yaw=Math.atan2(q.lk.x-s.g.position.x,q.lk.z-s.g.position.z);s.cd-=0;if(s.cd<=0)sqFire(s,q,dt)}}
@@ -2810,6 +2810,38 @@ if(b===q.med&&(sqHurt(b)>.3||b.bdz)){b.heal={t:5,tgt:null};continue}
 if(w&&q.med&&!q.med.heal&&!q.med.see&&q.med.stun<=0&&!q.med.lvl&&!q.med.route){const d=Math.hypot(w.g.position.x-q.med.g.position.x,w.g.position.z-q.med.g.position.z);if(d<28){if(d<2.6){q.med.heal={t:4,tgt:w};w.heal={t:4,tgt:null,passive:1};w.path=null}else if(q.med.decT<.2||!q.med.path)goTo(q.med,w.g.position.x,w.g.position.z,2,'hnt')}}
 else if(w&&(!q.med||q.med.dead)&&b.seenT>5)b.heal={t:6,tgt:null}}}
 }
+
+// ================= v47 : commandement d'escouade =================
+// Chef explicite (succession + moral), missions (patrouille de secteur, garde de position, fouille de bâtiments) et formations
+// (colonne, ligne, coin) : l'escouade se déplace d'un point de passage à l'autre, chaque homme à son emplacement.
+function sqChef(q,al){if(q.chef&&(q.chef.dead>0||q.chef.sur||!al.includes(q.chef))){const was=q.chef;q.chef=null;was.chef=0;q.chefLost=VX.t;q.mis=null;q.oT=Math.max(q.oT||0,5);
+for(const b of al){b.mor=Math.max(0,(b.mor===undefined?1:b.mor)-.15);b.ordCover=0}
+try{if(Math.hypot(was.g.position.x-P.x,was.g.position.z-P.z)<90)feed('Chef d’escouade éliminé')}catch(e){}}
+if(!q.chef&&al.length){const nl=sqLeaderPick(al);if(nl){q.chef=nl;nl.chef=1;if(q.chefLost&&al.length>1){try{sqSay(nl,'oSucc')}catch(e){}}}}}
+function sqSlot(fm,i,n){if(i===0)return[0,0];if(fm==='line')return[((i+1)>>1)*4.2*(i&1?1:-1),0];
+if(fm==='wedge'){const s=((i+1)>>1)*3.4*(i&1?1:-1);return[s,-Math.abs(s)*.9]}
+return[(i&1?1:-1)*1.8,-3.6*i]}
+function sqSlotPos(fm,wp,hd,i,n){const sl=sqSlot(fm,i,n),fx=Math.sin(hd),fz=Math.cos(hd);return[wp[0]+fz*sl[0]+fx*sl[1],wp[1]-fx*sl[0]+fz*sl[1]]}
+function sqNewMis(q,lead){const A=sqAnchor(SQ.indexOf(q)),lg=lead.g.position,r=Math.random();let k=r<.45?'patrol':r<.75?'guard':'search',pts=[];
+if(k==='search'){const rs=ROOMS.filter(o=>Math.hypot(o.x-A[0],o.z-A[1])<95&&nFree(o.x,o.z)).sort((a,b)=>Math.hypot(a.x-lg.x,a.z-lg.z)-Math.hypot(b.x-lg.x,b.z-lg.z)).slice(0,3);pts=rs.map(o=>[o.x,o.z]);if(!pts.length)k='patrol'}
+if(k==='patrol'){const n=4+((Math.random()*2)|0),a0=rnd(0,6.28),R=rnd(24,42);for(let i=0;i<n;i++){const x=A[0]+Math.sin(a0+i*6.283/n)*R,z=A[1]+Math.cos(a0+i*6.283/n)*R;if(Math.abs(x)<MH-8&&Math.abs(z)<MH-8&&nFree(x,z))pts.push([x,z])}if(pts.length<2){k='guard';pts=[]}}
+if(k==='guard')pts=[[A[0],A[1]]];
+if(Math.hypot(pts[0][0]-lg.x,pts[0][1]-lg.z)>95&&k!=='guard')pts.unshift([A[0],A[1]]);
+return{k,pts,i:0,halt:0,wt:0,T:rnd(70,130),a0:rnd(0,6.28)}}
+function sqCmd(q,al,dt){const lead=q.chef;if(!lead||al.length<2)return;
+if(q.t>0||al.some(b=>b.alert||b.see||b.fleeT>0)){q.mis=null;return}
+if(lead.heal||lead.lvl||lead.route||lead.stun>0||lead.sur||lead.dorm)return;
+let m=q.mis;if(!m||m.T<=0){m=q.mis=sqNewMis(q,lead);q.mT=0;if(m.k!=='guard'&&Math.random()<.6)try{sqSay(lead,'oMove')}catch(e){}}
+m.T-=dt;const wp=m.pts[m.i%m.pts.length],lg=lead.g.position,d=Math.hypot(wp[0]-lg.x,wp[1]-lg.z);
+const mem=[lead].concat(al.filter(b=>b!==lead&&!b.heal&&!b.lvl&&!b.route&&b.stun<=0&&!b.unarm&&!b.sur));const n=mem.length;
+if(m.halt>0){m.halt-=dt;mem.forEach((b,i)=>{if(b.path||b.st!=='pat')return;const a=m.a0+i*6.283/n;b.yaw=a;if(m.k==='guard')b.cr=1});if(m.halt<=0){m.i++;m.wt=0;q.mT=0;if(m.k==='guard')m.halt=rnd(12,20)}return}
+m.wt+=dt;
+if(m.k==='guard'){if(!m.set){m.set=1;m.halt=rnd(12,20);const ap=Math.atan2(P.x-wp[0],P.z-wp[1]);mem.forEach((b,i)=>{const a=b.trp?ap:m.a0+i*6.283/n,r=b.trp?9:5,x=wp[0]+Math.sin(a)*r,z=wp[1]+Math.cos(a)*r;if(nFree(x,z))goTo(b,x,z,1.1,'pat');b.wait=0;if(b.trp)b.tcd=Math.min(b.tcd||9,4)})}return}
+if(d<7||m.wt>50){m.halt=m.k==='search'?rnd(8,14):rnd(5,9);if(Math.random()<.5)try{sqSay(lead,'oHalt')}catch(e){}return}
+q.mT=(q.mT||0)-dt;if(q.mT>0)return;q.mT=3.2;const hd=Math.atan2(wp[0]-lg.x,wp[1]-lg.z);q.fm=m.k==='search'?'wedge':(d>45?'col':'line');
+mem.forEach((b,i)=>{if(b.st!=='pat'&&b.st)return;const t=i===0?wp:sqSlotPos(q.fm,wp,hd,i,n),x=nFree(t[0],t[1])?t[0]:wp[0],z=nFree(t[0],t[1])?t[1]:wp[1];
+if(i===0||Math.hypot(b.g.position.x-x,b.g.position.z-z)>2.8){const far=Math.hypot(b.g.position.x-lg.x,b.g.position.z-lg.z);if(goTo(b,x,z,i===0?1:(far>14?1.2:1),'pat')){b.wait=0}else if(i===0){m.i++;m.wt=0}}})}
+{const aT_=aiThink;aiThink=function(b){const q=b.sq;if(q&&q.mis&&b.st==='pat'&&!b.path&&!b.alert&&!b.see&&!b.heal&&!b.lvl&&!b.route&&!b.sur&&!(b.fleeT>0)&&b.seenT>3){b.decT=rnd(.55,1.05);return}return aT_(b)}}
 // ================= ORDRES D'ESCOUADE (v30) =================
 // Le chef (soldat d'assaut, sinon tireur) analyse la situation et donne un ordre vocal : grenade, contournement, tir de couverture,
 // repli, regroupement. Les bots désignés répondent et exécutent ; le joueur entend (et lit) les ordres à moins de 45 m.
@@ -2818,9 +2850,14 @@ function ordInit(){ORD.i=1;Object.assign(VX.L,{
  oCover:['Feu de couverture, maintenant !','Couvrez-nous, tirez !','Arrosez sa position !'],
  oGren:['Grenade sur sa position !','Balance une grenade !','Dégoupille, grenade !'],
  oRet:['Repli ! Repli !','On décroche, tout le monde !','Repliez-vous, vite !'],
- oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !']})}
+ oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !'],
+ oSucc:['Je prends le commandement !','Le chef est tombé, je mène !','Serrez les rangs, je prends la tête !'],
+ oMove:['En avant, restez groupés !','On avance, gardez vos intervalles.','Mouvement, formation serrée.'],
+ oHalt:['Halte ! Sécurité à 360 !','On s’arrête, tenez vos secteurs.','Stop, surveillez vos angles.']})}
 const ORD={n:0,log:[],i:0};
-function sqLeader(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
+// chef explicite : celui que l'escouade a désigné (q.chef) tant qu'il est vivant, sinon le meilleur candidat
+function sqLeader(al){const q=al[0]&&al[0].sq;if(q&&q.chef&&!q.chef.dead&&al.includes(q.chef))return q.chef;return sqLeaderPick(al)}
+function sqLeaderPick(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
 function sqSay(b,key){if(!ORD.i)ordInit();vxSay(b,key,true,true)}
 function sqAck(list){list.forEach((b,i)=>setTimeout(()=>{if(!b.dead)vxSay(b,'ack',true,true)},900+i*650))}
 function sqIssue(q,k,ld,who){ORD.n++;q.last=k;q.lastT=VX.t;ORD.log.push(k);if(ORD.log.length>20)ORD.log.shift();sqSay(ld,k==='flank'?'oFlank':k==='cover'?'oCover':k==='gren'?'oGren':k==='ret'?'oRet':'oReg');sqAck(who)}
@@ -5001,6 +5038,16 @@ T('Escouades : membres regroupés autour de leur ancrage, réapparition près de
 if(worst>45)return'escouade éparpillée (distance médiane au centre '+worst.toFixed(0)+' m)';
 const q=SQ.find(o=>o.m.filter(b=>!b.dead).length>=4);if(!q)return'';if(SQ.length!==8)return'nombre d’escouades : '+SQ.length;const b=q.m.find(x=>!x.dead),px=P.x,pz=P.z;try{const m=q.m.filter(x=>!x.dead&&x!==b),c=m[0].g.position;P.x=c.x>0?-110:110;P.z=c.z>0?-110:110;spawn(b);const d=Math.min(...q.m.filter(x=>!x.dead&&x!==b).map(x=>Math.hypot(x.g.position.x-b.g.position.x,x.g.position.z-b.g.position.z)));if(d>40)return'réapparu à '+d.toFixed(0)+' m des camarades'}finally{P.x=px;P.z=pz}return''});
 T('Kill : aucun objet ajouté à l’inventaire (le butin passe uniquement par la fouille)',()=>{const b=bots.find(x=>!x.dead&&!x.sur);if(!b)return'aucun ennemi';const s0=JSON.stringify([P.plates,invGet('bd'),invGet('tq'),invGet('kit'),invGet('a'+slot),NADE.inv.slice(),Object.assign({},TRP.inv)]),k0=P.kills;b.hp=1;b.ar=0;onKill(b,false);P.kills=k0;P.streak=0;const k1=P.kills;const s1=JSON.stringify([P.plates,invGet('bd'),invGet('tq'),invGet('kit'),invGet('a'+slot),NADE.inv.slice(),Object.assign({},TRP.inv)]);b.dead=0;spawn(b);return s0===s1?'':'inventaire modifié par le kill'});
+function sqTestSq(min){if(!sqInit_)sqBuild();const q=SQ.reduce((a,o)=>o.m.filter(b=>!b.dead).length>a.m.filter(b=>!b.dead).length?o:a);for(const b of q.m){if(q.m.filter(x=>!x.dead).length>=min)break;if(b.dead>0){b.dead=0;spawn(b)}}return q}
+T('Chef d’escouade : succession à sa mort, moral touché, le nouveau chef est celui des ordres',()=>{if(!sqInit_)sqBuild();const q=sqTestSq(4);let al=q.m.filter(b=>!b.dead);q.chef=null;sqChef(q,al);const c0=q.chef;if(!c0||!c0.chef)return'aucun chef désigné';if(sqLeader(al)!==c0)return'les ordres ne passent pas par le chef';
+const m0=al.filter(b=>b!==c0).map(b=>b.mor===undefined?1:b.mor);c0.dead=30;al=q.m.filter(b=>!b.dead);sqChef(q,al);const c1=q.chef;c0.dead=0;
+if(!c1||c1===c0||c1.dead)return'pas de successeur';if(sqLeader(al)!==c1)return'le successeur n’est pas le chef';const m1=al.filter(b=>b!==c1).map(b=>b.mor===undefined?1:b.mor);if(!(m1.reduce((a,b)=>a+b,0)<m0.filter((x,i)=>true).reduce((a,b)=>a+b,0)+.0001))return'moral inchangé';q.chef=null;q.mis=null;return''});
+T('Formations et missions : emplacements distincts, mission créée avec points de passage, ordres de route donnés',()=>{for(const fm of['col','line','wedge']){const ps=[0,1,2,3,4].map(i=>sqSlotPos(fm,[100,100],.7,i,5));if(Math.hypot(ps[0][0]-100,ps[0][1]-100)>.01)return fm+' : le chef n’est pas en tête';for(let i=0;i<5;i++)for(let j=i+1;j<5;j++)if(Math.hypot(ps[i][0]-ps[j][0],ps[i][1]-ps[j][1])<1.7)return fm+' : emplacements superposés'}
+if(!sqInit_)sqBuild();const q=sqTestSq(4);const al=q.m.filter(b=>!b.dead);q.chef=null;sqChef(q,al);const t0=q.t,px=P.x,pz=P.z;try{P.x=-110;P.z=-110;q.t=0;al.forEach(b=>{b.alert=0;b.see=false;b.fleeT=0;b.heal=null;b.lvl=0;b.route=null;b.stun=0;b.st='pat';b.path=null;b.dorm=0});q.mis=null;AI.budget=99;sqCmd(q,al,.1);const m=q.mis;if(!m||!m.pts.length)return'aucune mission';if(!['patrol','guard','search'].includes(m.k))return'mission inconnue '+m.k;
+if(m.k!=='guard'){q.mT=0;AI.budget=99;sqCmd(q,al,.1);if(!al.some(b=>b.path))return'aucun ordre de route ('+m.k+')'}}finally{P.x=px;P.z=pz;q.t=t0;q.mis=null}return''});
+T('Pièges des bots : un poseur par escouade, pose à la hauteur de l’étage',()=>{if(!sqInit_)sqBuild();TRP.bt=1;trapBots(1);for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead||b.trp===undefined)continue;if(!!b.trp!==((i>>3)===2))return'bot '+i+' : poseur '+(!!b.trp)+' (attendu '+((i>>3)===2)+')'}
+const f=LSURF.find(q=>!q.gl&&Math.abs((q.ya===undefined?0:q.ya-q.yb))<.01&&q.x1-q.x0>3&&q.z1-q.z0>3&&Math.abs(q.x0)<100&&Math.abs(q.z0)<100&&q.y>GH((q.x0+q.x1)/2,(q.z0+q.z1)/2)+2);if(!f)return'';
+const b=bots.find(x=>!x.dead);const g=b.g.position,sv=[g.x,g.y,g.z],n0=TRP.list.length,px=P.x,pz=P.z;try{g.set((f.x0+f.x1)/2,f.y,(f.z0+f.z1)/2);P.x=g.x+60;P.z=g.z;b.st='pat';b.see=false;b.tcd=0;b.stun=0;b.trp={xm:2};TRP.bt=1;trapBots(1);if(TRP.list.length===n0)return'aucun piège posé à l’étage';const t=TRP.list[TRP.list.length-1];if(Math.abs(t.y-f.y)>.3)return'piège posé à '+t.y.toFixed(2)+' au lieu de '+f.y.toFixed(2);TRP.list.splice(TRP.list.indexOf(t),1);S.remove(t.m)}finally{g.set(sv[0],sv[1],sv[2]);P.x=px;P.z=pz}return''});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';

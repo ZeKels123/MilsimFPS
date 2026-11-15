@@ -6,9 +6,14 @@ function ordInit(){ORD.i=1;Object.assign(VX.L,{
  oCover:['Feu de couverture, maintenant !','Couvrez-nous, tirez !','Arrosez sa position !'],
  oGren:['Grenade sur sa position !','Balance une grenade !','Dégoupille, grenade !'],
  oRet:['Repli ! Repli !','On décroche, tout le monde !','Repliez-vous, vite !'],
- oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !']})}
+ oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !'],
+ oSucc:['Je prends le commandement !','Le chef est tombé, je mène !','Serrez les rangs, je prends la tête !'],
+ oMove:['En avant, restez groupés !','On avance, gardez vos intervalles.','Mouvement, formation serrée.'],
+ oHalt:['Halte ! Sécurité à 360 !','On s’arrête, tenez vos secteurs.','Stop, surveillez vos angles.']})}
 const ORD={n:0,log:[],i:0};
-function sqLeader(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
+// chef explicite : celui que l'escouade a désigné (q.chef) tant qu'il est vivant, sinon le meilleur candidat
+function sqLeader(al){const q=al[0]&&al[0].sq;if(q&&q.chef&&!q.chef.dead&&al.includes(q.chef))return q.chef;return sqLeaderPick(al)}
+function sqLeaderPick(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
 function sqSay(b,key){if(!ORD.i)ordInit();vxSay(b,key,true,true)}
 function sqAck(list){list.forEach((b,i)=>setTimeout(()=>{if(!b.dead)vxSay(b,'ack',true,true)},900+i*650))}
 function sqIssue(q,k,ld,who){ORD.n++;q.last=k;q.lastT=VX.t;ORD.log.push(k);if(ORD.log.length>20)ORD.log.shift();sqSay(ld,k==='flank'?'oFlank':k==='cover'?'oCover':k==='gren'?'oGren':k==='ret'?'oRet':'oReg');sqAck(who)}

@@ -1,6 +1,6 @@
 # Voix des bots — liste des dialogues
 
-Mis à jour le 2026-11-15 · 51 phrases · 3 enregistrées
+Mis à jour le 2026-11-15 · 75 phrases · 3 enregistrées
 
 État : `synthèse` (voix du navigateur) · `enregistrée` (fichier audio intégré). Régénérer : `python3 tools/voix_liste.py`.
 
@@ -57,6 +57,30 @@ Mis à jour le 2026-11-15 · 51 phrases · 3 enregistrées
 | evac | Un camarade évacue un blessé | Je t'ai, on dégage ! | synthèse |  |
 | evac | Un camarade évacue un blessé | Tiens bon, je te sors de là ! | synthèse |  |
 | evac | Un camarade évacue un blessé | Accroche-toi, on décroche ! | synthèse |  |
+| oFlank | Le chef ordonne le contournement à deux hommes | Vous deux, contournez par le flanc ! | synthèse |  |
+| oFlank | Le chef ordonne le contournement à deux hommes | Flanquez-le, on le fixe ici ! | synthèse |  |
+| oFlank | Le chef ordonne le contournement à deux hommes | Deux hommes sur la droite, allez-y ! | synthèse |  |
+| oCover | Le chef ordonne un tir de couverture | Feu de couverture, maintenant ! | synthèse |  |
+| oCover | Le chef ordonne un tir de couverture | Couvrez-nous, tirez ! | synthèse |  |
+| oCover | Le chef ordonne un tir de couverture | Arrosez sa position ! | synthèse |  |
+| oGren | Le chef ordonne une grenade | Grenade sur sa position ! | synthèse |  |
+| oGren | Le chef ordonne une grenade | Balance une grenade ! | synthèse |  |
+| oGren | Le chef ordonne une grenade | Dégoupille, grenade ! | synthèse |  |
+| oRet | Le chef ordonne le repli | Repli ! Repli ! | synthèse |  |
+| oRet | Le chef ordonne le repli | On décroche, tout le monde ! | synthèse |  |
+| oRet | Le chef ordonne le repli | Repliez-vous, vite ! | synthèse |  |
+| oReg | Le chef regroupe l'escouade | Regroupez-vous sur moi ! | synthèse |  |
+| oReg | Le chef regroupe l'escouade | On se regroupe, serrez les rangs ! | synthèse |  |
+| oReg | Le chef regroupe l'escouade | Tout le monde à moi ! | synthèse |  |
+| oSucc | Le chef est tombé : un camarade prend le commandement | Je prends le commandement ! | synthèse |  |
+| oSucc | Le chef est tombé : un camarade prend le commandement | Le chef est tombé, je mène ! | synthèse |  |
+| oSucc | Le chef est tombé : un camarade prend le commandement | Serrez les rangs, je prends la tête ! | synthèse |  |
+| oMove | Le chef lance un déplacement de l'escouade (mission) | En avant, restez groupés ! | synthèse |  |
+| oMove | Le chef lance un déplacement de l'escouade (mission) | On avance, gardez vos intervalles. | synthèse |  |
+| oMove | Le chef lance un déplacement de l'escouade (mission) | Mouvement, formation serrée. | synthèse |  |
+| oHalt | Le chef ordonne une halte (sécurité à 360°) | Halte ! Sécurité à 360 ! | synthèse |  |
+| oHalt | Le chef ordonne une halte (sécurité à 360°) | On s’arrête, tenez vos secteurs. | synthèse |  |
+| oHalt | Le chef ordonne une halte (sécurité à 360°) | Stop, surveillez vos angles. | synthèse |  |
 
 ## Annonces horaires (assemblées)
 
