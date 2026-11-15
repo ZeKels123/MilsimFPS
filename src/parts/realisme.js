@@ -3,20 +3,9 @@ const _rv=new THREE.Vector3();
 const REA={ok:0,t:0};
 function reaOk(x,z){return wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0)&&Math.abs(x)<125&&Math.abs(z)<125}
 
-// ---------- 1. Vent : fanions qui suivent la vitesse et la direction du vent balistique ----------
-const VNT={fl:[],sp:0,ang:0};
-function vntBuild(){
- const pm=new THREE.MeshLambertMaterial({color:0x6a6e70}),cm=new THREE.MeshBasicMaterial({color:0xd8472b,side:THREE.DoubleSide}),pg=new THREE.CylinderGeometry(.03,.045,5,6);
- const cg=new THREE.PlaneGeometry(1.5,.85,1,1);cg.translate(.75,0,0);
- let n=0;
- for(let i=0;i<60&&n<9;i++){const r=rnd(14,115),a=rnd(0,6.283),x=P.x+Math.cos(a)*r,z=P.z+Math.sin(a)*r;if(!reaOk(x,z))continue;
-  const g=new THREE.Group(),pole=new THREE.Mesh(pg,pm),hinge=new THREE.Group(),cloth=new THREE.Mesh(cg,cm);
-  pole.position.y=2.5;hinge.position.y=4.55;hinge.add(cloth);g.add(pole,hinge);g.position.set(x,GH(x,z),z);S.add(g);
-  VNT.fl.push({g,hinge,cloth,ph:rnd(0,6.28),x,z});n++}}
-function vntTick(dt){
- balWind();const v=Math.hypot(BAL.wx||0,BAL.wz||0);VNT.sp=v;VNT.ang=Math.atan2(-(BAL.wz||0),BAL.wx||0);
- const ft=Math.min(1,v/8),t=WND.t.value;
- for(const f of VNT.fl){f.hinge.rotation.y=VNT.ang;f.cloth.rotation.z=-(1-ft)*1.35+Math.sin(t*7+f.ph)*.08*ft;f.cloth.rotation.y=Math.sin(t*9+f.ph)*.18*ft}}
+// ---------- 1. Vent : lu dans l'herbe (penchée dans le sens du vent balistique, rafales qui se déplacent avec lui) ----------
+const VNT={sp:0,ang:0};
+function vntTick(dt){balWind();VNT.sp=Math.hypot(BAL.wx||0,BAL.wz||0);VNT.ang=Math.atan2(BAL.wz||0,BAL.wx||0)}
 
 // ---------- 2. Météo automatique + effets (bruit étouffé, adhérence) ----------
 const WXA={t:260,lock:0,last:0};
@@ -66,8 +55,8 @@ function fouMsg(h){if(!FOU.el){const d=document.createElement('div');d.style.css
  FOU.el.style.display=h?'block':'none';if(h)FOU.el.innerHTML=h}
 function fouDone(t){
  const o=t.o;let n=0;
- if(t.k==='b'){for(const a of o.stash){fouIS(a[0],a[1],o.g.position.x+rnd(-.5,.5),o.g.position.y+.5,o.g.position.z+rnd(-.5,.5),rnd(-.6,.6),rnd(-.6,.6),a[7]);n++}o.stash=null}
- else{for(const a of o.st){fouIS(a[0],a[1],o.x+rnd(-.4,.4),GH(o.x,o.z)+.7,o.z+rnd(-.4,.4),rnd(-.7,.7),rnd(-.7,.7));n++}o.open=1;o.st=[]}
+ if(t.k==='b'){for(const a of o.stash){fouIS(a[0],a[1],a[2],Math.max(a[3],GH(a[2],a[4])+.3),a[4],a[5],a[6],a[7]);n++}o.stash=null}
+ else{const a0=Math.random()*6.28;for(const a of o.st){const an=a0+n*2.4,d=1.1+(n%2)*.35;fouIS(a[0],a[1],o.x+Math.cos(an)*d,GH(o.x,o.z)+.4,o.z+Math.sin(an)*d,0,0);n++}o.open=1;o.st=[]}
  FOU.ns++;hlMsg(n+' objet'+(n>1?'s':'')+' trouvé'+(n>1?'s':''));snd(480,.06,.1,'triangle')}
 function fouTick(dt){
  for(const c of FOU.cr){if(c.open&&c.a<1.3){c.a=Math.min(1.3,c.a+dt*2.5);c.hinge.rotation.x=-c.a}}
@@ -107,5 +96,5 @@ function lumTick(dt){
 
 // ---------- tick global ----------
 function reaTick(dt){
- if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{vntBuild();fouBuild()}catch(e){console.error('rea',e)}}
+ if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{fouBuild()}catch(e){console.error('rea',e)}}
  vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt)}

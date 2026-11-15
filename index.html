@@ -796,7 +796,7 @@ wf=.04+.08*position.y;fl=.9;
 #else
 wf=position.y*position.y*.11;fl=.3;
 #endif
-float ph=dot(wo.xz,vec2(.31,.27)),gu=.55+.45*sin(uWt*.5+dot(wo.xz,uWd)*.09),g=(sin(uWt*1.6+ph)*.6+sin(uWt*2.9+ph*1.7)*.3+.5)*gu;
+float ph=dot(wo.xz,vec2(.31,.27)),gu=.55+.45*sin(uWt*.5-dot(wo.xz,uWd)*.09),g=(sin(uWt*1.6+ph)*.6+sin(uWt*2.9+ph*1.7)*.3+.5)*gu+.4;
 mvPosition.xz+=uWd*(g*uWs*wf*2.2)+vec2(sin(uWt*5.3+mvPosition.x*2.1+mvPosition.y*3.),cos(uWt*4.7+mvPosition.z*2.3))*(wf*fl*.12*(.4+uWs));
 #if WK>=6
 float lp=dot(position,vec3(7.1,5.3,6.7));mvPosition.xyz+=vec3(sin(uWt*4.1+lp),sin(uWt*3.3+lp*1.3)*.5,cos(uWt*3.7+lp*.9))*(.02+.075*uWs)*(.55+.45*sin(uWt*.9+ph));
@@ -2093,8 +2093,8 @@ const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
 function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
 function invPick0(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
-function invLoot(b){const p=b.g.position,r=Math.random,sp=()=>[p.x+rnd(-.7,.7),p.y+.6,p.z+rnd(-.7,.7)];
-const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.8,.8),rnd(-.8,.8),bag)};
+function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.28,sp=()=>{const a=a0+lk++*2.4,d=1.35+(lk%3)*.3+r()*.15;return[p.x+Math.cos(a)*d,p.y+.45,p.z+Math.sin(a)*d]};// anneau autour du corps, écart 2,4 rad : rien sur le cadavre ni les uns sur les autres
+const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
 if(r()<.75)add('z'+[0,0,1,2,3][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
 if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
@@ -3081,20 +3081,9 @@ const _rv=new THREE.Vector3();
 const REA={ok:0,t:0};
 function reaOk(x,z){return wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0)&&Math.abs(x)<125&&Math.abs(z)<125}
 
-// ---------- 1. Vent : fanions qui suivent la vitesse et la direction du vent balistique ----------
-const VNT={fl:[],sp:0,ang:0};
-function vntBuild(){
- const pm=new THREE.MeshLambertMaterial({color:0x6a6e70}),cm=new THREE.MeshBasicMaterial({color:0xd8472b,side:THREE.DoubleSide}),pg=new THREE.CylinderGeometry(.03,.045,5,6);
- const cg=new THREE.PlaneGeometry(1.5,.85,1,1);cg.translate(.75,0,0);
- let n=0;
- for(let i=0;i<60&&n<9;i++){const r=rnd(14,115),a=rnd(0,6.283),x=P.x+Math.cos(a)*r,z=P.z+Math.sin(a)*r;if(!reaOk(x,z))continue;
-  const g=new THREE.Group(),pole=new THREE.Mesh(pg,pm),hinge=new THREE.Group(),cloth=new THREE.Mesh(cg,cm);
-  pole.position.y=2.5;hinge.position.y=4.55;hinge.add(cloth);g.add(pole,hinge);g.position.set(x,GH(x,z),z);S.add(g);
-  VNT.fl.push({g,hinge,cloth,ph:rnd(0,6.28),x,z});n++}}
-function vntTick(dt){
- balWind();const v=Math.hypot(BAL.wx||0,BAL.wz||0);VNT.sp=v;VNT.ang=Math.atan2(-(BAL.wz||0),BAL.wx||0);
- const ft=Math.min(1,v/8),t=WND.t.value;
- for(const f of VNT.fl){f.hinge.rotation.y=VNT.ang;f.cloth.rotation.z=-(1-ft)*1.35+Math.sin(t*7+f.ph)*.08*ft;f.cloth.rotation.y=Math.sin(t*9+f.ph)*.18*ft}}
+// ---------- 1. Vent : lu dans l'herbe (penchée dans le sens du vent balistique, rafales qui se déplacent avec lui) ----------
+const VNT={sp:0,ang:0};
+function vntTick(dt){balWind();VNT.sp=Math.hypot(BAL.wx||0,BAL.wz||0);VNT.ang=Math.atan2(BAL.wz||0,BAL.wx||0)}
 
 // ---------- 2. Météo automatique + effets (bruit étouffé, adhérence) ----------
 const WXA={t:260,lock:0,last:0};
@@ -3144,8 +3133,8 @@ function fouMsg(h){if(!FOU.el){const d=document.createElement('div');d.style.css
  FOU.el.style.display=h?'block':'none';if(h)FOU.el.innerHTML=h}
 function fouDone(t){
  const o=t.o;let n=0;
- if(t.k==='b'){for(const a of o.stash){fouIS(a[0],a[1],o.g.position.x+rnd(-.5,.5),o.g.position.y+.5,o.g.position.z+rnd(-.5,.5),rnd(-.6,.6),rnd(-.6,.6),a[7]);n++}o.stash=null}
- else{for(const a of o.st){fouIS(a[0],a[1],o.x+rnd(-.4,.4),GH(o.x,o.z)+.7,o.z+rnd(-.4,.4),rnd(-.7,.7),rnd(-.7,.7));n++}o.open=1;o.st=[]}
+ if(t.k==='b'){for(const a of o.stash){fouIS(a[0],a[1],a[2],Math.max(a[3],GH(a[2],a[4])+.3),a[4],a[5],a[6],a[7]);n++}o.stash=null}
+ else{const a0=Math.random()*6.28;for(const a of o.st){const an=a0+n*2.4,d=1.1+(n%2)*.35;fouIS(a[0],a[1],o.x+Math.cos(an)*d,GH(o.x,o.z)+.4,o.z+Math.sin(an)*d,0,0);n++}o.open=1;o.st=[]}
  FOU.ns++;hlMsg(n+' objet'+(n>1?'s':'')+' trouvé'+(n>1?'s':''));snd(480,.06,.1,'triangle')}
 function fouTick(dt){
  for(const c of FOU.cr){if(c.open&&c.a<1.3){c.a=Math.min(1.3,c.a+dt*2.5);c.hinge.rotation.x=-c.a}}
@@ -3185,7 +3174,7 @@ function lumTick(dt){
 
 // ---------- tick global ----------
 function reaTick(dt){
- if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{vntBuild();fouBuild()}catch(e){console.error('rea',e)}}
+ if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{fouBuild()}catch(e){console.error('rea',e)}}
  vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt)}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
@@ -3394,7 +3383,7 @@ function nadeLOS(n,x,y,z){return losClear(n.p.x,n.p.y+.35,n.p.z,x,y,z)}
 function tinnitus(k,dur){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=3350;g.gain.setValueAtTime(.0001,AC.currentTime);g.gain.exponentialRampToValueAtTime(Math.max(.002,.09*k),AC.currentTime+.05);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+dur);o.connect(g);g.connect(AC['destination']);o.start();o.stop(AC.currentTime+dur+.1);
 AOUT();ALP.frequency.cancelScheduledValues(AC.currentTime);ALP.frequency.setValueAtTime(Math.max(260,2400*(1-k)),AC.currentTime+.02);ALP.frequency.exponentialRampToValueAtTime(20000,AC.currentTime+dur)}catch(e){}}
 function stunPlayer(k,dur){if(k<=.03||ac.on)return;FXP.stun=Math.max(FXP.stun,dur);FXP.stunMax=Math.max(dur,FXP.stun);FXP.stunK=Math.max(FXP.stunK,k);tinnitus(k,dur)}
-function nadeBoom(n){dstBlast(n.p.x,n.p.y,n.p.z,7);const x=n.p.x,y=n.p.y,z=n.p.z,mine=!n.owner,pdx=P.x-x,pdz=P.z-z,pd=Math.hypot(pdx,pdz,P.gy+P.bh-y),pz_=inZ(P.x,P.z)||ac.on,wet=n.wet?.55:1;n.m.visible=false;noise(x,z,n.type===3?22:90);
+function nadeBoom(n){if(n.type===0)dstBlast(n.p.x,n.p.y,n.p.z,7);const x=n.p.x,y=n.p.y,z=n.p.z,mine=!n.owner,pdx=P.x-x,pdz=P.z-z,pd=Math.hypot(pdx,pdz,P.gy+P.bh-y),pz_=inZ(P.x,P.z)||ac.on,wet=n.wet?.55:1;n.m.visible=false;noise(x,z,n.type===3?22:90);
 if(n.type===0){const R_=7.5*wet;typeof barrelBlast==='function'&&barrelBlast(x,y,z,R_);boom(x,z,4.2*wet);sfxBoom(x,y,z,1);FXP.shake=Math.max(FXP.shake,Math.max(0,1-pd/22)*1.2);
 for(let i=0;i<14;i++)emit(_no.set(x,y+.2,z),_e.set(rnd(-1,1),rnd(.2,1),rnd(-1,1)).normalize().multiplyScalar(rnd(9,16)),{map:sparkT,color:0xffc870,size:.05,life:.35,add:1,g:6});
 for(const b of bots){if(b.dead)continue;const g=b.g.position,d=Math.hypot(g.x-x,g.z-z,g.y+1-y);if(d>R_)continue;hlBlastBot(b,new THREE.Vector3(x,y,z),R_,n,mine);if(b.hp<=0){if(mine)onKill(b,false);else botDie(b)}else{b.bl=null;if(mine){aiHit(b);b.flinch=1}}if(!b.dead&&d<5)b.stun=Math.max(b.stun,1.2)}
@@ -4688,13 +4677,11 @@ const sel=NADE.sel,ovd=$('ov').style.display;$('ov').style.display='none';NADE.s
 const n0=TAC.smk.length,nz0=NZ.n,r0=NZ.r;const x=P.x+60,z=P.z+60,y=GH(x,z);throwNade(3,new THREE.Vector3(x,y+.3,z),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];if(!n||n.type!==3)return'lancer';n.t=0;nadeUpdate(.016,false);
 if(TAC.smk.length!==n0+1)return'pas de nuage '+(TAC.smk.length-n0);if(NZ.r>30)return'trop bruyant '+NZ.r;
 const a=y+1.5;const blocked=losClear(x-10,a,z,x+10,a,z)===false;TAC.smk.length=n0;if(!blocked)return'vue non bloquée';return''});
-T('Vent : fanions orientés et affaissés selon le vent balistique, fumée entraînée',()=>{
-if(!REA.ok)reaTick(.016);if(VNT.fl.length<4)return'fanions '+VNT.fl.length;
-const w6=wcur[6],wd=WND.d.value.clone(),bx=BAL.wx,bz=BAL.wz,f=VNT.fl[0];
-WND.d.value.set(1,0);wcur[6]=1.4;vntTick(.016);const sp=VNT.sp,z1=f.cloth.rotation.z,y1=f.hinge.rotation.y;
-wcur[6]=0;vntTick(.016);const z0=f.cloth.rotation.z,sp0=VNT.sp;
-let msg='';if(sp<5||sp0>=sp)msg+='vitesse '+sp.toFixed(1)+'/'+sp0.toFixed(1)+' ';if(Math.abs(y1)>.05)msg+='orientation '+y1.toFixed(2)+' ';if(z1<=z0+.4)msg+='affaissement ';
-WND.d.value.set(0,1);vntTick(.016);const y2=f.hinge.rotation.y;if(Math.abs(Math.abs(y2)-Math.PI/2)>.05)msg+='sens '+y2.toFixed(2)+' ';
+T('Vent : herbe et vent balistique alignés (direction WND.d), vitesse selon la météo, fumée entraînée',()=>{
+const w6=wcur[6],wd=WND.d.value.clone(),bx=BAL.wx,bz=BAL.wz;let msg='';
+WND.d.value.set(1,0);wcur[6]=1.4;vntTick(.016);const sp=VNT.sp,an=VNT.ang;wcur[6]=0;vntTick(.016);const sp0=VNT.sp;
+if(sp<5||sp0>=sp)msg+='vitesse '+sp.toFixed(1)+'/'+sp0.toFixed(1)+' ';if(Math.abs(an)>.05)msg+='direction '+an.toFixed(2)+' ';
+WND.d.value.set(0,1);vntTick(.016);if(Math.abs(VNT.ang-Math.PI/2)>.05)msg+='sens '+VNT.ang.toFixed(2)+' ';
 WND.d.value.copy(wd);wcur[6]=w6;
 BAL.wx=6;BAL.wz=0;const p0=new THREE.Vector3(0,2,0);emit(p0,new THREE.Vector3(),{life:4,size:1,w:1});const pp=pPool[pI];for(let i=0;i<40;i++)pUpdate(.05);
 if(pp.pos.x<1.5)msg+='fumée immobile '+pp.pos.x.toFixed(2);pp.on=false;BAL.wx=bx;BAL.wz=bz;return msg});
@@ -4741,6 +4728,11 @@ inRoom=ir;const n0=BAL.bl.length,am=Object.keys(BAM)[0],o=new THREE.Vector3(),d=
 A.supp=false;const q0=balSpawn(o,d,am,{src:'p'});A.supp=true;const q1=balSpawn(o,d,am,{src:'p'});const r=Math.abs(q1.vz)/Math.abs(q0.vz);if(r>.95||r<.9)msg+='silencieux '+r.toFixed(3)+' ';
 BAL.bl.length=Math.min(BAL.bl.length,n0);return msg
 }finally{losClear=lc;inRoom=ir;Math.random=mr;flOn=fl0;ILON=il0;TOD.t=tt;m.l=l0;P.yaw=pyw;P.pitch=ppi;A.supp=s0;Object.assign(b,{dead:sv.dead,sur:sv.sur,alert:sv.alert,blind:sv.blind});b.g.position.copy(sv.pos)}});
+T('Grenades : seule la fragmentation met le feu à l’herbe (pas flash, assourdissante, fumigène)',()=>{const wet=WET.v;WET.v=0;let msg='';try{
+let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60,60);if(fireCan(x,z)&&fireCan(x+4,z)&&fireCan(x-4,z)&&fireCan(x,z+4)&&fireCan(x,z-4))spot=[x,z]}
+if(!spot)return'pas d’herbe';const boom1=ty=>{const n0=MON.fire.length;throwNade(ty,new THREE.Vector3(spot[0],GH(spot[0],spot[1])+.3,spot[1]),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];n.t=0;nadeUpdate(.016,false);return MON.fire.length-n0};
+for(const ty of[1,2,3]){const d=boom1(ty);if(d>0)msg+='type '+ty+' a allumé '+d+' ';}
+const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET.v=wet;TAC.smk.length=0}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

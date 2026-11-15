@@ -79,8 +79,8 @@ const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
 function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
 function invPick(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
-function invLoot(b){const p=b.g.position,r=Math.random,sp=()=>[p.x+rnd(-.7,.7),p.y+.6,p.z+rnd(-.7,.7)];
-const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.8,.8),rnd(-.8,.8),bag)};
+function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.28,sp=()=>{const a=a0+lk++*2.4,d=1.35+(lk%3)*.3+r()*.15;return[p.x+Math.cos(a)*d,p.y+.45,p.z+Math.sin(a)*d]};// anneau autour du corps, écart 2,4 rad : rien sur le cadavre ni les uns sur les autres
+const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
 if(r()<.75)add('z'+[0,0,1,2,3][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
 if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}

@@ -197,13 +197,11 @@ const sel=NADE.sel,ovd=$('ov').style.display;$('ov').style.display='none';NADE.s
 const n0=TAC.smk.length,nz0=NZ.n,r0=NZ.r;const x=P.x+60,z=P.z+60,y=GH(x,z);throwNade(3,new THREE.Vector3(x,y+.3,z),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];if(!n||n.type!==3)return'lancer';n.t=0;nadeUpdate(.016,false);
 if(TAC.smk.length!==n0+1)return'pas de nuage '+(TAC.smk.length-n0);if(NZ.r>30)return'trop bruyant '+NZ.r;
 const a=y+1.5;const blocked=losClear(x-10,a,z,x+10,a,z)===false;TAC.smk.length=n0;if(!blocked)return'vue non bloquée';return''});
-T('Vent : fanions orientés et affaissés selon le vent balistique, fumée entraînée',()=>{
-if(!REA.ok)reaTick(.016);if(VNT.fl.length<4)return'fanions '+VNT.fl.length;
-const w6=wcur[6],wd=WND.d.value.clone(),bx=BAL.wx,bz=BAL.wz,f=VNT.fl[0];
-WND.d.value.set(1,0);wcur[6]=1.4;vntTick(.016);const sp=VNT.sp,z1=f.cloth.rotation.z,y1=f.hinge.rotation.y;
-wcur[6]=0;vntTick(.016);const z0=f.cloth.rotation.z,sp0=VNT.sp;
-let msg='';if(sp<5||sp0>=sp)msg+='vitesse '+sp.toFixed(1)+'/'+sp0.toFixed(1)+' ';if(Math.abs(y1)>.05)msg+='orientation '+y1.toFixed(2)+' ';if(z1<=z0+.4)msg+='affaissement ';
-WND.d.value.set(0,1);vntTick(.016);const y2=f.hinge.rotation.y;if(Math.abs(Math.abs(y2)-Math.PI/2)>.05)msg+='sens '+y2.toFixed(2)+' ';
+T('Vent : herbe et vent balistique alignés (direction WND.d), vitesse selon la météo, fumée entraînée',()=>{
+const w6=wcur[6],wd=WND.d.value.clone(),bx=BAL.wx,bz=BAL.wz;let msg='';
+WND.d.value.set(1,0);wcur[6]=1.4;vntTick(.016);const sp=VNT.sp,an=VNT.ang;wcur[6]=0;vntTick(.016);const sp0=VNT.sp;
+if(sp<5||sp0>=sp)msg+='vitesse '+sp.toFixed(1)+'/'+sp0.toFixed(1)+' ';if(Math.abs(an)>.05)msg+='direction '+an.toFixed(2)+' ';
+WND.d.value.set(0,1);vntTick(.016);if(Math.abs(VNT.ang-Math.PI/2)>.05)msg+='sens '+VNT.ang.toFixed(2)+' ';
 WND.d.value.copy(wd);wcur[6]=w6;
 BAL.wx=6;BAL.wz=0;const p0=new THREE.Vector3(0,2,0);emit(p0,new THREE.Vector3(),{life:4,size:1,w:1});const pp=pPool[pI];for(let i=0;i<40;i++)pUpdate(.05);
 if(pp.pos.x<1.5)msg+='fumée immobile '+pp.pos.x.toFixed(2);pp.on=false;BAL.wx=bx;BAL.wz=bz;return msg});
@@ -250,6 +248,11 @@ inRoom=ir;const n0=BAL.bl.length,am=Object.keys(BAM)[0],o=new THREE.Vector3(),d=
 A.supp=false;const q0=balSpawn(o,d,am,{src:'p'});A.supp=true;const q1=balSpawn(o,d,am,{src:'p'});const r=Math.abs(q1.vz)/Math.abs(q0.vz);if(r>.95||r<.9)msg+='silencieux '+r.toFixed(3)+' ';
 BAL.bl.length=Math.min(BAL.bl.length,n0);return msg
 }finally{losClear=lc;inRoom=ir;Math.random=mr;flOn=fl0;ILON=il0;TOD.t=tt;m.l=l0;P.yaw=pyw;P.pitch=ppi;A.supp=s0;Object.assign(b,{dead:sv.dead,sur:sv.sur,alert:sv.alert,blind:sv.blind});b.g.position.copy(sv.pos)}});
+T('Grenades : seule la fragmentation met le feu à l’herbe (pas flash, assourdissante, fumigène)',()=>{const wet=WET.v;WET.v=0;let msg='';try{
+let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60,60);if(fireCan(x,z)&&fireCan(x+4,z)&&fireCan(x-4,z)&&fireCan(x,z+4)&&fireCan(x,z-4))spot=[x,z]}
+if(!spot)return'pas d’herbe';const boom1=ty=>{const n0=MON.fire.length;throwNade(ty,new THREE.Vector3(spot[0],GH(spot[0],spot[1])+.3,spot[1]),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];n.t=0;nadeUpdate(.016,false);return MON.fire.length-n0};
+for(const ty of[1,2,3]){const d=boom1(ty);if(d>0)msg+='type '+ty+' a allumé '+d+' ';}
+const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET.v=wet;TAC.smk.length=0}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

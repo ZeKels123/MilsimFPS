@@ -30,7 +30,7 @@ wf=.04+.08*position.y;fl=.9;
 #else
 wf=position.y*position.y*.11;fl=.3;
 #endif
-float ph=dot(wo.xz,vec2(.31,.27)),gu=.55+.45*sin(uWt*.5+dot(wo.xz,uWd)*.09),g=(sin(uWt*1.6+ph)*.6+sin(uWt*2.9+ph*1.7)*.3+.5)*gu;
+float ph=dot(wo.xz,vec2(.31,.27)),gu=.55+.45*sin(uWt*.5-dot(wo.xz,uWd)*.09),g=(sin(uWt*1.6+ph)*.6+sin(uWt*2.9+ph*1.7)*.3+.5)*gu+.4;
 mvPosition.xz+=uWd*(g*uWs*wf*2.2)+vec2(sin(uWt*5.3+mvPosition.x*2.1+mvPosition.y*3.),cos(uWt*4.7+mvPosition.z*2.3))*(wf*fl*.12*(.4+uWs));
 #if WK>=6
 float lp=dot(position,vec3(7.1,5.3,6.7));mvPosition.xyz+=vec3(sin(uWt*4.1+lp),sin(uWt*3.3+lp*1.3)*.5,cos(uWt*3.7+lp*.9))*(.02+.075*uWs)*(.55+.45*sin(uWt*.9+ph));
