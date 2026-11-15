@@ -14,7 +14,7 @@ const WXT=[[.45,.4,0,0,.15],[.3,.3,.3,0,.1],[0,.35,.35,.3,0],[0,.2,.8,0,0],[.5,.
 function wxaNext(){const cur=TOD.tgt,w=WXT[cur].slice(),h=TOD.t;
  if(h>4.3&&h<8.8&&cur<=1)w[4]+=.5;if(h>11&&h<17&&cur===0)w[1]+=.15;
  if(cur<=1)w[cur]=Math.max(0,w[cur]-.2);
- let s=0;for(let i=0;i<5;i++){if(i===cur)w[i]*=.2;s+=w[i]}let r=Math.random()*s;for(let i=0;i<5;i++){r-=w[i];if(r<=0)return i}return (cur+1)%5}
+ let s=0;for(let i=0;i<5;i++){if(i===cur)w[i]=0;s+=w[i]}let r=Math.random()*s;for(let i=0;i<5;i++){r-=w[i];if(r<=0)return i}return (cur+1)%5}
 function wxaTick(dt){
  if(TOD.tgt!==WXA.last)WXA.lock=600
  if(WXA.lock>0){WXA.lock-=dt;WXA.last=TOD.tgt;return}

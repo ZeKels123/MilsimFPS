@@ -25,7 +25,7 @@ sg.add(b.wp);b.sld=sd;b.g.add(sg);
 b.g.traverse(o=>{if(o.isMesh&&o!==sm&&!(b.wps.includes(o))&&o!==b.flash){Object.defineProperty(o,'visible',{get:()=>false,set:()=>{}});o.castShadow=false}});
 sd.pose=(dt)=>{};return sd}
 const SLC={walk:1,run:1,fire:1,reload:1,death:0,strafe:1,idle:1};
-function sldPick(b,mv){if(b.dead)return'death';if(b.relT>0)return'reload';if(b.crA>.4)return'idle';if(mv&&b.mvA>.25){return b.T.sp*(b.spK||1)*(b.hm||1)>3.4?'run':'walk'}return'fire'}
+function sldPick(b,mv){if(b.dead)return'death';if(b.relT>0)return b.crA>.4?'idle':'fire';if(b.crA>.4)return'idle';if(mv&&b.mvA>.25){return b.T.sp*(b.spK||1)*(b.hm||1)>3.4?'run':'walk'}return'fire'}
 const _slg=new THREE.Quaternion(),_sly=new THREE.Quaternion(),_sle=new THREE.Euler(0,0,0,'YXZ'),_slw=new THREE.Matrix4(),_slo=new THREE.Matrix4().compose(new THREE.Vector3(0,0,0),new THREE.Quaternion(),new THREE.Vector3(1,1,1));
 const _slf=new THREE.Vector3(),_slu=new THREE.Vector3(),_slx=new THREE.Vector3();const _slv1=new THREE.Vector3(1,1,1),_slv2=new THREE.Vector3();var SLW={p:[.0,.0,.0],r:[0,0,0]};
 function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);sldLodTick(b,d);
@@ -46,6 +46,7 @@ const hb=sd.bones[sd.hand],hr=hb.position,hl=sd.bones[sd.hl].position,wi=b.wi;if
 if(sd.cur==='fire'||!SLS.rel[wi]){_slf.subVectors(hl,hr);const fl=_slf.length();if(fl>.05){_slf.divideScalar(fl);_slu.set(0,1,0).addScaledVector(_slf,-_slf.y).normalize();_slx.crossVectors(_slu,_slf);_slw.makeBasis(_slx,_slu,_slf);b.wp.quaternion.setFromRotationMatrix(_slw);b.wp.position.copy(hr).addScaledVector(_slu,.02).addScaledVector(_slf,(fl-BWG[wi][1])*.5-.02);
 if(sd.cur==='fire'&&sd.bl>=1){b.wp.updateMatrix();_slo.compose(hb.position,hb.quaternion,_slv1);SLS.rel[wi]=_slo.clone().invert().multiply(b.wp.matrix)}}}
 else{_slo.compose(hb.position,hb.quaternion,_slv1).multiply(SLS.rel[wi]);_slo.decompose(b.wp.position,b.wp.quaternion,_slv2)}
+if(b.relT>0&&!b.dead){const rk=Math.sin(Math.min(1,b.relT/1.2)*Math.PI);b.wp.rotateX(-.5*rk);b.wp.position.y-=.05*rk}
 if(b.armK>.01&&!b.dead)sldArms(b,sd);
 }}
 // ---- déclinaisons par type : teinte, casque, gilet, sac, épaulières attachés aux os (offsets exprimés dans le repère monde de la pose de repos)

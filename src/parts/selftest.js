@@ -2,6 +2,7 @@
 window.__errs=[];addEventListener('error',e=>window.__errs.push(String(e.message||e)));addEventListener('unhandledrejection',e=>window.__errs.push('promesse : '+(e.reason&&e.reason.message||e.reason)));
 function SELFTEST(){const RS=[];const T=(n,f)=>{try{const v=f();if(v===false||(typeof v==='string'&&v))RS.push({n,ok:false,m:typeof v==='string'?v:''});else RS.push({n,ok:true})}catch(e){RS.push({n,ok:false,m:String(e&&e.message||e)})}};
 const fin=x=>typeof x==='number'&&isFinite(x);
+const camP=f=>{const cp=C.position.clone(),cq=C.quaternion.clone();C.position.set(P.x,(P.gy||0)+1.7,P.z);C.rotation.set(0,P.yaw,0);C.updateMatrixWorld();try{return f()}finally{C.position.copy(cp);C.quaternion.copy(cq);C.updateMatrixWorld()}};
 T('Fonctions principales présentes',()=>{const need=['fire','reload','equip','setWeapon','throwNade','nadeBoom','playerThrow','hlApply','hlReset','aiUpdate','mdl','GH','castShot','barrelHit','groundAt'];const miss=need.filter(n=>{try{return typeof eval(n)!=='function'}catch(e){return true}});return miss.length?'manquantes : '+miss.join(', '):''});
 T('Aucune erreur JavaScript au chargement',()=>window.__errs.length?window.__errs.slice(0,3).join(' | '):'');
 T('Carte : hauteur du terrain valide partout',()=>{for(let i=0;i<200;i++){const x=(Math.random()*2-1)*(MH-5),z=(Math.random()*2-1)*(MH-5);if(!fin(GH(x,z)))return 'GH('+x.toFixed(0)+','+z.toFixed(0)+') invalide'}return ''});
@@ -256,14 +257,34 @@ const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET
 T('Test : F8 2e appui gèle les bots, F7 fait apparaître un ennemi devant, jambes touchées = marche ralentie',()=>{
 const o0=ENM.off,f0=ENM.fz,ovd=$('ov').style.display;let msg='';$('ov').style.display='none';
 const key=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c}));
-try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';aiUpdate(.016,false);aiUpdate(.016,false);{let n=0;for(const q of bots)if(!(q.dead>0)&&q.g.visible&&(!q.sld||q.sld.sg.visible))n++;if(n!==1)msg+='gelés visibles '+n+' (attendu 1) '}
+const cq=C.quaternion.clone(),cp0=C.position.clone();try{C.position.set(P.x,(P.gy||0)+1.7,P.z);C.rotation.set(0,P.yaw,0);C.updateMatrixWorld();ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';aiUpdate(.016,false);aiUpdate(.016,false);{let n=0;for(const q of bots)if(!(q.dead>0)&&q.g.visible&&(!q.sld||q.sld.sg.visible))n++;if(n!==1)msg+='gelés visibles '+n+' (attendu 1) '}
 const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;
 const x0=b.g.position.x,z0=b.g.position.z;b.path=[[x0+20,z0],[x0+30,z0]];b.pi=0;for(let i=0;i<10;i++)aiUpdate(.5,false);if(Math.hypot(b.g.position.x-x0,b.g.position.z-z0)>.01)msg+='bot gelé qui bouge ';
 bhInit(b);for(let i=0;i<20&&b.zh.ll>=b.zm.ll*.5;i++)bhHit(b,'ll',8,'b');aiUpdate(.1,false);const h1=b.hm;bhHit(b,'rl',b.zm.rl*1.2,'b');aiUpdate(.1,false);const h2=b.hm;
 if(!(h1<.9&&h1>.7))msg+='1 jambe touchée '+h1.toFixed(2)+' ';if(!(h2<.4))msg+='2 jambes touchées '+h2.toFixed(2)+' ';if(ENF.last!==b||ENF.zone!=='rl')msg+='dernier impact ';
 const px=P.x,pz=P.z,yw=P.yaw;P.yaw=0;key('F7');let c=null,bd=1e9;for(const q of bots){if(q.dead>0)continue;const dx=q.g.position.x-P.x,dz=q.g.position.z-P.z,d=Math.hypot(dx,dz);if(d<bd&&dz<0){bd=d;c=q}}
 if(!c||bd>13)msg+='pas d’ennemi devant '+bd.toFixed(1)+' ';P.yaw=yw;key('F8');if(ENM.fz)msg+='3e appui ';
-}finally{ENM.off=o0;ENM.fz=f0;$('ov').style.display=ovd}return msg});
+}finally{C.quaternion.copy(cq);C.position.copy(cp0);ENM.off=o0;ENM.fz=f0;$('ov').style.display=ovd}return msg});
+T('Hitbox des bots : capsules sur le squelette (tête, thorax, ventre, bras, jambes), bras droit touché = arme lâchée',()=>{
+const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;let msg='';const sv={dead:b.dead,pos:b.g.position.clone()},cp0=C.position.clone(),cq0=C.quaternion.clone();C.position.set(P.x,(P.gy||0)+1.7,P.z);C.rotation.set(0,P.yaw,0);C.updateMatrixWorld();
+try{const fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);fw.y=0;fw.normalize();const bx=C.position.x+fw.x*12,bz=C.position.z+fw.z*12;b.g.position.set(bx,GH(bx,bz),bz);for(let i=0;i<6;i++)sldUpdate(b,.05,false);b.g.updateMatrixWorld(true);
+if(!b.hbx||b.hbx.length!==13)return'capsules '+(b.hbx&&b.hbx.length);if(b.parts.some(o=>!o.userData.hbx))msg+='anciennes boîtes encore testées ';
+const bn=b.sld.bones,ix=SLS.ix,pt=(n,k)=>{const p=new THREE.Vector3();bn[ix[n]].getWorldPosition(p);const q=new THREE.Vector3();bn[ix[k]].getWorldPosition(q);return p.add(q).multiplyScalar(.5)};
+const chk=(n,k,zs)=>{const c=pt(n,k);let ok=0;for(const d of[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]]){const o=c.clone().addScaledVector(new THREE.Vector3(...d),1.2);RC.set(o,new THREE.Vector3(-d[0],-d[1],-d[2]));RC.far=2.5;const h=RC.intersectObjects(b.parts)[0];if(h&&zs.includes(h.object.userData.head?'h':h.object.userData.zone))ok=1}return ok};
+const tests=[['LeftUpLeg','LeftLeg',['ll']],['RightLeg','RightFoot',['rl']],['LeftForeArm','LeftHand',['la']],['RightForeArm','RightHand',['ra']],['Spine1','Spine2',['t']],['Hips','Spine',['a']]];
+for(const t of tests)if(!chk(t[0],t[1],t[2]))msg+='zone '+t[2]+' ';
+const hp=new THREE.Vector3();bn[ix.Head].getWorldPosition(hp);hp.y+=.1;{let ok=0;for(const d of[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]]){const o=hp.clone().addScaledVector(new THREE.Vector3(...d),1.2);RC.set(o,new THREE.Vector3(-d[0],0,-d[2]));RC.far=2.5;const h=RC.intersectObjects(b.parts)[0];if(h&&h.object.userData.head)ok=1}if(!ok)msg+='tête '}
+// mort : les capsules suivent le corps couché
+b.dead=5;for(let i=0;i<40;i++)sldUpdate(b,.1,false);b.g.updateMatrixWorld(true);if(!chk('Hips','Spine',['a','t','ll','rl']))msg+='corps couché ';b.dead=0;
+// bras droit (près du joueur pour ne pas être dormant)
+b.g.position.set(P.x+30,GH(P.x+30,P.z),P.z+30);b.dorm=0;bhInit(b);b.wp.visible=true;const rr=Math.random;Math.random=()=>0;for(let i=0;i<30&&!(b.fxl&2);i++)bhHit(b,'ra',9,'b');aiUpdate(.1,false);Math.random=rr;
+if(!(b.fxl&2))msg+='pas de fracture du bras ';if(!b.unarm)msg+='arme non lâchée ';
+return msg}finally{C.position.copy(cp0);C.quaternion.copy(cq0);b.dead=sv.dead;b.g.position.copy(sv.pos);b.armDone=0;b.unarm=0;bhInit(b)}});
+T('Arme des bots : pendant le rechargement elle reste à hauteur de poitrine (pas aux genoux), accroupi comme debout',()=>{
+const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;const sv={pos:b.g.position.clone(),relT:b.relT,crA:b.crA,cr:b.cr};let msg='';
+try{return camP(()=>{const fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);fw.y=0;fw.normalize();const bx=C.position.x+fw.x*12,bz=C.position.z+fw.z*12;b.g.position.set(bx,GH(bx,bz),bz);b.fy=b.g.position.y;b.wp.visible=true;const w=new THREE.Vector3();
+for(const cr of[0,1]){b.crA=cr;b.cr=cr;b.relT=1;for(let i=0;i<30;i++){b.relT=1;sldUpdate(b,.05,false)}b.g.updateMatrixWorld(true);b.wp.getWorldPosition(w);const hh=w.y-b.g.position.y;if(hh<(cr?.7:1))msg+='arme trop basse '+hh.toFixed(2)+' (accroupi='+cr+') '}
+return msg})}finally{b.g.position.copy(sv.pos);b.relT=sv.relT;b.crA=sv.crA;b.cr=sv.cr}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

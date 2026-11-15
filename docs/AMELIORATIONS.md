@@ -566,3 +566,10 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 - **F7** fait apparaître un ennemi à 5–12 m devant le joueur (en réutilisant un bot mort ou le plus éloigné), tourné vers lui ; il attaque tout de suite sauf si les bots sont gelés. Si les ennemis étaient désactivés, ils sont réactivés.
 - **Jambes** : la perte de vitesse existait (−10 % jambe à moins de 50 %, −42 % jambe détruite ou fracturée) mais était à peine perceptible. Valeurs portées à −18 % et −50 %, et l'animation de marche suit maintenant la vitesse réelle (un bot blessé marche au lieu de courir, plus lentement). Une fracture est déclenchée par un seul impact ≥ 20 dégâts.
 - **F8, 2e appui (version finale)** : un seul bot gelé apparaît à 9 m devant le joueur (visible, immobile, qui encaisse les tirs) ; tous les autres restent désactivés. F7 en ajoute un à la fois. Le 3e appui réactive tout le monde. Correctif associé : le mode gelé rafraîchit maintenant l'animation/le maillage des bots (ils restaient invisibles).
+
+## v43.5 — Hitbox sur le squelette, bras, rechargement
+
+- **Hitbox** : 13 capsules (tête, torse, abdomen, bras, jambes) suivent les os du soldat à chaque pose ; les balles touchent ces capsules (zones h/t/a/la/ra/ll/rl). **F5** les affiche en fil de fer coloré par zone (visibles à moins de 90 m).
+- **Arme lâchée** : tir au bras droit → 90 % de chance de lâcher l'arme ; un bras droit déjà bien abîmé peut aussi se fracturer (30 %).
+- **Rechargement des bots** : plus de clip Mixamo (arme aux genoux) ; pose de tir/repos avec léger basculement de l'arme, à hauteur de poitrine debout comme accroupi.
+- Tests : 62/62 (tests F8/F7, hitbox et arme rendus indépendants de la caméra).

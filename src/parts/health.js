@@ -129,12 +129,12 @@ function bhHit(b,z,dm,k){let a=0,brk=0;if(!b.zh)bhInit(b);
 if(z==='h')dm*=k==='g'?1.3:3;else if((z==='t'||z==='a')&&b.ar>0){a=1;b.ar-=dm;if(b.ar<=0){dm=-b.ar;b.ar=0;b.vest.visible=false;brk=1}else dm=0}
 if(dm>0){b.lz=z;const limb=hlLimb(z);if(limb&&b.zh[z]<=0){b.zh.t-=dm*.35}else b.zh[z]=Math.max(0,b.zh[z]-dm);
 if(dm>=4&&!b.bdz)b.bdz={};if(dm>=4)b.bdz[z]=Math.max(b.bdz[z]||0,dm>=18?2:1);
-if(limb&&(dm>=20||b.zh[z]<=0))b.fxl|=({la:1,ra:2,ll:4,rl:8})[z]}
+if(limb&&(dm>=20||b.zh[z]<=0))b.fxl|=({la:1,ra:2,ll:4,rl:8})[z];if(z==='ra'&&!b.armDone&&b.zh.ra<b.zm.ra*.5&&Math.random()<.3)b.fxl|=2}
 let s=0;for(const q in BHW)s+=BHW[q]*b.zh[q]/b.zm[q];b.hp=Math.max(1,b.T.hp*s);if(b.zh.h<=0||b.zh.t<=0)b.hp=0;return{a,brk}}
 function bhOut(b){b.bout=1;b.hp=0;if(b.pk)onKill(b,false);else botDie(b)}
 function bhUpdate(b,dt){if(!b.zh)bhInit(b);if(b.bdz){let r=0;for(const z in b.bdz)r+=b.bdz[z]===2?1.6:.3;if(b.zh.a<=0)r+=3.2;b.blood-=r*dt;if(b.blood<=0&&!b.dead){bhOut(b);return}}else if(b.zh.a<=0&&!b.dead){b.blood-=3.2*dt;if(b.blood<=0){bhOut(b);return}}
 let p=0;const f=b.fxl;[['ll',4],['rl',8]].forEach(q=>{const lv=(f&q[1])||b.zh[q[0]]<=0?2:b.zh[q[0]]<b.zm[q[0]]*.5?1:0;p+=lv===2?.5:lv===1?.18:0});b.hm=Math.max(.22,1-p);if(p>=.8)b.cr=1;
-let am=1;const rb=(f&2)||b.zh.ra<=0,lb=(f&1)||b.zh.la<=0;if(rb){if(!b.armDone){b.armDone=1;if(Math.random()<.55){b.unarm=1;dropWeapon(b,0);b.wp.visible=false}}am*=b.unarm?1:2.6}else if(b.zh.ra<b.zm.ra*.5)am*=1.3;if(lb)am*=1.5;b.aimM=am;b.rld=lb?1.5:1}
+let am=1;const rb=(f&2)||b.zh.ra<=0,lb=(f&1)||b.zh.la<=0;if(rb){if(!b.armDone){b.armDone=1;if(Math.random()<.9){b.unarm=1;dropWeapon(b,0);b.wp.visible=false}}am*=b.unarm?1:2.6}else if(b.zh.ra<b.zm.ra*.5)am*=1.3;if(lb)am*=1.5;b.aimM=am;b.rld=lb?1.5:1}
 // éclats de grenade sur un bot : rayons répartis sur le corps, bloqués par les murs
 function hlBlastBot(b,E,R,n,own){const g=b.g.position,d=Math.hypot(g.x-E.x,g.y+1-E.y,g.z-E.z);if(d>R)return;const k=1-d/R,nf=Math.min(16,Math.round(80/Math.max(1,d*d))),sc=b.T.sc;let hit=0;if(!b.zh)bhInit(b);
 if(own){b.bl={x:E.x,z:E.z};b.pk=1}
