@@ -94,6 +94,6 @@ FA.birds.forEach((q,i)=>{const was=BRN.prev[i];BRN.prev[i]=q.st;if(was===1&&q.st
 if(BRN.cue){const c=BRN.cue;c.t-=dt;if(c.t<=0){BRN.cue=null;bce.style.display='none'}else{const dx=c.x-P.x,dz=c.z-P.z,fa=dx*-Math.sin(P.yaw)+dz*-Math.cos(P.yaw),ra=dx*Math.cos(P.yaw)+dz*-Math.sin(P.yaw),ang=Math.atan2(ra,fa)*57.3;bce.style.display='block';bce.style.opacity=Math.min(1,c.t);bce.innerHTML='<span style="display:inline-block;transform:rotate('+ang.toFixed(0)+'deg);font-size:20px">▲</span><br>'+c.txt+' · '+Math.round(Math.hypot(dx,dz))+' m'}}}
 
 // ---------- F8 : désactiver / réactiver les ennemis (test, exploration) ----------
-const ENM={off:0};
-addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();ENM.off=!ENM.off;if(!ENM.off)bots.forEach(b=>{if(b.dead>50)b.dead=.3});hlMsg(ENM.off?'Ennemis désactivés (F8 pour les réactiver)':'Ennemis réactivés')}});
+const ENM={off:0,fz:0};
+addEventListener('keydown',e=>{if(e.code==='F8'&&!e.repeat){e.preventDefault();if(!ENM.off&&!ENM.fz){ENM.off=1;hlMsg('Ennemis désactivés (F8 : les geler)')}else if(ENM.off){ENM.off=0;ENM.fz=1;bots.forEach(b=>{if(b.dead>50){b.dead=0;spawn(b)}});hlMsg('Ennemis gelés — F7 : en faire apparaître un · F8 : les réactiver')}else{ENM.fz=0;hlMsg('Ennemis réactivés')}}});
 function enmTick(){if(!ENM.off)return;for(const b of bots){b.dead=99;b.g.visible=false}}

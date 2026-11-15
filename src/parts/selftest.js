@@ -253,6 +253,17 @@ let spot=null;for(let i=0;i<80&&!spot;i++){const x=P.x+rnd(-60,60),z=P.z+rnd(-60
 if(!spot)return'pas d’herbe';const boom1=ty=>{const n0=MON.fire.length;throwNade(ty,new THREE.Vector3(spot[0],GH(spot[0],spot[1])+.3,spot[1]),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];n.t=0;nadeUpdate(.016,false);return MON.fire.length-n0};
 for(const ty of[1,2,3]){const d=boom1(ty);if(d>0)msg+='type '+ty+' a allumé '+d+' ';}
 const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET.v=wet;TAC.smk.length=0}return msg});
+T('Test : F8 2e appui gèle les bots, F7 fait apparaître un ennemi devant, jambes touchées = marche ralentie',()=>{
+const o0=ENM.off,f0=ENM.fz,ovd=$('ov').style.display;let msg='';$('ov').style.display='none';
+const key=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c}));
+try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';
+const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;
+const x0=b.g.position.x,z0=b.g.position.z;b.path=[[x0+20,z0],[x0+30,z0]];b.pi=0;for(let i=0;i<10;i++)aiUpdate(.5,false);if(Math.hypot(b.g.position.x-x0,b.g.position.z-z0)>.01)msg+='bot gelé qui bouge ';
+bhInit(b);for(let i=0;i<20&&b.zh.ll>=b.zm.ll*.5;i++)bhHit(b,'ll',8,'b');aiUpdate(.1,false);const h1=b.hm;bhHit(b,'rl',b.zm.rl*1.2,'b');aiUpdate(.1,false);const h2=b.hm;
+if(!(h1<.9&&h1>.7))msg+='1 jambe touchée '+h1.toFixed(2)+' ';if(!(h2<.4))msg+='2 jambes touchées '+h2.toFixed(2)+' ';if(ENF.last!==b||ENF.zone!=='rl')msg+='dernier impact ';
+const px=P.x,pz=P.z,yw=P.yaw;P.yaw=0;key('F7');let c=null,bd=1e9;for(const q of bots){if(q.dead>0)continue;const dx=q.g.position.x-P.x,dz=q.g.position.z-P.z,d=Math.hypot(dx,dz);if(d<bd&&dz<0){bd=d;c=q}}
+if(!c||bd>13)msg+='pas d’ennemi devant '+bd.toFixed(1)+' ';P.yaw=yw;key('F8');if(ENM.fz)msg+='3e appui ';
+}finally{ENM.off=o0;ENM.fz=f0;$('ov').style.display=ovd}return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

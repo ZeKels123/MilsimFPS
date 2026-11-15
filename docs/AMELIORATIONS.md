@@ -560,3 +560,8 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 - **Placement du butin** : les objets lâchés par un bot ou sortis d'une caisse sont posés en anneau autour du corps (1,3–2 m, écart angulaire de 2,4 rad), sans vitesse initiale notable, au lieu d'être jetés au hasard sur le cadavre et les uns sur les autres.
 - **Correction** : seule la grenade à fragmentation provoque désormais l'explosion destructrice (`dstBlast`) et donc l'incendie de l'herbe ; flash, assourdissante et fumigène ne brûlent plus rien (le build appelait `dstBlast` pour tous les types).
 - Limites : les caisses ne se sauvegardent pas, le vent n'est pas affiché dans la lunette.
+
+## v43.2 — Outils de test (F7/F8) et jambes des bots
+- **F8** fait maintenant trois états : 1er appui = ennemis désactivés (comme avant), 2e appui = ennemis **gelés** (ils réapparaissent, restent immobiles, ne tirent ni ne voient, mais encaissent les tirs), 3e appui = réactivés. Un panneau à droite détaille le dernier bot touché en mode gelé : zone et dégâts du dernier impact, points de vie par zone, fracture éventuelle, vitesse de marche en %, sang, malus de visée.
+- **F7** fait apparaître un ennemi à 5–12 m devant le joueur (en réutilisant un bot mort ou le plus éloigné), tourné vers lui ; il attaque tout de suite sauf si les bots sont gelés. Si les ennemis étaient désactivés, ils sont réactivés.
+- **Jambes** : la perte de vitesse existait (−10 % jambe à moins de 50 %, −42 % jambe détruite ou fracturée) mais était à peine perceptible. Valeurs portées à −18 % et −50 %, et l'animation de marche suit maintenant la vitesse réelle (un bot blessé marche au lieu de courir, plus lentement). Une fracture est déclenchée par un seul impact ≥ 20 dégâts.

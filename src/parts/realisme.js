@@ -94,7 +94,25 @@ function lumTick(dt){
   if((las||day)&&al>.985&&d<=(night?80:30)&&losClear(P.x,C.position.y,P.z,g.x,g.y+1.4,g.z)){if(!b.alert)LUM.n.laser++;aiAlert(b,P.x,P.z,0);continue}
   if(lit&&d>8&&d<60&&inRoom(g.x,g.z)<0&&Math.random()<.2&&!b.alert){LUM.n.fen++;aiAlert(b,P.x,P.z,2)}}}
 
+// ---------- 6. Outils de test : F8 (2e appui) gèle les bots, F7 fait apparaître un ennemi devant soi ----------
+const ENF={last:null,zone:'',dm:0,el:null};
+const au0=aiUpdate;aiUpdate=function(dt,inz){if(!ENM.fz)return au0(dt,inz);
+ for(const b of bots){if(b.dead>0){botDead(b,dt);continue}b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0)}catch(e){}}};
+const bh0=bhHit;bhHit=function(b,z,dm,k){const r=bh0(b,z,dm,k);ENF.last=b;ENF.zone=z;ENF.dm=dm;return r};
+function enfSpawn(){
+ if(ac.on||HM.dead)return;if(ENM.off){ENM.off=0;bots.forEach(b=>{if(b.dead>50){b.dead=0;spawn(b)}})}
+ let c=bots.find(b=>b.dead>0),bd=-1;if(!c)for(const b of bots){if(b.sur)continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}
+ if(!c)return;const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);let ok=0;
+ for(const d of[9,7,12,5]){const x=P.x+fx*d,z=P.z+fz*d;if(typeof free_==='function'&&!free_(x,z))continue;spawn(c);c.g.position.set(x,GH(x,z),z);aiReset(c,c.ty);c.g.rotation.y=c.yaw=Math.atan2(P.x-x,P.z-z);c.g.visible=true;c.dorm=0;ok=1;if(!ENM.fz)aiAlert(c,P.x,P.z,0);break}
+ hlMsg(ok?(ENM.fz?'Ennemi gelé devant toi':'Ennemi apparu devant toi'):'Pas de place devant toi');return ok?c:null}
+addEventListener('keydown',e=>{if(e.code==='F7'&&!e.repeat&&$('ov').style.display==='none'){e.preventDefault();enfSpawn()}});
+function enfHud(){
+ if(!ENF.el){const d=document.createElement('div');d.style.cssText='position:fixed;right:10px;top:42%;font:11px monospace;color:#dfe8d0;background:rgba(10,16,10,.7);border:1px solid #3d5230;padding:6px 8px;pointer-events:none;z-index:6;display:none;line-height:1.5';document.body.appendChild(d);ENF.el=d}
+ const b=ENF.last;if(!ENM.fz||!b||b.dead>0&&!b.zh){ENF.el.style.display='none';return}
+ const z=b.zh,m=b.zm,r=k=>Math.max(0,Math.round(z[k]))+'/'+Math.round(m[k]);
+ ENF.el.style.display='block';ENF.el.innerHTML='<b>BOT GELÉ</b> '+(b.dead>0?'(mort)':'')+'<br>dernier impact : '+(HZN[ENF.zone]||ENF.zone)+' −'+Math.round(ENF.dm)+'<br>tête '+r('h')+' · thorax '+r('t')+' · ventre '+r('a')+'<br>bras G '+r('la')+' · D '+r('ra')+'<br>jambe G '+r('ll')+' · D '+r('rl')+(b.fxl&12?' (fracture)':'')+'<br>vitesse de marche : '+Math.round((b.hm||1)*100)+' %<br>sang '+Math.round(b.blood)+' % · visée ×'+(b.aimM||1).toFixed(1)}
+
 // ---------- tick global ----------
 function reaTick(dt){
  if(!REA.ok){if(P.gy===undefined)return;REA.ok=1;try{fouBuild()}catch(e){console.error('rea',e)}}
- vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt)}
+ vntTick(dt);wxaTick(dt);mooTick(dt);fouTick(dt);lumTick(dt);enfHud()}
