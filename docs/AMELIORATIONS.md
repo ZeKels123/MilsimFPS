@@ -616,3 +616,12 @@ Passage de 4 à 8 escouades (constante `SQN` dans `squad.js`) et de 36 à 40 enn
 - **Poseurs de pièges** : un par escouade (au lieu d'un bot sur cinq au hasard). En garde, il se place côté joueur à 9 m et pose sur l'axe d'approche. Les bots posent aussi aux étages (hauteur du sol réelle).
 - Nouvelles phrases (oSucc, oMove, oHalt) ; `docs/VOIX.md` couvre désormais aussi les ordres de `orders.js` (75 phrases).
 - Tests : succession et moral, emplacements de formation, mission + ordres de route, un poseur par escouade, piège posé à l'étage.
+
+## v48 — Embuscades, mémoire du joueur, rôles qui comptent
+- **Mémoire du joueur** (`PMEM`) : carte de chaleur à cellules de 40 m des endroits où il a été vu, cap récent (échantillon toutes les 3 s) et part du temps passé en hauteur (> 2,2 m au-dessus du sol). Session uniquement, rien n'est sauvegardé.
+- **Missions** : 20 % d'embuscade (si le joueur a un cap clair), 20 % de retour sur la zone de contact la plus chaude (« On repasse là où il nous est tombé dessus »), sinon patrouille / garde / fouille.
+- **Embuscade** : l'escouade se place accroupie en ligne à 45–70 m devant le joueur sur son cap, face à lui ; le poseur de pièges mine la zone en avant. Elle se déclenche quand le joueur passe à moins de 26 m de l'un d'eux (alerte générale) et s'annule si le joueur s'éloigne.
+- **Tireur en surplomb** : à la mise en garde / embuscade, le tireur d'élite prend un poste en hauteur ; si le joueur joue souvent en hauteur (> 40 % des contacts), un deuxième homme monte aussi.
+- **Suppression** : une balle de bot qui passe à moins de 3,5 m de la tête assombrit les bords de l'écran, fait trembler la visée et ouvre la dispersion (jusqu'à +80 %) ; l'effet retombe en quelques secondes. L'appui lourd qui tire sur la dernière position connue rend donc le fait de rester à découvert coûteux.
+- **Tenaille** : deux groupes rejoignent les flancs opposés (16 m de part et d'autre, 8 m en retrait) et chargent ensemble, sur le cri du chef, quand les deux sont en position (ou après 16 s).
+- Nouvelles phrases (oAmb, oRev, oPince) ; `docs/VOIX.md` : 84 phrases.

@@ -28,6 +28,9 @@ TRIG = {
  'oReg': 'Le chef regroupe l\'escouade',
  'oSucc': 'Le chef est tombé : un camarade prend le commandement',
  'oMove': 'Le chef lance un déplacement de l\'escouade (mission)',
+ 'oAmb': 'Le chef met l\'escouade en embuscade sur l\'axe du joueur',
+ 'oRev': 'Le chef retourne fouiller une zone où le joueur a déjà été vu',
+ 'oPince': 'Le chef déclenche l\'assaut en tenaille (les deux flancs en position)',
  'oHalt': 'Le chef ordonne une halte (sécurité à 360°)',
  'evac': 'Un camarade évacue un blessé',
 }

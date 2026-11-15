@@ -1,6 +1,6 @@
 # Voix des bots — liste des dialogues
 
-Mis à jour le 2026-11-15 · 75 phrases · 3 enregistrées
+Mis à jour le 2026-11-15 · 84 phrases · 3 enregistrées
 
 État : `synthèse` (voix du navigateur) · `enregistrée` (fichier audio intégré). Régénérer : `python3 tools/voix_liste.py`.
 
@@ -78,6 +78,15 @@ Mis à jour le 2026-11-15 · 75 phrases · 3 enregistrées
 | oMove | Le chef lance un déplacement de l'escouade (mission) | En avant, restez groupés ! | synthèse |  |
 | oMove | Le chef lance un déplacement de l'escouade (mission) | On avance, gardez vos intervalles. | synthèse |  |
 | oMove | Le chef lance un déplacement de l'escouade (mission) | Mouvement, formation serrée. | synthèse |  |
+| oAmb | Le chef met l'escouade en embuscade sur l'axe du joueur | Embuscade ! Silence radio, tenez vos positions. | synthèse |  |
+| oAmb | Le chef met l'escouade en embuscade sur l'axe du joueur | On se met en embuscade, ne bougez plus. | synthèse |  |
+| oAmb | Le chef met l'escouade en embuscade sur l'axe du joueur | Planqués ! On le laisse venir. | synthèse |  |
+| oRev | Le chef retourne fouiller une zone où le joueur a déjà été vu | On repasse là où il nous est tombé dessus. | synthèse |  |
+| oRev | Le chef retourne fouiller une zone où le joueur a déjà été vu | Retournez fouiller la zone du dernier contact. | synthèse |  |
+| oRev | Le chef retourne fouiller une zone où le joueur a déjà été vu | Il était par là, on ratisse ! | synthèse |  |
+| oPince | Le chef déclenche l'assaut en tenaille (les deux flancs en position) | Tenaille ! Maintenant ! | synthèse |  |
+| oPince | Le chef déclenche l'assaut en tenaille (les deux flancs en position) | Les deux côtés, allez, allez ! | synthèse |  |
+| oPince | Le chef déclenche l'assaut en tenaille (les deux flancs en position) | Serrez-le, on y va ! | synthèse |  |
 | oHalt | Le chef ordonne une halte (sécurité à 360°) | Halte ! Sécurité à 360 ! | synthèse |  |
 | oHalt | Le chef ordonne une halte (sécurité à 360°) | On s’arrête, tenez vos secteurs. | synthèse |  |
 | oHalt | Le chef ordonne une halte (sécurité à 360°) | Stop, surveillez vos angles. | synthèse |  |

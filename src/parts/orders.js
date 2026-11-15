@@ -9,6 +9,9 @@ function ordInit(){ORD.i=1;Object.assign(VX.L,{
  oReg:['Regroupez-vous sur moi !','On se regroupe, serrez les rangs !','Tout le monde à moi !'],
  oSucc:['Je prends le commandement !','Le chef est tombé, je mène !','Serrez les rangs, je prends la tête !'],
  oMove:['En avant, restez groupés !','On avance, gardez vos intervalles.','Mouvement, formation serrée.'],
+ oAmb:['Embuscade ! Silence radio, tenez vos positions.','On se met en embuscade, ne bougez plus.','Planqués ! On le laisse venir.'],
+ oRev:['On repasse là où il nous est tombé dessus.','Retournez fouiller la zone du dernier contact.','Il était par là, on ratisse !'],
+ oPince:['Tenaille ! Maintenant !','Les deux côtés, allez, allez !','Serrez-le, on y va !'],
  oHalt:['Halte ! Sécurité à 360 !','On s’arrête, tenez vos secteurs.','Stop, surveillez vos angles.']})}
 const ORD={n:0,log:[],i:0};
 // chef explicite : celui que l'escouade a désigné (q.chef) tant qu'il est vivant, sinon le meilleur candidat

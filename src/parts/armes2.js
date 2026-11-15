@@ -6,7 +6,7 @@ function wpDrift(){const c=WC[WSEL]||{rec:1};WPX.bl=Math.min(1,WPX.bl+.05+(c.rec
  return Math.sin(WPX.n*(.55+.09*(WSEL%4))+WSEL*2.1)*.55*Math.min(1,.35+WPX.bl)}
 const wpxLoad=()=>Math.max(0,(typeof effK==='function'?effK():0));
 {const r0=wpRecoil;wpRecoil=function(){const c=WC[WSEL]||{rec:1},fl=c.rec<1.6?(1.6+(c.rec-1)*.5)/c.rec:1;return r0()*fl*(/Reclamer/.test(c.n)?1.75:1)*(1+WPX.bl*.45)*(1+WPX.fat*.4)*(1+wpxLoad()*.12)};
- const s0=wpSpread;wpSpread=function(){return s0()*(1+WPX.fat*.5)*(1+wpxLoad()*.1)};}
+ const s0=wpSpread;wpSpread=function(){return s0()*(1+(typeof SUPR==='object'?SUPR.v*.8:0))*(1+WPX.fat*.5)*(1+wpxLoad()*.1)};}
 // saleté : poussière à plat ventre au sec, boue à plat ventre sous la pluie, chute violente ; chaque arme a la sienne
 {const j0=wpJamP;wpJamP=function(s){return Math.min(.35,j0(s)*(1+(s.dirt||0)*7))};
  const c0=wpCleanStart;wpCleanStart=function(){const s=wpS(WSEL);if(!s.jam&&s.wear<.03&&(s.dirt||0)>.03&&!WPN.cl&&!reloading&&!bench){const w=s.wear;s.wear=.031;c0();s.wear=w;return}c0()};
