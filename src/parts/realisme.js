@@ -97,8 +97,13 @@ function lumTick(dt){
 // ---------- 6. Outils de test : F8 (2e appui) gèle les bots, F7 fait apparaître un ennemi devant soi ----------
 const ENF={last:null,zone:'',dm:0,el:null};
 const au0=aiUpdate;aiUpdate=function(dt,inz){if(!ENM.fz)return au0(dt,inz);
- for(const b of bots){if(b.dead>0){botDead(b,dt);continue}b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0)}catch(e){}}};
+ for(const b of bots){if(b.dead>0){botDead(b,dt);continue}b.dorm=0;b.g.visible=true;b.mvA=0;b.see=false;b.path=null;b.cd=Math.max(b.cd||0,1);b.fl=0;b.relT=0;b.stun=0;try{bhUpdate(b,0)}catch(e){}}};
 const bh0=bhHit;bhHit=function(b,z,dm,k){const r=bh0(b,z,dm,k);ENF.last=b;ENF.zone=z;ENF.dm=dm;return r};
+function enfFreeze(){
+ for(const b of bots)if(b.dead>50){b.dead=0;spawn(b)}
+ const al=bots.filter(b=>!(b.dead>0)&&!b.sur).sort((a,c)=>Math.hypot(a.g.position.x-P.x,a.g.position.z-P.z)-Math.hypot(c.g.position.x-P.x,c.g.position.z-P.z));
+ let k=0;for(const b of al){if(k>=10)break;let ok=0;for(let t=0;t<8&&!ok;t++){const a=P.yaw+(k-4.5)*.3+rnd(-.08,.08),d=7+(k%3)*5+t*1.5,x=P.x-Math.sin(a)*d,z=P.z-Math.cos(a)*d;if(typeof free_==='function'&&!free_(x,z))continue;b.g.position.set(x,GH(x,z),z);aiReset(b,b.ty);b.g.rotation.y=b.yaw=Math.atan2(P.x-x,P.z-z);b.g.visible=true;b.dorm=0;ok=1}if(ok)k++}
+ return k}
 function enfSpawn(){
  if(ac.on||HM.dead)return;if(ENM.off){ENM.off=0;bots.forEach(b=>{if(b.dead>50){b.dead=0;spawn(b)}})}
  let c=bots.find(b=>b.dead>0),bd=-1;if(!c)for(const b of bots){if(b.sur)continue;const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z);if(d>bd){bd=d;c=b}}

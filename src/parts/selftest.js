@@ -256,7 +256,7 @@ const d0=boom1(0);if(d0<=0)msg+='la fragmentation n’allume plus ';}finally{WET
 T('Test : F8 2e appui gèle les bots, F7 fait apparaître un ennemi devant, jambes touchées = marche ralentie',()=>{
 const o0=ENM.off,f0=ENM.fz,ovd=$('ov').style.display;let msg='';$('ov').style.display='none';
 const key=c=>dispatchEvent(new KeyboardEvent('keydown',{code:c}));
-try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';
+try{ENM.off=0;ENM.fz=0;key('F8');if(!(ENM.off===1&&!ENM.fz))msg+='1er appui ';key('F8');if(!(!ENM.off&&ENM.fz===1))msg+='2e appui ';{let n=0;for(const q of bots)if(!(q.dead>0)&&q.g.visible&&Math.hypot(q.g.position.x-P.x,q.g.position.z-P.z)<30)n++;if(n<5)msg+='bots gelés non visibles autour '+n+' '}
 const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;
 const x0=b.g.position.x,z0=b.g.position.z;b.path=[[x0+20,z0],[x0+30,z0]];b.pi=0;for(let i=0;i<10;i++)aiUpdate(.5,false);if(Math.hypot(b.g.position.x-x0,b.g.position.z-z0)>.01)msg+='bot gelé qui bouge ';
 bhInit(b);for(let i=0;i<20&&b.zh.ll>=b.zm.ll*.5;i++)bhHit(b,'ll',8,'b');aiUpdate(.1,false);const h1=b.hm;bhHit(b,'rl',b.zm.rl*1.2,'b');aiUpdate(.1,false);const h2=b.hm;
