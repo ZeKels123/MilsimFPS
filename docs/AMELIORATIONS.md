@@ -545,3 +545,8 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 - **Ombres** : accessoires d'intérieur non fusionnés coupés quand le joueur est dehors (ou à plus de 40 m), petits objets (< 0,3 m de rayon) sans ombre au-delà de 30 m ; listes reconstruites toutes les 15 s. Gain faible (la plupart des intérieurs sont déjà fusionnés dans les blocs de 50 m, dont l'ombre ne se coupe pas par objet).
 - **Correction** : le jeu avait déjà de la faune (oiseaux, lapins, chevreuils dans `nature2.js`) ; les oiseaux ajoutés en v38 faisaient double emploi et sont retirés.
 - Pistes non faites : fusion des pièces de portes (rayons des balles et animation à revoir), vitres en instances (elles se brisent une à une), moins de passes de post-traitement sur les machines lentes.
+
+## v42 — Grenade fumigène
+- 4e type de grenade (Fumigène, détonateur 1,4 s) : sélection avec `U` ou la molette, lancer avec `C`, 2 en stock (réapprovisionnées en zone sûre), présente dans l'inventaire, le butin et la récompense de série.
+- Elle ne fait aucun dégât et fait peu de bruit (22 m au lieu de 90 m). Elle crée le même nuage que celui des bots (rayon 1 → 7,5 m en ~3 s, 28 s de durée) : il bloque la ligne de vue des bots (`losClear`), donc on peut traverser un espace ouvert ou couvrir un repli.
+- Les bots continuent d'utiliser leurs fumigènes simulés (repli, évacuation sous le feu).

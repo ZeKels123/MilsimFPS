@@ -5,12 +5,12 @@ const BAGS={0:{n:'Poches',w:4,h:2,kg:0},S:{n:'Petit sac',w:5,h:4,kg:.8,col:0x5a6
 const CALS=['5.56','9 mm','12/70','7.62'],CIDX=[0,1,1,2,3,3],CKG=[.012,.008,.04,.025],CST=[60,60,30,30];
 const WKG=[3.6,2.5,1,3.4,5.4,9.5],WSPD=[.96,1,1.03,.92,.86,.78],WSPR=[.97,1,1.02,.93,.88,.8],ARMKG=4;
 const IT={bd:{n:'Bandage',kg:.05,w:1,h:1,st:5,col:'#cfc8ae'},tq:{n:'Garrot',kg:.15,w:1,h:1,st:3,col:'#9a3f2c'},sp:{n:'Attelle',kg:.3,w:1,h:2,st:2,col:'#6f8190'},mo:{n:'Morphine',kg:.05,w:1,h:1,st:4,col:'#cdc545'},kit:{n:'Trousse',kg:.8,w:2,h:1,st:1,col:'#bb3d3d'},pl:{n:'Plaque',kg:1.1,w:2,h:2,st:1,col:'#7d848c'},xm:{n:'Mine antipersonnel',kg:1.2,w:1,h:1,st:3,col:'#4a5230'},xc:{n:'Mine directionnelle',kg:1.6,w:2,h:1,st:2,col:'#6a7a44'},xw:{n:'Piège à fil',kg:.7,w:1,h:1,st:3,col:'#8a8a7a'},xb:{n:'Piège à ours',kg:2,w:2,h:1,st:2,col:'#6a6a6a'}};
-const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','g0','g1','g2'];
+const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','g0','g1','g2','g3'];
 const invWpn=k=>k===slot?WSEL:SLOTS[k].w;
 function invDef(id){const c0=id[0];
 if(c0==='a'){const w=invWpn(+id[1]),c=CIDX[w];return{n:'Munitions '+CALS[c]+' · '+WC[w].n,kg:CKG[c],w:1,h:1,st:CST[c],col:'#b89a4a'}}
 if(c0==='z'){const c=+id[1];return{n:'Munitions '+CALS[c],kg:CKG[c],w:1,h:1,st:CST[c],col:'#b89a4a'}}
-if(c0==='g'){const k=+id[1];return{n:'Grenade '+NT[k].n,kg:.42,w:1,h:1,st:2,col:['#55653e','#c4c4c4','#3f5a8c'][k]}}
+if(c0==='g'){const k=+id[1];return{n:'Grenade '+NT[k].n,kg:.42,w:1,h:1,st:2,col:['#55653e','#c4c4c4','#3f5a8c','#8d948d'][k]}}
 return IT[id]}
 function invAm(k,set){if(k===slot){if(set===undefined)return reserve;reserve=set}else{const s=SLOTS[k];if(set===undefined)return s.res;s.res=set}}
 function invGet(id){if(id[0]==='a')return invAm(+id[1]);if(id==='pl')return P.plates;if(id[0]==='x')return TRP.inv[id]||0;if(id[0]==='g')return NADE.inv[+id[1]];return(HM.inv&&HM.inv[id])||0}
@@ -43,7 +43,7 @@ else if(id==='mo'){rr(34,22,28,58,9,hg(34,62,'#a8a030','#e6dc58'));rr(38,6,20,20
 else if(id==='kit'){rr(12,14,168,70,12,lg(14,84,'#c24040','#8c2626'));rr(66,5,60,12,5,'#5a1a1a');rr(86,26,20,46,3,'#f2ece0');rr(73,40,46,18,3,'#f2ece0');rr(12,48,168,3,0,'rgba(0,0,0,.25)')}
 else if(id==='pl'){rr(32,16,128,160,30,lg(16,176,'#9aa2aa','#555b62'));x.lineWidth=4;x.strokeStyle='rgba(0,0,0,.35)';x.beginPath();x.roundRect?x.roundRect(44,28,104,136,22):x.rect(44,28,104,136);x.stroke();x.fillStyle='rgba(255,255,255,.12)';x.fillRect(58,38,40,3);for(const [a,b] of[[56,48],[136,48],[56,144],[136,144]]){x.beginPath();x.arc(a,b,4,0,7);x.fillStyle='#3a3f44';x.fill()}x.fillStyle='#222';x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('IV',96,104)}
 else if(id==='g0'){x.beginPath();x.ellipse(48,56,26,32,0,0,7);x.fillStyle=hg(22,74,'#2f3b20','#66794a');x.fill();x.strokeStyle='rgba(20,28,12,.7)';x.lineWidth=2;for(let i=-3;i<=3;i++){x.beginPath();x.moveTo(24,56+i*9);x.lineTo(72,56+i*9);x.stroke()}for(let i=-2;i<=2;i++){x.beginPath();x.moveTo(48+i*10,26);x.lineTo(48+i*10,86);x.stroke()}rr(40,16,16,14,3,'#8a8f80');rr(60,18,8,54,3,'#aab09a');x.beginPath();x.arc(30,22,9,0,7);x.strokeStyle='#cfd2c4';x.lineWidth=3;x.stroke()}
-else if(id==='g1'||id==='g2'){const b=id==='g1'?['#8a8a8a','#e0e0e0']:['#26406e','#5878b0'],st=id==='g1'?'#222':'#e6c93a';rr(28,22,40,62,6,hg(28,68,b[0],b[1]));rr(28,42,40,10,0,st);rr(34,10,28,16,4,'#707468');rr(62,12,8,46,3,'#aab09a');x.beginPath();x.arc(30,14,8,0,7);x.strokeStyle='#cfd2c4';x.lineWidth=3;x.stroke()}
+else if(id==='g1'||id==='g2'||id==='g3'){const b=id==='g1'?['#8a8a8a','#e0e0e0']:id==='g3'?['#5c635c','#a4aba4']:['#26406e','#5878b0'],st=id==='g1'?'#222':id==='g3'?'#9aa09a':'#e6c93a';rr(28,22,40,62,6,hg(28,68,b[0],b[1]));rr(28,42,40,10,0,st);rr(34,10,28,16,4,'#707468');rr(62,12,8,46,3,'#aab09a');x.beginPath();x.arc(30,14,8,0,7);x.strokeStyle='#cfd2c4';x.lineWidth=3;x.stroke()}
 else if(id==='xm'){x.beginPath();x.arc(48,52,30,0,7);x.fillStyle=hg(18,78,'#2e3520','#6a7a44');x.fill();x.beginPath();x.arc(48,52,13,0,7);x.fillStyle='#22271b';x.fill();x.strokeStyle='#8a9070';x.lineWidth=2;for(let i=0;i<3;i++){x.beginPath();x.moveTo(48,52);x.lineTo(48+Math.cos(i*2.09)*24,52+Math.sin(i*2.09)*24);x.stroke()}rr(44,22,8,10,2,'#c8c8b8')}
 else if(id==='xc'){rr(22,16,148,58,14,lg(16,74,'#7a8a50','#44502c'));rr(34,26,124,38,8,'rgba(0,0,0,.18)');x.fillStyle='#e8e0b0';x.font='bold 9px sans-serif';x.textAlign='center';x.fillText('FRONT TOWARD ENEMY',96,50);rr(48,72,6,14,2,'#999');rr(138,72,6,14,2,'#999')}
 else if(id==='xw'){for(const a of[22,74])rr(a,24,8,56,3,'#6a4a2a');x.strokeStyle='#cfcfc4';x.lineWidth=2;x.beginPath();x.moveTo(26,40);x.lineTo(78,40);x.stroke();x.beginPath();x.moveTo(26,40);x.quadraticCurveTo(50,62,78,40);x.stroke();x.beginPath();x.arc(48,62,10,0,7);x.fillStyle=hg(38,58,'#2f3b20','#66794a');x.fill()}
@@ -83,11 +83,11 @@ function invLoot(b){const p=b.g.position,r=Math.random,sp=()=>[p.x+rnd(-.7,.7),p
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.8,.8),rnd(-.8,.8),bag)};
 if(r()<.75)add('z'+[0,0,1,2,3][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
-if(r()<.14)add('g'+((r()*3)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
+if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
 function invWorld(){const ok=(x,z)=>wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0);
 const put=(gid,q,bag)=>{for(let t=0;t<30;t++){const x=rnd(-125,125),z=rnd(-125,125);if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0,bag);e.fall=false;e.m.position.y=invGY(e);return}};
 for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60}:{}}));
-for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+((Math.random()*4)|0):r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*3)|0):'pl',r<.4?30:1)}}
+for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+((Math.random()*4)|0):r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*4)|0):'pl',r<.4?30:1)}}
 
 // ---------- interface ----------
 const ivs=document.createElement('style');ivs.textContent='#inv{display:none;position:fixed;inset:0;z-index:30;background:rgba(6,10,6,.84);color:#dfe8d4;font:13px "Segoe UI",sans-serif;align-items:center;justify-content:center;gap:22px;user-select:none}#inv .ip{background:rgba(18,26,16,.92);border:1px solid #3d5230;padding:14px 16px;min-width:300px}#inv h3{margin:0 0 8px;font-size:14px;letter-spacing:.08em;color:#c8f07a}#ig{position:relative;border:1px solid #3d5230}#inv .it{position:absolute;box-sizing:border-box;border:1px solid rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:flex-end;padding:2px 3px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 2px #000;cursor:pointer}#inv .it.sel{outline:2px solid #c8f07a}#inv button{background:#2b3d22;border:1px solid #5a7a42;color:#dfe8d4;padding:5px 10px;margin:3px 4px 0 0;cursor:pointer;font:inherit}#inv button:hover{background:#3b5530}#inv .bar{height:10px;background:#1a2216;border:1px solid #3d5230;margin:4px 0 6px}#inv .bar i{display:block;height:100%}#inv small{opacity:.7}#invw,#invp{position:fixed;z-index:6;pointer-events:none;font:12px "Segoe UI",sans-serif;color:#dfe8d4;text-shadow:0 1px 3px #000}#invw{right:18px;bottom:88px;text-align:right}#invp{left:50%;bottom:22%;transform:translateX(-50%);font-size:15px;display:none}';document.head.appendChild(ivs);
@@ -149,4 +149,4 @@ const n=!INV.open&&!bench&&!nb&&!ndR?invNear():null;if(n){ivp.style.display='blo
 
 function invDeath(){const cont={};for(const x of invStacks())cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]=(cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]||0)+x.q;
 const kind=INV.bag===0?'S':INV.bag;if(Object.values(cont).some(v=>v>0))invSpawn('B',1,P.x,P.gy+.6,P.z,0,0,{kind,cont});
-INV.bag='M';INV.lay={};HM.inv={...HINV0};TRP.inv={xm:2,xc:1,xw:1,xb:1};NADE.inv=[2,2,2];for(let k=0;k<2;k++)if(k!==slot)SLOTS[k].res=WC[SLOTS[k].w].res;INV.lv=0}
+INV.bag='M';INV.lay={};HM.inv={...HINV0};TRP.inv={xm:2,xc:1,xw:1,xb:1};NADE.inv=[2,2,2,2];for(let k=0;k<2;k++)if(k!==slot)SLOTS[k].res=WC[SLOTS[k].w].res;INV.lv=0}

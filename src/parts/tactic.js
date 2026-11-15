@@ -18,7 +18,7 @@ function tacSmoke(b,q){if((q.smkCd||0)>TAC.t||b.dead)return false;const g=b.g.po
 const losClear0=losClear;
 losClear=function(ax,ay,az,bx,by,bz){for(const s of TAC.smk){if(s.pop>0||s.t>s.life)continue;const vx=bx-ax,vz=bz-az,L=vx*vx+vz*vz||1e-6;let u=((s.x-ax)*vx+(s.z-az)*vz)/L;u=Math.max(0,Math.min(1,u));if(Math.hypot(ax+vx*u-s.x,az+vz*u-s.z)<s.r*.85)return false}return losClear0(ax,ay,az,bx,by,bz)};
 function tacSmokeTick(dt){for(let i=TAC.smk.length-1;i>=0;i--){const s=TAC.smk[i];if(s.pop>0){s.pop-=dt;if(s.pop<=0){try{sfxBoom(s.x,GH(s.x,s.z)+.5,s.z,.3)}catch(e){}}continue}s.t+=dt;s.r=Math.min(s.rm,s.r+dt*2.2);
- if(s.t>s.life+6){TAC.smk.splice(i,1);continue}if(s.t<s.life&&(s.e=(s.e||0)-dt)<=0){s.e=.14;const y=GH(s.x,s.z);for(let n=0;n<3;n++){const a=Math.random()*6.28,r=Math.random()*s.r;_tv.set(s.x+Math.cos(a)*r,y+.4+Math.random()*1.2,s.z+Math.sin(a)*r);_tw.set(rnd(-.2,.2),rnd(.2,.6),rnd(-.2,.2));emit(_tv,_tw,{life:9,size:3.2,grow:1.1,color:0xd2d4d2,a:.55,drag:.4})}}}}
+ if(s.t>s.life+6){TAC.smk.splice(i,1);continue}if(s.t<s.life&&(s.e=(s.e||0)-dt)<=0){s.e=.14;const y=s.y===undefined?GH(s.x,s.z):s.y;for(let n=0;n<3;n++){const a=Math.random()*6.28,r=Math.random()*s.r;_tv.set(s.x+Math.cos(a)*r,y+.4+Math.random()*1.2,s.z+Math.sin(a)*r);_tw.set(rnd(-.2,.2),rnd(.2,.6),rnd(-.2,.2));emit(_tv,_tw,{life:9,size:3.2,grow:1.1,color:0xd2d4d2,a:.55,drag:.4})}}}}
 const _tv=new THREE.Vector3(),_tw=new THREE.Vector3();
 // ---- bonds : un groupe avance pendant que l'autre couvre ----
 function tacBound(q,al,dt){if(q.ret>0||q.t<=1.5){q.bd=null;return}

@@ -9,7 +9,7 @@ PERS.apply=o=>{o=o||PERS.read();if(!o)return false;
 if(o.A&&typeof o.A==='object'){for(const k in A)if(typeof o.A[k]==='boolean')A[k]=o.A[k];if(A.supp&&A.brake)A.brake=false}
 if(['scope','angled','holo'].includes(o.sel)&&A[o.sel])sel=o.sel;else{const l=['scope','angled','holo'].filter(k=>A[k]);if(l.length)sel=l[0]}
 if(typeof o.mgIn==='boolean')mgIn=o.mgIn;
-if(Number.isInteger(o.nsel)&&o.nsel>=0&&o.nsel<3)NADE.sel=o.nsel;
+if(Number.isInteger(o.nsel)&&o.nsel>=0&&o.nsel<NT.length)NADE.sel=o.nsel;
 if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5){GQ.mode=o.gfx;SET.gfx=o.gfx}
 if(isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
 if(Number.isInteger(o.wx)&&o.wx>=0&&o.wx<5)TOD.tgt=o.wx;

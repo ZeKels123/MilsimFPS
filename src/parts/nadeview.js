@@ -1,5 +1,5 @@
 // ================= GRENADES : modèle (flash.blend), vue à la première personne et animation de lancer =================
-const NVCOL=[[0x3f4d2c,0x1e2713,0x2e2f2c],[0x585858,0x3a5fe6,0x7a7a7a],[0x2c3c5c,0x121c34,0x2e2f2c]];
+const NVCOL=[[0x3f4d2c,0x1e2713,0x2e2f2c],[0x585858,0x3a5fe6,0x7a7a7a],[0x2c3c5c,0x121c34,0x2e2f2c],[0x6d736d,0x9aa09a,0x7a7a7a]];
 function mkNade(t){const g=new THREE.Group(),lev=new THREE.Group(),C3=NVCOL[t];lev.position.set(0,.0754,0);g.add(lev);const pin=new THREE.Group();g.add(pin);
 NGD.forEach(d=>{const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(Float32Array.from(d.p,v=>v/1000),3));G.setIndex(d.i);
 const GG=d.r?G:G.toNonIndexed();GG.computeVertexNormals();

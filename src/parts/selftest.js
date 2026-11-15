@@ -16,7 +16,7 @@ T('Signal 50 : modèle et caractéristiques',()=>WC[4].n==='Signal 50'&&WC[4].ma
 T('Silencieux et frein de bouche s’excluent',()=>{const sv=[A.supp,A.brake];A.supp=false;A.brake=true;toggleAtt('supp');const ok=A.supp&&!A.brake;A.supp=sv[0];A.brake=sv[1];return ok?'':'silencieux et frein actifs ensemble'});
 T('Santé : dégâts puis réinitialisation',()=>{hlReset();const z0=HM.z.t;hlApply('t',20,'b',null);const z1=HM.z.t;hlReset();return z1<z0&&HM.z.t===z0?'':'zone '+z0+' → '+z1+' → '+HM.z.t});
 T('Grenades : 3 types lancés puis explosion sans erreur',()=>{if(NADE.pool.length<15)return 'réserve '+NADE.pool.length;for(let t=0;t<3;t++){throwNade(t,new THREE.Vector3(P.x+30,GH(P.x+30,P.z)+1,P.z),new THREE.Vector3(0,0,0),null);const n=NADE.list[NADE.list.length-1];if(!n||n.type!==t)return 'lancer type '+t;NADE.list.pop();nadeBoom(n)}NADE.list.length=0;FXP.flash=0;FXP.stun=0;return ''});
-T('Animation de lancer : démarrage et lâcher',()=>{NADE.inv=[2,2,2];NADE.cd=0;THR.on=false;plateT=0;NADE.sel=1;playerThrow();if(!THR.on)return 'non démarré';THR.t=1.0;const n0=NADE.list.length;thrTick(.016);const ok=NADE.list.length===n0+1&&THR.rel;THR.on=false;tvm.visible=false;gun.visible=true;NADE.list.length=0;NADE.inv=[2,2,2];return ok?'':'grenade non lâchée'});
+T('Animation de lancer : démarrage et lâcher',()=>{NADE.inv=[2,2,2,2];NADE.cd=0;THR.on=false;plateT=0;NADE.sel=1;playerThrow();if(!THR.on)return 'non démarré';THR.t=1.0;const n0=NADE.list.length;thrTick(.016);const ok=NADE.list.length===n0+1&&THR.rel;THR.on=false;tvm.visible=false;gun.visible=true;NADE.list.length=0;NADE.inv=[2,2,2,2];return ok?'':'grenade non lâchée'});
 T('Barils explosifs présents',()=>typeof BARRELS!=='undefined'&&BARRELS.length>0?'':'aucun baril');
 T('Véhicules et passages d’avions',()=>{if(!window.VEHS||VEHS.length<3)return 'véhicules : '+(window.VEHS&&VEHS.length);const a=AIRSHOW('f14'),b=(AIRSTOP(a),AIRSHOW('f15'));AIRSTOP(b);return ''});
 T('Modèles 3D valides (véhicules, avions)',()=>{for(const n of['lambo','ural','centauro','f14','f15']){const g=mdl(n),bb=new THREE.Box3().setFromObject(g),s=bb.getSize(new THREE.Vector3());if(!g.children.length||!fin(s.x)||s.length()<1)return n+' vide'}return ''});
@@ -192,6 +192,11 @@ const on0=PRF.int.filter(e=>e.o.castShadow).length;const off=perfShadowSet(false
 const e0=PRF.int[0];const ins=perfShadowSet(true,e0.x,e0.z);if(!e0.o.castShadow)msg+='intérieur proche sans ombre ';
 const t0=PRF.tiny[0];perfShadowSet(false,t0.x,t0.z);if(!t0.o.castShadow)msg+='petit objet proche sans ombre ';perfShadowSet(false,0,0);if(t0.o.castShadow)msg+='petit objet lointain avec ombre ';
 PRF.int.length=0;PRF.tiny.length=0;PRF.built=0;return msg});
+T('Grenade fumigène : 4e type (inventaire, touche U), nuage qui bloque la vue des bots, peu de bruit',()=>{if(NT.length!==4||NT[3].n!=='Fumigène')return'type absent';if(NADE.inv.length<4)return'stock';if(!INV_IDS.includes('g3')||invGet('g3')===undefined)return'inventaire';
+const sel=NADE.sel,ovd=$('ov').style.display;$('ov').style.display='none';NADE.sel=3;const v=new KeyboardEvent('keydown',{code:'KeyU'});dispatchEvent(v);const wrap=NADE.sel===0;NADE.sel=sel;$('ov').style.display=ovd;if(!wrap)return'cycle des types';
+const n0=TAC.smk.length,nz0=NZ.n,r0=NZ.r;const x=P.x+60,z=P.z+60,y=GH(x,z);throwNade(3,new THREE.Vector3(x,y+.3,z),new THREE.Vector3(),null);const n=NADE.list[NADE.list.length-1];if(!n||n.type!==3)return'lancer';n.t=0;nadeUpdate(.016,false);
+if(TAC.smk.length!==n0+1)return'pas de nuage '+(TAC.smk.length-n0);if(NZ.r>30)return'trop bruyant '+NZ.r;
+const a=y+1.5;const blocked=losClear(x-10,a,z,x+10,a,z)===false;TAC.smk.length=n0;if(!blocked)return'vue non bloquée';return''});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
