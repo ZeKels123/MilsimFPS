@@ -31,24 +31,30 @@ function hbxUpdate(b){
   m.position.copy(_hA).add(_hB).multiplyScalar(.5);m.scale.set(s[3],L+s[3]*.7,s[3]);m.quaternion.setFromUnitVectors(_hY,_hD.multiplyScalar(1/L));m.matrixWorldNeedsUpdate=true}
  if(HBX.show){const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)<90&&!b.dorm&&!(b.dead>50);for(const m of b.hbx)m.visible=d}}
 const sldU2=sldUpdate;sldUpdate=function(b,dt,mv){sldU2(b,dt,mv);try{hbxUpdate(b)}catch(e){console.error('hbx',e)}};
-// ---- collision des cadavres avec les murs/obstacles (boxes) : le corps est repoussé hors du mur, il ne finit plus à travers
-const DCP=['Head','Spine2','Hips','LeftHand','RightHand','LeftLeg','RightLeg','LeftFoot','RightFoot'],_dcV=new THREE.Vector3();
+// ---- collision des cadavres avec les murs/obstacles (boxes) : le corps est testé sur toute sa chaîne d'os (pas seulement les articulations),
+// repoussé hors du mur, et pivoté si une translation seule ne suffit pas (corps à cheval sur un angle de mur)
+const DCS=[['Head','Spine2'],['Spine2','Hips'],['Hips','LeftLeg'],['LeftLeg','LeftFoot'],['Hips','RightLeg'],['RightLeg','RightFoot'],['Spine2','LeftHand'],['Spine2','RightHand']],_dcV=new THREE.Vector3(),_dcW=new THREE.Vector3(),DCR=.2;
+function dcolPts(b,n){const bn=b.sld.bones,ix=SLS.ix,sg=b.sld.sg,pts=[],W=a=>{const q=bn[ix[a]];if(!q)return null;_dcV.copy(q.position);sg.localToWorld(_dcV);return[_dcV.x,_dcV.y,_dcV.z]};
+ for(const [a,c] of DCS){const A=W(a),B=W(c);if(!A||!B)continue;for(let i=0;i<=n;i++){const t=i/n;pts.push([A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,A[2]+(B[2]-A[2])*t])}}return pts}
+// translation minimale qui sort tous les points des obstacles pour une rotation dy autour du pivot (gx,gz) ; renvoie {sx,sz,res}
+function dcolSolve(pts,gx,gz,gy,dy){const c=Math.cos(dy),s=Math.sin(dy);let sx=0,sz=0,res=0;
+ const P_=pts.map(p=>{const dx=p[0]-gx,dz=p[2]-gz;return[gx+dx*c+dz*s,p[1],gz-dx*s+dz*c]});
+ for(let pass=0;pass<6;pass++){let any=0;
+  for(const p of P_){const x=p[0]+sx,z=p[2]+sz,y=p[1];
+   for(const o of boxes){if(o.y1<gy+.15||o.y0>gy+1.2)continue;if(x<o.x0-DCR||x>o.x1+DCR||z<o.z0-DCR||z>o.z1+DCR)continue;
+    const pl=x+DCR-o.x0,pr=o.x1+DCR-x,pb=z+DCR-o.z0,pf=o.z1+DCR-z;let ax=pl<pr?-pl:pr,az=pb<pf?-pb:pf;
+    const hx=gx+sx,hz=gz+sz,hxo=hx<o.x0-DCR?-1:hx>o.x1+DCR?1:0,hzo=hz<o.z0-DCR?-1:hz>o.z1+DCR?1:0;
+    if(hxo&&!hzo)ax=hxo<0?-pl:pr,az=0;else if(hzo&&!hxo)az=hzo<0?-pb:pf,ax=0;else if(Math.abs(ax)<Math.abs(az))az=0;else ax=0;
+    sx+=ax;sz+=az;any=1;if(pass===5)res+=Math.hypot(ax,az);break}}
+  if(!any)break}
+ return{sx,sz,res}}
 function dcolPush(b){
  if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||((b.fall||0)>4&&!b.drgP))return 0;
  const g=b.g;if(Math.hypot(g.position.x-P.x,g.position.z-P.z)>90)return 0;
- g.updateMatrixWorld(true);const bn=b.sld.bones,ix=SLS.ix,sg=b.sld.sg,gy=g.position.y,R=.2,pts=[];
- for(const n of DCP){const q=bn[ix[n]];if(!q)continue;_dcV.copy(q.position);sg.localToWorld(_dcV);pts.push([_dcV.x,_dcV.y,_dcV.z])}
- let sx=0,sz=0,moved=0;const hx=g.position.x,hz=g.position.z;
- for(let pass=0;pass<3;pass++){let any=0;
-  for(const p of pts){const x=p[0]+sx,z=p[2]+sz,y=p[1];
-   for(const o of boxes){if(o.y1<gy+.15||o.y0>y+.3&&o.y0>gy+1.5)continue;if(o.y0>gy+1.2)continue;
-    if(x<o.x0-R||x>o.x1+R||z<o.z0-R||z>o.z1+R)continue;
-    const pl=x+R-o.x0,pr=o.x1+R-x,pb=z+R-o.z0,pf=o.z1+R-z;let ax=pl<pr?-pl:pr,az=pb<pf?-pb:pf;
-    const hxo=hx+sx<o.x0-R?-1:hx+sx>o.x1+R?1:0,hzo=hz+sz<o.z0-R?-1:hz+sz>o.z1+R?1:0;
-    if(hxo&&!hzo)ax=hxo<0?-pl:pr,az=0;else if(hzo&&!hxo)az=hzo<0?-pb:pf,ax=0;else if(Math.abs(ax)<Math.abs(az))az=0;else ax=0;
-    sx+=ax;sz+=az;any=1;moved=1;break}
-  }
-  if(!any)break}
- if(moved){g.position.x+=sx;g.position.z+=sz;g.updateMatrixWorld(true);b.dcPush=(b.dcPush||0)+Math.hypot(sx,sz)}
- return moved}
+ g.updateMatrixWorld(true);const pts=dcolPts(b,3),gx=g.position.x,gz=g.position.z,gy=g.position.y;if(!pts.length)return 0;
+ let best=dcolSolve(pts,gx,gz,gy,0),bd=0;
+ if(best.sx||best.sz){let bc=Math.hypot(best.sx,best.sz)+best.res*10;
+  if(best.res>0||Math.hypot(best.sx,best.sz)>.45)for(const dy of[.5,-.5,1,-1,1.57,-1.57,2.4,-2.4]){const r=dcolSolve(pts,gx,gz,gy,dy),c=Math.hypot(r.sx,r.sz)+r.res*10+Math.abs(dy)*.25;if(c<bc-.05){bc=c;best=r;bd=dy}}
+  if(bd)g.rotation.y+=bd;g.position.x+=best.sx;g.position.z+=best.sz;g.updateMatrixWorld(true);b.dcPush=(b.dcPush||0)+Math.hypot(best.sx,best.sz);return 1}
+ return 0}
 {const sU3=sldUpdate;sldUpdate=function(b,dt,mv){sU3(b,dt,mv);if(b.dead>0){try{dcolPush(b)}catch(e){console.error('dcol',e)}}}}

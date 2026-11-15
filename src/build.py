@@ -61,7 +61,7 @@ rep("new THREE.MeshPhongMaterial({color:p.c,flatShading:true,shininess:25,specul
 rep("PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);","PC.position.set(0,.14,1.55);PC.lookAt(0,0,-.06);PR.toneMapping=R.toneMapping;PR.toneMappingExposure=R.toneMappingExposure;PS.environment=mkEnv(PR);")
 # 6. bots
 a=s.index("function mkBot(){");b=s.index("function free_(")
-s=s[:a]+rd('soldier_data.js')+rd('lod_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('pack_data.js')+rd('helm_data.js')+rd('soldier.js')+rd('voix.js')+rd('bots.js')+s[b:]
+s=s[:a]+rd('soldier_data.js')+rd('lod_data.js')+rd('soldier_anim.js')+rd('vest_data.js')+rd('pack_data.js')+rd('helm_data.js')+rd('soldier.js')+rd('voix_data.js')+rd('voix.js')+rd('bots.js')+s[b:]
 rep("b.dead=0;b.g.visible=true;pick(b)}","b.dead=0;b.fall=0;b.g.rotation.x=0;b.g.visible=true;botLook(b,i);pick(b)}")
 rep("b.g.visible=false;P.kills++","botDeath(b,head);P.kills++")
 rep("const px=P.x-g.position.x,pz=P.z-g.position.z,pd=Math.hypot(px,pz);g.rotation.y=Math.atan2(px,pz);",
@@ -122,8 +122,8 @@ rep("let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];","let md=0,mv=true,mgx=0,hp=
 rep("-rl*.04-is*.12-sprA*.06","+WA.x-sprA*.06")
 rep("-rl*.2-dr*.3-sprA*.07+is*.04+","+WA.y-dr*.3-sprA*.07+")
 rep("+WA.y-dr*.3-sprA*.07+","+WA.y-dr*.3-THR.g*.6-sprA*.07+")
-rep("+kick*.04+rl*.05);","+kick*.04+WA.z);")
-rep("gun.rotation.set(kick*.04+rl*.45+dr*.7+sprA*.25-is*.2,rl*.15+is*1.1+sprA*.55,t.roll*adsT+P.lean*.12+rl*.35+is*Math.sin(ip*12.6)*.5);","gun.rotation.set(kick*.04+WA.rx+dr*.7+sprA*.25,WA.ry+sprA*.55,t.roll*adsT+P.lean*.12+WA.rz);")
+rep("+kick*.04+rl*.05);","+kick*.04*(.5+.5*(WC[WSEL].rec||1))+WA.z);")
+rep("gun.rotation.set(kick*.04+rl*.45+dr*.7+sprA*.25-is*.2,rl*.15+is*1.1+sprA*.55,t.roll*adsT+P.lean*.12+rl*.35+is*Math.sin(ip*12.6)*.5);","gun.rotation.set(kick*.04*(.5+.5*(WC[WSEL].rec||1))+WA.rx+dr*.7+sprA*.25,WA.ry+sprA*.55,t.roll*adsT+P.lean*.12+WA.rz);")
 rep("rifleParts[4].visible=!WSEL&&mv;","if(reloading>0&&WSEL>1){const q=wHand(WSEL,ru,[HB.lx,HB.ly,HB.lz]);hp=q.h;mv=q.mv}rifleParts[4].visible=!WSEL&&mv;")
 rep("const f=wc.cyc?Math.sin(Math.PI*(1-s)):s;","const f=Math.max(wc.cyc?Math.sin(Math.PI*(1-s)):s,WA.cyc);")
 rep("if(ru>.17&&rlS<1)","if(WSEL<2&&ru>.17&&rlS<1)")

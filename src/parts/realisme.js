@@ -37,7 +37,7 @@ function mooTick(dt){if(TOD.t<MOO.pt-12)MOO.day++;MOO.pt=TOD.t;MOO.p=mooPhase(MO
 // ---------- 4. Fouille : corps et caisses à fouiller maintenant F ----------
 const FOU={cap:null,p:null,cr:[],el:null,hint:0,ns:0};
 const fouIS=invSpawn;invSpawn=function(){if(FOU.cap){FOU.cap.push([].slice.call(arguments));return{m:new THREE.Object3D()}}return fouIS.apply(null,arguments)};
-const fouIL=invLoot;invLoot=function(b){if(b.sur){fouIL(b);return}FOU.cap=[];const c=FOU.cap;try{fouIL(b)}finally{FOU.cap=null}b.stash=c.length?c:null};
+const fouIL=invLoot;invLoot=function(b){FOU.cap=[];const c=FOU.cap;try{fouIL(b)}finally{FOU.cap=null}b.stash=c.length?c:null};
 function fouBuild(){
  const bm=new THREE.MeshLambertMaterial({color:0x6b5334}),lm=new THREE.MeshLambertMaterial({color:0x7d6340}),bg=new THREE.BoxGeometry(.9,.5,.6),lg=new THREE.BoxGeometry(.96,.07,.66);lg.translate(0,0,.33);
  let n=0;for(let i=0;i<80&&n<8;i++){const x=rnd(-120,120),z=rnd(-120,120);if(!reaOk(x,z))continue;
@@ -48,7 +48,7 @@ function fouBuild(){
   FOU.cr.push({g,hinge,x,z,st,open:0,a:0});n++}}
 function fouLoose(){return invNear()}
 function fouTarget(){let b=null,bd=2.2;
- for(const o of bots){if(!o.stash||!o.dead||o.sur)continue;const d=Math.hypot(o.g.position.x-P.x,o.g.position.z-P.z);if(d<bd){bd=d;b={k:'b',o,d,n:o.stash.length}}}
+ for(const o of bots){if(!o.stash||(!o.dead&&!o.sur))continue;const d=Math.hypot(o.g.position.x-P.x,o.g.position.z-P.z);if(d<bd){bd=d;b={k:'b',o,d,n:o.stash.length}}}
  for(const c of FOU.cr){if(c.open)continue;const d=Math.hypot(c.x-P.x,c.z-P.z);if(d<bd){bd=d;b={k:'c',o:c,d,n:c.st.length}}}
  return b}
 function fouMsg(h){if(!FOU.el){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:26%;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 1px 3px #000;pointer-events:none;z-index:6;text-align:center;display:none';document.body.appendChild(d);FOU.el=d}
@@ -67,7 +67,7 @@ function fouTick(dt){
  if(FOU.hint>0)return;FOU.hint=.15;
  if(ac.on||HM.dead||bench||DRV.on||INV.open||fouLoose()){fouMsg('');return}
  const t=fouTarget();if(!t){fouMsg('');return}
- fouMsg('Maintiens [F] : fouiller '+(t.k==='b'?'le corps':'la caisse'));
+ fouMsg('Maintiens [F] : fouiller '+(t.k==='b'?(t.o.dead?'le corps':'le prisonnier'):'la caisse'));
  if(held&&!mv)FOU.p={t,e:0,T:t.k==='b'?Math.min(4,1.3+.55*t.n):2.6,hp:P.hp,nz:.2}}
 
 // ---------- 5. Bruit et lumière : lampe, laser, éclairage des bâtiments ----------

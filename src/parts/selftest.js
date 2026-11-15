@@ -320,6 +320,23 @@ WSEL=w0;for(let i=0;i<20;i++)wpxTick(.1);if(!(WPX.bl<.05))msg+='cumul ne retombe
 WPX.fat=0;ads=1;K.ShiftLeft=0;for(let i=0;i<300;i++)wpxTick(.2);if(!(WPX.fat>.2))msg+='pas de fatigue '+WPX.fat+' ';const rF=wpRecoil(),sF=wpSpread();WPX.fat=0;WPX.bl=0;if(!(rF>wpRecoil()*1.05&&sF>wpSpread()*1.05))msg+='fatigue sans effet ';
 ads=0;WPX.fat=.8;for(let i=0;i<100;i++)wpxTick(.2);if(!(WPX.fat<.1))msg+='fatigue ne retombe pas '+WPX.fat}
 finally{WSEL=w0;ads=a0;WPX.fat=f0;WPX.bl=b0;WPX.n=n0}return msg});
+T('Cadavres : à cheval sur un angle de mur, aucun morceau du corps dans un mur (toutes orientations et poses)',()=>{const tall=boxes.filter(q=>q.y1-q.y0>1.5&&q.y0<GH((q.x0+q.x1)/2,(q.z0+q.z1)/2)+.5&&Math.min(q.x1-q.x0,q.z1-q.z0)>.15);
+const inT=(x,z,m,s)=>tall.some(q=>q!==s&&x>q.x0-m&&x<q.x1+m&&z>q.z0-m&&z<q.z1+m);
+const o=tall.find(q=>q.x1-q.x0>3&&Math.abs(q.x0)<100&&Math.abs(q.z0)<100&&!inT(q.x0-.15,q.z0-.15,.25,q)&&!inT(q.x0-.15-1.2,q.z0-.15,.25,q));if(!o)return'aucun angle de mur trouvé';const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];
+const sv={pos:b.g.position.clone(),ry:b.g.rotation.y,dead:b.dead,fall:b.fall,dk:b.dk},cp0=C.position.clone(),cq0=C.quaternion.clone(),pxz=[P.x,P.z];let worst=0,wd='',n=0;
+try{P.x=o.x0-.5;P.z=o.z0-6;C.position.set(P.x,GH(P.x,P.z)+1.7,P.z);C.rotation.set(0,Math.PI,0);C.updateMatrixWorld();b.dorm=0;
+for(const dk of[0,1,5])for(let k=0;k<8;k++){const gx=o.x0-.15,gz=o.z0-.15;b.g.position.set(gx,GH(gx,gz),gz);b.g.rotation.set(0,k*.785,0);b.dead=30;b.fall=0;b.dk=dk;b.ds=1;b.dyaw=b.g.rotation.y;b.dfx=Math.sin(k*.785);b.dfz=Math.cos(k*.785);b.dsl=dk===1?1.6:.5;b.dy=0;b.dcPush=0;
+for(let i=0;i<40;i++){botDead(b,.05);sldUpdate(b,.05,false)}
+b.g.updateMatrixWorld(true);n++;for(const p of dcolPts(b,6))for(const q of tall){if(p[0]>q.x0+.05&&p[0]<q.x1-.05&&p[2]>q.z0+.05&&p[2]<q.z1-.05&&p[1]>b.g.position.y+.1&&p[1]<q.y1){const pen=Math.min(p[0]-q.x0,q.x1-p[0],p[2]-q.z0,q.z1-p[2]);if(pen>worst){worst=pen;wd='dk'+dk+' yaw'+k}}}}}
+finally{P.x=pxz[0];P.z=pxz[1];C.position.copy(cp0);C.quaternion.copy(cq0);C.updateMatrixWorld();b.g.position.copy(sv.pos);b.g.rotation.y=sv.ry;b.dead=sv.dead;b.fall=sv.fall;b.dk=sv.dk;b.dcPush=0}
+return worst>.06?'corps dans le mur de '+worst.toFixed(2)+' m ('+wd+')':''});
+T('Pièges : posés à la hauteur de l’étage / du toit où se trouve le joueur',()=>{const q=LSURF.find(q=>!q.gl&&q.ramp!==2&&Math.abs(q.ya===undefined?0:q.ya-q.yb)<.01&&q.x1-q.x0>2&&q.z1-q.z0>2&&Math.abs(q.x0)<100&&Math.abs(q.z0)<100&&q.y>GH((q.x0+q.x1)/2,(q.z0+q.z1)/2)+2);if(!q)return'aucun étage trouvé';const x=(q.x0+q.x1)/2,z=(q.z0+q.z1)/2,gy0=P.gy,px=P.x,pz=P.z;try{P.gy=q.y;P.x=x;P.z=z;const y=trapY(x,z);if(Math.abs(y-q.y)>.3)return'hauteur de pose '+y.toFixed(2)+' au lieu de '+q.y.toFixed(2);const t=trapAdd('xm',x,z,0,'p',undefined,y);const ok=Math.abs(t.y-q.y)<.3;TRP.list.splice(TRP.list.indexOf(t),1);S.remove(t.m);return ok?'':'piège enterré sous le sol'}finally{P.gy=gy0;P.x=px;P.z=pz}});
+T('Loot : rien au sol à la mort d’un ennemi, tout est dans sa fouille',()=>{const b=bots.find(x=>!x.sur&&!(x.dead>0));if(!b)return'aucun ennemi';const n0=INV.gnd.length,r0=Math.random;Math.random=()=>.01;try{invLoot(b)}finally{Math.random=r0}const n1=INV.gnd.length;if(n1!==n0)return'loot apparu au sol sans fouille ('+(n1-n0)+')';return b.stash&&b.stash.length?'':'rien dans la fouille'});
+T('Armes : chaque arme a un recul caméra perceptible (≥ 1,2°)',()=>{const w0=WSEL;try{for(let i=0;i<WC.length;i++){WSEL=i;const c=WC[i],k=.014*c.rec*wpRecoil()*(1+(0));if(k<.021)return c.n+' : recul '+(k*57.3).toFixed(2)+'°'}}finally{WSEL=w0}return''});
+T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
+for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
+if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';
+const tx=vxPick('ack');if(typeof tx!=='string'||!tx)return'vxPick sans phrase';return''});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

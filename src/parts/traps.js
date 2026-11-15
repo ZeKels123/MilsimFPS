@@ -8,10 +8,12 @@ else if(ty==='xc'){M(new THREE.BoxGeometry(.28,.14,.045),0x4d5a34,0,.14,0);M(new
 else if(ty==='xw'){for(const s of[-1,1])M(new THREE.CylinderGeometry(.012,.012,.32,6),0x3a2c1c,s*1.6,.16,0);M(new THREE.CylinderGeometry(.004,.004,3.2,4),0x9a9a90,0,.25,0).rotation.z=Math.PI/2;M(new THREE.CylinderGeometry(.03,.03,.1,8),0x4a5a34,-1.6,.18,0)}
 else{M(new THREE.TorusGeometry(.2,.025,6,14),0x6a6a6a,0,.03,0).rotation.x=Math.PI/2;for(let i=0;i<10;i++){const a=i/10*6.28;M(new THREE.ConeGeometry(.012,.07,4),0x8a8a8a,Math.cos(a)*.2,.07,Math.sin(a)*.2)}M(new THREE.CylinderGeometry(.05,.05,.01,8),0x555555,0,.02,0)}
 return g}
-function trapAdd(ty,x,z,yaw,owner,arm){const m=trapMesh(ty),y=GH(x,z);m.position.set(x,y-(ty==='xm'||ty==='xb'?.012:0),z);m.rotation.y=yaw;S.add(m);const t={ty,x,z,y,yaw,m,owner,arm:arm===undefined?1.5:arm,kn:{}};TRP.list.push(t);return t}
+// hauteur du sol à poser : l'étage / le toit où se trouve le joueur, pas le terrain en dessous
+function trapY(x,z){if(P.gy===undefined)return GH(x,z);const g0=GSUP;let y;try{y=groundAt(x,z,P.gy,.55)}catch(e){y=GH(x,z)}GSUP=g0;return y}
+function trapAdd(ty,x,z,yaw,owner,arm,yy){const m=trapMesh(ty),y=yy===undefined?GH(x,z):yy;m.position.set(x,y-(ty==='xm'||ty==='xb'?.012:0),z);m.rotation.y=yaw;S.add(m);const t={ty,x,z,y,yaw,m,owner,arm:arm===undefined?1.5:arm,kn:{}};TRP.list.push(t);return t}
 function trapRemove(t){S.remove(t.m);const i=TRP.list.indexOf(t);if(i>=0)TRP.list.splice(i,1)}
 const trapDetR=()=>(typeof TOD!=='undefined'&&(TOD.t<6||TOD.t>19.6))?3.2:5.5;
-function trapNear(){let b=null,bd=1.8;for(const t of TRP.list){if(!t.m.visible)continue;const d=Math.hypot(t.x-P.x,t.z-P.z);if(d<bd){bd=d;b=t}}return b}
+function trapNear(){let b=null,bd=1.8;for(const t of TRP.list){if(!t.m.visible)continue;if(P.gy!==undefined&&Math.abs(t.y-P.gy)>1.6)continue;const d=Math.hypot(t.x-P.x,t.z-P.z);if(d<bd){bd=d;b=t}}return b}
 const trapOk=(x,z)=>wDist(x,z)>.8&&Math.abs(x)<MH-2&&Math.abs(z)<MH-2;
 // ---------- effets ----------
 function trapBoom(t,v){const own=t.owner==='p';trapRemove(t);nadeBoom({type:0,p:new THREE.Vector3(t.x,t.y+.25,t.z),owner:own?null:{},wet:true,m:{visible:true}});
@@ -30,7 +32,7 @@ const tps=document.createElement('div');tps.style.cssText='position:fixed;left:5
 function trapSetMode(m){TRP.mode=m;TRP.prog=0;if(TRP.gh){S.remove(TRP.gh);TRP.gh=null}if(!m)tps.style.display='none'}
 function trapCycle(){let m=TRP.mode;for(let i=0;i<5;i++){m=(m+1)%5;if(m===0)break;if((TRP.inv[TSEQ[m-1]]||0)>0)break}trapSetMode(m);if(!m)hlMsg('Pose annulée')}
 function trapGhost(){const ty=TSEQ[TRP.mode-1];if(TRP.ghT!==ty||!TRP.gh){if(TRP.gh)S.remove(TRP.gh);TRP.gh=trapMesh(ty);TRP.gh.traverse(o=>{if(o.isMesh)o.material=new THREE.MeshBasicMaterial({color:0x66ff66,transparent:true,opacity:.5,depthWrite:false})});S.add(TRP.gh);TRP.ghT=ty}
-const sn=Math.sin(P.yaw),cs=Math.cos(P.yaw),d=ty==='xw'?2.4:1.7,x=P.x-sn*d,z=P.z-cs*d;TRP.gx=x;TRP.gz=z;TRP.valid=trapOk(x,z);TRP.gh.position.set(x,GH(x,z),z);TRP.gh.rotation.y=P.yaw;const c=TRP.valid?0x66ff66:0xff5544;TRP.gh.traverse(o=>{if(o.isMesh)o.material.color.setHex(c)})}
+const sn=Math.sin(P.yaw),cs=Math.cos(P.yaw),d=ty==='xw'?2.4:1.7,x=P.x-sn*d,z=P.z-cs*d;TRP.gx=x;TRP.gz=z;TRP.gy=trapY(x,z);TRP.valid=trapOk(x,z)&&Math.abs(TRP.gy-P.gy)<.9;TRP.gh.position.set(x,TRP.gy,z);TRP.gh.rotation.y=P.yaw;const c=TRP.valid?0x66ff66:0xff5544;TRP.gh.traverse(o=>{if(o.isMesh)o.material.color.setHex(c)})}
 addEventListener('keydown',e=>{if(e.repeat||bench||ac.on||$('ov').style.display!=='none')return;
 if(e.code==='KeyB'){e.preventDefault();trapCycle()}
 else if(e.code==='Digit9'||e.code==='Numpad9'){const mine=TRP.list.filter(t=>t.ty==='xc'&&t.owner==='p'&&t.arm<=0);if(!mine.length)hlMsg('Aucune mine directionnelle posée');else{hlMsg('Détonation à distance');mine.forEach(trapClaymore)}}
@@ -42,7 +44,7 @@ const det=trapDetR();for(const t of TRP.list){const d=Math.hypot(t.x-P.x,t.z-P.z
 if(TRP.mode){const ty=TSEQ[TRP.mode-1];if((TRP.inv[ty]||0)<=0)trapSetMode(0);else{trapGhost();
 if(mdown&&!bench&&TRP.valid&&!K.ShiftLeft&&!ac.on)TRP.prog+=dt/(TT[ty].T*(P.st>=1?.7:1));else TRP.prog=0;
 tps.style.display='block';tps.innerHTML='<b>POSE : '+TT[ty].n+'</b> ×'+TRP.inv[ty]+'<br><span style="opacity:.75">clic maintenu : poser · B : changer / annuler'+(ty==='xc'?' · 9 : détonation':'')+'</span><br><div style="width:180px;height:8px;border:1px solid #6a8a50;margin:6px auto;background:#1a2216"><i style="display:block;height:100%;width:'+Math.min(100,TRP.prog*100)+'%;background:#c8f07a"></i></div>'+(TRP.valid?'':'<span style="color:#e86a5a">Emplacement impossible</span>');
-if(TRP.prog>=1){TRP.prog=0;TRP.inv[ty]--;trapAdd(ty,TRP.gx,TRP.gz,ty==='xc'||ty==='xw'?P.yaw:rnd(0,6.28),'p');hlMsg(TT[ty].n+' posée');snd(300,.05,.12,'square');if(TRP.inv[ty]<=0)trapCycle();if(INV.open)invRender()}}}
+if(TRP.prog>=1){TRP.prog=0;TRP.inv[ty]--;trapAdd(ty,TRP.gx,TRP.gz,ty==='xc'||ty==='xw'?P.yaw:rnd(0,6.28),'p',undefined,TRP.gy);hlMsg(TT[ty].n+' posée');snd(300,.05,.12,'square');if(TRP.inv[ty]<=0)trapCycle();if(INV.open)invRender()}}}
 // désamorçage
 if(TRP.dis){const d=TRP.dis;if(!K.KeyF||K.ShiftLeft||mdown||!TRP.list.includes(d.t)||Math.hypot(d.t.x-P.x,d.t.z-P.z)>2.2){TRP.dis=null;tps.style.display=TRP.mode?'block':'none'}
 else{d.p+=dt/2.8;tps.style.display='block';tps.innerHTML='<b>Désamorçage : '+TT[d.t.ty].n+'</b><div style="width:180px;height:8px;border:1px solid #6a8a50;margin:6px auto;background:#1a2216"><i style="display:block;height:100%;width:'+Math.min(100,d.p*100)+'%;background:#f0c878"></i></div>';

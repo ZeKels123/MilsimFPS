@@ -45,7 +45,7 @@ function tacMorale(q,al,dt){const ld=sqLeader(al);
     const a=Math.atan2(g.x-P.x,g.z-P.z);for(let n=0;n<8;n++){const r=rnd(26,40),x=g.x+Math.sin(a+rnd(-.7,.7))*r,z=g.z+Math.cos(a+rnd(-.7,.7))*r;if(nFree(x,z)&&goTo(b,x,z,2.5,'cov'))break}}}}}
 function tacSurrender(b){if(b.sur||b.dead)return;b.sur=1;b.unarm=1;b.see=false;b.alert=0;b.st='sur';b.path=null;b.cr=1;b.fleeT=0;b.heal=null;try{if(b.wp&&b.wp.visible){dropWeapon(b,0);b.wp.visible=false}}catch(e){}
  TAC.n.sur++;tacSay(b,'sur',true);try{feed('Un ennemi se rend')}catch(e){}}
-function tacLoot(){for(const b of bots){if(!b.sur||b.dead||b.looted)continue;if(Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)<2.3){b.looted=1;try{invLoot(b)}catch(e){}try{feed('Prisonnier fouillé')}catch(e){}}}}
+function tacLoot(){for(const b of bots){if(!b.sur||b.dead||b.looted)continue;if(Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)<2.3){b.looted=1;try{invLoot(b)}catch(e){}}}}
 // ---- évacuation d'un blessé ----
 function tacEvac(q,al,dt){if(q.ret>0||q.t<=0)return;q.evT=(q.evT||0)-dt;if(q.evT>0)return;q.evT=2;
  for(const b of al){if(b.evac){const e=b.evac;e.t-=dt*2;const w=e.w;if(!w||w.dead||e.t<=0||b.see){b.evac=null;if(w)w.evacBy=null;continue}if(b.path||w.path)continue;b.evac=null;w.evacBy=null;w.heal={t:4,tgt:null,passive:1};b.heal={t:4,tgt:null,passive:1};}}

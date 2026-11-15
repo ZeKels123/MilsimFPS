@@ -594,3 +594,10 @@ Déjà présents avant v45 (vérifié) : pénétration et ricochet par matériau
 - **Dérive latérale propre à chaque arme** : motif répétable (donc apprenable), différent d'une arme à l'autre, d'autant plus marqué que la rafale dure.
 - **Fatigue des bras** : en visée ou en tir, selon le poids de l'arme, la charge portée, l'endurance et l'appui (muret, couché) ; jusqu'à +40 % de recul et +50 % de dispersion ; message « Bras fatigués » ; récupération arme baissée.
 - **Saleté** : à plat ventre en mouvement, poussière au sec, boue sous la pluie (×2,5) ; une chute violente salit toutes les armes ; jusqu'à ×8 de risque d'enrayage ; affichée dans le HUD de l'arme (« saleté N % ») ; le nettoyage (H, 3 s à l'établi, 10 s sur le terrain) la remet à zéro, même si l'usure est faible.
+
+## v45.1 — Corrections signalées en jeu
+- **Cadavre à cheval sur un angle de mur** : la collision cadavre/mur teste maintenant des points interpolés le long de tous les segments du corps (tête→bassin→jambes→bras), pas seulement les articulations ; si le corps traverse un angle, il pivote et glisse hors du mur. Test : angle isolé, 3 poses × 8 orientations.
+- **Pièges aux étages** : posés à la hauteur du sol réellement sous le joueur (`trapY`, étage/toit) au lieu du terrain ; fantôme de pose, validité et désamorçage tiennent compte de la hauteur.
+- **Loot sans fouille** : les prisonniers aussi doivent être fouillés (maintenir F) ; plus aucun objet n'apparaît au sol à la mort/capture.
+- **Recul** : plancher de recul caméra par arme (Fusil et MP9 étaient à ~0,5–0,8°) et recul visuel de l'arme proportionnel au recul de chaque arme. Test : toutes les armes ≥ 1,2°.
+- **Voix** : les enregistrements (Contact !, Ennemi en vue !, Je le vois !) sont intégrés et privilégiés ; liste vivante dans `docs/VOIX.md`.

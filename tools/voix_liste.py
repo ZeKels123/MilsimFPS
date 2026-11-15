@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Régénère docs/VOIX.md à partir des phrases du jeu (src/parts/voix.js et tactic.js).
-Conserve la colonne « État » et « Fichier » des phrases déjà listées. Les nouvelles phrases arrivent en « synthèse »,
+L'état vient de src/parts/voix_manifest.json (produit par tools/voix_audio.py) : phrase enregistrée = « enregistrée » + fichiers, sinon « synthèse ». Les nouvelles phrases arrivent en « synthèse »,
 les phrases supprimées du code passent dans « Retirées ». Usage : python3 tools/voix_liste.py"""
 import re, pathlib, datetime
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -39,10 +39,14 @@ if OUT.exists():
         c = [x.strip() for x in ln.strip().strip('|').split('|')]
         if len(c) == 5 and c[0] not in ('Clé', '---') and not c[0].startswith('-'):
             prev[(c[0], c[2])] = (c[3], c[4])
+import json
+man = {}
+mp = R/'src/parts/voix_manifest.json'
+if mp.exists(): man = json.loads(mp.read_text())
 rows = []; seen = set()
 for k, ph in cur.items():
     for p in ph:
-        st, fi = prev.get((k, p), ('synthèse', ''))
+        st, fi = ('enregistrée', ', '.join(man[p])) if p in man else ('synthèse', '')
         rows.append((k, TRIG[k], p, st, fi)); seen.add((k, p))
 gone = [(k, p, v) for (k, p), v in prev.items() if (k, p) not in seen]
 today = datetime.date.today().isoformat()
@@ -63,7 +67,7 @@ if gone:
     L.append('')
 import sys
 if '--check' in sys.argv:
-    if gone or any(r[3] == 'synthèse' and (r[0], r[2]) not in prev for r in rows):
+    if gone or any((r[0], r[2]) not in prev for r in rows) or any(prev.get((r[0], r[2])) != (r[3], r[4]) for r in rows):
         print('docs/VOIX.md n\'est pas à jour : lancer python3 tools/voix_liste.py'); sys.exit(1)
     sys.exit(0)
 OUT.write_text('\n'.join(L))

@@ -1,14 +1,14 @@
 # Voix des bots — liste des dialogues
 
-Mis à jour le 2026-11-15 · 51 phrases · 0 enregistrées
+Mis à jour le 2026-11-15 · 51 phrases · 3 enregistrées
 
 État : `synthèse` (voix du navigateur) · `enregistrée` (fichier audio intégré). Régénérer : `python3 tools/voix_liste.py`.
 
 | Clé | Déclencheur | Phrase | État | Fichier |
 |---|---|---|---|---|
-| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Contact ! | synthèse |  |
-| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Ennemi en vue ! | synthèse |  |
-| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Je le vois ! | synthèse |  |
+| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Contact ! | enregistrée | contact!_1.mp3, contact!_2.mp3 |
+| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Ennemi en vue ! | enregistrée | ennemi_en_vue.mp3 |
+| contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Je le vois ! | enregistrée | je_le_vois.mp3 |
 | contact | Un bot voit le joueur (appel horaire en plus, voir plus bas) | Contact, devant ! | synthèse |  |
 | hit | Un bot est touché | Je suis touché ! | synthèse |  |
 | hit | Un bot est touché | Aah, touché ! | synthèse |  |
