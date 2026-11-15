@@ -573,3 +573,6 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 - **Arme lâchée** : tir au bras droit → 90 % de chance de lâcher l'arme ; un bras droit déjà bien abîmé peut aussi se fracturer (30 %).
 - **Rechargement des bots** : plus de clip Mixamo (arme aux genoux) ; pose de tir/repos avec léger basculement de l'arme, à hauteur de poitrine debout comme accroupi.
 - Tests : 62/62 (tests F8/F7, hitbox et arme rendus indépendants de la caméra).
+
+## v43.6 — Sac au sol
+- Le sac lâché/trouvé au sol reprend le modèle du sac à dos des soldats (posé sur le dos), teinte et taille selon S/M/L, au lieu d'une boîte verte.

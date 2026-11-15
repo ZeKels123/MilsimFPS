@@ -55,8 +55,13 @@ function invTexMat(id){const c=invIcon(id),k=c;if(IM[c.width+id[0]+(id[0]==='a'|
 // ---------- objets au sol ----------
 const IGM={},IGB=new THREE.BoxGeometry(1,1,1);
 const igMat=c=>IGM[c]||(IGM[c]=new THREE.MeshStandardMaterial({color:c,roughness:.8,metalness:.1}));
+// sac au sol : même modèle que le sac à dos des soldats (posé sur le dos), teinte et taille selon le type
+let INVBG=null;
+function invBagMesh(kind){try{if(!INVBG){const g=sldPackGeo().clone();g.applyMatrix4(SLS.rest[SLS.ix.Spine2]);g.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI/2));g.computeBoundingBox();const bb=g.boundingBox;g.translate(-(bb.min.x+bb.max.x)/2,-bb.min.y,-(bb.min.z+bb.max.z)/2);g.computeBoundingSphere();INVBG=g}
+const k=['S','M','L'].indexOf(kind),sc=[.85,1.05,1.3][k<0?0:k],mat=new THREE.MeshLambertMaterial({vertexColors:true,color:[0xd8d8c0,0xb8c8a0,0x8fa27c][k<0?0:k],side:THREE.DoubleSide}),me=new THREE.Mesh(INVBG,mat);me.scale.setScalar(sc);me.castShadow=true;const g=new THREE.Group();g.add(me);return g}catch(e){return null}}
 function invSpawn(gid,q,x,y,z,vx,vz,bag){let m;
-if(gid==='B'){m=new THREE.Group();const b=BAGS[bag.kind],s=.22+.06*['S','M','L'].indexOf(bag.kind),body=new THREE.Mesh(IGB,igMat(b.col));body.scale.set(s*1.5,s*1.7,s);body.position.y=s*.85;const fl=new THREE.Mesh(IGB,igMat(0x2b3322));fl.scale.set(s*1.4,s*.7,s*.5);fl.position.set(0,s*.9,s*.7);m.add(body,fl);body.castShadow=true}
+if(gid==='B'&&invBagMesh){const mm=invBagMesh(bag.kind);if(mm)m=mm}
+if(m){}else if(gid==='B'){m=new THREE.Group();const b=BAGS[bag.kind],s=.22+.06*['S','M','L'].indexOf(bag.kind),body=new THREE.Mesh(IGB,igMat(b.col));body.scale.set(s*1.5,s*1.7,s);body.position.y=s*.85;const fl=new THREE.Mesh(IGB,igMat(0x2b3322));fl.scale.set(s*1.4,s*.7,s*.5);fl.position.set(0,s*.9,s*.7);m.add(body,fl);body.castShadow=true}
 else{const d=invDef(gid);m=new THREE.Mesh(IGB,invTexMat(gid));m.scale.set(.1*d.w+.06,.07,.1*d.h+.06);m.castShadow=true}
 m.position.set(x,y,z);S.add(m);const e={id:gid,q,m,bag,vx:vx||0,vz:vz||0,vy:0,fall:true,age:0};INV.gnd.push(e);
 while(INV.gnd.length>90){const o=INV.gnd.shift();S.remove(o.m)}return e}

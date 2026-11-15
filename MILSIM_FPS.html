@@ -2069,8 +2069,13 @@ function invTexMat(id){const c=invIcon(id),k=c;if(IM[c.width+id[0]+(id[0]==='a'|
 // ---------- objets au sol ----------
 const IGM={},IGB=new THREE.BoxGeometry(1,1,1);
 const igMat=c=>IGM[c]||(IGM[c]=new THREE.MeshStandardMaterial({color:c,roughness:.8,metalness:.1}));
+// sac au sol : même modèle que le sac à dos des soldats (posé sur le dos), teinte et taille selon le type
+let INVBG=null;
+function invBagMesh(kind){try{if(!INVBG){const g=sldPackGeo().clone();g.applyMatrix4(SLS.rest[SLS.ix.Spine2]);g.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI/2));g.computeBoundingBox();const bb=g.boundingBox;g.translate(-(bb.min.x+bb.max.x)/2,-bb.min.y,-(bb.min.z+bb.max.z)/2);g.computeBoundingSphere();INVBG=g}
+const k=['S','M','L'].indexOf(kind),sc=[.85,1.05,1.3][k<0?0:k],mat=new THREE.MeshLambertMaterial({vertexColors:true,color:[0xd8d8c0,0xb8c8a0,0x8fa27c][k<0?0:k],side:THREE.DoubleSide}),me=new THREE.Mesh(INVBG,mat);me.scale.setScalar(sc);me.castShadow=true;const g=new THREE.Group();g.add(me);return g}catch(e){return null}}
 function invSpawn(gid,q,x,y,z,vx,vz,bag){let m;
-if(gid==='B'){m=new THREE.Group();const b=BAGS[bag.kind],s=.22+.06*['S','M','L'].indexOf(bag.kind),body=new THREE.Mesh(IGB,igMat(b.col));body.scale.set(s*1.5,s*1.7,s);body.position.y=s*.85;const fl=new THREE.Mesh(IGB,igMat(0x2b3322));fl.scale.set(s*1.4,s*.7,s*.5);fl.position.set(0,s*.9,s*.7);m.add(body,fl);body.castShadow=true}
+if(gid==='B'&&invBagMesh){const mm=invBagMesh(bag.kind);if(mm)m=mm}
+if(m){}else if(gid==='B'){m=new THREE.Group();const b=BAGS[bag.kind],s=.22+.06*['S','M','L'].indexOf(bag.kind),body=new THREE.Mesh(IGB,igMat(b.col));body.scale.set(s*1.5,s*1.7,s);body.position.y=s*.85;const fl=new THREE.Mesh(IGB,igMat(0x2b3322));fl.scale.set(s*1.4,s*.7,s*.5);fl.position.set(0,s*.9,s*.7);m.add(body,fl);body.castShadow=true}
 else{const d=invDef(gid);m=new THREE.Mesh(IGB,invTexMat(gid));m.scale.set(.1*d.w+.06,.07,.1*d.h+.06);m.castShadow=true}
 m.position.set(x,y,z);S.add(m);const e={id:gid,q,m,bag,vx:vx||0,vz:vz||0,vy:0,fall:true,age:0};INV.gnd.push(e);
 while(INV.gnd.length>90){const o=INV.gnd.shift();S.remove(o.m)}return e}
@@ -4817,6 +4822,7 @@ const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b
 try{return camP(()=>{const fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);fw.y=0;fw.normalize();const bx=C.position.x+fw.x*12,bz=C.position.z+fw.z*12;b.g.position.set(bx,GH(bx,bz),bz);b.fy=b.g.position.y;b.wp.visible=true;const w=new THREE.Vector3();
 for(const cr of[0,1]){b.crA=cr;b.cr=cr;b.relT=1;for(let i=0;i<30;i++){b.relT=1;sldUpdate(b,.05,false)}b.g.updateMatrixWorld(true);b.wp.getWorldPosition(w);const hh=w.y-b.g.position.y;if(hh<(cr?.7:1))msg+='arme trop basse '+hh.toFixed(2)+' (accroupi='+cr+') '}
 return msg})}finally{b.g.position.copy(sv.pos);b.relT=sv.relT;b.crA=sv.crA;b.cr=sv.cr}return msg});
+T('Sac au sol : même modèle que le sac des soldats, posé sur le sol, taille croissante S<M<L',()=>{const sz=[];for(const k of['S','M','L']){const e=invSpawn('B',1,P.x+3,GH(P.x+3,P.z)+.5,P.z,0,0,{kind:k,cont:{}});if(!e||!e.m)return'pas de mesh '+k;const me=e.m.children[0];if(!me||!me.geometry||me.geometry.attributes.color===undefined)return'modèle du soldat absent '+k;e.m.updateMatrixWorld(true);const bb=new THREE.Box3().setFromObject(me),d=bb.getSize(new THREE.Vector3());sz.push(d.x*d.y*d.z);if(d.y>.8||d.y<.1||Math.max(d.x,d.z)>1.4)return'taille aberrante '+k+' '+d.toArray().map(v=>v.toFixed(2));if(Math.abs(bb.min.y-e.m.position.y)>.05)return'sac décollé du sol '+(bb.min.y-e.m.position.y).toFixed(2);if(e.m.parent)e.m.parent.remove(e.m);const ix=INV.gnd.indexOf(e);if(ix>=0)INV.gnd.splice(ix,1)}return sz[0]<sz[1]&&sz[1]<sz[2]?'':'tailles non croissantes '+sz.map(v=>v.toFixed(3))});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
