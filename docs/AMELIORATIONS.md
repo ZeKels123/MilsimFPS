@@ -625,3 +625,6 @@ Passage de 4 à 8 escouades (constante `SQN` dans `squad.js`) et de 36 à 40 enn
 - **Suppression** : une balle de bot qui passe à moins de 3,5 m de la tête assombrit les bords de l'écran, fait trembler la visée et ouvre la dispersion (jusqu'à +80 %) ; l'effet retombe en quelques secondes. L'appui lourd qui tire sur la dernière position connue rend donc le fait de rester à découvert coûteux.
 - **Tenaille** : deux groupes rejoignent les flancs opposés (16 m de part et d'autre, 8 m en retrait) et chargent ensemble, sur le cri du chef, quand les deux sont en position (ou après 16 s).
 - Nouvelles phrases (oAmb, oRev, oPince) ; `docs/VOIX.md` : 84 phrases.
+
+## v48.1 — Audit de fonctionnement
+Suite 83/83 (deux passes), combat simulé de 4 min (313 tirs, grenades, 17 téléportations) sans erreur ni NaN ni fuite d'objets, et 27 fonctions du joueur exercées par leurs vraies touches : aucun défaut trouvé. Le test « abri contre la pluie » ne dépend plus de la carte aléatoire. Bancs dans `tests/audit/`.
