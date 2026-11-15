@@ -31,3 +31,24 @@ function hbxUpdate(b){
   m.position.copy(_hA).add(_hB).multiplyScalar(.5);m.scale.set(s[3],L+s[3]*.7,s[3]);m.quaternion.setFromUnitVectors(_hY,_hD.multiplyScalar(1/L));m.matrixWorldNeedsUpdate=true}
  if(HBX.show){const d=Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)<90&&!b.dorm&&!(b.dead>50);for(const m of b.hbx)m.visible=d}}
 const sldU2=sldUpdate;sldUpdate=function(b,dt,mv){sldU2(b,dt,mv);try{hbxUpdate(b)}catch(e){console.error('hbx',e)}};
+// ---- collision des cadavres avec les murs/obstacles (boxes) : le corps est repoussé hors du mur, il ne finit plus à travers
+const DCP=['Head','Spine2','Hips','LeftHand','RightHand','LeftLeg','RightLeg','LeftFoot','RightFoot'],_dcV=new THREE.Vector3();
+function dcolPush(b){
+ if(!(b.dead>0)||b.dead>50||!b.sld||!b.sld.sg||(b.fall||0)>4)return 0;
+ const g=b.g;if(Math.hypot(g.position.x-P.x,g.position.z-P.z)>90)return 0;
+ g.updateMatrixWorld(true);const bn=b.sld.bones,ix=SLS.ix,sg=b.sld.sg,gy=g.position.y,R=.2,pts=[];
+ for(const n of DCP){const q=bn[ix[n]];if(!q)continue;_dcV.copy(q.position);sg.localToWorld(_dcV);pts.push([_dcV.x,_dcV.y,_dcV.z])}
+ let sx=0,sz=0,moved=0;const hx=g.position.x,hz=g.position.z;
+ for(let pass=0;pass<3;pass++){let any=0;
+  for(const p of pts){const x=p[0]+sx,z=p[2]+sz,y=p[1];
+   for(const o of boxes){if(o.y1<gy+.15||o.y0>y+.3&&o.y0>gy+1.5)continue;if(o.y0>gy+1.2)continue;
+    if(x<o.x0-R||x>o.x1+R||z<o.z0-R||z>o.z1+R)continue;
+    const pl=x+R-o.x0,pr=o.x1+R-x,pb=z+R-o.z0,pf=o.z1+R-z;let ax=pl<pr?-pl:pr,az=pb<pf?-pb:pf;
+    const hxo=hx+sx<o.x0-R?-1:hx+sx>o.x1+R?1:0,hzo=hz+sz<o.z0-R?-1:hz+sz>o.z1+R?1:0;
+    if(hxo&&!hzo)ax=hxo<0?-pl:pr,az=0;else if(hzo&&!hxo)az=hzo<0?-pb:pf,ax=0;else if(Math.abs(ax)<Math.abs(az))az=0;else ax=0;
+    sx+=ax;sz+=az;any=1;moved=1;break}
+  }
+  if(!any)break}
+ if(moved){g.position.x+=sx;g.position.z+=sz;g.updateMatrixWorld(true);b.dcPush=(b.dcPush||0)+Math.hypot(sx,sz)}
+ return moved}
+{const sU3=sldUpdate;sldUpdate=function(b,dt,mv){sU3(b,dt,mv);if(b.dead>0){try{dcolPush(b)}catch(e){console.error('dcol',e)}}}}

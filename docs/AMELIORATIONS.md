@@ -576,3 +576,7 @@ Le menu des touches couvre maintenant toutes les actions clavier : déplacement,
 
 ## v43.6 — Sac au sol
 - Le sac lâché/trouvé au sol reprend le modèle du sac à dos des soldats (posé sur le dos), teinte et taille selon S/M/L, au lieu d'une boîte verte.
+
+## v43.7 — Collision des cadavres avec les murs
+- À chaque pose d'un bot mort (tête, torse, hanches, mains, jambes, pieds), les points du corps sont testés contre les obstacles (`boxes`) : si un membre entre dans un mur, tout le corps est repoussé du côté d'où il vient (3 passes). Le cadavre ne traverse plus les murs, et sa position finale dépend de l'obstacle et de l'angle de chute.
+- Calcul limité aux cadavres à moins de 90 m, pendant les 4 premières secondes après la mort.
