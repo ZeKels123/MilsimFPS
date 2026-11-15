@@ -42,7 +42,7 @@ TOD.t=(TOD.t+dt*TOD.spd)%24;
 for(let i=0;i<7;i++)wcur[i]+=(WXD[TOD.tgt][i]-wcur[i])*Math.min(1,dt*.35);
 const cov=wcur[0],gr=wcur[1],rn=wcur[2],fN=wcur[3],fF=wcur[4],sK=wcur[5],wd=wcur[6];
 const ang=(TOD.t-6)/12*Math.PI;sunV.set(-Math.cos(ang)*.9,Math.sin(ang)*.82,.5).normalize();const e=sunV.y;SUND.copy(sunV);
-moonV.set(-sunV.x*.8,Math.max(.4,-sunV.y*.9+.15),-sunV.z).normalize();skyU.uMoonD.value.copy(moonV);
+moonDir(ang,moonV);skyU.uMoonD.value.copy(moonV);skyU.uMoonK.value=1-2*MOO.ill;
 const k=kfSky(Math.max(-.3,Math.min(.65,e)));
 // éclairs
 if(TOD.tgt===3){ltT-=dt;if(ltT<=0){ltF=1;ltT=rnd(5,14);thT=rnd(.4,2.6)}}if(ltF>0)ltF=Math.max(0,ltF-dt*3.2);const fz=ltF>0?(Math.sin(ltF*18)>-.2?ltF:ltF*.3):0;if(thT>0){thT-=dt;if(thT<=0)thunder()}
@@ -52,7 +52,7 @@ skyU.uTop.value.copy(k.top);skyU.uHor.value.copy(k.hor);skyU.uSunC.value.copy(k.
 const lf=Math.max(.1,Math.min(1,.12+e*3.2));skyU.uCl.value.copy(k.hor).lerp(_w,.45).multiplyScalar(lf*(1-.35*gr)*1.05);
 // lumière directionnelle : soleil le jour, lune la nuit
 const dayK=Math.max(0,Math.min(1,e/.1)),moonK=Math.max(0,Math.min(1,(-e-.02)/.12));
-if(e>0){LDIR.copy(sunV);sun.color.copy(k.sunC);sun.intensity=k.sunI*sK*dayK}else{LDIR.copy(moonV);sun.color.setHex(0x9db6ff);sun.intensity=.5*moonK*(1-cov*.5)}
+if(e>0){LDIR.copy(sunV);sun.color.copy(k.sunC);sun.intensity=k.sunI*sK*dayK}else{const mu=Math.max(0,Math.min(1,moonV.y/.15));if(moonV.y>.02)LDIR.copy(moonV);else LDIR.set(-moonV.x,.6,-moonV.z).normalize();sun.color.setHex(0x9db6ff);sun.intensity=.5*moonK*(1-cov*.5)*(.22+.78*MOO.ill)*mu}
 hemi.color.copy(k.hs);hemi.groundColor.copy(k.hg);hemi.intensity=k.hI*(1+gr*.35)+fz*1.6;
 R.toneMappingExposure=k.exp*(1+gr*.08);
 fog0.color.copy(k.hor).multiplyScalar(.92+fz*.6);fog0.near=24*fN*(e<0?.7:1);fog0.far=120*fF*(e<0?.8:1);if(!ac.on){S.fog=fog0}
@@ -69,4 +69,4 @@ fl.intensity=flOn?3.2:0;
 const sig=TOD.t+cov*3+gr*3;if(Math.abs(sig-TOD.envW)>.28&&fz<.05&&performance.now()-TOD.envT>4000){TOD.envW=sig;TOD.envT=performance.now();const o=S.environment;S.environment=mkEnv(R);if(o&&o.dispose)o.dispose()}
 // matériaux de la bascule sol <-> lune : ombres
 // HUD
-const hh=Math.floor(TOD.t),mm=Math.floor((TOD.t-hh)*60);wxEl.innerHTML=(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+' · '+WXI[TOD.tgt]+' '+WXN[TOD.tgt]+(flOn?' · lampe ON':'')+'<br><span style="opacity:.55">[N] heure · [M] météo · [L] lampe</span>';wxEl.style.display=ac.on?'none':'block'}
+const hh=Math.floor(TOD.t),mm=Math.floor((TOD.t-hh)*60);wxEl.innerHTML=(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+' · '+WXI[TOD.tgt]+' '+WXN[TOD.tgt]+((TOD.t>19||TOD.t<6)?' '+MOO.ico:'')+(flOn?' · lampe ON':'')+'<br><span style="opacity:.55">[N] heure · [M] météo · [L] lampe</span>';wxEl.style.display=ac.on?'none':'block'}

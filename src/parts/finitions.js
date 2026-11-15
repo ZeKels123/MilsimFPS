@@ -51,4 +51,4 @@ function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefin
   if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){let best=null,bd=70;for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<bd){bd=d;best=r}}if(best&&grdGo(b,best.x,best.z,1.3)){b.shel=best;GRD.n.shel++}}}
    else if(b.alert||b.see)b.shel=0;else if(inRoom(g.x,g.z)>=0){b.path=null;b.decT=Math.max(b.decT,2.5)}else if(!b.path)grdGo(b,b.shel.x,b.shel.z,1.3)}
   else if(rain<.15&&b.shel)b.shel=0}}}
-function finTick(dt){anmTick(dt);perfTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt)}
+function finTick(dt){anmTick(dt);perfTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt);reaTick(dt)}

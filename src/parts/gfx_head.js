@@ -9,10 +9,10 @@ const C=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.05,100);C.rotatio
 // ================= CIEL + ENVIRONNEMENT =================
 const SUND=new THREE.Vector3(-.5,.6,.62).normalize();
 const LDIR=SUND.clone();
-const skyU={uTop:{value:new THREE.Color(TOP)},uHor:{value:new THREE.Color(HOR)},uSunD:{value:SUND},uSunC:{value:new THREE.Color(1,.88,.65)},uT:{value:0},uMoonD:{value:new THREE.Vector3(.3,.6,-.6).normalize()},uCov:{value:.15},uGrey:{value:0},uStar:{value:0},uFlash:{value:0},uCl:{value:new THREE.Color(1,.99,.96)}};
+const skyU={uTop:{value:new THREE.Color(TOP)},uHor:{value:new THREE.Color(HOR)},uSunD:{value:SUND},uSunC:{value:new THREE.Color(1,.88,.65)},uT:{value:0},uMoonK:{value:-1},uMoonD:{value:new THREE.Vector3(.3,.6,-.6).normalize()},uCov:{value:.15},uGrey:{value:0},uStar:{value:0},uFlash:{value:0},uCl:{value:new THREE.Color(1,.99,.96)}};
 const skyMat=()=>new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,
 vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-fragmentShader:`uniform vec3 uTop,uHor,uSunD,uSunC,uMoonD,uCl;uniform float uT,uCov,uGrey,uStar,uFlash;varying vec3 vD;
+fragmentShader:`uniform vec3 uTop,uHor,uSunD,uSunC,uMoonD,uCl;uniform float uT,uCov,uGrey,uStar,uFlash,uMoonK;varying vec3 vD;
 float h21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}
 float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}
@@ -27,7 +27,8 @@ c+=vec3(.85,.9,1.)*star;
 float s=max(dot(d,uSunD),0.);
 c+=uSunC*(.2*pow(s,6.)+.55*pow(s,90.)+3.*smoothstep(.9992,.9998,s)*up)*(1.-.85*uCov);
 float m=max(dot(d,uMoonD),0.);
-c+=vec3(.82,.88,1.)*(2.2*smoothstep(.99935,.99965,m)+.18*pow(m,220.)+.05*pow(m,20.))*uStar*up*(1.-.7*cl);
+vec3 mrel=d-uMoonD*m;vec3 mlt=uSunD-uMoonD*dot(uSunD,uMoonD);mlt=mlt/(length(mlt)+1e-4);vec3 mup=cross(uMoonD,mlt);float mxx=dot(mrel,mlt)/.034,myy=dot(mrel,mup)/.034;float mlit=smoothstep(-.08,.08,mxx-uMoonK*sqrt(max(0.,1.-myy*myy)));float mil=.5-.5*uMoonK;
+c+=vec3(.82,.88,1.)*(2.2*smoothstep(.99935,.99965,m)*(.07+.93*mlit)+(.18*pow(m,220.)+.05*pow(m,20.))*(.15+.85*mil))*uStar*up*(1.-.7*cl);
 vec3 cc=uCl*(.9+.1*s)-vec3(.06,.05,.03)*cl*uCov*0.;
 c=mix(c,cc,cl*(.82+.15*uCov));
 float lu=dot(c,vec3(.3,.55,.15));c=mix(c,vec3(lu)*.92,uGrey*.7);
