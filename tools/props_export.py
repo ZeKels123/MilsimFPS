@@ -7,7 +7,8 @@ SRC=[('sandbag',U+'decor/military_sandbag_barrier_lowpoly.glb',512,0),
      ('tent',U+'decor/tent_venikamen_CCBY.glb',512,0),
      ('barrel',U+'props/barrel_farsmok_CCBY.glb',256,0),
      ('tower',U+'decor/watchtower_zachariblinn_CCBY.glb',512,0),
-     ('wire',U+'decor/barbedwire_JohnDoe2311_CCBY.glb',256,0)]
+     ('wire',U+'decor/barbedwire_JohnDoe2311_CCBY.glb',256,0),
+     ('jeep',U+'props/uaz469_grox777_CCBY.glb',512,0)]
 def b64(a):return base64.b64encode(a.tobytes()).decode()
 def img_of(mat):
     if not mat or not mat.use_nodes:return None,None

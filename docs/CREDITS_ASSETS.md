@@ -12,3 +12,4 @@ La licence « Free Standard » autorise l'usage dans un jeu mais pas la redistri
 | barrel_farsmok_CCBY.glb | Oil barrel | farsmok | CC-BY | https://sketchfab.com/3d-models/ec37cc2a844f4f0ca0873d85a8b3b976 |
 | watchtower_zachariblinn_CCBY.glb | Military watchtower #1 | zachari-blinn | CC-BY | https://sketchfab.com/3d-models/33bbf3553e464270867f70bede244982 |
 | barbedwire_JohnDoe2311_CCBY.glb | Barbed Wire Fence | JohnDoe2311 | CC-BY | https://sketchfab.com/3d-models/f1c1c8e8052a41b7aa10e4a60fa0bcb9 |
+| uaz469_grox777_CCBY.glb | Uaz-469 | grox777 | CC-BY | https://sketchfab.com/3d-models/70c8691c6fb64b859fbfc16babfa2c5f |

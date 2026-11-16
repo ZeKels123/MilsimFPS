@@ -381,7 +381,7 @@ const ci=Math.max(0,Math.floor((sb.x+MH)/NS)),cj=Math.max(0,Math.floor((sb.z+MH)
 if(free_(sb.x,sb.z))return'free_ ignore le sac de sable';
 const jr=P3D.list.find(o=>o.name==='jersey');if(jr){const along=Math.abs(jr.box.x1-jr.box.x0)>Math.abs(jr.box.z1-jr.box.z0)?[0,1]:[1,0];const g=GH(jr.x,jr.z);RC.set(new THREE.Vector3(jr.x-along[0]*3,g+2.4,jr.z-along[1]*3),new THREE.Vector3(along[0],0,along[1]));RC.far=6;const hh=RC.intersectObjects(solids).find(q=>q.object.userData.p3d==='jersey');if(hh)return'le grillage arrête les balles à hauteur de grillage'}
 return''});
-T('Props 3D v2 : tente, baril, mirador, barbelé — données, échelle, collision et blocage des balles',()=>{const names=['tent','barrel','tower','wire'];for(const n of names){if(!P3D_DATA[n]||!P3S[n])return'modèle absent : '+n}
+T('Props 3D v2 : tente, baril, mirador, barbelé — données, échelle, collision et blocage des balles',()=>{const names=['tent','barrel','tower','wire','jeep'];for(const n of names){if(!P3D_DATA[n]||!P3S[n])return'modèle absent : '+n}
 const b0=boxes.length,gy=GH(P.x+40,P.z+40),t=p3dPut('tower',P.x+40,P.z+40,0,gy),w=p3dPut('barrel',P.x+46,P.z+40,0,gy);if(boxes.length!==b0+2)return'boîtes de collision non ajoutées';
 const bb=P3D_DATA.tower.bb[1]*P3S.tower.sc;if(bb<6||bb>12)return'échelle du mirador incohérente : '+bb.toFixed(1)+' m';
 RC.set(new THREE.Vector3(t.x-8,gy+2,t.z),new THREE.Vector3(1,0,0));RC.far=16;const h=RC.intersectObjects(solids)[0];

@@ -666,3 +666,8 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - Test « Props 3D v2 » ; 89/89. Poids du fichier : ~17,3 Mo.
 - Pipeline de téléchargement : `/i/models/<uid>/download` (session navigateur) → URL signée S3 → `<a download>`, texture 1024 px max disponible.
 - Candidats suivants repérés (CC-BY) : UAZ-469 (grox777, 12 k tris), M725 ambulance, Ural 4320, antenne radio (plaggy, 446 tris).
+
+## v53 — Jeep UAZ-469 garée dans les camps
+- Prop CC-BY (grox777, 12 k tris, ~4 m, matériau balistique « veh »), 30 % des camps (12–16 m de l'ancre), collision et navigation comme les autres props.
+- Simulation sans rendu : 4 camps × 60 s de jeu, 0 bot dans un prop, 1 coincement passager.
+- Fichier : ~17,8 Mo.

@@ -3,7 +3,7 @@
 // Petits camps placés près des ancres des escouades ennemies : couverts réels (tir bloqué selon le matériau), collision avec hauteur (on saute par-dessus un sac de sable),
 // les soldats les contournent (grille de navigation) et le grillage laisse passer les balles et la vue.
 const P3D={tex:[],list:[],done:0,tries:0,camps:0};
-const P3S={sandbag:{sc:1,bm:'conc',h:1.03},crate:{sc:.45,bm:'wood',h:.375},jersey:{sc:1,bm:'conc',h:3.85,fence:1},tent:{sc:.0075,bm:'plas',h:2.1},barrel:{sc:1,bm:'steel',h:.9},tower:{sc:.0095,bm:'wood',h:8.8},wire:{sc:1,bm:'wood',h:1.2}};
+const P3S={sandbag:{sc:1,bm:'conc',h:1.03},crate:{sc:.45,bm:'wood',h:.375},jersey:{sc:1,bm:'conc',h:3.85,fence:1},tent:{sc:.0075,bm:'plas',h:2.1},barrel:{sc:1,bm:'steel',h:.9},tower:{sc:.0095,bm:'wood',h:8.8},wire:{sc:1,bm:'wood',h:1.2},jeep:{sc:.0097,bm:'veh',h:2.1}};
 function p3dB(s,T){const b=atob(s),n=b.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=b.charCodeAt(i);return new T(u.buffer)}
 function p3dTex(i){if(P3D.tex[i])return P3D.tex[i];const im=new Image(),t=new THREE.Texture(im);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;t.wrapS=t.wrapT=THREE.RepeatWrapping;im.onload=()=>{t.needsUpdate=true};im.src=P3D_TEX[i];return P3D.tex[i]=t}
 const P3G={};
@@ -30,6 +30,7 @@ function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  for(let k=0;k<3;k++){for(let t=0;t<8;t++){const a=Math.random()*6.283,d=3+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,.7)){p3dPut('barrel',x,z,Math.random()*6.283);n++;break}}}
  if(Math.random()<.7)for(let t=0;t<10;t++){const a=Math.random()*6.283,d=9+Math.random()*3,h=Math.random()*3.1416,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d,L=1.5,dx=Math.sin(h)*L,dz=Math.cos(h)*L;
   if(p3dOK(x,z,.9)&&p3dOK(x+dx,z+dz,.9)&&p3dOK(x-dx,z-dz,.9)){[-1,0,1].forEach(i=>p3dPut('wire',x+dx*i,z+dz*i,h-Math.PI/2));n+=3;break}}
+ if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){p3dPut('jeep',x,z,Math.random()*6.283);n++;break}}
  if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,4.5)){p3dPut('tower',x,z,Math.random()*6.283);n++;break}}
  if(n)P3D.camps++;return n}
 function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1])}catch(e){console.warn('camp',e)}})}
