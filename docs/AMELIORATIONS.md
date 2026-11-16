@@ -636,3 +636,8 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - **Sol** : poussière de terre et cailloux, petit cratère, plus gros avec le calibre (avant : une seule bouffée, seulement pour le joueur).
 - **Sang** sur les bots : quantité et jet selon le calibre, dans le sens de la balle (pas sur l'armure).
 - Tests : le .50 produit plus d'effets et un trou ≥ 1,8 × celui du 9 mm ; bois / béton / métal donnent des couleurs distinctes ; le sol réagit plus fort avec un gros calibre.
+
+## v48.3 — Trous teintés, trous de sortie
+- Les trous de balle prennent la teinte du matériau : bois (pourtour de copeaux clairs), béton, brique (poussière rouge), métal (dessus de tôle brillant), sol (terre sombre).
+- Une balle qui traverse un mur laisse un **trou de sortie** côté opposé (plus grand que l'entrée, copeaux projetés vers l'avant), visible à moins de 45 m.
+- Test « bras levés » des bots stabilisé (30 mises à jour au lieu de 4) ; 86 tests.

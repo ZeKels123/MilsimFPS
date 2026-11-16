@@ -70,7 +70,7 @@ return 0}
 const D=q.a.pen*(q.apk||1)*mt.k*Math.pow(sp/q.a.v,2);let x,th;if(mt.th){th=mt.th;x={point:_bx.copy(h.point).addScaledVector(dir,.05)}}else{_bx.copy(h.point).addScaledVector(dir,1.5);_br.set(_bx,_bn.copy(dir).negate());_br.far=1.5;
 x=_br.intersectObject(h.object,false)[0];if(!x)return 1;th=Math.max(.005,1.5-x.distance)}if(th>=D)return 1;
 const kv=Math.max(.3,1-.75*th/D),j=.012*th/D;q.vx=(q.vx+(Math.random()-.5)*sp*j)*kv;q.vy=(q.vy+(Math.random()-.5)*sp*j)*kv;q.vz=(q.vz+(Math.random()-.5)*sp*j)*kv;
-q.px=x.point.x+dir.x*.03;q.py=x.point.y+dir.y*.03;q.pz=x.point.z+dir.z*.03;BAL.pen=(BAL.pen|0)+1;
+q.px=x.point.x+dir.x*.03;q.py=x.point.y+dir.y*.03;q.pz=x.point.z+dir.z*.03;BAL.pen=(BAL.pen|0)+1;if(x.face&&Math.hypot(x.point.x-P.x,x.point.z-P.z)<45){_bn.copy(x.face.normal).transformDirection(x.object.matrixWorld);if(_bn.dot(dir)<0)_bn.negate();const sc2=impScale(q);_bp.copy(x.point);decalS(_bp,_bn,sc2*1.25*(mt.t==='wood'?1.2:1),mt.t==='veh'?'steel':mt.t==='plas'?'conc':mt.t);for(let i=0;i<Math.round(2+2*sc2);i++)emit(_bp,_e.set(dir.x,dir.y,dir.z).multiplyScalar(2+rnd(0,2)).add(_bx.set(rnd(-.6,.6),rnd(-.2,.8),rnd(-.6,.6))),{color:mt.t==='wood'?0xc9a56a:0xa8a49a,size:.025,life:.4,a:1,g:9,drag:.4})}
 if(Math.hypot(x.point.x-P.x,x.point.z-P.z)<60){_bp.copy(x.point);emit(_bp,_e.set(dir.x,dir.y+.3,dir.z),{color:0xb8a890,size:.1,grow:.6,life:.4,a:.4,drag:2})}return 0}
 function balTarget(){if(!BAL.tg)BAL.tg=[...ray,...botParts.filter(q=>!q.userData.bot.dead),...FA.hit.filter(q=>!q.userData.an.dead),...MQP];return BAL.tg}
 function balSpd(q){return Math.sqrt(q.vx*q.vx+q.vy*q.vy+q.vz*q.vz)}
@@ -138,19 +138,22 @@ const IMT={wood:{d:0xb59a72,dn:2,c:0xc9a56a,cn:5,s:0,f:[380,.07,'square'],hk:.9}
 conc:{d:0xb9b5aa,dn:4,c:0x9d9a92,cn:3,s:.45,f:[700,.05,'triangle'],hk:1.1},steel:{d:0x8a8a8a,dn:0,c:0x6a6a6a,cn:1,s:1,f:[2100,.1,'triangle'],hk:.6},
 plas:{d:0xd0ccc2,dn:2,c:0xd8d4c8,cn:2,s:0,f:[520,.05,'square'],hk:.8},veh:{d:0x777777,dn:0,c:0x555555,cn:1,s:.8,f:[1700,.09,'triangle'],hk:.55}};
 function impScale(q){const sp=Math.max(80,balSpd(q));return Math.max(.45,Math.min(2.2,Math.sqrt(.5*q.a.m*sp*sp/1500)))}
-function decalS(p,n,sc){const m=dcP[dcI=(dcI+1)%dcP.length];m.position.copy(p).addScaledVector(n,.012);m.lookAt(_e.copy(p).add(n));m.rotateZ(rnd(0,6.28));m.scale.setScalar(rnd(.7,1.4)*sc);m.visible=true}
+// trous teintés selon le matériau : éclats clairs autour du trou (bois, béton), dessus de tôle brillant (métal), poussière rouge (brique)
+const holeMk=(c0,c1,rg)=>fxT(64,(x,w)=>{const g=x.createRadialGradient(32,32,0,32,32,30);g.addColorStop(0,c0);g.addColorStop(.3,'rgba(20,18,14,.85)');g.addColorStop(.5,rg);g.addColorStop(.75,c1);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,w)});
+const DCMAT={};for(const[k,a]of Object.entries({wood:['rgba(30,18,8,.95)','rgba(150,110,60,.35)','rgba(190,150,95,.6)'],steel:['rgba(8,8,8,.95)','rgba(120,120,125,.3)','rgba(210,210,215,.7)'],brick:['rgba(14,8,6,.95)','rgba(150,80,55,.3)','rgba(190,110,80,.5)'],conc:['rgba(10,10,10,.95)','rgba(150,148,140,.3)','rgba(215,212,204,.55)'],soil:['rgba(30,22,14,.9)','rgba(70,56,38,.3)','rgba(90,72,48,.5)']}))DCMAT[k]=new THREE.MeshBasicMaterial({map:holeMk(a[0],a[1],a[2]),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4});
+function decalS(p,n,sc,kind){const m=dcP[dcI=(dcI+1)%dcP.length];m.material=DCMAT[kind]||dcM;m.position.copy(p).addScaledVector(n,.012);m.lookAt(_e.copy(p).add(n));m.rotateZ(rnd(0,6.28));m.scale.setScalar(rnd(.7,1.4)*sc);m.visible=true}
 function impactB(h,q,door){const mt=door?'wood':(balMatOf(h.object).t||'brick'),M=IMT[mt]||IMT.brick,sc=impScale(q);
 _n.copy(h.face.normal).transformDirection(h.object.matrixWorld);_p.copy(h.point).addScaledVector(_n,.03);
 const nd=Math.round(M.dn*(.6+.5*sc));for(let i=0;i<nd;i++)emit(_p,_e.set(rnd(-.3,.3),rnd(.1,.5),rnd(-.3,.3)).addScaledVector(_n,.7),{color:M.d,size:.07*(.7+.6*sc),grow:.45*sc,life:.5+.12*sc,a:.45,drag:2.5,g:-.15});
 const nc=Math.round(M.cn*(.5+.7*sc));for(let i=0;i<nc;i++)emit(_p,_e.set(rnd(-1,1),rnd(-.2,1.2),rnd(-1,1)).addScaledVector(_n,2+sc),{color:M.c,size:.022+.014*sc,life:.35+.1*sc,a:1,g:9,drag:.5});
 const ns=Math.round(M.s*(2+4*sc));for(let i=0;i<ns;i++)emit(_p,_e.set(rnd(-1,1),rnd(-.5,1.2),rnd(-1,1)).addScaledVector(_n,2.2+sc),{map:sparkT,color:mt==='steel'||mt==='veh'?0xfff0c0:0xffc870,size:.035+.012*sc,life:.25+.08*sc,a:1,add:1,g:9,drag:.6});
-if(!door||mt!=='wood')decalS(h.point,_n,sc*M.hk);else decalS(h.point,_n,sc*.8);
+decalS(h.point,_n,sc*M.hk,mt==='veh'?'steel':mt==='plas'?'conc':mt);
 if(Math.hypot(h.point.x-P.x,h.point.z-P.z)<45)snd(M.f[0]*rnd(.9,1.1),M.f[1]*(.7+.4*sc),.05+.04*sc,M.f[2])}
 const _gP=new THREE.Vector3(),_gN=new THREE.Vector3(0,1,0);
 function impactG(q,gy){const sc=impScale(q),_bp=_gP.set(q.px,gy+.05,q.pz);
 for(let i=0;i<Math.round(2+2*sc);i++)emit(_bp,_e.set(rnd(-.3,.3),rnd(.3,1)*(.7+.4*sc),rnd(-.3,.3)),{color:0x8a7a5c,size:.08*(.7+.6*sc),grow:.5*sc,life:.5+.1*sc,a:.45,drag:2});
 for(let i=0;i<Math.round(2*sc);i++)emit(_bp,_e.set(rnd(-1,1),rnd(.8,2.2),rnd(-1,1)),{color:0x6a5c44,size:.02+.01*sc,life:.45,a:1,g:9,drag:.4});
-decalS(_bp,_gN,sc*.6);if(Math.hypot(q.px-P.x,q.pz-P.z)<35)snd(260*rnd(.9,1.1),.06,.04+.03*sc,'square')}
+decalS(_bp,_gN,sc*.6,'soil');if(Math.hypot(q.px-P.x,q.pz-P.z)<35)snd(260*rnd(.9,1.1),.06,.04+.03*sc,'square')}
 // sang : quantité et jet selon le calibre
 const _bV=new THREE.Vector3();
 function bloodB(h,q,head,armor){if(armor)return;const sc=impScale(q);_p.copy(h.point);const n=Math.round(2+4*sc);for(let i=0;i<n;i++)emit(_p,_e.set(rnd(-.5,.5),rnd(0,.7),rnd(-.5,.5)).addScaledVector(_bV.set(q.vx,q.vy,q.vz).normalize(),.8+sc),{color:head?0x7a1a18:0x5e2a24,size:.045+.025*sc,grow:.3,life:.4+.12*sc,a:.55,drag:2.5,g:3})}

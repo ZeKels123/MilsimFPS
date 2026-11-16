@@ -175,7 +175,7 @@ const ok=vL>v0&&rcH<rc0&&mgE>mg0&&rtE>WC[w].rt&&rtR<WC[w].rt&&RT===WC[w].rt;
 const sn=JSON.stringify(PERS.snap().wm);bench=bn;
 if(!ok)return'effets '+[vL,v0,rcH,rc0,mgE,mg0,rtE,rtR].join('/');if(!sn.includes('"b":0'))return'persistance';return''}finally{bench=bn;nb=nb0;if(wm==='null')delete WMOD[w];else WMOD[w]=JSON.parse(wm);ammo=a0;reserve=rs;wmTick()}});
 T('Animations des bots : bras levés (reddition, signe) et mise à jour du squelette',()=>{const b=bots.find(o=>!o.dead&&o.sld);if(!b)return'pas de bot';const g=b.g.position,p0=g.clone(),P0=[P.x,P.z],cp0=C.position.clone(),cam0=(C.position.set(P.x,P.gy+1.6,P.z),C.position),fw0=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);g.set(cam0.x+fw0.x*8,g.y,cam0.z+fw0.z*8);let msg='';
-try{b.dorm=0;b.armK=0;const up=()=>{for(let i=0;i<4;i++)sldUpdate(b,.016,false)};up();const L=SLS.ix.LeftArm,H=SLS.ix.LeftHand,y0=b.sld.bones[H].position.y-b.sld.bones[L].position.y;
+try{b.dorm=0;b.armK=0;const up=()=>{for(let i=0;i<30;i++)sldUpdate(b,.016,false)};up();const L=SLS.ix.LeftArm,H=SLS.ix.LeftHand,y0=b.sld.bones[H].position.y-b.sld.bones[L].position.y;
 b.armM='up';b.armK=1;up();const y1=b.sld.bones[H].position.y-b.sld.bones[L].position.y;if(!(y1>y0+.3))msg+='bras non levés '+[y0,y1]+' ';
 b.armM='sign';b.armK=1;up();const ry=b.sld.bones[SLS.ix.RightHand].position.y;b.armK=0;up();if(Math.abs(b.sld.bones[SLS.ix.RightHand].position.y-ry)>.05)msg+='signe: bras droit levé ';
 b.armT=1.8;b.sur=0;anmSign(b);if(b.armM!=='sign')msg+='signe absent ';b.armT=0;b.armK=0;
@@ -359,6 +359,11 @@ T('Impacts : l’effet dépend du calibre et du matériau (quantité, taille du 
 const a=sig('conc','p9'),b=sig('conc','b50'),r=sig('conc','r762');if(!(b.n>a.n))return'le .50 ne produit pas plus d’effets que le 9 mm ('+b.n+' vs '+a.n+')';if(!(b.sc>a.sc*1.8))return'trou du .50 pas plus grand ('+b.sc.toFixed(2)+' vs '+a.sc.toFixed(2)+')';if(!(r.n>=a.n&&r.n<=b.n))return'7,62 hors de l’échelle';
 const w=sig('wood','r762'),c=sig('conc','r762'),s=sig('steel','r762');if(w.cols===c.cols||c.cols===s.cols||w.cols===s.cols)return'matériaux indiscernables';return''});
 T('Impacts : le sol réagit à la balle (poussière + trou), plus gros pour un gros calibre',()=>{const sg=am=>{const q={a:BAM[am],vx:BAM[am].v,vy:0,vz:0,px:P.x+100,py:0,pz:P.z},i0=pI;impactG(q,GH(q.px,q.pz));return(pI-i0+PN)%PN};const a=sg('p9'),b=sg('b50');return a>0&&b>a?'':'sol : '+a+' / '+b});
+T('Trous de balle : teintés selon le matériau, trou de sortie sur un mur traversé',()=>{if(DCMAT.wood.map===DCMAT.steel.map||DCMAT.steel.map===DCMAT.conc.map)return'trous identiques selon le matériau';
+const wall=new THREE.Mesh(new THREE.BoxGeometry(2,2,.1),new THREE.MeshBasicMaterial());wall.userData.bmat='wood';wall.position.set(P.x,GH(P.x,P.z-10)+1,P.z-10);wall.updateMatrixWorld(true);
+const org=new THREE.Vector3(P.x,wall.position.y,P.z-8),dir=new THREE.Vector3(0,0,-1),rc=new THREE.Raycaster(org,dir,0,5),h=rc.intersectObject(wall,false)[0];if(!h)return'mur non touché par le test';
+const q={a:BAM.b50,vx:0,vy:0,vz:-890,px:h.point.x,py:h.point.y,pz:h.point.z,c:{dmg:1},src:'p',sk:new Set()};const rr=BAL.fixed;BAL.fixed=.9;let r;try{r=balWall(h,q,org,dir)}finally{BAL.fixed=rr}
+if(r!==0)return'la balle de .50 devrait traverser une cloison de bois ('+r+')';const d=dcP[dcI];if(d.material!==DCMAT.wood)return'trou de sortie non teinté bois';if(Math.abs(d.position.z-(wall.position.z-.05))>.15)return'trou de sortie mal placé (z '+d.position.z.toFixed(2)+')';return''});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';
