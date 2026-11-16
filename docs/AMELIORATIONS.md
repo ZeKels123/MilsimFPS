@@ -647,3 +647,10 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - **HUD** : le bloc grenades, la ligne de poids et le compteur de munitions se chevauchaient en bas à droite → empilés. « [G] » ne passe plus seul à la ligne sous PV/armure.
 - **Menu** : fond opaque, le HUD n'apparaît plus en transparence derrière.
 - Constat non corrigé : les soldats à plus de 220 m sont figés et invisibles (optimisation), le monde ne bouge donc pas loin du joueur.
+
+## v50 — Props 3D Sketchfab (sacs de sable, caisses, barrière béton + grillage)
+- Trois modèles légers (CC0/CC-BY, voir `docs/CREDITS_ASSETS.md`) convertis par `tools/props_export.py` (Blender) en géométrie base64 compacte (`src/parts/props3d_data.js`, ~340 Ko, textures 512 px).
+- `src/parts/props3d.js` : placement de camps près des ancres ennemies, collision (`boxes`), navigation IA (`p3dNav`), balistique (matériau `bmat`), grillage traversable (alpha).
+- Éclaircissement de la texture béton/caisse (albédo trop sombre en sRGB).
+- Test : « Props 3D : camps, couvert qui arrête les balles, grillage traversable, collision et navigation ». 88/88.
+- Limite connue : ennemis > 220 m figés (dormance).

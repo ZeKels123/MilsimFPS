@@ -371,6 +371,16 @@ DEATH.skip=1;if(!deathHold(.05))return'réapparition possible avant le délai mi
 for(let i=0;i<12;i++)deathHold(.1);if(!DEATH.on)return'réapparition sans action avant '+DEATH.len+' s';
 for(let i=0;i<6;i++)deathHold(.1);DEATH.skip=1;if(deathHold(.1))return'Espace n’accélère pas la réapparition';if(DEATH.on)return'séquence non terminée';
 const el=document.getElementById('mort');if(!el)return'écran de mort absent';DEATH.fade=0;el.style.display='none';hlReset();P.hp=100;return''});
+T('Props 3D : camps, couvert qui arrête les balles, grillage traversable, collision et navigation',()=>{if(!P3D.list.length){P3D.done=0;P3D.tries=2000;p3dTry()}
+if(P3D.list.length<6)return'trop peu de props placés : '+P3D.list.length;const sb=P3D.list.find(o=>o.name==='sandbag'),cr=P3D.list.find(o=>o.name==='crate');if(!sb||!cr)return'sacs de sable ou caisses absents';
+const ray=(o,y,dx,dz)=>{const gy=GH(o.x,o.z);RC.set(new THREE.Vector3(o.x-dx*3,gy+y,o.z-dz*3),new THREE.Vector3(dx,0,dz));RC.far=6;return RC.intersectObjects(solids)[0]};
+let h=ray(sb,.5,1,0),h2=ray(sb,.5,0,1);if(!((h&&h.object.userData.p3d==='sandbag')||(h2&&h2.object.userData.p3d==='sandbag')))return'un sac de sable n’arrête pas un tir';
+if(balMatOf((h||h2).object).t!=='conc')return'matériau balistique du sac de sable incorrect';
+if(!boxes.some(b=>b.p3d==='sandbag'&&b.y1>b.y0))return'collision avec hauteur absente';
+const ci=Math.max(0,Math.floor((sb.x+MH)/NS)),cj=Math.max(0,Math.floor((sb.z+MH)/NS));if(!NAVB[cj*NGN+ci])return'cases de navigation non bloquées sous un sac de sable';
+if(free_(sb.x,sb.z))return'free_ ignore le sac de sable';
+const jr=P3D.list.find(o=>o.name==='jersey');if(jr){const along=Math.abs(jr.box.x1-jr.box.x0)>Math.abs(jr.box.z1-jr.box.z0)?[0,1]:[1,0];const g=GH(jr.x,jr.z);RC.set(new THREE.Vector3(jr.x-along[0]*3,g+2.4,jr.z-along[1]*3),new THREE.Vector3(along[0],0,along[1]));RC.far=6;const hh=RC.intersectObjects(solids).find(q=>q.object.userData.p3d==='jersey');if(hh)return'le grillage arrête les balles à hauteur de grillage'}
+return''});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';
