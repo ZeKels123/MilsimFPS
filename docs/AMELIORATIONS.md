@@ -654,3 +654,7 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - Éclaircissement de la texture béton/caisse (albédo trop sombre en sRGB).
 - Test : « Props 3D : camps, couvert qui arrête les balles, grillage traversable, collision et navigation ». 88/88.
 - Limite connue : ennemis > 220 m figés (dormance).
+
+## v51 — Tente militaire
+- 4e prop 3D : tente CC-BY (VENIKAMEN), ~5,4 k triangles, textures réduites à 512 px, échelle ~7 m, collision/balistique « plas ». Générée dans ~60 % des camps (15–20 m de l'ancre).
+- Textures olive très sombres : éclaircies par un facteur de couleur au chargement.
