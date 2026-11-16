@@ -392,6 +392,17 @@ const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const gy=GH(it.x,it.
 const ok=Math.abs(top-(gy+7.4))<.05&&mid>gy+2&&mid<gy+6&&low<gy+1;
 const bxs=boxes.filter(o=>o.stair).length;S.remove(it.g);const i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(it);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===it.g)solids.splice(q,1);
 return ok&&bxs>20?'':'plateforme '+top.toFixed(2)+' (attendu '+(gy+7.4).toFixed(2)+'), milieu '+mid.toFixed(2)+', bas '+low.toFixed(2)});
+T('Tireur au mirador : un tireur d\u2019élite monte l\u2019escalier et tient la plateforme',()=>{let sp=null;for(let a=0;a<400&&!sp;a++){const x=P.x+60+a*7,z=P.z-90+(a%9)*11;if(p3dOK(x,z,4.5)){const d=p3dRamp(x,z);if(d)sp=[x,z,d]}}if(!sp)return'aucun emplacement libre pour un mirador';
+const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const h=UPH[UPH.length-1];if(!h.tower)return'mirador non enregistré comme poste';
+const q=sqTestSq(3),al=q.m.filter(b=>!b.dead);const sn=al[al.length-1];const sv=[sn.ty,sn.T,sn.g.position.x,sn.g.position.z];sn.ty=2;sn.T=BT[2];let top=0,res='';
+const px=P.x,pz=P.z,hs=UPH.splice(0,UPH.length-1);
+try{sn.lvl=0;sn.route=null;sn.path=null;sn.dead=0;sn.g.position.set(it.x+sp[2][0]*14,GH(it.x,it.z),it.z+sp[2][1]*14);sn.fy=sn.g.position.y;sn.lk.x=it.x-sp[2][0]*35;sn.lk.z=it.z-sp[2][1]*35;P.x=it.x+20;P.z=it.z+20;
+let ok=false;for(let i=0;i<40&&!ok;i++)ok=aiPost(sn,2);if(!ok)return'aucun poste au mirador';
+for(let i=0;i<900&&!top;i++){aiUpdate(.1,false);if(sn.fy>it.top-.6&&Math.hypot(sn.g.position.x-it.x,sn.g.position.z-it.z)<2.5)top=1}
+res=top?'':'bot bloqué à y='+(sn.fy-GH(it.x,it.z)).toFixed(1)+' m, pos '+(Math.hypot(sn.g.position.x-it.x,sn.g.position.z-it.z)).toFixed(1)+' m du centre, état '+sn.st}
+finally{UPH.length=0;hs.forEach(o=>UPH.push(o));UPH.push(h);UPH.pop();sn.ty=sv[0];sn.T=sv[1];sn.route=null;sn.lvl=0;sn.path=null;sn.after=null;sn.hh=null;sn.rp=null;sn.down=0;sn.hold=0;sn.st='pat';sn.alert=0;sn.cr=0;sn.upr=null;sn.fdn=null;sn.g.position.set(sv[2],GH(sv[2],sv[3]),sv[3]);sn.fy=sn.g.position.y;P.x=px;P.z=pz;
+S.remove(it.g);const i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(it);if(j>=0)P3D.list.splice(j,1);for(let q2=solids.length-1;q2>=0;q2--)if(solids[q2].parent===it.g)solids.splice(q2,1)}
+return res});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';

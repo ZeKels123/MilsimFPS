@@ -22,7 +22,10 @@ const P3W=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9});
 function p3dRamp(x,z){const H=7.4,L=9.5;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){let ok=true;for(let t=1.8;t<=1.8+L+1&&ok;t+=1.2)for(const w of [-.9,0,.9]){const px=x+d[0]*t+d[1]*w,pz=z+d[1]*t+d[0]*w;if(!free_(px,pz)||!nFree(px,pz)||inRoom(px,pz)>=0||GH(px,pz)<(typeof WL!=='undefined'?WL:0)+.4||Math.abs(GH(px,pz)-GH(x,z))>3){ok=false;break}}if(ok)return d}return null}
 function p3dTowerUp(it,d){const H=7.4,L=9.5,gy=GH(it.x,it.z),x=it.x,z=it.z,b=it.box;b.x0=x-1.5;b.x1=x+1.5;b.z0=z-1.5;b.z1=z+1.5;b.y1=gy+H;
  surfRect(x-1.8,x+1.8,z-1.8,z+1.8,gy+H);const xa=x+d[0]*(1.8+L),za=z+d[1]*(1.8+L),xb=x+d[0]*1.8,zb=z+d[1]*1.8;
- const r=stairs(xa,za,xb,zb,1.5,GH(xa,za),gy+H,P3W,{rail:1});it.ramp=r;p3dNav({x0:Math.min(xa,xb)-.8,x1:Math.max(xa,xb)+.8,z0:Math.min(za,zb)-.8,z1:Math.max(za,zb)+.8});it.top=gy+H;return r}
+ const r=stairs(xa,za,xb,zb,1.5,GH(xa,za),gy+H,P3W,{rail:1});it.ramp=r;
+ {const ps=[[-1.3,-1.3],[1.3,-1.3],[-1.3,1.3],[1.3,1.3]].map(q=>[x+q[0],z+q[1],Math.atan2(q[0],q[1]),0]),F=[xa,za],mid=[(xa+xb)/2,(za+zb)/2],top=[xb,zb],ctr=[x,z];
+  UPH.push({cx:x,cz:z,FT:gy,RT:gy+H+1.5,iF:F,iA:F,iB:mid,iL:ctr,iM:ctr,iN:ctr,posts:[],rF:F,rA:top,rB:ctr,rL:ctr,rM:ctr,roofPosts:ps,rect:[x-2,x+2,z-2,z+2],hole:null,floor:null,tower:1})}
+ p3dNav({x0:Math.min(xa,xb)-.8,x1:Math.max(xa,xb)+.8,z0:Math.min(za,zb)-.8,z1:Math.max(za,zb)+.8});it.top=gy+H;return r}
 function p3dOK(x,z,r,ign){try{if(!free_(x,z)||!nFree(x,z))return false;if(inRoom(x,z)>=0)return false;const y=GH(x,z);if(y<(typeof WL!=='undefined'?WL:0)+.4)return false;
  if(Math.abs(GH(x+r,z)-GH(x-r,z))>.6||Math.abs(GH(x,z+r)-GH(x,z-r))>.6)return false;if(Math.hypot(x-P.x,z-P.z)<14||Math.hypot(x,z-25)<35)return false;
  for(const o of P3D.list)if(Math.hypot(o.x-x,o.z-z)<o.r+r+.4)return false;return true}catch(e){return false}}

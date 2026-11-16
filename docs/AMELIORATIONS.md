@@ -677,3 +677,8 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - La colonne de collision est réduite au noyau (3×3 m) : on passe par-dessus à 7,4 m ; les poteaux restent solides pour les balles.
 - Test « Mirador » (sol à 7,4 m au sommet, rampe intermédiaire, bas au sol). 90/90.
 - Limite : les bots n'utilisent pas encore le mirador ; pas de collision avec les parois de la cabine en haut.
+
+## v55 — Tireur au mirador
+- Chaque mirador s'enregistre comme poste en hauteur (`UPH`, champ `tower:1`) : 4 postes aux coins de la plateforme, parcours = pied de l'escalier → milieu → haut → plateforme. `aiPost` (déjà utilisé pour les toits de maison) l'attribue aux tireurs d'élite (65 %) quand une cible est entre 9 et 75 m ; la descente réutilise la logique existante (repli si blessé, ou après 14 s sans alerte).
+- Test « Tireur au mirador » : le bot atteint la plateforme (y ≥ 7,4 m − 0,6) en ≤ 90 s de jeu simulé. Le test remet l'état du bot à zéro (sinon il perturbait d'autres tests aléatoires). 91/91 sur 3 lancements consécutifs.
+- Limite : pas de collision avec les parois de la cabine ; le tireur ne se couche pas derrière le garde-corps.
