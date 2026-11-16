@@ -384,9 +384,14 @@ return''});
 T('Props 3D v2 : tente, baril, mirador, barbelé — données, échelle, collision et blocage des balles',()=>{const names=['tent','barrel','tower','wire','jeep'];for(const n of names){if(!P3D_DATA[n]||!P3S[n])return'modèle absent : '+n}
 const b0=boxes.length,gy=GH(P.x+40,P.z+40),t=p3dPut('tower',P.x+40,P.z+40,0,gy),w=p3dPut('barrel',P.x+46,P.z+40,0,gy);if(boxes.length!==b0+2)return'boîtes de collision non ajoutées';
 const bb=P3D_DATA.tower.bb[1]*P3S.tower.sc;if(bb<6||bb>12)return'échelle du mirador incohérente : '+bb.toFixed(1)+' m';
-RC.set(new THREE.Vector3(t.x-8,gy+2,t.z),new THREE.Vector3(1,0,0));RC.far=16;const h=RC.intersectObjects(solids)[0];
+RC.far=16;let h=null;for(const yy of [1,2,3,4,5,6,7.8])for(const dz of [-1.5,-.5,.5,1.5]){if(h)break;RC.set(new THREE.Vector3(t.x-8,gy+yy,t.z+dz),new THREE.Vector3(1,0,0));const q=RC.intersectObjects(solids).find(o=>o.object.userData.p3d==='tower');if(q)h=q}
 [t,w].forEach(o=>{S.remove(o.g);const i=boxes.indexOf(o.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(o);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===o.g)solids.splice(q,1)});
 return h&&h.object.userData.p3d==='tower'?'':'le mirador n\u2019arrête pas un tir horizontal'});
+T('Mirador : escalier, plateforme marchable à ~7,4 m, colonne franchissable par-dessus',()=>{let sp=null;for(let a=0;a<400&&!sp;a++){const x=P.x+60+a*7,z=P.z-90+(a%9)*11;if(p3dOK(x,z,4.5)){const d=p3dRamp(x,z);if(d)sp=[x,z,d]}}if(!sp)return'aucun emplacement libre pour un mirador';
+const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const gy=GH(it.x,it.z),top=groundAt(it.x,it.z,gy+7.8);const mid=groundAt(it.x+sp[2][0]*6,it.z+sp[2][1]*6,gy+7.8),low=groundAt(it.x+sp[2][0]*10.5,it.z+sp[2][1]*10.5,gy+.5);
+const ok=Math.abs(top-(gy+7.4))<.05&&mid>gy+2&&mid<gy+6&&low<gy+1;
+const bxs=boxes.filter(o=>o.stair).length;S.remove(it.g);const i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(it);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===it.g)solids.splice(q,1);
+return ok&&bxs>20?'':'plateforme '+top.toFixed(2)+' (attendu '+(gy+7.4).toFixed(2)+'), milieu '+mid.toFixed(2)+', bas '+low.toFixed(2)});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';

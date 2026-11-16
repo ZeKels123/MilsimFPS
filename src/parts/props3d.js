@@ -17,6 +17,12 @@ function p3dPut(name,x,z,yaw,gy0){const c=P3S[name],g=p3dMake(name),gy=gy0!==und
  const box={x0:x-hx,x1:x+hx,z0:z-hz,z1:z+hz,y0:gy-.2,y1:gy+c.h,p3d:name};boxes.push(box);p3dNav(box);
  g.children.forEach(m=>{if(m.userData.p3dAlpha)return;m.userData.bmat=c.bm;m.userData.p3d=name;solids.push(m)});
  g.traverse(o=>{o.matrixAutoUpdate=false});const r=Math.max(hx,hz);const it={name,x,z,r,g,box};P3D.list.push(it);return it}
+// mirador : plateforme à 7,4 m (surface marchable) + escalier droit axé sur le monde ; la colonne pleine est réduite au noyau pour qu'on puisse monter
+const P3W=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9});
+function p3dRamp(x,z){const H=7.4,L=9.5;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){let ok=true;for(let t=1.8;t<=1.8+L+1&&ok;t+=1.2)for(const w of [-.9,0,.9]){const px=x+d[0]*t+d[1]*w,pz=z+d[1]*t+d[0]*w;if(!free_(px,pz)||!nFree(px,pz)||inRoom(px,pz)>=0||GH(px,pz)<(typeof WL!=='undefined'?WL:0)+.4||Math.abs(GH(px,pz)-GH(x,z))>3){ok=false;break}}if(ok)return d}return null}
+function p3dTowerUp(it,d){const H=7.4,L=9.5,gy=GH(it.x,it.z),x=it.x,z=it.z,b=it.box;b.x0=x-1.5;b.x1=x+1.5;b.z0=z-1.5;b.z1=z+1.5;b.y1=gy+H;
+ surfRect(x-1.8,x+1.8,z-1.8,z+1.8,gy+H);const xa=x+d[0]*(1.8+L),za=z+d[1]*(1.8+L),xb=x+d[0]*1.8,zb=z+d[1]*1.8;
+ const r=stairs(xa,za,xb,zb,1.5,GH(xa,za),gy+H,P3W,{rail:1});it.ramp=r;p3dNav({x0:Math.min(xa,xb)-.8,x1:Math.max(xa,xb)+.8,z0:Math.min(za,zb)-.8,z1:Math.max(za,zb)+.8});it.top=gy+H;return r}
 function p3dOK(x,z,r,ign){try{if(!free_(x,z)||!nFree(x,z))return false;if(inRoom(x,z)>=0)return false;const y=GH(x,z);if(y<(typeof WL!=='undefined'?WL:0)+.4)return false;
  if(Math.abs(GH(x+r,z)-GH(x-r,z))>.6||Math.abs(GH(x,z+r)-GH(x,z-r))>.6)return false;if(Math.hypot(x-P.x,z-P.z)<14||Math.hypot(x,z-25)<35)return false;
  for(const o of P3D.list)if(Math.hypot(o.x-x,o.z-z)<o.r+r+.4)return false;return true}catch(e){return false}}
@@ -31,7 +37,7 @@ function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  if(Math.random()<.7)for(let t=0;t<10;t++){const a=Math.random()*6.283,d=9+Math.random()*3,h=Math.random()*3.1416,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d,L=1.5,dx=Math.sin(h)*L,dz=Math.cos(h)*L;
   if(p3dOK(x,z,.9)&&p3dOK(x+dx,z+dz,.9)&&p3dOK(x-dx,z-dz,.9)){[-1,0,1].forEach(i=>p3dPut('wire',x+dx*i,z+dz*i,h-Math.PI/2));n+=3;break}}
  if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){p3dPut('jeep',x,z,Math.random()*6.283);n++;break}}
- if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,4.5)){p3dPut('tower',x,z,Math.random()*6.283);n++;break}}
+ if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;const dr=p3dOK(x,z,4.5)&&p3dRamp(x,z);if(dr){const it=p3dPut('tower',x,z,Math.floor(Math.random()*4)*Math.PI/2);p3dTowerUp(it,dr);n++;break}}
  if(n)P3D.camps++;return n}
 function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1])}catch(e){console.warn('camp',e)}})}
 {const _fx=fxFrame;fxFrame=function(dt){if(!P3D.done&&typeof SQA!=='undefined'&&!MM_menuOpen())p3dTry();return _fx.apply(this,arguments)}}

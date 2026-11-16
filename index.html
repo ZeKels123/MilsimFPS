@@ -4812,6 +4812,12 @@ function p3dPut(name,x,z,yaw,gy0){const c=P3S[name],g=p3dMake(name),gy=gy0!==und
  const box={x0:x-hx,x1:x+hx,z0:z-hz,z1:z+hz,y0:gy-.2,y1:gy+c.h,p3d:name};boxes.push(box);p3dNav(box);
  g.children.forEach(m=>{if(m.userData.p3dAlpha)return;m.userData.bmat=c.bm;m.userData.p3d=name;solids.push(m)});
  g.traverse(o=>{o.matrixAutoUpdate=false});const r=Math.max(hx,hz);const it={name,x,z,r,g,box};P3D.list.push(it);return it}
+// mirador : plateforme à 7,4 m (surface marchable) + escalier droit axé sur le monde ; la colonne pleine est réduite au noyau pour qu'on puisse monter
+const P3W=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9});
+function p3dRamp(x,z){const H=7.4,L=9.5;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){let ok=true;for(let t=1.8;t<=1.8+L+1&&ok;t+=1.2)for(const w of [-.9,0,.9]){const px=x+d[0]*t+d[1]*w,pz=z+d[1]*t+d[0]*w;if(!free_(px,pz)||!nFree(px,pz)||inRoom(px,pz)>=0||GH(px,pz)<(typeof WL!=='undefined'?WL:0)+.4||Math.abs(GH(px,pz)-GH(x,z))>3){ok=false;break}}if(ok)return d}return null}
+function p3dTowerUp(it,d){const H=7.4,L=9.5,gy=GH(it.x,it.z),x=it.x,z=it.z,b=it.box;b.x0=x-1.5;b.x1=x+1.5;b.z0=z-1.5;b.z1=z+1.5;b.y1=gy+H;
+ surfRect(x-1.8,x+1.8,z-1.8,z+1.8,gy+H);const xa=x+d[0]*(1.8+L),za=z+d[1]*(1.8+L),xb=x+d[0]*1.8,zb=z+d[1]*1.8;
+ const r=stairs(xa,za,xb,zb,1.5,GH(xa,za),gy+H,P3W,{rail:1});it.ramp=r;p3dNav({x0:Math.min(xa,xb)-.8,x1:Math.max(xa,xb)+.8,z0:Math.min(za,zb)-.8,z1:Math.max(za,zb)+.8});it.top=gy+H;return r}
 function p3dOK(x,z,r,ign){try{if(!free_(x,z)||!nFree(x,z))return false;if(inRoom(x,z)>=0)return false;const y=GH(x,z);if(y<(typeof WL!=='undefined'?WL:0)+.4)return false;
  if(Math.abs(GH(x+r,z)-GH(x-r,z))>.6||Math.abs(GH(x,z+r)-GH(x,z-r))>.6)return false;if(Math.hypot(x-P.x,z-P.z)<14||Math.hypot(x,z-25)<35)return false;
  for(const o of P3D.list)if(Math.hypot(o.x-x,o.z-z)<o.r+r+.4)return false;return true}catch(e){return false}}
@@ -4826,7 +4832,7 @@ function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  if(Math.random()<.7)for(let t=0;t<10;t++){const a=Math.random()*6.283,d=9+Math.random()*3,h=Math.random()*3.1416,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d,L=1.5,dx=Math.sin(h)*L,dz=Math.cos(h)*L;
   if(p3dOK(x,z,.9)&&p3dOK(x+dx,z+dz,.9)&&p3dOK(x-dx,z-dz,.9)){[-1,0,1].forEach(i=>p3dPut('wire',x+dx*i,z+dz*i,h-Math.PI/2));n+=3;break}}
  if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){p3dPut('jeep',x,z,Math.random()*6.283);n++;break}}
- if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,4.5)){p3dPut('tower',x,z,Math.random()*6.283);n++;break}}
+ if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;const dr=p3dOK(x,z,4.5)&&p3dRamp(x,z);if(dr){const it=p3dPut('tower',x,z,Math.floor(Math.random()*4)*Math.PI/2);p3dTowerUp(it,dr);n++;break}}
  if(n)P3D.camps++;return n}
 function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1])}catch(e){console.warn('camp',e)}})}
 {const _fx=fxFrame;fxFrame=function(dt){if(!P3D.done&&typeof SQA!=='undefined'&&!MM_menuOpen())p3dTry();return _fx.apply(this,arguments)}}
@@ -5217,9 +5223,14 @@ return''});
 T('Props 3D v2 : tente, baril, mirador, barbelé — données, échelle, collision et blocage des balles',()=>{const names=['tent','barrel','tower','wire','jeep'];for(const n of names){if(!P3D_DATA[n]||!P3S[n])return'modèle absent : '+n}
 const b0=boxes.length,gy=GH(P.x+40,P.z+40),t=p3dPut('tower',P.x+40,P.z+40,0,gy),w=p3dPut('barrel',P.x+46,P.z+40,0,gy);if(boxes.length!==b0+2)return'boîtes de collision non ajoutées';
 const bb=P3D_DATA.tower.bb[1]*P3S.tower.sc;if(bb<6||bb>12)return'échelle du mirador incohérente : '+bb.toFixed(1)+' m';
-RC.set(new THREE.Vector3(t.x-8,gy+2,t.z),new THREE.Vector3(1,0,0));RC.far=16;const h=RC.intersectObjects(solids)[0];
+RC.far=16;let h=null;for(const yy of [1,2,3,4,5,6,7.8])for(const dz of [-1.5,-.5,.5,1.5]){if(h)break;RC.set(new THREE.Vector3(t.x-8,gy+yy,t.z+dz),new THREE.Vector3(1,0,0));const q=RC.intersectObjects(solids).find(o=>o.object.userData.p3d==='tower');if(q)h=q}
 [t,w].forEach(o=>{S.remove(o.g);const i=boxes.indexOf(o.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(o);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===o.g)solids.splice(q,1)});
 return h&&h.object.userData.p3d==='tower'?'':'le mirador n\u2019arrête pas un tir horizontal'});
+T('Mirador : escalier, plateforme marchable à ~7,4 m, colonne franchissable par-dessus',()=>{let sp=null;for(let a=0;a<400&&!sp;a++){const x=P.x+60+a*7,z=P.z-90+(a%9)*11;if(p3dOK(x,z,4.5)){const d=p3dRamp(x,z);if(d)sp=[x,z,d]}}if(!sp)return'aucun emplacement libre pour un mirador';
+const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const gy=GH(it.x,it.z),top=groundAt(it.x,it.z,gy+7.8);const mid=groundAt(it.x+sp[2][0]*6,it.z+sp[2][1]*6,gy+7.8),low=groundAt(it.x+sp[2][0]*10.5,it.z+sp[2][1]*10.5,gy+.5);
+const ok=Math.abs(top-(gy+7.4))<.05&&mid>gy+2&&mid<gy+6&&low<gy+1;
+const bxs=boxes.filter(o=>o.stair).length;S.remove(it.g);const i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(it);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===it.g)solids.splice(q,1);
+return ok&&bxs>20?'':'plateforme '+top.toFixed(2)+' (attendu '+(gy+7.4).toFixed(2)+'), milieu '+mid.toFixed(2)+', bas '+low.toFixed(2)});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';

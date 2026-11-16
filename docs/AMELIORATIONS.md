@@ -671,3 +671,9 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - Prop CC-BY (grox777, 12 k tris, ~4 m, matériau balistique « veh »), 30 % des camps (12–16 m de l'ancre), collision et navigation comme les autres props.
 - Simulation sans rendu : 4 camps × 60 s de jeu, 0 bot dans un prop, 1 coincement passager.
 - Fichier : ~17,8 Mo.
+
+## v54 — Mirador praticable
+- Escalier droit (9,5 m, rampe marchable `surfRamp` + marches + garde-corps) vers une plateforme à 7,4 m (`surfRect`). Orientation du mirador en multiples de 90°, direction de l'escalier alignée sur les axes du monde (le rectangle englobant d'une rampe diagonale créerait un sol fantôme).
+- La colonne de collision est réduite au noyau (3×3 m) : on passe par-dessus à 7,4 m ; les poteaux restent solides pour les balles.
+- Test « Mirador » (sol à 7,4 m au sommet, rampe intermédiaire, bas au sol). 90/90.
+- Limite : les bots n'utilisent pas encore le mirador ; pas de collision avec les parois de la cabine en haut.
