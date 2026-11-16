@@ -9,3 +9,6 @@ Les modèles ci-dessous sont intégrés au jeu (convertis par `tools/props_expor
 Téléchargés non utilisés (dossier « assets jeux/Sketchfab ») : Military Outpost Kit 1.0 (britdawgmasterfunk, CC Attribution).
 La licence « Free Standard » autorise l'usage dans un jeu mais pas la redistribution du fichier brut : seuls les maillages convertis sont dans le jeu.
 | tent_venikamen_CCBY.glb | Tent | VENIKAMEN | CC-BY | https://sketchfab.com/3d-models/tent-979c0784868b4fdeb2b4563f65e0b5b4 |
+| barrel_farsmok_CCBY.glb | Oil barrel | farsmok | CC-BY | https://sketchfab.com/3d-models/ec37cc2a844f4f0ca0873d85a8b3b976 |
+| watchtower_zachariblinn_CCBY.glb | Military watchtower #1 | zachari-blinn | CC-BY | https://sketchfab.com/3d-models/33bbf3553e464270867f70bede244982 |
+| barbedwire_JohnDoe2311_CCBY.glb | Barbed Wire Fence | JohnDoe2311 | CC-BY | https://sketchfab.com/3d-models/f1c1c8e8052a41b7aa10e4a60fa0bcb9 |

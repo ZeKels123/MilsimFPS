@@ -658,3 +658,11 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 ## v51 — Tente militaire
 - 4e prop 3D : tente CC-BY (VENIKAMEN), ~5,4 k triangles, textures réduites à 512 px, échelle ~7 m, collision/balistique « plas ». Générée dans ~60 % des camps (15–20 m de l'ancre).
 - Textures olive très sombres : éclaircies par un facteur de couleur au chargement.
+
+## v52 — Baril, mirador, barbelé
+- 3 props CC-BY : baril (farsmok, 2,5 k tris), mirador militaire (zachari-blinn, 4 k tris, ~8,8 m), clôture barbelée (JohnDoe2311). Textures 256–512 px.
+- Camps : 3 barils, 70 % une ligne de 3 segments de barbelé, 35 % un mirador (21–26 m de l'ancre). Le mirador est une colonne pleine pour la collision (pas d'escalade pour l'instant).
+- Éclaircissement du béton (×4,5), de la tente (×6) et des caisses (×1,8).
+- Test « Props 3D v2 » ; 89/89. Poids du fichier : ~17,3 Mo.
+- Pipeline de téléchargement : `/i/models/<uid>/download` (session navigateur) → URL signée S3 → `<a download>`, texture 1024 px max disponible.
+- Candidats suivants repérés (CC-BY) : UAZ-469 (grox777, 12 k tris), M725 ambulance, Ural 4320, antenne radio (plaggy, 446 tris).
