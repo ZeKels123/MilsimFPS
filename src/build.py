@@ -21,6 +21,7 @@ css='''#vig{position:fixed;inset:0;pointer-events:none;background:radial-gradien
 rep('</style>',css+'</style>')
 rep('const q=Math.hypot(P.x-d.x,P.z-d.z);if(q<nds){nds=q;nd=d}','const q=Math.hypot(P.x-d.x,P.z-d.z)+(Math.abs(P.gy-GH(d.x,d.z))>1.6?99:0);if(q<nds){nds=q;nd=d}')
 rep('<div id="atts" class="h"></div>','<div id="vig"></div><div id="grain"></div><div id="atts" class="h"></div>')
+rep("#hp{left:14px;bottom:14px;width:200px}","#hp{left:14px;bottom:14px;width:200px}#hp>div:first-child{white-space:nowrap}")
 # 2. rendu / ciel / textures / sol
 a=s.index('const R=new THREE.WebGLRenderer({antialias:true});');e='floor.rotation.x=-Math.PI/2;S.add(floor);'
 b=s.index(e)+len(e)
@@ -78,7 +79,7 @@ rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.b
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('selftest.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('mort.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -203,6 +204,7 @@ rep("function onKill(b,head){","function onKill(b,head){invLoot(b);")
 rep("P.kills++;P.streak++;if(P.kills%2===0)P.plates=Math.min(5,P.plates+1);if(b.T===BT[3])P.plates=Math.min(5,P.plates+2);","P.kills++;P.streak++;")
 rep('<tr><td>ZQSD / WASD</td>','<tr><td>Tab</td><td>Sac \u00e0 dos \u00b7 V : jeter le sac \u00b7 Retour : jeter des munitions \u00b7 F : ramasser</td></tr><tr><td>ZQSD / WASD</td>')
 rep("P.deaths++;","P.deaths++;invDeath();")
+rep("if(P.hp<=0){P.hp=100;","if(P.hp<=0&&!deathHold(dt)){P.hp=100;")
 rep("if(reloading||plateT>0||ac.on||HM.act)return;if(ammo<=0)","if(reloading||plateT>0||ac.on||HM.act||TRP.mode||KNF.on)return;if(ammo<=0)")
 rep("<tr><td>Tab</td>","<tr><td>B</td><td>Poser un piège (clic maintenu) · 9 : télécommande · F maintenu : désamorcer</td></tr><tr><td>Tab</td>")
 rep("<tr><td>B</td><td>Poser","<tr><td>F8</td><td>Activer / d\u00e9sactiver les ennemis (test)</td></tr><tr><td>B</td><td>Poser")

@@ -4,7 +4,7 @@ const NG_=13,NT=[{n:'Frag',fuse:2.8,col:0x3f4d2c},{n:'Flash',fuse:1.9,col:0xc8c8
 const FXP={flash:0,flashMax:1,stun:0,stunK:0,shake:0,ring:null,blur:'',warn:0};let SENS=1;
 {const mk=(css,html)=>{const d=document.createElement('div');d.style.cssText='position:fixed;pointer-events:none;'+css;if(html)d.innerHTML=html;document.body.appendChild(d);return d};
 FXP.elF=mk('inset:0;background:#fff;opacity:0;z-index:6');FXP.elS=mk('inset:0;opacity:0;z-index:5;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 25%,rgba(10,14,20,.85) 100%)');
-FXP.elN=mk('right:18px;bottom:74px;font:13px monospace;color:#dfe8d0;text-align:right;text-shadow:0 1px 3px #000;z-index:5;line-height:1.5');
+FXP.elN=mk('right:18px;bottom:100px;font:13px monospace;color:#dfe8d0;text-align:right;text-shadow:0 1px 3px #000;z-index:5;line-height:1.5');
 FXP.elW=mk('left:50%;top:62%;transform:translateX(-50%);font:bold 15px monospace;color:#ff5a3a;text-shadow:0 0 8px #000;z-index:5;letter-spacing:.08em;display:none');
 FXP.elD=mk('left:50%;top:50%;width:0;height:0;z-index:5;opacity:0;transition:opacity .5s','<div style="position:absolute;left:-46px;top:-150px;width:92px;height:26px;border-top:5px solid #ff3a20;border-radius:50%/100% 100% 0 0;filter:drop-shadow(0 0 6px #f20)"></div>');
 for(let t=0;t<4;t++)for(let i=0;i<5;i++){const m=mkNade(t);m.userData.ty=t;m.scale.setScalar(1.15);m.visible=false;S.add(m);NADE.pool.push(m)}}

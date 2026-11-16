@@ -641,3 +641,9 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - Les trous de balle prennent la teinte du matériau : bois (pourtour de copeaux clairs), béton, brique (poussière rouge), métal (dessus de tôle brillant), sol (terre sombre).
 - Une balle qui traverse un mur laisse un **trou de sortie** côté opposé (plus grand que l'entrée, copeaux projetés vers l'avant), visible à moins de 45 m.
 - Test « bras levés » des bots stabilisé (30 mises à jour au lieu de 4) ; 86 tests.
+
+## v49 — Séquence de mort et corrections d'interface (relevées en simulation avec captures)
+- **Mort** : plus de téléportation instantanée. La caméra tombe au sol et bascule, l'écran passe au rouge puis au noir, « VOUS ÊTES MORT » avec la cause (balle, éclats, souffle, chute, hémorragie), la zone touchée et la distance du tireur. Commandes bloquées, réapparition après 4,8 s ou par Espace/Entrée après 1,8 s, fondu au retour. Module `mort.js`, 1 test (87).
+- **HUD** : le bloc grenades, la ligne de poids et le compteur de munitions se chevauchaient en bas à droite → empilés. « [G] » ne passe plus seul à la ligne sous PV/armure.
+- **Menu** : fond opaque, le HUD n'apparaît plus en transparence derrière.
+- Constat non corrigé : les soldats à plus de 220 m sont figés et invisibles (optimisation), le monde ne bouge donc pas loin du joueur.

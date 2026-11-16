@@ -364,6 +364,13 @@ const wall=new THREE.Mesh(new THREE.BoxGeometry(2,2,.1),new THREE.MeshBasicMater
 const org=new THREE.Vector3(P.x,wall.position.y,P.z-8),dir=new THREE.Vector3(0,0,-1),rc=new THREE.Raycaster(org,dir,0,5),h=rc.intersectObject(wall,false)[0];if(!h)return'mur non touché par le test';
 const q={a:BAM.b50,vx:0,vy:0,vz:-890,px:h.point.x,py:h.point.y,pz:h.point.z,c:{dmg:1},src:'p',sk:new Set()};const rr=BAL.fixed;BAL.fixed=.9;let r;try{r=balWall(h,q,org,dir)}finally{BAL.fixed=rr}
 if(r!==0)return'la balle de .50 devrait traverser une cloison de bois ('+r+')';const d=dcP[dcI];if(d.material!==DCMAT.wood)return'trou de sortie non teinté bois';if(Math.abs(d.position.z-(wall.position.z-.05))>.15)return'trou de sortie mal placé (z '+d.position.z.toFixed(2)+')';return''});
+T('Mort : cause affichée, commandes bloquées, délai puis réapparition',()=>{hlReset();DEATH.on=0;const px=P.x,pz=P.z;hlApply('h',9999,'b',{x:px+40,z:pz});if(!HM.dead)return'le joueur devrait être mort';
+K.KeyW=true;if(!deathHold(.05))return'pas de séquence de mort';if(!DEATH.on)return'séquence non démarrée';if(K.KeyW)return'commandes non bloquées';
+if(!/balle/.test(DEATH.txt)||!/tête/i.test(DEATH.sub)||!/40 m/.test(DEATH.sub))return'cause mal décrite : '+DEATH.txt+' / '+DEATH.sub;
+DEATH.skip=1;if(!deathHold(.05))return'réapparition possible avant le délai minimum';
+for(let i=0;i<12;i++)deathHold(.1);if(!DEATH.on)return'réapparition sans action avant '+DEATH.len+' s';
+for(let i=0;i<6;i++)deathHold(.1);DEATH.skip=1;if(deathHold(.1))return'Espace n’accélère pas la réapparition';if(DEATH.on)return'séquence non terminée';
+const el=document.getElementById('mort');if(!el)return'écran de mort absent';DEATH.fade=0;el.style.display='none';hlReset();P.hp=100;return''});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}
 if(!n)return'aucune voix enregistrée';let rec=0;for(let i=0;i<300;i++)if(VXD[vxPick('contact')])rec++;if(rec<150)return'les phrases enregistrées ne sont pas privilégiées ('+rec+'/300)';
