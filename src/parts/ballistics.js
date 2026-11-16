@@ -47,9 +47,9 @@ _bd.set(_bq.x-V.x,_bq.y-V.y,_bq.z-V.z).normalize();balSpawn(V,_bd,am,{src:'b',bo
 // impact d'une balle du joueur (reprend les règles de fire() avec les dégâts réduits par l'énergie restante)
 function balPHit(h,q,fac){const c=q.c,u=h.object.userData,dm0=c.dmg*fac*(q.dk||1);let hit=0,hitA=0,brk=0;
 if(u.an){if(faHit(u.an,h.point,dm0)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}
-if(u.bot&&!u.bot.dead){const b=u.bot,dm=dm0*SKM.dmg*(A.supp?.9:1);{b.pk=1;const hr=bhHit(b,u.head?'h':(u.zone||'t'),dm,'b');hitA=hr.a;brk=hr.brk}hit=1;hitT=.2;hitFx.call(null,h,hitA,brk,u.head,b);aiHit(b);$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':(brk?'#fc0':(hitA?'#6cf':'#fff'));if(b.hp<=0)onKill(b,u.head)}
+if(u.bot&&!u.bot.dead){const b=u.bot,dm=dm0*SKM.dmg*(A.supp?.9:1);{b.pk=1;const hr=bhHit(b,u.head?'h':(u.zone||'t'),dm,'b');hitA=hr.a;brk=hr.brk}hit=1;hitT=.2;hitFx.call(null,h,hitA,brk,u.head,b);bloodB(h,q,u.head,hitA||brk);aiHit(b);$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':(brk?'#fc0':(hitA?'#6cf':'#fff'));if(b.hp<=0)onKill(b,u.head)}
 else if(u.mq){mqHit(u.mq,u,dm0*SKM.dmg*(A.supp?.9:1),h.point);hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':'#fff'}
-else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.dst)dstHit(u.dst,h,dm0*6);if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impact(h,!!u.door)}
+else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.dst)dstHit(u.dst,h,dm0*6);if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impactB(h,q,!!u.door)}
 if(brk)crack();else if(hitA)snd(1800,.08,.2,'triangle');else if(hit)snd(900,.06,.15,'square');BAL.hits++;return hit}
 
 // ---- matériaux des murs : pénétration (profondeur max en m pour pen=1 à pleine vitesse), ricochet (sinus de l'angle d'incidence rasant limite), vitesse conservée au ricochet
@@ -93,7 +93,7 @@ const hr=hlRay(org,dir,Math.min(far,wt));
 if(hr&&hr.t<wt){_bp.copy(org).addScaledVector(dir,hr.t);hlApply(hr.z,q.dmg*balFac(q),'b',q.bot?q.bot.g.position:null);BAL.hits++;return 1}
 // claquement d'une balle qui passe près du joueur
 if(!q.wz&&P.gy!==undefined){_bq.set(P.x-org.x,P.gy+P.eh*.6-org.y,P.z-org.z);const t=Math.max(0,Math.min(far,_bq.dot(dir))),dd=_bq.sub(_bu.copy(dir).multiplyScalar(t)).length();if(dd<1.8&&t>1){q.wz=1;FXP.shake=Math.max(FXP.shake,.22);snd(rnd(1700,2500),.04,.07,'square');HM.pain=Math.min(1,HM.pain+.01)}}
-if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impact(wh,!!wh.object.userData.door);if(!wh.object.userData.door&&balWall(wh,q,org,dir)===0)return 0;return 1}
+if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(!wh.object.userData.door&&balWall(wh,q,org,dir)===0)return 0;return 1}
 return 0}
 return 0}
 function balTick(dt){BAL.t+=dt;if(P.gy!==undefined){if(BAL.pOk){BAL.pv.set((P.x-BAL.pp.x)/Math.max(dt,.001),0,(P.z-BAL.pp.z)/Math.max(dt,.001)).clampLength(0,7)}BAL.pp.set(P.x,0,P.z);BAL.pOk=1}
@@ -101,7 +101,7 @@ if(!BAL.bl.length)return;dt=Math.min(dt,.05);BAL.tg=null;balWind();const n=Math.
 for(let i=BAL.bl.length-1;i>=0;i--){const q=BAL.bl[i];_bo.set(q.px,q.py,q.pz);for(let s=0;s<n;s++)balStep(q,h,BAL.wx,BAL.wz);q.t+=dt;
 _bd.set(q.px-_bo.x,q.py-_bo.y,q.pz-_bo.z);const L=_bd.length();if(L<1e-6){continue}_bd.multiplyScalar(1/L);q.dist+=L;
 let end=balSeg(q,_bo,_bd,L);
-if(!end){const gy=GH(q.px,q.pz);if(q.py<gy-.2&&q.t>.02){end=1;if(q.src==='p'&&Math.hypot(q.px-P.x,q.pz-P.z)<150){_bp.set(q.px,gy+.05,q.pz);emit(_bp,_e.set(rnd(-.3,.3),rnd(.3,1),rnd(-.3,.3)),{color:0xa89a80,size:.14,grow:.5,life:.55,a:.45,drag:2})}}}
+if(!end){const gy=GH(q.px,q.pz);if(q.py<gy-.2&&q.t>.02){end=1;if(Math.hypot(q.px-P.x,q.pz-P.z)<150)impactG(q,gy);}}
 if(!end&&(balSpd(q)<70||q.t>8||q.dist>1400||Math.abs(q.px)>lim||Math.abs(q.pz)>lim||q.py<-20))end=1;
 if(q.m){if(end)q.m.visible=false;else{const sp=balSpd(q),Ls=Math.min(14,Math.max(2.5,sp*.018)),w=.04+Math.hypot(q.px-C.position.x,q.pz-C.position.z)*.006;_bp.set(q.px,q.py,q.pz);if(q.off){const f=Math.max(0,1-q.dist/25);_bp.addScaledVector(q.off,f)}
 q.m.position.copy(_bp).addScaledVector(_bd,-Ls/2);q.m.scale.set(w,w,Ls);q.m.lookAt(_bq.copy(_bp));q.m.visible=q.dist>2}}
@@ -130,3 +130,27 @@ const mil300=cross*balDrift1(am,300)/300*1000;g.textAlign='left';g.fillText('VEN
 if(Math.abs(mil300)>.05){const px=cx-mil300*ppm;g.beginPath();g.moveTo(px,cy-dr*3);g.lineTo(px,cy+dr*3);g.stroke()}}
 // le son d'un tir lointain arrive avec le retard dû à la vitesse du son
 function sfxShot(x,y,z,ty,vol) {const d=Math.hypot(x-P.x,z-P.z);if(d>60)setTimeout(()=>sfxShot0(x,y,z,ty,vol),Math.min(d,900)/343*1000);else sfxShot0(x,y,z,ty,vol)}
+
+// ================= impacts selon le calibre (énergie de la balle) et le matériau touché =================
+for(const k in BAM){BAM[k].k=k}
+// d : poussière (couleur, quantité) · c : éclats (couleur, quantité) · s : étincelles 0..1 · f : son [fréquence, durée, type] · hk : taille du trou
+const IMT={wood:{d:0xb59a72,dn:2,c:0xc9a56a,cn:5,s:0,f:[380,.07,'square'],hk:.9},brick:{d:0xb4694c,dn:4,c:0xa8563a,cn:3,s:.25,f:[620,.06,'triangle'],hk:1},
+conc:{d:0xb9b5aa,dn:4,c:0x9d9a92,cn:3,s:.45,f:[700,.05,'triangle'],hk:1.1},steel:{d:0x8a8a8a,dn:0,c:0x6a6a6a,cn:1,s:1,f:[2100,.1,'triangle'],hk:.6},
+plas:{d:0xd0ccc2,dn:2,c:0xd8d4c8,cn:2,s:0,f:[520,.05,'square'],hk:.8},veh:{d:0x777777,dn:0,c:0x555555,cn:1,s:.8,f:[1700,.09,'triangle'],hk:.55}};
+function impScale(q){const sp=Math.max(80,balSpd(q));return Math.max(.45,Math.min(2.2,Math.sqrt(.5*q.a.m*sp*sp/1500)))}
+function decalS(p,n,sc){const m=dcP[dcI=(dcI+1)%dcP.length];m.position.copy(p).addScaledVector(n,.012);m.lookAt(_e.copy(p).add(n));m.rotateZ(rnd(0,6.28));m.scale.setScalar(rnd(.7,1.4)*sc);m.visible=true}
+function impactB(h,q,door){const mt=door?'wood':(balMatOf(h.object).t||'brick'),M=IMT[mt]||IMT.brick,sc=impScale(q);
+_n.copy(h.face.normal).transformDirection(h.object.matrixWorld);_p.copy(h.point).addScaledVector(_n,.03);
+const nd=Math.round(M.dn*(.6+.5*sc));for(let i=0;i<nd;i++)emit(_p,_e.set(rnd(-.3,.3),rnd(.1,.5),rnd(-.3,.3)).addScaledVector(_n,.7),{color:M.d,size:.07*(.7+.6*sc),grow:.45*sc,life:.5+.12*sc,a:.45,drag:2.5,g:-.15});
+const nc=Math.round(M.cn*(.5+.7*sc));for(let i=0;i<nc;i++)emit(_p,_e.set(rnd(-1,1),rnd(-.2,1.2),rnd(-1,1)).addScaledVector(_n,2+sc),{color:M.c,size:.022+.014*sc,life:.35+.1*sc,a:1,g:9,drag:.5});
+const ns=Math.round(M.s*(2+4*sc));for(let i=0;i<ns;i++)emit(_p,_e.set(rnd(-1,1),rnd(-.5,1.2),rnd(-1,1)).addScaledVector(_n,2.2+sc),{map:sparkT,color:mt==='steel'||mt==='veh'?0xfff0c0:0xffc870,size:.035+.012*sc,life:.25+.08*sc,a:1,add:1,g:9,drag:.6});
+if(!door||mt!=='wood')decalS(h.point,_n,sc*M.hk);else decalS(h.point,_n,sc*.8);
+if(Math.hypot(h.point.x-P.x,h.point.z-P.z)<45)snd(M.f[0]*rnd(.9,1.1),M.f[1]*(.7+.4*sc),.05+.04*sc,M.f[2])}
+const _gP=new THREE.Vector3(),_gN=new THREE.Vector3(0,1,0);
+function impactG(q,gy){const sc=impScale(q),_bp=_gP.set(q.px,gy+.05,q.pz);
+for(let i=0;i<Math.round(2+2*sc);i++)emit(_bp,_e.set(rnd(-.3,.3),rnd(.3,1)*(.7+.4*sc),rnd(-.3,.3)),{color:0x8a7a5c,size:.08*(.7+.6*sc),grow:.5*sc,life:.5+.1*sc,a:.45,drag:2});
+for(let i=0;i<Math.round(2*sc);i++)emit(_bp,_e.set(rnd(-1,1),rnd(.8,2.2),rnd(-1,1)),{color:0x6a5c44,size:.02+.01*sc,life:.45,a:1,g:9,drag:.4});
+decalS(_bp,_gN,sc*.6);if(Math.hypot(q.px-P.x,q.pz-P.z)<35)snd(260*rnd(.9,1.1),.06,.04+.03*sc,'square')}
+// sang : quantité et jet selon le calibre
+const _bV=new THREE.Vector3();
+function bloodB(h,q,head,armor){if(armor)return;const sc=impScale(q);_p.copy(h.point);const n=Math.round(2+4*sc);for(let i=0;i<n;i++)emit(_p,_e.set(rnd(-.5,.5),rnd(0,.7),rnd(-.5,.5)).addScaledVector(_bV.set(q.vx,q.vy,q.vz).normalize(),.8+sc),{color:head?0x7a1a18:0x5e2a24,size:.045+.025*sc,grow:.3,life:.4+.12*sc,a:.55,drag:2.5,g:3})}

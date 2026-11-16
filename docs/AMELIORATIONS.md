@@ -628,3 +628,11 @@ Passage de 4 à 8 escouades (constante `SQN` dans `squad.js`) et de 36 à 40 enn
 
 ## v48.1 — Audit de fonctionnement
 Suite 83/83 (deux passes), combat simulé de 4 min (313 tirs, grenades, 17 téléportations) sans erreur ni NaN ni fuite d'objets, et 27 fonctions du joueur exercées par leurs vraies touches : aucun défaut trouvé. Le test « abri contre la pluie » ne dépend plus de la carte aléatoire. Bancs dans `tests/audit/`.
+
+## v48.2 — Impacts selon le calibre et le matériau
+Avant, la trajectoire dépendait de la munition mais tous les impacts étaient identiques (3 poussières, 4 étincelles, un trou) et le sol ne réagissait pas.
+- **Énergie de la balle** (½·m·v² à la vitesse restante) → échelle 0,45 (chevrotine) à 2,2 (.50) : quantité et taille des poussières, éclats, étincelles, taille du trou, volume du son.
+- **Matériau** (bois, brique, béton, métal, plastique, véhicule) : couleur et quantité de poussière, éclats (copeaux de bois, éclats de brique/béton), étincelles (béton, brique, métal ; beaucoup sur métal), taille du trou, son (sourd sur bois, claquant sur métal).
+- **Sol** : poussière de terre et cailloux, petit cratère, plus gros avec le calibre (avant : une seule bouffée, seulement pour le joueur).
+- **Sang** sur les bots : quantité et jet selon le calibre, dans le sens de la balle (pas sur l'armure).
+- Tests : le .50 produit plus d'effets et un trou ≥ 1,8 × celui du 9 mm ; bois / béton / métal donnent des couleurs distinctes ; le sol réagit plus fort avec un gros calibre.
