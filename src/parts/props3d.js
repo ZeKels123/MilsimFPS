@@ -42,7 +42,7 @@ function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  for(let k=0;k<3;k++){for(let t=0;t<8;t++){const a=Math.random()*6.283,d=3+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,.7)){p3dPut('barrel',x,z,Math.random()*6.283);n++;break}}}
  if(Math.random()<.7)for(let t=0;t<10;t++){const a=Math.random()*6.283,d=9+Math.random()*3,h=Math.random()*3.1416,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d,L=1.5,dx=Math.sin(h)*L,dz=Math.cos(h)*L;
   if(p3dOK(x,z,.9)&&p3dOK(x+dx,z+dz,.9)&&p3dOK(x-dx,z-dz,.9)){[-1,0,1].forEach(i=>p3dPut('wire',x+dx*i,z+dz*i,h-Math.PI/2));n+=3;break}}
- if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){p3dPut('jeep',x,z,Math.random()*6.283);n++;break}}
+ if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){const jp=p3dPut('jeep',x,z,Math.random()*6.283);if(typeof jeepDrv==='function')jeepDrv(jp);n++;break}}
  if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;const dr=p3dOK(x,z,4.5)&&p3dRamp(x,z);if(dr){const it=p3dPut('tower',x,z,Math.floor(Math.random()*4)*Math.PI/2);p3dTowerUp(it,dr);n++;break}}
  if(n)P3D.camps++;return n}
 function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1])}catch(e){console.warn('camp',e)}});if(typeof navEject==='function')navEject()}
