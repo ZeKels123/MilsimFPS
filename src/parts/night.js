@@ -22,11 +22,11 @@ function nvDerive(){const act=NVG.on&&NVG.a>=.999&&NVG.swapT<=0&&NVG.bat>0&&!NVG
  NVG.st=NVG.on?(NVG.a>=.999?'on':'down'):(NVG.a>.001?'up':'off');NVG.blockAds=NVG.a>.001&&NVG.a<.999;
  if(NVG.el){NVG.el.style.display=NVG.m?'block':'none';if(NVG.m){NVG.tx.textContent=(NVG.m===2?'THERMIQUE':'VISION NOCTURNE')+(NVG.irOn?' · IR':'')+' '+Math.round(NVG.bat*100)+' %';const lo=NVG.bat<.2;NVG.tx.style.color=lo?'#ffb060':NVG.m===2?'#eee':'#9dffb0';NVG.bar.style.width=Math.round(NVG.bat*100)+'%';NVG.bar.style.background=lo?'#ff9040':NVG.m===2?'#eee':'#9dffb0'}}}
 // lumière ambiante 0..1 (soleil + ciel, réduite en intérieur) : sert au gain automatique et à la surexposition de jour
-function nvAmb(){const rm=typeof inRoom==='function'&&inRoom(P.x,P.z)>=0;return Math.max(0,Math.min(1,(sun.intensity+hemi.intensity*.5)/2.6))*(rm?.35:1)}
+function nvAmb(){const rm=typeof inRoom==='function'&&inRoom(P.x,P.z)>=0;return Math.max(0,Math.min(1,(sun.intensity+hemi.intensity*.5)/2))*(rm?.35:1)}
 // uniforms du shader ; renvoie true tant que le passage doit tourner (jumelles abaissées ou en mouvement)
 function nvFx(){if(NVG.a<=.002||ac.on||bench)return false;const u=PP.nv&&PP.nv.uniforms;if(!u)return !!PP.nv;
  const amb=NVG.amb,night=Math.max(0,1-amb*3);const th=NVG.want===2;u.uMode.value=th?2:1;u.uA.value=NVG.a*NVG.a*(3-2*NVG.a);
- u.uGain.value=(th?1.35:NVG.gain)*(NVG.m?1:NVG.a*NVG.a*(NVG.on&&NVG.a>=.999?0:.3));u.uT.value=(performance.now()%1e5)/1e3;u.uFlash.value=NVG.sat;u.uOver.value=NVG.m===1?NVG.over:0;u.uIR.value=NVG.irOn?1:0;
+ u.uGain.value=(th?1.2:NVG.gain)*(NVG.m?1:NVG.a*NVG.a*(NVG.on&&NVG.a>=.999?0:.3));u.uT.value=(performance.now()%1e5)/1e3;u.uFlash.value=NVG.sat;u.uOver.value=NVG.m===1?NVG.over:0;u.uIR.value=NVG.irOn?1:0;
  u.uNoise.value=(.16+.34*night*(1-(typeof MOO!=='undefined'?MOO.ill:.5))+NVG.burn*.04)*(th?.6:1);u.uLow.value=NVG.bat<.12&&NVG.m?(Math.random()<.18?.5:0):0;
  return true}
 function nvHeat(on){for(const b of bots){const s=b.sld;if(!s||!s.mats)continue;const h=on?(b.dead>0?Math.max(0,Math.min(1,b.dead/BOT_CORPSE)):1):0;for(const m of s.mats)if(m.emissive)m.emissive.setScalar(h*.95)}}
@@ -34,7 +34,7 @@ function nvTick(dt){nvInit();
  if(HM.dead>0||P.hp<=0){if(NVG.on||NVG.a>0)nvSet(0,true)}
  const sp=NVG.on?(1/.55):(1/.4);NVG.a=NVG.on?Math.min(1,NVG.a+dt*sp):Math.max(0,NVG.a-dt*sp);if(NVG.swapT>0)NVG.swapT-=dt;
  NVG.amb=nvAmb();const amb=NVG.amb,mo=typeof MOO!=='undefined'?MOO.ill:.5;
- NVG.gain=1.1+(5.2+1.8*(1-mo))*(1-Math.max(0,Math.min(1,(amb-.08)/.42)));NVG.over=Math.max(0,Math.min(1,(amb-.5)/.3));
+ NVG.gain=1.1+(5.2+1.8*(1-mo))*(1-Math.max(0,Math.min(1,(amb-.1)/.5)));NVG.over=Math.max(0,Math.min(1,(amb-.45)/.2));
  nvDerive();
  if(NVG.m){const k=NVG.m===2?1/420:1/600;NVG.bat=Math.max(0,NVG.bat-dt*(k+(NVG.irOn?1/1500:0)));
   if(NVG.bat<.2&&!NVG.w1){NVG.w1=1;nvMsg('Jumelles : batterie faible ('+Math.round(NVG.bat*100)+' %)')}
@@ -49,6 +49,7 @@ function nvTick(dt){nvInit();
   else if(NVG.burn>0){NVG.burn=Math.max(0,NVG.burn-dt*.3);if(NVG.burn<.5)NVG.w2=0}}
  NVG.sat=Math.max(0,NVG.sat-dt*(NVG.sat>.9?1.1:1.8));
  if(NVG.m&&!NVG.el.style.display)NVG.el.style.display='block';
+ nvDerive();
  const th=NVG.m===2;if(th!==NVG.heat){NVG.heat=th;nvHeat(th)}else if(th){NVG.t-=dt;if(NVG.t<=0){NVG.t=.25;nvHeat(1)}}}
 // sol mouillé
 function wetTick(dt,rain){if(rain===undefined)rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);WET.v=Math.max(0,Math.min(1,WET.v+(rain>.15?rain*dt/70:-dt/240)));
