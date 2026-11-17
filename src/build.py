@@ -80,7 +80,7 @@ rep("if(u.door)hurtDoor(u.door,c.dmg*(A.supp?.9:1));","if(u.barrel)barrelHit(u.b
 rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];","RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts.filter(q=>!q.userData.bot.dead)])[0];")
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
-rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('mort.js')+rd('props3d_data.js')+rd('props3d.js')+rd('selftest.js')+"// ---- Bots\n")
+rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('visee.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('mort.js')+rd('props3d_data.js')+rd('props3d.js')+rd('selftest.js')+"// ---- Bots\n")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")
@@ -254,8 +254,17 @@ rep("function sfxShot(x,y,z,ty,vol){","function sfxShot0(x,y,z,ty,vol){")
 rep("aiUpdate(dt,inz);nadeUpdate(dt,inz);\n","aiUpdate(dt,inz);nadeUpdate(dt,inz);balTick(dt);\n")
 a=s.index("for(let n=0;n<c.pel;n++){\nconst d=new THREE.Vector3(rnd(-sp,sp)");b=s.index("const k=(A.grip?.6:1)*.014*c.rec")
 s=s[:a]+"for(let n=0;n<c.pel;n++){\nconst d=new THREE.Vector3(rnd(-sp,sp),rnd(-sp,sp),-1).normalize().applyQuaternion(C.quaternion);balPlayer(o,d,c,n)}\n"+s[b:]
+# ---- visée v59 : table par arme, maintien/bascule, annulation, balancement, vignette
+rep("ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS());","vsAds();adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS()*vsRate());")
+rep("?62/3:SIGHT[sk].fov,tf=","?62/3:(sk==='iron'?vsIronFov():SIGHT[sk].fov),tf=")
+rep("const spd=(ads?2.2:","const spd=(ads?2.2*vsMove():")
+rep("camFx(dt);hlCam(dt)}","camFx(dt);hlCam(dt);vsSway()}")
+rep("if(e.button===2)ads=true;","if(e.button===2){VSB.b=1;ads=SET.adsTog?!ads:true}")
+rep("if(e.button===2)ads=false});","if(e.button===2){VSB.b=0;if(!SET.adsTog)ads=false}});")
+rep("balRet(sc,dt);","balRet(sc,dt);vsFrame(sc);")
 open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
 open(P+'../index.html','w',encoding='utf-8').write(s)
+
 # vérification de syntaxe du script principal (échoue le build si une erreur casserait tout le jeu)
 import re,subprocess,shutil,tempfile,os
 if shutil.which('node'):
