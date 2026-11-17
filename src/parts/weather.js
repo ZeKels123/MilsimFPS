@@ -64,7 +64,7 @@ floor.material.roughness=1-.55*Math.min(1,rn*1.3);floor.material.color.setScalar
 // lumières intérieures
 const night=Math.max(0,Math.min(1,.5-e*4)),I=(.3+.95*night)*(ind?1:0);
 if(ri<0)ILON=false;if(ri>=0&&ILON){const r=ROOMS[ri],r2=ROOMS[ri^1];inL.position.set(r.x,2.3,r.z);inL2.position.set(r2.x,2.3,r2.z);inL.intensity+=(I*1.2-inL.intensity)*Math.min(1,dt*8);inL2.intensity+=(I*.8-inL2.intensity)*Math.min(1,dt*8)}else{inL.intensity*=Math.max(0,1-dt*8);inL2.intensity*=Math.max(0,1-dt*8)}
-fl.intensity=flOn?3.2:0;
+fl.intensity=flOn?3.2:(typeof NVG!=='undefined'&&NVG.irOn?1.5:0);
 // recalcul de l'environnement (reflets PBR) quand le ciel a assez changé
 const sig=TOD.t+cov*3+gr*3;if(Math.abs(sig-TOD.envW)>.28&&fz<.05&&performance.now()-TOD.envT>4000){TOD.envW=sig;TOD.envT=performance.now();const o=S.environment;S.environment=mkEnv(R);envFree(o)}
 // matériaux de la bascule sol <-> lune : ombres

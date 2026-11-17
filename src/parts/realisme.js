@@ -31,8 +31,8 @@ function mooIll(p){return .5-.5*Math.cos(p*6.2832)}
 function moonDir(ang,v){const a=ang+6.2832*MOO.p;return v.set(-Math.cos(a)*.9,Math.sin(a)*.82,-.45).normalize()}
 function moonVis(){return .75+.5*MOO.ill}
 function mooTick(dt){if(TOD.t<MOO.pt-12)MOO.day++;MOO.pt=TOD.t;MOO.p=mooPhase(MOO.day,TOD.t);MOO.ill=mooIll(MOO.p);MOO.ico=MICO[Math.round(MOO.p*8)%8];
- // vision nocturne : plus de grain et moins de gain par nouvelle lune
- if(NVG.m===1&&NVG.el){const dk=TOD.t>19.5||TOD.t<5.8;NVG.el.style.backdropFilter=NVG.el.style.webkitBackdropFilter='grayscale(1) sepia(1) hue-rotate(70deg) saturate(4) brightness('+(dk?(1.5+.7*MOO.ill).toFixed(2):2.1)+') contrast(1.15)';if(NVG.nc)NVG.nc.style.opacity=dk?(.12+.4*(1-MOO.ill)).toFixed(2):'';}}
+ // vision nocturne : le gain et le grain par phase de lune sont calculés dans night.js (nvAmb/nvUniforms)
+}
 
 // ---------- 4. Fouille : corps et caisses à fouiller maintenant F ----------
 const FOU={cap:null,p:null,cr:[],el:null,hint:0,ns:0};

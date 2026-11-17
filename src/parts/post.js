@@ -34,13 +34,35 @@ void main(){vec3 m=texture2D(tDiffuse,vUv).rgb;float lm=L(m),nw=L(texture2D(tDif
 float mn=min(lm,min(min(nw,ne),min(sw,se))),mx=max(lm,max(max(nw,ne),max(sw,se)));if(mx-mn<max(.03,mx*.1)){gl_FragColor=vec4(m,1.);return;}
 vec2 dir=vec2(-((nw+ne)-(sw+se)),(nw+sw)-(ne+se));float rd=1./(min(abs(dir.x),abs(dir.y))+max((nw+ne+sw+se)*.03125,.0078125));dir=clamp(dir*rd,-8.,8.)*uPx;
 vec3 a=.5*(texture2D(tDiffuse,vUv+dir*(1./3.-.5)).rgb+texture2D(tDiffuse,vUv+dir*(2./3.-.5)).rgb),b=a*.5+.25*(texture2D(tDiffuse,vUv-dir*.5).rgb+texture2D(tDiffuse,vUv+dir*.5).rgb);float lb=L(b);gl_FragColor=vec4(lb<mn||lb>mx?a:b,1.);}`};
+// ---- jumelles de vision nocturne (night.js) : UN seul passage plein écran, actif seulement quand les jumelles sont abaissées
+// gain + grain, teinte phosphore, deux tubes (vignettage), flou hors zone centrale, halo des sources fortes, éblouissement, surexposition de jour
+const NVFX_={uniforms:{tDiffuse:{value:null},uMode:{value:0},uGain:{value:4},uT:{value:0},uFlash:{value:0},uOver:{value:0},uA:{value:1},uAsp:{value:1.78},uPx:{value:new THREE.Vector2(1/1280,1/720)},uIR:{value:0},uNoise:{value:.3},uLow:{value:0}},vertexShader:PPV,fragmentShader:`
+uniform sampler2D tDiffuse;uniform float uMode,uGain,uT,uFlash,uOver,uA,uAsp,uIR,uNoise,uLow;uniform vec2 uPx;varying vec2 vUv;
+float hs(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233))+uT)*43758.5453);}
+void main(){vec2 q=(vUv-.5)*vec2(uAsp,1.);vec2 a1=q-vec2(-.205,0.),a2=q-vec2(.205,0.);float r=min(length(a1),length(a2));
+float R=.4*uA;float tube=smoothstep(R,R*.9,r);
+if(uA<.01||tube<=0.){gl_FragColor=vec4(0.,0.,0.,1.);return;}
+vec3 c=texture2D(tDiffuse,vUv).rgb;
+float bl=smoothstep(.12,.4,r);vec2 o=uPx*(2.+8.*bl);
+vec3 s=(texture2D(tDiffuse,vUv+vec2(o.x,o.y)).rgb+texture2D(tDiffuse,vUv+vec2(-o.x,o.y)).rgb+texture2D(tDiffuse,vUv+vec2(o.x,-o.y)).rgb+texture2D(tDiffuse,vUv+vec2(-o.x,-o.y)).rgb)*.25;
+c=mix(c,s,bl*.85);
+vec2 w=uPx*18.;vec3 b=(texture2D(tDiffuse,vUv+vec2(w.x,0.)).rgb+texture2D(tDiffuse,vUv-vec2(w.x,0.)).rgb+texture2D(tDiffuse,vUv+vec2(0.,w.y)).rgb+texture2D(tDiffuse,vUv-vec2(0.,w.y)).rgb)*.25;
+float L=dot(c,vec3(.299,.587,.114)),LB=max(0.,dot(b,vec3(.299,.587,.114))-.45);
+float v;vec3 col;
+float n=hs(vUv*vec2(1237.,911.))-.5;
+if(uMode>1.5){v=clamp((L*uGain-.12)*1.9,0.,1.)+LB*.6+uFlash*.5;v+=n*uNoise*.35;v=clamp(v,0.,1.);col=vec3(v*v*(3.-2.*v)*.97+.02);}
+else{v=L*uGain*(1.+uIR*.9*smoothstep(.42,0.,r))+LB*uGain*.7;v+=uFlash+uOver*1.6;v=1.-exp(-v*1.5);v+=n*uNoise*(1.2-v)*(1.+uOver);v+=step(.9985,hs(vUv*vec2(733.,457.)+3.))*.55*uNoise;v=clamp(v,0.,1.);
+col=mix(vec3(.04,.82,.2),vec3(.82,1.,.86),v*v*v)*v;}
+float edge=smoothstep(R,R*.62,r);col*=mix(.45,1.,edge);col*=tube;col*=1.-uLow;
+gl_FragColor=vec4(col,1.);}`};
 function ppInit(){try{if(PP.comp){PP.comp.renderTarget1.dispose();PP.comp.renderTarget2.dispose();if(PP.comp.renderTarget1.depthTexture)PP.comp.renderTarget1.depthTexture.dispose();if(PP.comp.renderTarget2.depthTexture)PP.comp.renderTarget2.depthTexture.dispose();PP.gfx.dispose();PP.bloom.dispose&&PP.bloom.dispose()}
 const pr=R.getPixelRatio(),w=Math.max(2,Math.floor(innerWidth*pr)),h=Math.max(2,Math.floor(innerHeight*pr)),mk=()=>{const t=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,stencilBuffer:false});t.depthTexture=new THREE.DepthTexture(w,h);t.depthTexture.type=THREE.UnsignedIntType;return t};
 const c=new THREE.EffectComposer(R,mk());c.renderTarget2.dispose();c.renderTarget2=mk();c.writeBuffer=c.renderTarget1;c.readBuffer=c.renderTarget2;c.setPixelRatio(1);c.setSize(w,h);c.renderTarget1.depthTexture.image.width=c.renderTarget2.depthTexture.image.width=w;c.renderTarget1.depthTexture.image.height=c.renderTarget2.depthTexture.image.height=h;
-c.addPass(new THREE.RenderPass(S,C));PP.gfx=new GfxPass(w,h);c.addPass(PP.gfx);PP.bloom=new THREE.UnrealBloomPass(new THREE.Vector2(w>>1,h>>1),.38,.55,.86);c.addPass(PP.bloom);PP.fxaa=new THREE.ShaderPass(FXAA_);PP.fxaa.uniforms.uPx.value.set(1/w,1/h);c.addPass(PP.fxaa);PP.comp=c;PP.first=true}catch(e){console.warn('post-traitement indisponible',e);PP.comp=null;PP.on=false}}
-function ppRender(dt){if(!PP.on||!PP.comp||!(PP.ssao||PP.mb||PP.bl)){R.setRenderTarget(null);R.render(S,C);return}
+c.addPass(new THREE.RenderPass(S,C));PP.gfx=new GfxPass(w,h);c.addPass(PP.gfx);PP.bloom=new THREE.UnrealBloomPass(new THREE.Vector2(w>>1,h>>1),.38,.55,.86);c.addPass(PP.bloom);PP.fxaa=new THREE.ShaderPass(FXAA_);PP.fxaa.uniforms.uPx.value.set(1/w,1/h);c.addPass(PP.fxaa);PP.nv=new THREE.ShaderPass(NVFX_);PP.nv.uniforms.uPx.value.set(1/w,1/h);PP.nv.uniforms.uAsp.value=w/h;PP.nv.enabled=false;c.addPass(PP.nv);PP.comp=c;PP.first=true}catch(e){console.warn('post-traitement indisponible',e);PP.comp=null;PP.on=false}}
+function ppRender(dt){const nv=typeof nvFx==='function'&&nvFx();if(nv&&!PP.comp&&!PP.nvFail){ppInit();if(!PP.comp)PP.nvFail=1}
+if(!PP.comp||!(PP.on||nv)||!(PP.ssao||PP.mb||PP.bl||nv)){R.setRenderTarget(null);R.render(S,C);return}
 C.updateMatrixWorld();PP.vp.multiplyMatrices(C.projectionMatrix,C.matrixWorldInverse.copy(C.matrixWorld).invert());PP.ivp.copy(PP.vp).invert();const u=PP.gfx.cM.uniforms;u.uIVP.value.copy(PP.ivp);u.uPVP.value.copy(PP.prevVP);
-u.uMB.value=PP.mb&&!PP.first&&!ac.on&&!bench?.55*Math.min(1,.02/Math.max(dt,.004)):0;u.uAO.value=PP.ssao&&!ac.on?1:0;PP.bloom.enabled=PP.bl;PP.first=false;
+u.uMB.value=PP.mb&&!PP.first&&!ac.on&&!bench?.55*Math.min(1,.02/Math.max(dt,.004)):0;u.uAO.value=PP.ssao&&!ac.on?1:0;PP.bloom.enabled=PP.bl&&PP.on;if(PP.nv)PP.nv.enabled=!!nv;PP.first=false;
 try{PP.comp.render(dt)}catch(e){console.warn(e);PP.on=false;R.setRenderTarget(null);R.render(S,C)}PP.prevVP.copy(PP.vp)}
 // ---- qualité graphique : Auto (descend si le jeu rame) / Bas / Moyen / Élevé / Ultra — touche O
 const GQ={mode:0,lvl:2,names:['Bas','Moyen','Élevé','Ultra'],fT:0,fN:0,fps:60,fr:0,shN:2,warm:0,grassN:0};
@@ -49,7 +71,7 @@ R.setPixelRatio(Math.min(devicePixelRatio||1,q.pr));R.setSize(innerWidth,innerHe
 PP.ssao=!!q.ss;PP.mb=!!q.mb;PP.bl=!!q.bl;PP.on=!!q.post;GQ.shN=q.n;window.GRQ=q.g;if(q.post)ppInit();GQ.warm=0;GQ.fT=GQ.fN=0}
 function gqFrame(dt){GQ.fr++;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=GQ.fr%GQ.shN===0;sun2.shadow.autoUpdate=false;sun2.shadow.needsUpdate=GQ.fr%(GQ.shN*4)===1;GQ.fT+=dt;GQ.fN++;if(GQ.fN>=45){const a=GQ.fT/GQ.fN;GQ.fps=Math.round(1/a);GQ.fT=GQ.fN=0;if(GQ.warm<4)GQ.warm++;else if(GQ.mode===0&&a>.026&&GQ.lvl>0&&document.visibilityState==='visible'){setQuality(GQ.lvl-1);feed('Qualité graphique : '+GQ.names[GQ.lvl]+' (auto)')}}}
 addEventListener('keydown',e=>{if(e.code==='KeyO'&&!e.repeat){GQ.mode=(GQ.mode+1)%5;setQuality(GQ.mode?GQ.mode-1:2);feed('Qualité graphique : '+(GQ.mode?GQ.names[GQ.lvl]:'Auto'))}});
-{let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PP.on)ppInit()},150)})}
+{let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PP.on||PP.comp)ppInit()},150)})}
 // HUD : ne réécrit le DOM que si le texte change
 {const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');['atts','score','ammo'].map(i=>$(i)).concat([wxEl]).forEach(el=>{if(el)Object.defineProperty(el,'innerHTML',{configurable:true,get(){return d.get.call(this)},set(v){if(v!==this._h){this._h=v;d.set.call(this,v)}}})});
 const t=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');['plc','prompt'].map(i=>$(i)).forEach(el=>{if(el)Object.defineProperty(el,'textContent',{configurable:true,get(){return t.get.call(this)},set(v){if(v!==this._t){this._t=v;t.set.call(this,v)}}})})}

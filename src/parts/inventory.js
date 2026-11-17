@@ -4,8 +4,8 @@ const INV={lay:{},bag:'M',sel:null,open:false,gnd:[],init:false,CAP:32,lv:0,t:0}
 const BAGS={0:{n:'Poches',w:4,h:2,kg:0},S:{n:'Petit sac',w:5,h:4,kg:.8,col:0x5a6040},M:{n:'Sac moyen',w:7,h:5,kg:1.4,col:0x46563a},L:{n:'Grand sac',w:9,h:6,kg:2.2,col:0x34452a}};
 const CALS=['5.56','9 mm','12/70','7.62','.50'],CIDX=[0,1,1,2,4,4],CKG=[.012,.008,.04,.025,.05],CST=[60,60,30,30,50],CALK=[0,1,2,4];// .50 (Signal 50, HMG) : 50 g la cartouche, 50 par case ; 7.62 gardé pour les sauvegardes mais plus aucune arme ne l'utilise : le butin tire dans CALK
 const WKG=[3.6,2.5,1,3.4,5.4,9.5],WSPD=[.96,1,1.03,.92,.86,.78],WSPR=[.97,1,1.02,.93,.88,.8],ARMKG=4;
-const IT={bd:{n:'Bandage',kg:.05,w:1,h:1,st:5,col:'#cfc8ae'},tq:{n:'Garrot',kg:.15,w:1,h:1,st:3,col:'#9a3f2c'},sp:{n:'Attelle',kg:.3,w:1,h:2,st:2,col:'#6f8190'},mo:{n:'Morphine',kg:.05,w:1,h:1,st:4,col:'#cdc545'},kit:{n:'Trousse',kg:.8,w:2,h:1,st:1,col:'#bb3d3d'},pl:{n:'Plaque',kg:1.1,w:2,h:2,st:1,col:'#7d848c'},xm:{n:'Mine antipersonnel',kg:1.2,w:1,h:1,st:3,col:'#4a5230'},xc:{n:'Mine directionnelle',kg:1.6,w:2,h:1,st:2,col:'#6a7a44'},xw:{n:'Piège à fil',kg:.7,w:1,h:1,st:3,col:'#8a8a7a'},xb:{n:'Piège à ours',kg:2,w:2,h:1,st:2,col:'#6a6a6a'}};
-const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','g0','g1','g2','g3'];
+const IT={bd:{n:'Bandage',kg:.05,w:1,h:1,st:5,col:'#cfc8ae'},tq:{n:'Garrot',kg:.15,w:1,h:1,st:3,col:'#9a3f2c'},sp:{n:'Attelle',kg:.3,w:1,h:2,st:2,col:'#6f8190'},mo:{n:'Morphine',kg:.05,w:1,h:1,st:4,col:'#cdc545'},kit:{n:'Trousse',kg:.8,w:2,h:1,st:1,col:'#bb3d3d'},pl:{n:'Plaque',kg:1.1,w:2,h:2,st:1,col:'#7d848c'},xm:{n:'Mine antipersonnel',kg:1.2,w:1,h:1,st:3,col:'#4a5230'},xc:{n:'Mine directionnelle',kg:1.6,w:2,h:1,st:2,col:'#6a7a44'},xw:{n:'Piège à fil',kg:.7,w:1,h:1,st:3,col:'#8a8a7a'},xb:{n:'Piège à ours',kg:2,w:2,h:1,st:2,col:'#6a6a6a'},nv:{n:'Jumelles de vision nocturne',kg:.6,w:2,h:1,st:1,col:'#3b4a3a'},pn:{n:'Piles de jumelles',kg:.06,w:1,h:1,st:4,col:'#c7a23a'}};
+const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','nv','pn','g0','g1','g2','g3'];
 const invWpn=k=>k===slot?WSEL:SLOTS[k].w;
 function invDef(id){const c0=id[0];
 if(c0==='a'){const w=invWpn(+id[1]),c=CIDX[w];return{n:'Munitions '+CALS[c]+' · '+WC[w].n,kg:CKG[c],w:1,h:1,st:CST[c],col:'#b89a4a'}}
@@ -40,6 +40,8 @@ else{x.beginPath();x.moveTo(cx-8,36);x.quadraticCurveTo(cx,10,cx+8,36);x.closePa
 else if(id==='bd'){x.beginPath();x.arc(48,50,28,0,7);x.fillStyle=hg(20,76,'#b8b098','#ece6d0');x.fill();x.beginPath();x.arc(48,50,12,0,7);x.fillStyle='#2a3224';x.fill();for(let r=14;r<28;r+=4){x.beginPath();x.arc(48,50,r,0,7);x.strokeStyle='rgba(120,110,86,.5)';x.lineWidth=1;x.stroke()}rr(46,72,40,12,2,'#e6dfc8');rr(66,72,6,12,0,'#b5382c')}
 else if(id==='tq'){rr(12,40,72,18,6,lg(40,58,'#3a3f3a','#1c201c'));rr(40,24,16,50,5,hg(40,56,'#7a2a20','#d6523c'));rr(16,36,10,26,3,'#8a8f88');x.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<9;i++)x.fillRect(30+i*6,44,2,10)}
 else if(id==='sp'){for(const a of[28,54])rr(a,14,16,164,7,hg(a,a+16,'#6a7680','#c6ced4'));for(const y of[44,96,146])rr(18,y,60,12,3,'#34444f');x.fillStyle='rgba(255,255,255,.25)';x.fillRect(32,20,3,150);x.fillRect(58,20,3,150)}
+else if(id==='nv'){rr(10,24,72,44,10,lg(24,68,'#4b5a49','#222b21'));rr(110,24,72,44,10,lg(24,68,'#4b5a49','#222b21'));rr(78,34,36,20,4,'#2a3228');for(const cx of[46,146]){x.beginPath();x.arc(cx,46,17,0,7);x.fillStyle='#10160f';x.fill();x.beginPath();x.arc(cx,46,10,0,7);x.fillStyle=hg(cx-10,cx+10,'#1c5a2a','#6dff8a');x.fill()}rr(14,68,164,7,3,'#1b211a')}
+else if(id==='pn'){rr(30,16,36,64,5,hg(30,66,'#8a6e1c','#e2bf4a'));rr(40,8,16,10,2,'#c8c8c8');rr(30,52,36,12,0,'#2a2a22');x.fillStyle='#e8e4c0';x.fillRect(44,30,8,16)}
 else if(id==='mo'){rr(34,22,28,58,9,hg(34,62,'#a8a030','#e6dc58'));rr(38,6,20,20,5,'#cf3a30');rr(44,78,8,14,2,'#c8c8c8');rr(38,44,20,12,2,'#2a2a24')}
 else if(id==='kit'){rr(12,14,168,70,12,lg(14,84,'#c24040','#8c2626'));rr(66,5,60,12,5,'#5a1a1a');rr(86,26,20,46,3,'#f2ece0');rr(73,40,46,18,3,'#f2ece0');rr(12,48,168,3,0,'rgba(0,0,0,.25)')}
 else if(id==='pl'){rr(32,16,128,160,30,lg(16,176,'#9aa2aa','#555b62'));x.lineWidth=4;x.strokeStyle='rgba(0,0,0,.35)';x.beginPath();x.roundRect?x.roundRect(44,28,104,136,22):x.rect(44,28,104,136);x.stroke();x.fillStyle='rgba(255,255,255,.12)';x.fillRect(58,38,40,3);for(const [a,b] of[[56,48],[136,48],[56,144],[136,144]]){x.beginPath();x.arc(a,b,4,0,7);x.fillStyle='#3a3f44';x.fill()}x.fillStyle='#222';x.font='bold 18px sans-serif';x.textAlign='center';x.fillText('IV',96,104)}
@@ -89,10 +91,11 @@ function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.2
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
 if(r()<.75)add('z'+[0,0,1,2,4][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
+{const h1=Math.abs(Math.sin(p.x*12.9898+p.z*78.233)*43758.5453)%1,h2=Math.abs(Math.sin(p.x*39.346+p.z*11.135)*24634.6345)%1;if(h1<.03)add('nv',1);if(h2<.12)add('pn',1)}// hasard dérivé de la position : ne consomme pas Math.random (séquences des autres tests inchangées)
 if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
 function invWorld(){const ok=(x,z)=>wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0);
 const put=(gid,q,bag)=>{for(let t=0;t<30;t++){const x=rnd(-125,125),z=rnd(-125,125);if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0,bag);e.fall=false;e.m.position.y=invGY(e);return}};
-for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60}:{}}));
+for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60,pn:2}:{}}));{let sd=1234567;const rq=()=>(sd=(sd*1664525+1013904223)>>>0)/4294967296,pt=(gid,q)=>{for(let t=0;t<30;t++){const x=-125+rq()*250,z=-125+rq()*250;if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0);e.fall=false;e.m.position.y=invGY(e);return}};pt('nv',1);pt('pn',2);pt('pn',1)}
 for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+CALK[(Math.random()*4)|0]:r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*4)|0):'pl',r<.4?30:1)}}
 
 // ---------- interface ----------
@@ -117,7 +120,7 @@ let rr='<h3>CHARGE</h3><div class="bar"><i style="width:'+Math.min(100,r*100)+'%
 for(let i=0;i<2;i++){const w=invWpn(i);rr+=(i===slot?'<b>▸ ':'')+(i+1)+' '+WC[w].n+(i===slot?'</b>':'')+' · '+WKG[w]+' kg · déplacement ×'+WSPD[w]+' (sprint ×'+WSPR[w]+')<br>'}
 rr+='<small>Équipement (gilet, casque) : '+ARMKG+' kg · '+b.n+' : '+b.kg+' kg</small>';
 const s=INV.sel&&invGet(INV.sel)>0?INV.sel:null;if(!s)INV.sel=null;
-if(s){const d=invDef(s),q=invGet(s),use=['bd','tq','sp','mo','kit','pl'].includes(s)||s[0]==='g'||s[0]==='x',nd=s[0]==='a'?Math.min(q,30):1;
+if(s){const d=invDef(s),q=invGet(s),use=['bd','tq','sp','mo','kit','pl','nv','pn'].includes(s)||s[0]==='g'||s[0]==='x',nd=s[0]==='a'?Math.min(q,30):1;
 rr+='<h3 style="margin-top:12px">'+d.n.toUpperCase()+' ×'+q+'</h3><small>'+(d.kg*1000|0)+' g l’unité · '+d.w+'×'+d.h+' case(s)</small><br>'+(use?'<button data-act="use">Utiliser</button>':'')+'<button data-act="d1">Jeter '+nd+'</button><button data-act="dall">Tout jeter</button>'}
 if(INV.bag!==0)rr+='<br><button data-act="bag" style="margin-top:12px">Jeter le sac (Suppr)</button>';
 if(over)rr+='<br><span style="color:#e04a3a">'+over+' objet(s) ne tiennent pas dans la grille</span>';
@@ -128,7 +131,7 @@ iv.addEventListener('click',e=>{const b=e.target.closest('[data-act]'),t=e.targe
 if(t){INV.sel=t.dataset.id;invRender();return}
 if(b&&INV.sel){const a=b.dataset.act,s=INV.sel,q=invGet(s);
 if(a==='d1')invDrop(s,s[0]==='a'?Math.min(q,30):1);else if(a==='dall')invDrop(s,q);else if(a==='use'){invOpen(false);
-if(s==='pl'){if(P.plates>0&&P.ar<150&&!plateT){plateT=1.6;snd(200,.2,.15,'sawtooth')}else hlMsg('Armure déjà pleine')}else if(s[0]==='g'){NADE.sel=+s[1]}else if(s[0]==='x'){trapSetMode(TSEQ.indexOf(s)+1)}else hlUse(s)}}
+if(s==='pl'){if(P.plates>0&&P.ar<150&&!plateT){plateT=1.6;snd(200,.2,.15,'sawtooth')}else hlMsg('Armure déjà pleine')}else if(s[0]==='g'){NADE.sel=+s[1]}else if(s[0]==='x'){trapSetMode(TSEQ.indexOf(s)+1)}else if(s==='nv'){nvToggle()}else if(s==='pn'){nvSwap(true)}else hlUse(s)}}
 else if(b&&b.dataset.act==='bag'){invDropBag()}});
 
 let DR=null;
@@ -155,4 +158,4 @@ const n=!INV.open&&!bench&&!nb&&!ndR?invNear():null;if(n){ivp.style.display='blo
 
 function invDeath(){const cont={};for(const x of invStacks())cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]=(cont[x.id.replace(/^a(\d)$/,(m,q)=>'z'+CIDX[invWpn(+q)])]||0)+x.q;
 const kind=INV.bag===0?'S':INV.bag;if(Object.values(cont).some(v=>v>0))invSpawn('B',1,P.x,P.gy+.6,P.z,0,0,{kind,cont});
-INV.bag='M';INV.lay={};HM.inv={...HINV0};TRP.inv={xm:2,xc:1,xw:1,xb:1};NADE.inv=[2,2,2,2];for(let k=0;k<2;k++)if(k!==slot)SLOTS[k].res=WC[SLOTS[k].w].res;INV.lv=0}
+INV.bag='M';INV.lay={};HM.inv={...HINV0,...NVINV0};if(typeof nvReset==='function')nvReset();TRP.inv={xm:2,xc:1,xw:1,xb:1};NADE.inv=[2,2,2,2];for(let k=0;k<2;k++)if(k!==slot)SLOTS[k].res=WC[SLOTS[k].w].res;INV.lv=0}
