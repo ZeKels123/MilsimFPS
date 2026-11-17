@@ -737,3 +737,26 @@ Chaque domaine a été confié à un agent dans sa propre copie du dépôt, puis
 **Tests corrigés à la fusion** : hitbox accroupie (le test ne reproduisait pas l'abaissement de `ai.js`), matériau du sac de sable (vérifiait le mauvais impact).
 
 **Constaté, non traité** : calibre .50 absent de l'inventaire (`CALS`) ; `dstBlast` sans hauteur ni ligne de vue ; explosions de véhicule créditées au joueur (`owner:null`) ; aucun plafond au ramassage de grenades ; claymore en cône horizontal ; `pPool` partagé entre feux d'herbe et fumée ; grenade de bot sans `nadeSafePos` ; bots sans clip de marche accroupie ni couché ; `hbxUpdate` recalculé même hors champ ; cellules de navigation de la jeep restées bloquées ; doublon des deux systèmes de balle frôlée.
+
+## v58 — Revue par 5 testeurs, correctifs par 4 agents (joueur/menu, IA, monde/combat, route/eau)
+
+154 tests sur 154 (126 avant, 28 ajoutés). Les problèmes viennent de rapports de testeurs (joueur, IA, monde, menu, combat), chacun confirmé par exécution ou lecture précise du code.
+
+**Changement de touches** : V ne change plus que le viseur ; jeter le sac passe sur **Suppr** (commande « dropbag », remappable). Un ancien remappage de « jeter le sac » renvoie sur Suppr.
+
+**Joueur et menu**
+- Pause (overlay Échap) : la simulation est vraiment gelée (bots, saignement, heure). Avant, tout continuait.
+- Chute : l'excédent de dégâts des jambes passe au thorax (environ 26 m/s abîme, 42 m/s tue). Ramassage : objets à plus de 1,6 m d'écart de hauteur ignorés. Le sac jeté n'est plus évincé par le plafond de 90 objets. Cartouche en chambre conservée au changement d'arme et d'accessoire (inventaire, accessoires, établi).
+- Remappage : « Touches par défaut » annule l'attente de touche, un libellé ne reste plus bloqué, plus de touche collée. Sauvegarde retentée après un échec d'écriture ; Ultra accepté ; jour de lune borné. Écran de pause défilant en petit écran. Réapparition au champ de tir en mode entraînement.
+
+**IA**
+- Bots figés en patrouille : un bot sans ordre du chef depuis 4 s repart en patrouille (cause établie par lecture du code, non reproduite à l'exécution). `navEject` toutes les 2 s. Budget A* de 4 ms par image en plus du budget en nombre d'appels (pas de mesure avant/après). Évacuation : le minuteur de 16 s durait en réalité ~960 s. « 1 heure » au singulier (à enregistrer dans docs/VOIX.md). Le repli ne casse plus la reddition.
+
+**Monde et combat**
+- Fuite de mémoire graphique de l'éclairage d'environnement (`envFree`). Les 40 « groupes NaN » étaient les bots parqués par le menu (variables de chute non initialisées). Fusion des bâtiments étalée sur plusieurs images (pic résiduel 50–100 ms au lieu de ~200 ms, non mesuré en navigateur).
+- Grenade cuite lancée par un mort annulée ; effets (épaves, fumigènes, feu) qui continuent à la mort ; grenade lancée plus perdue quand la réserve de modèles est épuisée.
+
+**Route et eau**
+- Plus de lacs fantômes : cuvettes relevées (profondeur max 1,3 m), plus d'arbres ni de buissons dans l'eau. Route aplanie, bombée, avec accotements gravillonnés ; ponts plus larges et tablier plat ; rives en pente douce ; courant léger (≤ 0,55 m/s). Sous l'eau : voile bleu-vert et son étouffé. Parcours de la végétation indexé par cellule de 32 m (gain non mesuré).
+
+**Constaté, non traité** : roseaux et sable aux abords de l'eau ; aucun test de bot ou joueur coincé dans une berge ; le filtre sonore sous l'eau est partagé avec l'étourdissement (`ALP`) ; `bld()` des bâtiments toujours monolithique ; les testeurs n'ont pas fini de passer en revue le combat (feu, pièges, barils, véhicules, mêlée) ; points de la v57 toujours ouverts (calibre .50 absent de l'inventaire, `dstBlast` sans hauteur, explosions de véhicule créditées au joueur, plafond de grenades au ramassage, claymore horizontal).
