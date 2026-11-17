@@ -20,3 +20,7 @@ function percTired(b,dt){if(b.stm===undefined)b.stm=1;if(b.path&&b.spK>=2){b.stm
 function percTick(dt){if(!PERC.el){const e=document.createElement('div');e.style.cssText='position:fixed;left:50%;top:7%;transform:translateX(-50%);width:90px;height:5px;background:rgba(0,0,0,.45);border:1px solid rgba(220,230,200,.35);z-index:8;pointer-events:none;opacity:0;transition:opacity .25s';const f=document.createElement('div');f.style.cssText='height:100%;width:0;background:#e0b040';e.appendChild(f);document.body.appendChild(e);PERC.el=e;PERC.bar=f}
  const v=Math.hypot(P.x-PERC.px,P.z-PERC.pz)/Math.max(dt,.001);PERC.px=P.x;PERC.pz=P.z;PERC.v+=(Math.min(v,12)-PERC.v)*Math.min(1,dt*6);
  let m=0;for(const b of bots){if(b.dead||b.dorm)continue;percTired(b,dt);if(b.rcg>m&&!b.see)m=b.rcg}PERC.max=m;PERC.el.style.opacity=m>.05?1:0;PERC.bar.style.width=(m*100|0)+'%';PERC.bar.style.background=m>.6?'#d05030':'#e0b040'}
+// bruit d'un tir selon le calibre (rayon d'audition des bots et de la faune, en m) : le .50 s'entend de bien plus loin qu'un 9 mm ; silencieux : ×.25
+const PERC_SHOT={p9:40,pis:34,r556:48,r762:62,bk:66,b50:95};
+function percShotR(c){const r=PERC_SHOT[balAm(c)]||48;return A.supp?Math.round(r*.25):r}
+{const sf0=shotFx;shotFx=function(c){sf0(c);try{const r=percShotR(c),f=NZ.q[NZ.q.length-1];if(f&&f.r!==r)noise(P.x,P.z,r)}catch(e){}}}

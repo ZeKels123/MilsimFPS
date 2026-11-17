@@ -24,10 +24,12 @@ const WAM={},ZSET=[25,50,100,200,300,400];
 const balSpawn1=balSpawn;
 balSpawn=function(o,d,am,x){let t=null;if(x&&x.src==='p'&&am!=='bk'){t=AMTY[WAM[WSEL]||0];if(t.tr)x.tr=1}const q=balSpawn1(o,d,am,x);if(t){q.apk=t.pen;q.dk=t.dmg}return q};
 function amtNext(){if(ac.on||bench||reloading)return;const am=balAm(WC[WSEL]);if(am==='bk')return wpnMsg('Cartouches à plombs : pas de munition spéciale');WAM[WSEL]=((WAM[WSEL]||0)+1)%AMTY.length;cd=Math.max(cd,1.1);snd(300,.08,.15,'square');wpnMsg('Munitions : '+AMTY[WAM[WSEL]].n)}
-function zeroNext(){if(ac.on)return;const am=balAm(WC[WSEL]),a=BAM[am];if(!a||am==='bk')return;let i=ZSET.indexOf(a.z);i=(i+1)%ZSET.length;a.z=ZSET[i];delete BAL.zr[am];delete BAL.tab[am];snd(420,.04,.1,'square');wpnMsg('Hausse : '+a.z+' m')}
+// hausse : réglage propre à l'arme (BZM), jamais partagé avec une autre arme de même calibre
+function zeroStep(w){const c=WC[w],am=balAm(c);if(!BAM[am]||am==='bk')return 0;const i=ZSET.indexOf(balZm(c));BZM[w]=ZSET[(i+1)%ZSET.length];return BZM[w]}
+function zeroNext(){if(ac.on)return;const z=zeroStep(WSEL);if(!z)return;snd(420,.04,.1,'square');wpnMsg('Hausse : '+z+' m')}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none')return;if(e.code==='BracketRight')amtNext();else if(e.code==='Slash')zeroNext()});
 const wpHud1=wpHud;
-wpHud=function(){const am=balAm(WC[WSEL]);return wpHud1()+(am==='bk'?'':'<small style="color:#cfe3c0"> · '+AMTY[WAM[WSEL]||0].n+' · réglée '+BAM[am].z+' m</small>')};
+wpHud=function(){const am=balAm(WC[WSEL]);return wpHud1()+(am==='bk'?'':'<small style="color:#cfe3c0"> · '+AMTY[WAM[WSEL]||0].n+' · réglée '+balZm(WC[WSEL])+' m</small>')};
 // ---- bots : signes de la main, abri contre la pluie, relève de garde la nuit
 const GRD={posts:[],n:{relief:0,shel:0,sign:0},sT:0,gT:0,sg:8};
 function grdBot(b){return !b.dead&&!b.dorm&&!b.alert&&!b.see&&b.stun<=0&&b.blind<=0&&b.fleeT<=0&&!b.lvl&&!b.route&&!b.sur&&!b.heal&&b.seenT>20}
