@@ -36,7 +36,9 @@ function p3dTowerUp(it,d){const H=6.5,L=9.5,gy=GH(it.x,it.z),yw=it.g.rotation.y,
 function p3dOK(x,z,r,ign){try{if(!free_(x,z)||!nFree(x,z)||cityBad(x,z))return false;if(typeof CT!=='undefined'&&Math.abs(x-CT.ax)<7+r&&z>CT.z1+3)return false;if(typeof BRG!=='undefined'&&BRG.some(b=>Math.abs(x-b.x)<5+r&&Math.abs(z-b.z)<b.hl+4+r))return false;
  if(boxes.some(o=>o.p3d?false:(x+r>o.x0-.3&&x-r<o.x1+.3&&z+r>o.z0-.3&&z-r<o.z1+.3)))return false;if(bots.some(b=>!b.dead&&Math.hypot(b.g.position.x-x,b.g.position.z-z)<r+1.5))return false;for(const a of [[r,0],[-r,0],[0,r],[0,-r]])if(GH(x+a[0],z+a[1])<(typeof WL!=='undefined'?WL:0)+.4)return false;if(inRoom(x,z)>=0)return false;const y=GH(x,z);if(y<(typeof WL!=='undefined'?WL:0)+.4)return false;
  if(Math.abs(GH(x+r,z)-GH(x-r,z))>.6||Math.abs(GH(x,z+r)-GH(x,z-r))>.6)return false;if(Math.hypot(x-P.x,z-P.z)<14||Math.hypot(x,z-25)<35)return false;
- for(const o of P3D.list)if(Math.hypot(o.x-x,o.z-z)<o.r+r+.4)return false;return true}catch(e){return false}}
+ for(const o of P3D.list){if(Math.hypot(o.x-x,o.z-z)<o.r+r+.4)return false;const q=o.box;if(x+r>q.x0-.4&&x-r<q.x1+.4&&z+r>q.z0-.4&&z-r<q.z1+.4)return false}
+ // v59 : pas d'arbre dans l'emprise du décor (tronc au travers d'une tente ou d'un sac de sable)
+ if(window.TRE){const rr=r+.7;for(let i=0;i<TRE.length;i++){const t=TRE[i];if(t.x>x-rr&&t.x<x+rr&&t.z>z-rr&&t.z<z+rr)return false}}return true}catch(e){return false}}
 // un camp autour d'une ancre : couverts de sacs de sable en arc, caisses, barrière béton au fond
 function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  for(let k=0;k<3;k++){for(let t=0;t<8;t++){const a=a0+k*2.1+Math.random()*.6,d=5+Math.random()*3,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,.9)){p3dPut('sandbag',x,z,a+Math.PI/2+(Math.random()-.5)*.3);n++;break}}}
