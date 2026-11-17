@@ -89,7 +89,11 @@ function botDeath(b,head){b.fall=0;const g=b.g.position,dx=P.x-g.x,dz=P.z-g.z,yw
 if(b.bl){k=6;const bx=g.x-b.bl.x,bz=g.z-b.bl.z,bd=Math.hypot(bx,bz)||1;b.dv=[bx/bd*(4+Math.random()*3),2.6+Math.random()*1.6,bz/bd*(4+Math.random()*3)];b.bl=null}
 else if(b.bout)k=Math.random()<.5?2:5;else if(head)k=Math.random()<.75?4:3;else if(front<-.2)k=1;else{const r=Math.random();k=r<.32?0:r<.55?2:r<.75?5:r<.88?3:0}
 b.dk=k;b.ds=Math.random()<.5?1:-1;b.dyaw=b.g.rotation.y;b.dy=0;b.dfx=Math.sin(b.g.rotation.y);b.dfz=Math.cos(b.g.rotation.y);if(k===1||k===2||k===5){b.dsl=k===1?1.6:.5}else b.dsl=k===0?.9:0;
-if(b.thr>0)b.thr=0;dropWeapon(b,k)}
+if(b.thr>0)b.thr=0;sldDeathDir(b,k,head);dropWeapon(b,k)}
+// chute du soldat squelettique : le clip tombe sur le côté gauche ; on choisit la variante (gauche ou miroir) et le pivot (≤ 90°) pour que le corps tombe à l'opposé du tireur (ou de l'explosion), la vitesse varie selon la zone
+function sldDeathDir(b,k,head){const g=b.g.position,yw=b.g.rotation.y;let Dx=g.x-P.x,Dz=g.z-P.z;if(k===6&&b.dv){Dx=b.dv[0];Dz=b.dv[2]}const dl=Math.hypot(Dx,Dz),w=a=>Math.atan2(Math.sin(a),Math.cos(a));
+b.dty=0;b.dmr=b.ds<0?1:0;if(dl>.01&&k!==3){const yL=Math.atan2(-Dz/dl,Dx/dl),tL=w(yL-yw),tR=w(yL+Math.PI-yw);if(Math.abs(tL)<=Math.abs(tR)){b.dmr=0;b.dty=tL}else{b.dmr=1;b.dty=tR}}
+b.drt=k===6?1.5:head?1.25:.9+Math.random()*.25}
 function dropWeapon(b,k){const o=b.wps[b.wi];if(!o||!b.wp.visible)return;b.g.updateMatrixWorld(true);const m=new THREE.Mesh(o.geometry,BWM);m.castShadow=true;o.getWorldPosition(m.position);o.getWorldQuaternion(m.quaternion);S.add(m);
 const sc=b.g.scale.x;m.scale.setScalar(sc);const d={m,v:new THREE.Vector3(rnd(-1.2,1.2)+(b.dv?b.dv[0]*.6:0),rnd(.4,1.6),rnd(-1.2,1.2)+(b.dv?b.dv[2]*.6:0)),av:new THREE.Vector3(rnd(-6,6),rnd(-4,4),rnd(-6,6)),rest:0,t:0,n:0};
 while(DW.length>=14){const q=DW.shift();S.remove(q.m)}DW.push(d);b.wp.visible=false;b.flash.visible=false}

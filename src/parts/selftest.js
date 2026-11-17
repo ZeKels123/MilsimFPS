@@ -38,6 +38,43 @@ if(!msg){set();const b=bots.find(q=>!q.dead);if(b){const g0=b.g.position.clone()
 }catch(e){msg=String(e)}
 Object.assign(s,{x:sv.x,z:sv.z,bx:sv.bx,bz:sv.bz,th:sv.th,st:sv.st,hp:sv.hp,dead:sv.dead,tr:sv.tr});snkPlace(s);P.x=sv.px;P.z=sv.pz;P.gy=sv.pgy;return msg});
 T('Sons : 7 échantillons embarqués',()=>{const ks=['smg','rifle','shotgun','echo','reload','empty','cock'];for(const q of ks)if(!SMD[q]||SMD[q].length<2000)return'manquant : '+q;return typeof smpPlay==='function'?'':'lecteur absent'});
+// ---- animations des soldats (v57) : déplacement latéral/arrière, chute orientée, réapparition propre, boiterie à distance, accroupi, couteau
+const anB=()=>{const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;return b};
+const anAt=(b,d)=>{const fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);fw.y=0;fw.normalize();const x=C.position.x+fw.x*d,z=C.position.z+fw.z*d;b.g.position.set(x,GH(x,z),z);b.fy=b.g.position.y;b.g.updateMatrixWorld(true)};
+const anSave=b=>({p:b.g.position.clone(),ry:b.g.rotation.y,fy:b.fy,mvA:b.mvA,crA:b.crA,cr:b.cr,relT:b.relT,dead:b.dead,hm:b.hm,wv:b.wp.visible,ph:b.ph,ds:b.ds});
+const anLoad=(b,s)=>{b.g.position.copy(s.p);b.g.rotation.set(0,s.ry,0);b.fy=s.fy;b.mvA=s.mvA;b.crA=s.crA;b.cr=s.cr;b.relT=s.relT;b.dead=s.dead;b.hm=s.hm;b.wp.visible=s.wv;b.ph=s.ph;b.ds=s.ds;bhInit(b);anmReset(b)};
+const anWy=(b,n)=>{const v=new THREE.Vector3();b.sld.bones[SLS.ix[n]].getWorldPosition(v);return v};
+T('Bots : pas de côté = clip strafe, recul = marche inversée, clips miroir de la chute',()=>{const b=anB(),sv=anSave(b);let msg='';
+try{camP(()=>{anAt(b,8);b.crA=0;b.cr=0;b.relT=0;b.mvA=1;b.hm=1;b.g.rotation.set(0,0,0);const sd=b.sld,g=b.g.position,run=(dx,dz,n)=>{for(let i=0;i<n;i++){g.x+=dx;g.z+=dz;sldUpdate(b,.05,true)}return sd.cur};
+const c=[run(.08,0,40),run(-.08,0,40),run(0,-.08,40)],t0=sd.t;run(0,-.08,2);const t1=sd.t,c4=run(0,.08,40);
+if(c[0]!=='strafe')msg+='gauche '+c[0]+' ';if(c[1]!=='strafeR')msg+='droite '+c[1]+' ';if(c[2]!=='walkB')msg+='recul '+c[2]+' ';if(!(t1<t0))msg+='recul non inversé ';if(c4!=='walk'&&c4!=='run')msg+='avant '+c4+' '});
+sldClips();const a=SLA.death,m=SLA.deathR,l=a.n-1;if(!m||m.n!==a.n)msg+='clip miroir absent ';else{if(!(a.d[l][0]>300&&m.d[l][0]<-300&&Math.abs(a.d[l][0]+m.d[l][0])<2))msg+='racine non miroir ';if(Math.abs(m.d[l][SLS.ix.LeftHand*6]+a.d[l][SLS.ix.RightHand*6])>1)msg+='mains non échangées '}
+}finally{anLoad(b,sv)}return msg});
+T('Chute des bots : le corps tombe à l’opposé du tireur (pivot ≤ 90°), vitesse selon la zone touchée',()=>{const b=anB(),sv=anSave(b),n0=DW.length,rr=Math.random,dv0=b.dv,bl0=b.bl;let msg='';
+try{for(const yaw of[0,1.1,-2.2,3]){b.g.position.set(P.x+7,0,P.z-5);b.g.rotation.y=yaw;b.ds=1;sldDeathDir(b,0,false);const Y=yaw+b.dty,dx=b.g.position.x-P.x,dz=b.g.position.z-P.z,dl=Math.hypot(dx,dz),ax=b.dmr?-Math.cos(Y):Math.cos(Y),az=b.dmr?Math.sin(Y):-Math.sin(Y);if(Math.abs(b.dty)>Math.PI/2+1e-6)msg+='pivot '+b.dty.toFixed(2)+' ';if(ax*dx/dl+az*dz/dl<.999)msg+='direction '+yaw+' '}
+sldDeathDir(b,4,true);if(b.drt!==1.25)msg+='tête '+b.drt+' ';b.dv=[3,2,0];sldDeathDir(b,6,false);if(b.drt!==1.5||b.dty===undefined)msg+='souffle ';sldDeathDir(b,3,false);if(b.dty!==0)msg+='pirouette ';
+camP(()=>{anAt(b,12);b.g.rotation.y=1;b.bl=null;b.bout=0;b.dcPush=0;const D=[b.g.position.x-P.x,b.g.position.z-P.z],dl=Math.hypot(D[0],D[1]);Math.random=()=>0;try{botDeath(b,false)}finally{Math.random=rr}
+b.dead=30;b.drt=1.3;if(!fin(b.dty)||Math.abs(b.dty)>Math.PI/2+1e-6)msg+='dty '+b.dty+' ';
+for(let i=0;i<70;i++)botDead(b,.05);b.g.updateMatrixWorld(true);const h=anWy(b,'Head'),p=anWy(b,'Hips'),hx=h.x-p.x,hz=h.z-p.z,hl=Math.hypot(hx,hz)||1;
+if(b.dk!==3&&!b.dcPush&&(hx*D[0]+hz*D[1])/hl/dl<.8)msg+='corps pas orienté à l’opposé du tireur '+((hx*D[0]+hz*D[1])/hl/dl).toFixed(2)+' k='+b.dk+' ';if(h.y-GH(b.g.position.x,b.g.position.z)>1)msg+='corps debout '})}
+finally{Math.random=rr;while(DW.length>n0)S.remove(DW.pop().m);b.dv=dv0;b.bl=bl0;anLoad(b,sv)}return msg});
+T('Réapparition : plus de corps couché, de bras levés ni de clip de mort résiduels après aiReset',()=>{const b=anB(),sv=anSave(b);let msg='';
+try{camP(()=>{anAt(b,8);for(let i=0;i<5;i++)sldUpdate(b,.05,false);b.g.rotation.x=-1.4;b.g.rotation.z=.4;b.armK=1;b.armM='up';b.armT=2;b.sld.cur='deathR';b.dmr=1;b.dty=1.2;b.drgP=1;b.sld.vf=3;
+aiReset(b,b.ty);if(b.g.rotation.x!==0||b.g.rotation.z!==0)msg+='inclinaison ';if(b.armK||b.armT||b.armM)msg+='bras ';if(b.sld.cur!=='fire'||b.dmr||b.dty||b.drgP)msg+='clip de mort ';
+anAt(b,8);b.g.rotation.y=0;for(let i=0;i<10;i++)sldUpdate(b,.05,false);b.g.updateMatrixWorld(true);if(anWy(b,'Head').y-GH(b.g.position.x,b.g.position.z)<1.1*b.T.sc)msg+='soldat pas debout '})}finally{anLoad(b,sv)}return msg});
+T('Boiterie : le décalage vertical ne s’accumule pas aux images où un soldat lointain est sauté',()=>{const b=anB(),sv=anSave(b);let msg='';
+try{camP(()=>{anAt(b,60);b.crA=0;b.cr=0;b.relT=0;b.mvA=1;b.g.rotation.set(0,0,0);bhInit(b);for(const hm of[.5,.2]){b.hm=hm;let mn=0;for(let i=0;i<24;i++){b.g.position.z+=.03;sldUpdate(b,.05,true);mn=Math.min(mn,b.sld.sg.position.y)}
+const lim=hm>.35?.06*(1-hm)+.002:.102;if(mn<-lim)msg+='affaissement '+mn.toFixed(3)+' > '+lim.toFixed(3)+' (hm '+hm+') '}})}finally{anLoad(b,sv)}return msg});
+T('Accroupi : les bottes du soldat restent au sol (le modèle remonte de ce que g.y descend)',()=>{const b=anB(),sv=anSave(b);let msg='';
+try{camP(()=>{anAt(b,8);const ft=()=>{b.g.updateMatrixWorld(true);return Math.min(anWy(b,'LeftFoot').y,anWy(b,'RightFoot').y)-GH(b.g.position.x,b.g.position.z)},gy=b.g.position.y;b.relT=0;b.mvA=0;b.crA=0;b.cr=0;for(let i=0;i<30;i++)sldUpdate(b,.05,false);const h0=ft();
+b.crA=1;b.cr=1;b.g.position.y=gy-.34*b.T.sc;for(let i=0;i<30;i++)sldUpdate(b,.05,false);const h1=ft();if(b.sld.cur!=='idle')msg+='clip '+b.sld.cur+' ';if(Math.abs(h1-h0)>.12*b.T.sc)msg+='bottes décalées de '+(h1-h0).toFixed(2)+' m ';
+// accroupi forcé en marchant (blessé évacué, vitre) : le soldat marche au lieu de glisser en pose accroupie
+b.crA=.9;b.mvA=1;for(let i=0;i<20;i++){b.g.position.z+=.03;sldUpdate(b,.05,true)}if(b.sld.cur==='idle')msg+='glisse accroupi en marchant ';const h2=ft();if(Math.abs(h2-h0)>.15*b.T.sc)msg+='marche accroupie décalée de '+(h2-h0).toFixed(2)+' m '})}finally{anLoad(b,sv)}return msg});
+T('Bots : le tireur incline le haut du corps et l\u2019arme vers une cible en hauteur ou en contrebas',()=>{const b=anB(),sv=anSave(b),pit0=b.pit,a0=[b.aimA,b.aimT,b.relA];let msg='';
+try{camP(()=>{anAt(b,8);b.crA=0;b.cr=0;b.relT=0;b.mvA=0;b.aimT=1;b.aimA=1;b.relA=0;const dir=pt=>{b.pit=pt;for(let i=0;i<12;i++)sldUpdate(b,.05,false);b.g.updateMatrixWorld(true);const d=new THREE.Vector3();b.wp.getWorldDirection(d);return d.y};
+const up=dir(.5),dn=dir(-.5),z=dir(0);if(!(up>z+.2&&dn<z-.2))msg+='arme non inclinée '+[dn,z,up].map(v=>v.toFixed(2))+' ';b.aimA=0;const off=dir(.5);if(Math.abs(off-z)>.05)msg+='inclinaison sans visée ';
+b.aimA=1;b.pit=NaN;sldUpdate(b,.05,false);if(!fin(anWy(b,'Head').y))msg+='NaN '})}finally{b.pit=pit0;b.aimA=a0[0];b.aimT=a0[1];b.relA=a0[2];anLoad(b,sv)}return msg});
+T('Couteau : un coup interrompu par le rangement ne bloque plus les coups suivants',()=>{const sv={t:KNF.t,on:KNF.on,s:KNF.s,vis:KN.visible,gs:gun.scale.x};try{KNF.on=0;KNF.s=0;KNF.t=.2;knUpdate(.016);if(KNF.t!==0)return'coup bloqué '+KNF.t;return''}finally{KNF.t=sv.t;KNF.on=sv.on;KNF.s=sv.s;KN.visible=sv.vis;gun.scale.setScalar(sv.gs)}});
 T('Soldats Mixamo : 33 os, 7 clips, poses finies sur tous les bots',()=>{if(SLS.nb!==33)return'os '+SLS.nb;for(const k of ['walk','run','fire','reload','death','strafe','idle'])if(!SLA[k]||SLA[k].n<4)return'clip '+k;for(const b of bots){if(!b.sld)return'bot sans soldat';const cr=[b.cr,b.crA];b.cr=0;b.crA=0;sldUpdate(b,.05,true);const p=b.sld.bones[5].position;b.cr=cr[0];b.crA=cr[1];if(!isFinite(p.x+p.y+p.z)||p.y<1.2||p.y>1.9)return'tête hors plage '+p.y}return true});
 T('Mise en veille : un bot à 400 m n\'est ni mis à jour ni affiché',()=>{const b=bots[0],g=b.g.position,x=g.x,z=g.z,v=b.g.visible,d0=b.dead,e0=ENM.off;ENM.off=0;b.dead=0;b.dorm=0;g.x=P.x+400;g.z=P.z;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok=b.dorm===1&&b.g.visible===false;g.x=P.x+30;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok2=!b.dorm&&b.g.visible;g.x=x;g.z=z;b.g.visible=v;b.dead=d0;b.dorm=0;ENM.off=e0;return ok&&ok2||'veille '+ok+' réveil '+ok2});
 T('Voix des bots : phrases définies, annonce sans erreur',()=>{for(const k of ['contact','hit','reload','grenade','down','flank','cover','lost','ack'])if(!VX.L[k]||!VX.L[k].length)return'manque '+k;const b=bots.find(o=>!o.dead);if(!b)return true;b.vxCd=0;VX.last=0;vxSay(b,'hit');return typeof vxTick==='function'});
