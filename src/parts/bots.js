@@ -102,7 +102,7 @@ function dwUpdate(dt){for(let i=DW.length-1;i>=0;i--){const d=DW[i],m=d.m,p=m.po
 d.v.y-=9.8*dt;p.addScaledVector(d.v,dt);_de.set(d.av.x*dt,d.av.y*dt,d.av.z*dt);_dq.setFromEuler(_de);m.quaternion.premultiply(_dq);const gy=groundAt(p.x,p.z,p.y+.3,.35)+.045;
 if(p.y<gy){p.y=gy;if(d.v.y<-1.2&&d.n<3){sndAt(p.x,p.y,p.z,rnd(520,820),.07,.2,'square',{ref:3.5});sndAt(p.x,p.y,p.z,rnd(1800,3000),.04,.1,'triangle',{ref:3.5})}d.n++;d.v.y*=-.32;d.v.x*=.55;d.v.z*=.55;d.av.multiplyScalar(.5);
 if(Math.abs(d.v.y)<.6&&Math.hypot(d.v.x,d.v.z)<.8){d.rest=1;_de.set(0,Math.atan2(d.v.x,d.v.z)||rnd(0,6),Math.PI/2*(Math.random()<.5?1:-1));m.quaternion.setFromEuler(_de);p.y=gy+.03}}}}
-function botDead(b,dt){b.fall+=dt;const t=b.fall,k=b.dk||0,f=Math.min(1,t/(k===4?.3:k===2?.8:.5)),e=f*f*(3-2*f),sd=b.ds||1,g=b.g,I=_ik;
+function botDead(b,dt){b.fall+=dt;if(!isFinite(b.dfx))b.dfx=0;if(!isFinite(b.dfz))b.dfz=0;if(!isFinite(b.dsl))b.dsl=0;if(!isFinite(b.dy))b.dy=0;if(!b.dv)b.dv=[0,0,0];const t=b.fall,k=b.dk||0,f=Math.min(1,t/(k===4?.3:k===2?.8:.5)),e=f*f*(3-2*f),sd=b.ds||1,g=b.g,I=_ik;
 b.flash.visible=false;b.L.hip.rotation.set(0,0,0);b.Rg.hip.rotation.set(0,0,0);b.L.kn.rotation.set(.1,0,0);b.Rg.kn.rotation.set(.1,0,0);b.up.rotation.set(0,0,0);b.up.position.y=.9;b.hd.rotation.set(0,e*.6,0);g.rotation.z=0;g.rotation.x=0;
 const ar=(r,l,x1,x2,z1,z2)=>{b.aR.p.rotation.set(r,0,z1);b.aL.p.rotation.set(l,0,z2);b.aR.el.rotation.set(x1,0,0);b.aL.el.rotation.set(x2,0,0)};
 b.aR.p.quaternion.identity();b.aL.p.quaternion.identity();b.aR.el.quaternion.identity();b.aL.el.quaternion.identity();let yoff=0;
