@@ -9,6 +9,8 @@ const m=.3;for(let i=b0;i<boxes.length;i++){const o=boxes[i];if(o.y0>1.7||o.stai
 // la fusion des maillages (65-160 ms pour un grand immeuble) est étalée sur plusieurs images : en attendant, les originaux restent visibles
 q.objs=[];q.vis=true;q.mgen=mergeGen(nw);q.mnw=nw;LZ.mg.push(q);LZ.built.push(q);LZ.n++;if(typeof navEject==='function')navEject()}
 LZ.mg=[];
+// pré-chauffage (v59) : la première instance de chaque modèle de la ville décode sa géométrie (jusqu'à 350 ms d'un coup en jeu) ; on le fait une fois au chargement
+LZ.warm=[...new Set(LZ.q.map(q=>q.mn).filter(Boolean))];{const t0=performance.now();for(const n of LZ.warm){try{window.mdl(n)}catch(e){console.warn('warm',n,e)}}LZ.warmMs=performance.now()-t0}
 function lzMergeStep(ms){const t0=performance.now();while(LZ.mg.length&&performance.now()-t0<ms){const q=LZ.mg[0];let r;try{r=q.mgen.next()}catch(e){console.warn('lzmerge',e);r={done:true,value:[]}}if(r.done){LZ.mg.shift();q.objs=(r.value||[]).concat(q.mnw.filter(o=>o.layers.mask&1));q.mgen=q.mnw=null;if(!q.vis)q.objs.forEach(o=>o.visible=false)}}}
 function lzUpdate(dt){const _n=performance.now();if(_n-LZ.t<(LZ.mg.length?40:200))return;LZ.t=_n;const x=P.x,z=P.z;lzMergeStep(6+3*Math.min(4,LZ.mg.length));const t0=performance.now();
 while(LZ.q.length&&LZ.mg.length<3&&performance.now()-t0<14){let bi=-1,bd=LZR.build;for(let i=0;i<LZ.q.length;i++){const d=lzDist(LZ.q[i].r,x,z);if(d<bd){bd=d;bi=i}}if(bi<0)break;const q=LZ.q.splice(bi,1)[0];try{lzBuild(q)}catch(e){console.warn('lz',e)}}

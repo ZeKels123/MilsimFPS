@@ -46,28 +46,28 @@ const PRG=[[9,20],[14,30],[38,70],[7,16]];
 function aiThink(b){const g=b.g.position,ty=b.ty,pd=Math.hypot(P.x-g.x,P.z-g.z);b.decT=rnd(.55,1.05);if(b.route)return;if(b.sur){b.see=false;b.path=null;return}if(b.lvl>0){aiHold(b,pd);return}if(b.st==='ups'){if(b.path&&b.after)return;if(b.after){b.after.h.occ=Math.max(0,(b.after.h.occ||1)-1);b.after.post.occ=0}b.after=null;b.st='pat'}
 if(b.fleeT>0||b.stun>0||b.blind>0)return;
 if(b.see){if(ty===3){if(pd>8){if(!b.path||b.st!=='adv'||Math.hypot(b.path[b.path.length-1][0]-P.x,b.path[b.path.length-1][1]-P.z)>5)goTo(b,P.x,P.z,1.35,'adv')}else b.path=null;return}
-if(ty===2){if(pd<20){const c=findCover(b,P.x,P.z,22);if(c)goTo(b,c[0],c[1],2.4,'cov')}else if(b.shots>=3){b.shots=0;if(Math.random()<.55&&aiPost(b,2))return;const v=aiVantage(b);if(v)goTo(b,v[0],v[1],2,'pos')}else if(b.st!=='pos'||!b.path){b.path=null;b.cr=1}return}
+if(ty===2){if(pd<20){const c=findCover(b,P.x,P.z,22);if(c)goTo(b,c[0],c[1],2.4,'cov')}else if(b.shots>=3){b.shots=0;if(Math.random()<.8&&aiPost(b,2))return;const v=aiVantage(b);if(v)goTo(b,v[0],v[1],2,'pos')}else if(b.st!=='pos'||!b.path){b.path=null;b.cr=1}return}
 if(b.relT>0||(b.hp<b.T.hp*.45&&!b.ran)){if(b.st!=='cov'){const c=findCover(b,P.x,P.z);if(c&&goTo(b,c[0],c[1],2.3,'cov')&&b.relT<=0)b.ran=1}return}
 const lo=PRG[ty][0],hi=PRG[ty][1];if(b.st==='flk'&&b.path){if(pd<hi){b.st='atk';b.path=null}else return}
 if(b.st==='cov'&&b.path)return;
 if(pd>hi){if((!AI.flank||AI.flank.dead||AI.flank.st!=='flk')&&Math.random()<.4&&aiFlank(b,P.x,P.z))return;goTo(b,P.x,P.z,1.7,'adv')}
 else{const a=Math.atan2(g.x-P.x,g.z-P.z)+(Math.random()<.5?1:-1)*(pd<lo?.5:1.45),r=rnd(2.5,4.5),x=g.x+Math.sin(a)*r,z=g.z+Math.cos(a)*r;if(Math.random()<(pd<lo?.9:.6)&&nFree(x,z)&&navLine(g.x,g.z,x,z)){b.path=[[x,z]];b.pi=0;b.spK=1.5;b.st='atk'}else{b.path=null;b.st='atk';b.cr=Math.random()<.45?1:0}}
 return}
-if(b.alert&&b.seenT<16){if(ty===2){b.cr=1;if(b.seenT>7&&b.st!=='pos'){if(Math.random()<.6&&aiPost(b,2))return;const v=aiVantage(b);if(v)goTo(b,v[0],v[1],2,'pos');else b.st='pos'}return}
+if(b.alert&&b.seenT<16){if(ty===2){b.cr=1;if(b.seenT>7&&b.st!=='pos'){if(Math.random()<.85&&aiPost(b,2))return;const v=aiVantage(b);if(v)goTo(b,v[0],v[1],2,'pos');else b.st='pos'}return}
 if(b.relT>0)return;const dl=Math.hypot(b.lk.x-g.x,b.lk.z-g.z);
-if(ty<2&&b.st==='hnt'&&dl>16&&Math.random()<.18&&aiPost(b,ty))return;if(ty<2&&b.seenT>2.2&&b.seenT<10&&b.nadeCd<=0&&AI.nadeCd<=0&&dl>8&&dl<26&&inRoom(g.x,g.z)<0&&!inZ(b.lk.x,b.lk.z)&&botThrow(b,Math.random()<.72?0:(Math.random()<.5?1:2)))return;
+if(ty<2&&b.st==='hnt'&&dl>16&&Math.random()<.3&&aiPost(b,ty))return;if(ty<2&&b.seenT>2.2&&b.seenT<10&&b.nadeCd<=0&&AI.nadeCd<=0&&dl>8&&dl<26&&inRoom(g.x,g.z)<0&&!inZ(b.lk.x,b.lk.z)&&botThrow(b,Math.random()<.72?0:(Math.random()<.5?1:2)))return;
 if(b.st==='hnt'||b.st==='flk'){if(!b.path){if(b.srch<3&&b.seenT<13){b.srch++;const a=rnd(0,6.28),r=rnd(4,11);goTo(b,b.lk.x+Math.cos(a)*r,b.lk.z+Math.sin(a)*r,1.5,'hnt')}else b.alert=0}}
 else if(ty===1&&dl>16&&Math.random()<.35&&aiFlank(b,b.lk.x,b.lk.z)){}else goTo(b,b.lk.x,b.lk.z,ty===3?1.3:2.1,'hnt');return}
 b.alert=0;b.cr=0;if(b.st!=='pat'||!b.path){if(b.wait>0&&b.st==='pat'){b.wait-=b.decT;return}let q=null,bd=1e9;for(let k=0;k<4;k++){const c=AI.poi[Math.random()*AI.poi.length|0],d=Math.abs(Math.hypot(c[0]-g.x,c[1]-g.z)-30);if(d<bd){bd=d;q=c}}if(q&&goTo(b,q[0]+rnd(-2,2),q[1]+rnd(-2,2),1,'pat'))b.wait=rnd(1,5)}}
 
 // ---- v6 : étages et toits ----
 function aiPost(b,ty){if(!UPH.length||b.lvl||b.route)return false;const g=b.g.position;let bh=null,bs=1e9;
-for(const h of UPH){const d=Math.hypot(h.cx-g.x,h.cz-g.z);if(d>48||(h.occ||0)>=2)continue;const dl=Math.hypot(h.cx-b.lk.x,h.cz-b.lk.z);if(dl<9||dl>75)continue;const sc=d+rnd(0,14);if(sc<bs){bs=sc;bh=h}}
-if(!bh)return false;const roof=ty===2?Math.random()<.65:Math.random()<.2,list=roof?bh.roofPosts:bh.posts;let bp=null,bq=-9;
+for(const h of UPH){const d=Math.hypot(h.cx-g.x,h.cz-g.z);if(d>(h.tower?70:48)||(h.occ||0)>=2)continue;const dl=Math.hypot(h.cx-b.lk.x,h.cz-b.lk.z);if(dl<9||dl>75)continue;const sc=d+rnd(0,14);if(sc<bs){bs=sc;bh=h}}
+if(!bh)return false;const roof=bh.tower||(ty===2?Math.random()<.65:Math.random()<.2),list=roof?bh.roofPosts:bh.posts;let bp=null,bq=-9;
 for(const p of list){const dx=b.lk.x-p[0],dz=b.lk.z-p[1],d=Math.hypot(dx,dz)||1,q=(dx*Math.sin(p[2])+dz*Math.cos(p[2]))/d+rnd(0,.35);if(q>bq&&!(p.occ>0)){bq=q;bp=p}}
 if(!bp||bq<.1)return false;const route=roof?[bh.iA,bh.iB,bh.rA,bh.rB,bh.rL].concat(bp[3]?[bh.rM]:[],[bp]):[bh.iA,bh.iB,bh.iL,bh.iM].concat(bp[3]?[bh.iN]:[],[bp]),F=bh.iF;
 if(!goTo(b,F[0],F[1],2.2,'ups'))return false;b.after={route:route.map(q=>[q[0],q[1]]),post:bp,lvl:roof?2:1,h:bh,F:[F[0],F[1]]};bh.occ=(bh.occ||0)+1;bp.occ=1;return true}
-function aiHold(b,pd){b.decT=rnd(.6,1.1);b.hold+=b.decT;b.cr=b.see?0:1;const idle=!b.alert||b.seenT>11;
+function aiHold(b,pd){b.decT=rnd(.6,1.1);b.hold+=b.decT;const tw=b.hh&&b.hh.tower;b.cr=b.see&&!tw?0:1;b.prn=tw&&!b.see&&b.seenT>2.5?1:0;const idle=!b.alert||b.seenT>11;
 if(b.hp<b.T.hp*.4||(idle&&b.hold>14)||b.hold>70){b.route=b.upr.slice(0,-1).reverse().concat([b.fdn]);b.ri=0;b.down=1;b.cr=0;b.st='clb'}}
 function aiRoute(b,dt){const g=b.g.position,w=b.route[b.ri],dx=w[0]-g.x,dz=w[1]-g.z,d=Math.hypot(dx,dz),sp=b.T.sp*1.45*dt*(b.stun>0?.4:1)*(b.hm||1);
 if(d<=sp+.04){g.x=w[0];g.z=w[1];if(++b.ri>=b.route.length){b.route=null;if(b.down){b.lvl=0;b.down=0;b.st='pat';b.alert=0;b.path=null;b.decT=.5;const h=b.hh;if(h)h.occ=Math.max(0,(h.occ||1)-1);if(b.rp)b.rp.occ=0;b.hh=null;b.rp=null}else{b.st='hold';b.hold=0;b.yaw=b.rp[2];b.cr=1;b.decT=.3}}}else{g.x+=dx/d*sp;g.z+=dz/d*sp}}
@@ -97,7 +97,7 @@ b.decT-=dt;if(b.decT<=0)aiThink(b);
 // déplacement
 if((b.stun>0||b.blind>0)&&(b.lvl||b.route)){b.path=null}else if(b.stun>0||b.blind>0){b.path=null;const a=b.tm*1.3+i,sp=bt.sp*.35*dt,nx=g.x+Math.sin(a)*sp,nz=g.z+Math.cos(a*1.3)*sp;if(nFree(nx,nz)){g.x=nx;g.z=nz}}else if(b.route)aiRoute(b,dt);else if(b.thr<=0)aiMove(b,dt);
 for(let k=i+1;k<bots.length;k++){const o=bots[k];if(o.dead)continue;const ox=o.g.position.x-g.x,oz=o.g.position.z-g.z,od=Math.hypot(ox,oz);if(od<.75&&od>.01){const p=(.75-od)*.5/od;if(nFree(g.x-ox*p,g.z-oz*p)){g.x-=ox*p;g.z-=oz*p}if(nFree(o.g.position.x+ox*p,o.g.position.z+oz*p)){o.g.position.x+=ox*p;o.g.position.z+=oz*p}}}
-const mvx=g.x-bx0,mvz=g.z-bz0,mv=Math.hypot(mvx,mvz)>1e-4;if(mv)b.cr=0;b.crA+=(((b.cr&&!mv)||b.onv?1:0)-b.crA)*Math.min(1,dt*6);
+const mvx=g.x-bx0,mvz=g.z-bz0,mv=Math.hypot(mvx,mvz)>1e-4;if(mv)b.cr=0;b.crA+=(((b.cr&&!mv)||b.onv?1:0)-b.crA)*Math.min(1,dt*6);b.prA=(b.prA||0)+(((b.prn&&b.lvl>0&&!mv&&!b.route)?1:0)-(b.prA||0))*Math.min(1,dt*3);
 {let tg=groundAt(g.x,g.z,b.fy,b.route?1.05:.6);if(b.lvl&&b.route&&tg<b.fy-.5&&!b.down)tg=b.fy;b.onv=GSUP&&GSUP.gl?1:0;b.fy+=(tg-b.fy)*Math.min(1,dt*14)}g.y=b.fy-b.crA*.34*bt.sc;
 // orientation
 let ty_=b.yaw;if(b.stun>0||b.blind>0)ty_=b.yaw+Math.sin(b.tm*2.3+i)*.9;else if(b.see||(b.alert&&b.seenT<4&&b.st!=='fle'&&b.st!=='cov'))ty_=Math.atan2(b.lk.x-g.x,b.lk.z-g.z);else if(mv)ty_=Math.atan2(mvx,mvz);else if(b.alert)ty_=Math.atan2(b.lk.x-g.x,b.lk.z-g.z);else ty_=b.yaw+Math.sin(b.tm*.5+i)*.5*dt;

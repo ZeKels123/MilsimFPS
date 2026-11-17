@@ -1,6 +1,6 @@
 // ================= VILLE (v15) : 588 x 388 m (x 150..738, z -738..-350), étages accessibles, vitres cassables =================
 const CT={x0:150,x1:738,z0:-738,z1:-350,y:0,ax:224,az:-525};
-const LZ={q:[],built:[],t:0,n:0,k:0};function lazy(r,fn){LZ.q.push({r,fn})}
+const LZ={q:[],built:[],t:0,n:0,k:0};function lazy(r,fn,mn){LZ.q.push({r,fn,mn})}
 (()=>{const Y=CT.y,FH=3.4,t=.35;let sd=4242;const rn=()=>(sd=(Math.imul(sd,1664525)+1013904223)>>>0)/4294967296;
 const mkC=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return[c,c.getContext('2d')]};
 const cvT=(c,rx,ry)=>{const t_=new THREE.CanvasTexture(c);t_.wrapS=t_.wrapT=THREE.RepeatWrapping;t_.anisotropy=AN;t_.repeat.set(rx,ry);return t_};
@@ -111,7 +111,7 @@ if(fl>4){const a=uw(Lu-5),an=new THREE.Mesh(new THREE.CylinderGeometry(.04,.06,6
 (window.CITYB=window.CITYB||[]).push({cx,cz,w,d,fl,ty,face,H,Lu,Hv,W:(u,v)=>{const a=uw(u);return X?[a,cv+v]:[cv+v,a]}});
 const hx=w/2-t,hz=d/2-t;if(w>=d)ROOMS.push({x:cx-w/4,z:cz,hx:hx/2,hz,bun:0},{x:cx+w/4,z:cz,hx:hx/2,hz,bun:0});else ROOMS.push({x:cx,z:cz-d/4,hx,hz:hz/2,bun:0},{x:cx,z:cz+d/4,hx,hz:hz/2,bun:0})}
 // --- placement par îlot : volumes variés (tour + annexe, hôtel + aile, cours)
-const mdlAtL=(...a)=>lazy([a[1],a[1],a[3],a[3]],()=>mdlAt(...a)),tree=(x,z)=>lazy([x,x,z,z],()=>tree0(x,z)),tree0=(x,z)=>{const tr=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,3.6,6),std(0x5a4330));tr.position.set(x,Y+1.8,z);tr.castShadow=true;S.add(tr);const cr=new THREE.Mesh(new THREE.IcosahedronGeometry(2.2,1),std(0x3f7a3a,{roughness:1}));cr.position.set(x,Y+4.6,z);cr.castShadow=true;S.add(cr);boxes.push({x0:x-.3,x1:x+.3,z0:z-.3,z1:z+.3,y0:Y,y1:Y+3.6})};
+const mdlAtL=(...a)=>lazy([a[1],a[1],a[3],a[3]],()=>mdlAt(...a),a[0]),tree=(x,z)=>lazy([x,x,z,z],()=>tree0(x,z)),tree0=(x,z)=>{const tr=new THREE.Mesh(new THREE.CylinderGeometry(.18,.28,3.6,6),std(0x5a4330));tr.position.set(x,Y+1.8,z);tr.castShadow=true;S.add(tr);const cr=new THREE.Mesh(new THREE.IcosahedronGeometry(2.2,1),std(0x3f7a3a,{roughness:1}));cr.position.set(x,Y+4.6,z);cr.castShadow=true;S.add(cr);boxes.push({x0:x-.3,x1:x+.3,z0:z-.3,z1:z+.3,y0:Y,y1:Y+3.6})};
 BZ.forEach(([z0,z1],j)=>BX.forEach(([x0,x1],i)=>{const ty=GRID[j][i],cx=(x0+x1)/2,cz=(z0+z1)/2,ix0=x0+5,ix1=x1-5,iz0=z0+5,iz1=z1-5,IW=ix1-ix0,ID=iz1-iz0;
 if(ty==='park'){const g=new THREE.Mesh(new THREE.BoxGeometry(x1-x0-2,.04,z1-z0-2),std(0x4c7a3a,{roughness:1}));g.position.set(cx,Y+.1,cz);g.receiveShadow=true;S.add(g);
 const fo=new THREE.Mesh(new THREE.CylinderGeometry(4,4.4,.6,20),concM);fo.position.set(cx,Y+.38,cz);fo.castShadow=true;S.add(fo);boxes.push({x0:cx-4.2,x1:cx+4.2,z0:cz-4.2,z1:cz+4.2,y0:Y,y1:Y+.7});solids.push(fo);
