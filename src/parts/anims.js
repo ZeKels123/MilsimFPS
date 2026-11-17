@@ -23,3 +23,8 @@ const sldUpdate1=sldUpdate;
 sldUpdate=function(b,dt,mv){const sd=b.sld;if(sd&&!b.dead){const g=b.g.position,cam=C.position,dx=g.x-cam.x,dz=g.z-cam.z,d=Math.hypot(dx,dz);_at.set(0,0,-1).applyQuaternion(C.quaternion);
   if(d>14&&(dx*_at.x+dz*_at.z)/d<-.45){if(!sd.cul){sd.cul=1;ANM.n.cull++}sd.sg.visible=false;return}}
  if(sd)sd.cul=0;sldUpdate1(b,dt,mv)};
+
+// ---- réapparition : plus aucune pose résiduelle de la vie précédente (corps couché, bras levés, traînage, clip de mort, inclinaison)
+function anmReset(b){b.armK=0;b.armM=null;b.armT=0;b.g.rotation.x=0;b.g.rotation.z=0;b.dmr=0;b.dty=0;b.drt=1;b.drg=null;b.drgP=0;b.blsLean=0;b.stk=0;b.fall=0;b.dk=0;b.dair=0;
+ const sd=b.sld;if(sd){sd.cur='fire';sd.pv=null;sd.t=0;sd.pt=0;sd.bl=1;sd.acc=0;sd.md=0;sd.ms=1;sd.vf=sd.vl=0;sd.lx=undefined;sd.blY=0;sd.cul=0;sd.sg.quaternion.identity();sd.sg.position.set(0,0,0);sd.sg.rotation.set(0,0,0)}}
+{const aR0=aiReset;aiReset=function(b,ty){aR0.apply(this,arguments);try{anmReset(b)}catch(e){console.error('anmReset',e)}}}

@@ -21,7 +21,7 @@ let dm=KNF.type?(bz==='h'?110:85):(bz==='h'?90:60);if(behind)dm=300;b.pk=1;bhHit
 if(b.hp<=0&&!b.dead)onKill(b,bz==='h');else if(b.hp>0||!behind)aiHit(b);FXP&&(FXP.shake=Math.max(FXP.shake||0,.25))}
 addEventListener('mousedown',e=>{if(!KNF.on||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open))return;if(e.button===0)knAtk(0);else if(e.button===2)knAtk(1)});
 addEventListener('keydown',e=>{if(e.code!=='KeyZ'||e.repeat||bench||ac.on||$('ov').style.display!=='none'||(typeof INV!=='undefined'&&INV.open)||reloading>0)return;KNF.on=KNF.on?0:1;ads=false;hlMsg(KNF.on?'Couteau de combat · clic gauche : taillade · clic droit : estoc · Z : ranger':'Arme rangée le couteau')});
-function knUpdate(dt){const on=KNF.on&&!bench&&!ac.on&&P.hp>0;if(!on&&KNF.on&&P.hp<=0)KNF.on=0;KNF.s+=((on?1:0)-KNF.s)*Math.min(1,dt*9);KN.visible=KNF.s>.03;gun.scale.setScalar(on||KNF.s>.5?.0001:1);if(!KN.visible)return;
+function knUpdate(dt){const on=KNF.on&&!bench&&!ac.on&&P.hp>0;if(!on&&KNF.on&&P.hp<=0)KNF.on=0;KNF.s+=((on?1:0)-KNF.s)*Math.min(1,dt*9);KN.visible=KNF.s>.03;gun.scale.setScalar(on||KNF.s>.5?.0001:1);if(!KN.visible){KNF.t=0;return}
 let px=0,py=0,pz=0,rx=0,ry=0,rz=0;const ph=KNF.t>0?1-KNF.t/KNF.dur:0,sw=Math.sin(Math.PI*ph);
 if(KNF.t>0){KNF.t-=dt;if(!KNF.hit&&ph>.38){KNF.hit=1;knStrike()}
 if(KNF.type){pz=-.26*sw;py=.03*sw;rx=-.35*sw}else{const a=(ph-.5)*2;px=-.3*a;ry=-.9*a;rz=.5*a;py=.04*sw;pz=-.1*sw}}

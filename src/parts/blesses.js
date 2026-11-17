@@ -21,6 +21,8 @@ function blsThink(b){
 // ---- 2. Pose : boiterie, corps qui se traîne, blessé traîné par un camarade (tête vers lui, penché en arrière)
 function blsPose(b,dt,mv){
  const sd=b.sld,g=b.g;if(!sd||!sd.sg)return;
+ // le décalage vertical de la boiterie est retiré avant d'être réappliqué : aux images où sldUpdate saute le soldat (loin), il s'accumulait
+ if(sd.blY){sd.sg.position.y+=sd.blY;sd.blY=0}
  const h=b.drg;
  if(h&&!h.dead&&h.evac&&h.evac.w===b){
   const hy=h.g.rotation.y,[fx,fz]=blsFwd(hy,1.55),tx=h.g.position.x-fx,tz=h.g.position.z-fz;
@@ -30,8 +32,8 @@ function blsPose(b,dt,mv){
  if(b.drg){b.drg=null}
  if(b.blsLean){g.rotation.x+=(0-g.rotation.x)*Math.min(1,dt*6);if(Math.abs(g.rotation.x)<.02){g.rotation.x=0;b.blsLean=0}}
  const w=1-(b.hm===undefined?1:b.hm);
- if(w>.15&&mv&&b.hm>.35){sd.sg.rotation.z=Math.sin(b.ph*1.0)*.12*w*2;sd.sg.position.y-=.06*w*(.5+.5*Math.sin(b.ph*2))}
- else if(b.hm<=.35&&mv){sd.sg.rotation.x=.55;sd.sg.position.y-=.1;sd.sg.rotation.z=Math.sin(b.ph*.8)*.1}}
+ if(w>.15&&mv&&b.hm>.35){sd.sg.rotation.z=Math.sin(b.ph*1.0)*.12*w*2;sd.blY=.06*w*(.5+.5*Math.sin(b.ph*2));sd.sg.position.y-=sd.blY}
+ else if(b.hm<=.35&&mv){sd.sg.rotation.x=.55;sd.blY=.1;sd.sg.position.y-=.1;sd.sg.rotation.z=Math.sin(b.ph*.8)*.1}}
 {const sU5=sldUpdate;sldUpdate=function(b,dt,mv){sU5(b,dt,mv);if(!(b.dead>0)&&b.zh){try{blsPose(b,dt,mv)}catch(e){console.error('blsPose',e)}}}}
 // le blessé évacué est traîné : on l'accroche au camarade pendant la phase de repli
 function blsDrag(){for(const h of bots){const e=h.evac;if(!e||h.dead)continue;const w=e.w;if(!w||w.dead)continue;
@@ -54,7 +56,7 @@ function blsPullTick(dt){
  // le corps suit derrière le joueur, tête vers lui
  const sy=Math.sin(P.yaw),cy=Math.cos(P.yaw),tx=P.x+sy*1.25,tz=P.z+cy*1.25,g=c.g.position,k=Math.min(1,dt*7),nx=g.x+(tx-g.x)*k,nz=g.z+(tz-g.z)*k;
  if(nFree(nx,nz)){g.x=nx;g.z=nz}
- const dir=Math.atan2(P.x-g.x,P.z-g.z),want=c.dk===1?dir:dir+Math.PI;let dy=want-c.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));c.g.rotation.y+=dy*Math.min(1,dt*6);
+ const dir=Math.atan2(P.x-g.x,P.z-g.z),hx_=P.x-g.x,hz_=P.z-g.z,want=c.dty!==undefined?(c.dmr?Math.atan2(hz_,-hx_):Math.atan2(-hz_,hx_))-c.dty:(c.dk===1?dir:dir+Math.PI);let dy=want-c.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));c.g.rotation.y+=dy*Math.min(1,dt*6);
  c.dead=Math.max(c.dead,20);c.fall=Math.max(c.fall,4.2);if(!c.dcDone)c.dcDone=1;
  if(!(BLS.nz>0))BLS.nz=.7;BLS.nz-=dt;if(BLS.nz<=0){BLS.nz=.8;noise(P.x,P.z,5)}}
 {const HM0=HMV;HMV=function(){return HM0()*(BLS.pull?.5:1)}}

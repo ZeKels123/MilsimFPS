@@ -24,23 +24,40 @@ sg.add(b.wp);b.sld=sd;b.g.add(sg);
 // anciens volumes → hitbox invisibles (toujours testés au tir, jamais dessinés)
 b.g.traverse(o=>{if(o.isMesh&&o!==sm&&!(b.wps.includes(o))&&o!==b.flash){Object.defineProperty(o,'visible',{get:()=>false,set:()=>{}});o.castShadow=false}});
 sd.pose=(dt)=>{};return sd}
-const SLC={walk:1,run:1,fire:1,reload:1,death:0,strafe:1,idle:1};
-function sldPick(b,mv){if(b.dead)return'death';if(b.relT>0)return b.crA>.4?'idle':'fire';if(b.crA>.4)return'idle';if(mv&&b.mvA>.25){return b.T.sp*(b.spK||1)*(b.hm||1)>3.4?'run':'walk'}return'fire'}
+const SLC={walk:1,run:1,fire:1,reload:1,death:0,strafe:1,idle:1,strafeR:1,walkB:1,deathR:0};
+// miroir d'un clip (plan x=0) : positions x inversées, quaternions (x,-y,-z,w), os gauche/droite échangés (le squelette de repos est symétrique)
+function sldMirror(c){const nb=SLS.nb,pm=[];for(let j=0;j<nb;j++){const nm=SLD.bones[j].n,o=nm.indexOf('Left')===0?'Right'+nm.slice(4):nm.indexOf('Right')===0?'Left'+nm.slice(5):nm;pm.push(SLS.ix[o]===undefined?j:SLS.ix[o])}
+return{fps:c.fps,n:c.n,d:c.d.map(A=>{const B=new Array(nb*6);for(let j=0;j<nb;j++){const k=pm[j]*6,o=j*6;B[k]=-A[o];B[k+1]=A[o+1];B[k+2]=A[o+2];B[k+3]=A[o+3];B[k+4]=-A[o+4];B[k+5]=-A[o+5]}return B})}}
+// clips dérivés : pas en arrière = marche rejouée à l'envers ; pas de côté à droite = pas à gauche rejoué à l'envers ; chute côté droit = chute miroir
+function sldClips(){if(SLA.walkB)return;SLA.walkB=SLA.walk;SLA.strafeR=SLA.strafe;SLA.deathR=sldMirror(SLA.death)}
+// direction du déplacement dans le repère du soldat (avant 0, côté 1, arrière 2), lissée et avec hystérésis : le bot qui avance de côté ou recule en visant n'a plus de pas de marche glissants
+function sldDir(b,sd,dt,mv){const gp=b.g.position;if(sd.lx===undefined){sd.lx=gp.x;sd.lz=gp.z;sd.vf=0;sd.vl=0;sd.md=0;sd.ms=1}
+const vx=(gp.x-sd.lx)/Math.max(dt,.001),vz=(gp.z-sd.lz)/Math.max(dt,.001);sd.lx=gp.x;sd.lz=gp.z;if(b.dead){sd.md=0;sd.vf=sd.vl=0;return}
+const k=Math.min(1,dt*7);if(!mv||Math.hypot(vx,vz)>14){sd.vf*=1-k;sd.vl*=1-k}else{const yw=b.g.rotation.y,c=Math.cos(yw),s=Math.sin(yw);sd.vf+=(vx*s+vz*c-sd.vf)*k;sd.vl+=(vx*c-vz*s-sd.vl)*k}
+let m=sd.md|0;if(Math.hypot(sd.vf,sd.vl)<.3)m=0;else{const a=Math.abs(Math.atan2(sd.vl,sd.vf));if(m===0){if(a>.95)m=a>2.3?2:1}else if(m===1){if(a<.7)m=0;else if(a>2.3)m=2}else if(a<2){m=a<.7?0:1}if(m===1)sd.ms=sd.vl>0?1:-1}sd.md=m}
+// visée en hauteur/en contrebas : le haut du corps (tout ce qui descend de Spine) bascule autour de la taille, l'arme suit les mains (sniper de mirador, tireur sur un toit, bot en contrebas)
+const _pq=new THREE.Quaternion(),_pp=new THREE.Vector3(),_pa=new THREE.Vector3(1,0,0);
+function sldPitch(b,sd){if(b.dead||b.sur||!(b.aimA>.02))return;const am=b.aimA*(1-(b.relA||0)*.8),a=-Math.max(-.6,Math.min(.6,b.pit||0))*am*.85;if(Math.abs(a)<.03)return;
+if(!SLS.upB){const B=SLD.bones,r=SLS.ix.Spine,l=[];for(let i=0;i<B.length;i++){let p=i;while(p>=0){if(p===r){l.push(i);break}p=B[p].par}}SLS.upB=l}
+_pq.setFromAxisAngle(_pa,a);_pp.copy(sd.bones[SLS.ix.Spine].position);for(const i of SLS.upB){const o=sd.bones[i];o.position.sub(_pp).applyQuaternion(_pq).add(_pp);o.quaternion.premultiply(_pq)}}
+function sldPick(b,mv){if(b.dead)return b.dmr?'deathR':'death';if(b.relT>0)return b.crA>.4?'idle':'fire';if(b.crA>.4&&!(mv&&b.mvA>.5))return'idle';if(mv&&b.mvA>.25){const sd=b.sld,m=sd&&sd.md;if(m===1)return sd.ms>0?'strafe':'strafeR';if(m===2)return'walkB';return b.T.sp*(b.spK||1)*(b.hm||1)>3.4?'run':'walk'}return'fire'}
 const _slg=new THREE.Quaternion(),_sly=new THREE.Quaternion(),_sle=new THREE.Euler(0,0,0,'YXZ'),_slw=new THREE.Matrix4(),_slo=new THREE.Matrix4().compose(new THREE.Vector3(0,0,0),new THREE.Quaternion(),new THREE.Vector3(1,1,1));
 const _slf=new THREE.Vector3(),_slu=new THREE.Vector3(),_slx=new THREE.Vector3();const _slv1=new THREE.Vector3(1,1,1),_slv2=new THREE.Vector3();var SLW={p:[.0,.0,.0],r:[0,0,0]};
 function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);sldLodTick(b,d);
 sd.sg.visible=d<230;if(d>=230){sd.acc=0;return}sd.acc+=dt;const every=d<45||b.dead?1:d<110?2:4;if((++SLS.fr+(b.tm*0|0))%every&&!b.dead){/* pose gardée */}else{dt=sd.acc;sd.acc=0;
-const want=sldPick(b,mv);if(want!==sd.cur){sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=want==='death'?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||want==='death')sd.t=0}
-const rate=sd.cur==='fire'?(b.fl>0?1:0):sd.cur==='walk'?Math.max(.5,b.T.sp*(b.spK||1)*(b.hm||1)/1.5):sd.cur==='run'?Math.max(.7,b.T.sp*(b.spK||1)*(b.hm||1)/4.2):1;
+sldClips();sldDir(b,sd,dt,mv);const want=sldPick(b,mv),dth=want==='death'||want==='deathR';if(want!==sd.cur){sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=dth?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||dth)sd.t=0}
+const rate=sd.cur==='fire'?(b.fl>0?1:0):sd.cur==='walk'?Math.max(.5,b.T.sp*(b.spK||1)*(b.hm||1)/1.5):sd.cur==='run'?Math.max(.7,b.T.sp*(b.spK||1)*(b.hm||1)/4.2):sd.cur==='walkB'?-Math.max(.5,b.T.sp*(b.spK||1)*(b.hm||1)/1.7):sd.cur==='strafe'?Math.max(.6,Math.min(2.4,b.T.sp*(b.spK||1)*(b.hm||1)/1.7)):sd.cur==='strafeR'?-Math.max(.6,Math.min(2.4,b.T.sp*(b.spK||1)*(b.hm||1)/1.7)):sd.cur==='death'||sd.cur==='deathR'?(b.drt||1):1;
 sd.t+=dt*rate;sd.bl=Math.min(1,sd.bl+dt*7);
 const cl=SLA[sd.cur];sldSamp(cl,sd.cur==='fire'&&b.fl<=0?0:sd.t,SLC[sd.cur],sd.A);
 let o=sd.A;if(sd.bl<1&&sd.pv){sldSamp(SLA[sd.pv],sd.pt+= dt,SLC[sd.pv],sd.B);const w=sd.bl;for(let i=0;i<SLS.nb*3;i++)sd.B.p[i]+= (sd.A.p[i]-sd.B.p[i])*w;for(let i=0;i<SLS.nb;i++){const j=i*4,dot=sd.A.q[j]*sd.B.q[j]+sd.A.q[j+1]*sd.B.q[j+1]+sd.A.q[j+2]*sd.B.q[j+2]+sd.A.q[j+3]*sd.B.q[j+3],s=dot<0?-1:1;for(let c=0;c<4;c++)sd.B.q[j+c]+=(sd.A.q[j+c]*s-sd.B.q[j+c])*w}o=sd.B}
 // la racine suit le yaw du groupe ; à la mort, on annule l'ancienne chute pour jouer l'animation squelettique
-if(b.dead){_slg.copy(g.quaternion).invert();_sle.set(0,g.rotation.y,0);_sly.setFromEuler(_sle);sd.sg.quaternion.copy(_slg).multiply(_sly);sd.sg.position.set(0,0,0);if(o.p){}}
-else{sd.sg.quaternion.identity();sd.sg.position.set(0,0,0)}
+if(b.dead){const ez=b.drgP?1:Math.min(1,sd.t/.3),ee=ez*ez*(3-2*ez);_slg.copy(g.quaternion).invert();_sle.set(0,g.rotation.y+(b.dty||0)*ee,0);_sly.setFromEuler(_sle);sd.sg.quaternion.copy(_slg).multiply(_sly);sd.sg.position.set(0,0,0);sd.blY=0}
+// accroupi : g.y descend de .34 pour l'ancien corps, mais le clip accroupi baisse déjà le soldat : on remonte le modèle pour que les bottes restent au sol
+else{sd.sg.quaternion.identity();sd.sg.position.set(0,b.crA>.02?b.crA*.34:0,0);sd.blY=0}
 // on ne garde que le déplacement relatif du bassin pour rester sur place (hors mort)
 const hx=b.dead?0:o.p[0],hz=b.dead?0:o.p[2];
 for(let i=0;i<SLS.nb;i++){const bn=sd.bones[i];bn.position.set(o.p[i*3]-hx,o.p[i*3+1],o.p[i*3+2]-hz);_slq.set(o.q[i*4],o.q[i*4+1],o.q[i*4+2],o.q[i*4+3]);bn.quaternion.copy(_slq)}
+sldPitch(b,sd);
 // arme dans la main droite
 const hb=sd.bones[sd.hand],hr=hb.position,hl=sd.bones[sd.hl].position,wi=b.wi;if(!SLS.rel)SLS.rel=[];
 if(sd.cur==='fire'||!SLS.rel[wi]){_slf.subVectors(hl,hr);const fl=_slf.length();if(fl>.05){_slf.divideScalar(fl);_slu.set(0,1,0).addScaledVector(_slf,-_slf.y).normalize();_slx.crossVectors(_slu,_slf);_slw.makeBasis(_slx,_slu,_slf);b.wp.quaternion.setFromRotationMatrix(_slw);b.wp.position.copy(hr).addScaledVector(_slu,.02).addScaledVector(_slf,(fl-BWG[wi][1])*.5-.02);
