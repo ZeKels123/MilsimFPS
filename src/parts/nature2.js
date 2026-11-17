@@ -43,6 +43,19 @@ rd_.count=n;rd_.receiveShadow=true;S.add(rd_);
 const NL=46,ll=new THREE.InstancedMesh(new THREE.CircleGeometry(.3,9,.35,5.6),std(0xffffff,{roughness:.6,side:THREE.DoubleSide}),NL);n=0;t=0;
 while(n<NL&&t++<9000){const x=rnd(POND.x-11,POND.x+11),z=rnd(POND.z-9,POND.z+9),d=wDist(x,z);if(d>-.8||d<-4||Math.hypot(x-35,z-43.5)<3)continue;o.position.set(x,WL+.012,z);o.rotation.set(-Math.PI/2,0,rnd(0,6));o.scale.setScalar(rnd(.6,1.3));o.updateMatrix();ll.setMatrixAt(n,o.matrix);col.setHSL(rnd(.26,.33),.5,rnd(.2,.3));ll.setColorAt(n,col);n++}
 ll.count=n;ll.receiveShadow=true;ll.renderOrder=3;S.add(ll);
+// berges (v59) : boue et sable (disques plats instanciés, une seule requête de rendu) et joncs bas, jamais sur la route, les ponts ou les chemins
+const SHORE={ok:(x,z)=>Math.abs(x-CT.ax)>6&&!BRG.some(b=>Math.abs(x-b.x)<b.hw+2.5&&Math.abs(z-b.z)<b.hl+2.5)&&okPos(x,z,.8)&&!nearPath(x,z,2.2)&&!(x>CT.x0-8&&z<CT.z1+8&&z>CT.z0-8),sand:null,rush:null};
+{const src=RPTS.concat(BROOK,[[POND.x,POND.z]]),pick=()=>{const k=(Math.random()*src.length)|0,p=src[k],pond=k===src.length-1,R=pond?Math.max(POND.rx,POND.rz)+4:7;return[p[0]+rnd(-R,R),p[1]+rnd(-R,R)]};
+const NS=420,sg=new THREE.CircleGeometry(1,7),sm=std(0xffffff,{roughness:1,envMapIntensity:.25});sm.polygonOffset=true;sm.polygonOffsetFactor=-2;sm.polygonOffsetUnits=-2;
+const sd_=new THREE.InstancedMesh(sg,sm,NS),zA=new THREE.Vector3(0,0,1),nv=new THREE.Vector3();n=0;t=0;
+while(n<NS&&t++<40000){const q=pick(),x=q[0],z=q[1],d=wDist(x,z);if(d<-.15||d>2.5||!SHORE.ok(x,z))continue;
+ nv.set(GH(x-1,z)-GH(x+1,z),2,GH(x,z-1)-GH(x,z+1)).normalize();o.position.set(x,GH(x,z)+.03,z);o.quaternion.setFromUnitVectors(zA,nv);o.rotateZ(rnd(0,6.28));o.scale.setScalar(rnd(.9,2.3)*(d>1.4?.7:1));o.updateMatrix();sd_.setMatrixAt(n,o.matrix);
+ if(d<.5)col.setHSL(.075+rnd(-.01,.01),.32,rnd(.13,.19));else col.setHSL(.115+rnd(-.01,.012),.34,rnd(.42,.56));sd_.setColorAt(n,col);n++}
+sd_.count=n;sd_.receiveShadow=true;S.add(sd_);SHORE.sand=sd_;
+const NJ=900,rj=new THREE.InstancedMesh(rg,windify(std(0xffffff,{roughness:1,envMapIntensity:.4}),5),NJ);n=0;t=0;
+while(n<NJ&&t++<60000){const q=pick(),x=q[0],z=q[1],d=wDist(x,z);if(d<.2||d>2.7||vn2(x*.45+9,z*.45)<.4||!SHORE.ok(x,z))continue;
+ o.position.set(x,GH(x,z)-.03,z);o.rotation.set(rnd(-.12,.12),rnd(0,6),rnd(-.12,.12));const h=rnd(.4,1.05)*(d>1.8?.7:1);o.scale.set(1.1,h,1.1);o.updateMatrix();rj.setMatrixAt(n,o.matrix);col.setHSL(rnd(.14,.24),rnd(.3,.45),rnd(.24,.38));rj.setColorAt(n,col);n++}
+rj.count=n;rj.receiveShadow=true;S.add(rj);SHORE.rush=rj;window.SHORE=SHORE}
 // ponts : pont en bois à garde-corps (le terrain est relevé au niveau du tablier, collisions par boîtes)
 {const wm=std(0x7a5c3a,{roughness:1,envMapIntensity:.3}),dm=std(0x4d3a26,{roughness:1,envMapIntensity:.3}),ub=new THREE.BoxGeometry(1,1,1),oo=new THREE.Object3D();
 const inst=(m,L)=>{const iq=new THREE.InstancedMesh(ub,m,L.length);L.forEach((q,i)=>{oo.position.set(q[0],q[1],q[2]);oo.scale.set(q[3],q[4],q[5]);oo.rotation.set(0,0,0);oo.updateMatrix();iq.setMatrixAt(i,oo.matrix)});iq.castShadow=iq.receiveShadow=true;S.add(iq)};

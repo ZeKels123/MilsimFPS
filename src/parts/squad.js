@@ -84,7 +84,7 @@ m.wt+=dt;
 if(m.k==='guard'||m.k==='ambush'){if(!m.set){m.set=1;m.halt=rnd(12,20);const ap=Math.atan2(P.x-wp[0],P.z-wp[1]);if(m.k==='ambush')m.face=ap;sqOverwatch(q,mem,m,wp);mem.forEach((b,i)=>{if(b.lvl||b.route||b.st==='ups')return;let a=b.trp?ap:m.a0+i*6.283/n,r=b.trp?9:5,x=wp[0]+Math.sin(a)*r,z=wp[1]+Math.cos(a)*r;if(m.k==='ambush'&&!b.trp){const sd=(i-(n-1)/2)*3.5;x=wp[0]+Math.cos(ap)*sd;z=wp[1]-Math.sin(ap)*sd}if(nFree(x,z))goTo(b,x,z,m.k==='ambush'?1.3:1.1,'pat');b.wait=0;if(b.trp)b.tcd=Math.min(b.tcd||9,4)})}return}
 if(d<7||m.wt>50){m.halt=m.k==='search'?rnd(8,14):rnd(5,9);if(Math.random()<.5)try{sqSay(lead,'oHalt')}catch(e){}return}
 q.mT=(q.mT||0)-dt;if(q.mT>0)return;q.mT=3.2;const hd=Math.atan2(wp[0]-lg.x,wp[1]-lg.z);q.fm=m.k==='search'?'wedge':(d>45?'col':'line');
-mem.forEach((b,i)=>{if(b.st!=='pat'&&b.st)return;const t=i===0?wp:sqSlotPos(q.fm,wp,hd,i,n),x=nFree(t[0],t[1])?t[0]:wp[0],z=nFree(t[0],t[1])?t[1]:wp[1];
+const anc=d>14?[lg.x,lg.z]:wp;mem.forEach((b,i)=>{if(b.st!=='pat'&&b.st)return;const t=i===0?wp:sqSlotPos(q.fm,anc,hd,i,n),x=nFree(t[0],t[1])?t[0]:wp[0],z=nFree(t[0],t[1])?t[1]:wp[1];
 if(i===0||Math.hypot(b.g.position.x-x,b.g.position.z-z)>2.8){const far=Math.hypot(b.g.position.x-lg.x,b.g.position.z-lg.z);if(goTo(b,x,z,i===0?1:(far>14?1.2:1),'pat')){b.wait=0}else if(i===0){m.i++;m.wt=0}}})}
 {const aT_=aiThink;aiThink=function(b){const q=b.sq;if(q&&q.mis&&(q.cA||0)<4&&b.st==='pat'&&!b.path&&!b.alert&&!b.see&&!b.heal&&!b.lvl&&!b.route&&!b.sur&&!(b.fleeT>0)&&b.seenT>3){b.decT=rnd(.55,1.05);return}return aT_(b)}}
 
