@@ -2,7 +2,7 @@
 // 7 zones : tête, thorax, ventre, bras gauche/droit, jambe gauche/droite.
 // Les impacts sont calculés par la géométrie : rayon de la balle contre les volumes du corps, couvert compris.
 const HZ=['h','t','a','la','ra','ll','rl'],HZN={h:'Tête',t:'Thorax',a:'Ventre',la:'Bras gauche',ra:'Bras droit',ll:'Jambe gauche',rl:'Jambe droite'},HMAX={h:35,t:85,a:70,la:60,ra:60,ll:65,rl:65},
-HINV0={bd:3,tq:1,sp:2,mo:2,kit:1,bt:2,rt:2},NVINV0={nv:1,pn:1},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
+HINV0={bd:3,tq:1,sp:2,mo:2,kit:1,bt:2,rt:2},NVINV0={nv:1,pn:0},HINV={bd:'bandage',tq:'garrot',sp:'attelle',mo:'morphine',kit:'trousse'};
 const HM={z:{},bl:100,bd:{},fx:{},tq:{},pain:0,mor:0,hl:30,sta:1,exh:0,act:null,inv:{},dead:0,why:'',conc:0,fl:{},hurtK:0,hurtS:1,clin:0,msgT:0,fs:'',hudT:0,last:''};
 const hlLimb=z=>z==='la'||z==='ra'||z==='ll'||z==='rl';
 function hlReset(){HM.z={};HZ.forEach(z=>HM.z[z]=HMAX[z]);HM.bl=100;HM.bd={};HM.fx={};HM.tq={};HM.pain=0;HM.mor=0;HM.hl=30;HM.sta=1;HM.exh=0;HM.act=null;HM.inv=Object.assign({},HINV0,NVINV0);if(typeof nvReset==='function')nvReset();HM.dead=0;HM.conc=0;HM.fl={};HM.hurtK=0;HM.clin=0;P.hp=100}
