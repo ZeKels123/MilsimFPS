@@ -91,10 +91,11 @@ function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.2
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
 if(r()<.75)add('z'+[0,0,1,2,4][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
-if(r()<.03)add('nv',1);if(r()<.12)add('pn',1);if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
+{const h1=Math.abs(Math.sin(p.x*12.9898+p.z*78.233)*43758.5453)%1,h2=Math.abs(Math.sin(p.x*39.346+p.z*11.135)*24634.6345)%1;if(h1<.03)add('nv',1);if(h2<.12)add('pn',1)}// hasard dérivé de la position : ne consomme pas Math.random (séquences des autres tests inchangées)
+if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
 function invWorld(){const ok=(x,z)=>wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0);
 const put=(gid,q,bag)=>{for(let t=0;t<30;t++){const x=rnd(-125,125),z=rnd(-125,125);if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0,bag);e.fall=false;e.m.position.y=invGY(e);return}};
-for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60,pn:2}:{}}));put('nv',1);put('pn',2);put('pn',1);
+for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60,pn:2}:{}}));{let sd=1234567;const rq=()=>(sd=(sd*1664525+1013904223)>>>0)/4294967296,pt=(gid,q)=>{for(let t=0;t<30;t++){const x=-125+rq()*250,z=-125+rq()*250;if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0);e.fall=false;e.m.position.y=invGY(e);return}};pt('nv',1);pt('pn',2);pt('pn',1)}
 for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+CALK[(Math.random()*4)|0]:r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*4)|0):'pl',r<.4?30:1)}}
 
 // ---------- interface ----------
