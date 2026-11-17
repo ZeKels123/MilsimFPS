@@ -705,3 +705,35 @@ Cinq sous-agents ont audité le code en lecture seule (IA, armes, joueur, menu/p
 - Grenade lancée collée à un mur (apparaît dans le mur) ; +1 en chambre rendu à la réserve au changement d'accessoire ; nettoyage d'arme terminé sur l'arme sélectionnée ; grenades ré-approvisionnées en continu en zone sûre ; feu/explosions de baril sans test de hauteur ; clic molette double avec visée holo.
 - Arbres/buissons sur la route (nécessite de toucher la génération de nature) ; véhicules qui traversent l'eau ; plafond de voix des tirs lointains ; feu d'herbe qui sature le pool de particules ; ombres d'objets perdues par `perfBuild`.
 - Veille (220 m) : les escouades travaillent encore sur les bots endormis.
+
+## v57 — Quatre chantiers parallèles (animations, balistique, grenades, véhicules)
+
+Chaque domaine a été confié à un agent dans sa propre copie du dépôt, puis fusionné. 126 tests sur 126 passent (93 avant, 33 ajoutés).
+
+**Animations**
+- Bots accroupis : le modèle n'est plus enfoncé de 0,25 m dans le sol ; les hitbox suivent la vraie silhouette (cible plus haute qu'avant).
+- Pas de côté et recul (clip `strafe` enfin utilisé, rejoué à l'envers pour la droite et le recul).
+- Chute de mort orientée à l'opposé du tireur (variante gauche/droite, vitesse selon la zone touchée).
+- Boiterie des soldats lointains : le décalage s'accumulait (`sd.blY`). Visée en hauteur des tireurs de mirador (`sldPitch`). Remise à zéro des poses à la réapparition (`anmReset`). Couteau rangé en plein coup : plus de blocage.
+
+**Balistique**
+- Portes : une seule règle (`balDoor`) pour le joueur et les bots, selon calibre, vitesse et énergie absorbée.
+- Crêtes fines : test de sol tous les ~1 m sur le segment.
+- Bruits : file de 12 (`NZ.q`) au lieu d'un seul par image ; bruit de tir par calibre (`PERC_SHOT`, .50 = 95 m, silencieux ×0,25).
+- Signal 50 rangé en .50. Hausse réglée par arme (`BZM`) et non plus par calibre. Retard du son qui n'était plus doublé.
+
+**Grenades et explosions**
+- Grenade collée à un mur : origine ramenée avant la paroi (`nadeSafePos`). Réapprovisionnement en zone sûre une seule fois à l'entrée, délai 90 s. Repos sur les props.
+- Grenade cuite (C maintenu, lancer automatique à 0,45 s de mèche).
+- Barils : souffle en 3D avec ligne de vue, feu limité en hauteur, crédit des kills selon l'auteur (`brOwner`).
+- Fumigène : se résorbe, tient compte de la hauteur, dérive avec le vent, moins de particules. Fuite GPU des pièges corrigée. Bots : pas de frag/flash près d'un allié, pas de lancer contre un mur proche.
+
+**Véhicules et avions**
+- Eau : un véhicule s'arrête devant plus de 0,45 m d'eau. Montée refusée depuis un étage ou un mirador (`drvNear`).
+- Avions et moteur coupés pendant la pause. Tangage et roulis selon le relief. Éjection du conducteur avec blessures si le véhicule brûle ou en cas de choc violent.
+- Convoi : 4 Ural et 0 Centauro posés avant, désormais les deux types ; plus d'arbres sur la route nord-sud.
+- Phares la nuit, klaxon (clic gauche, alerte les bots à 38 m), jeep UAZ des camps conduisible et destructible (450 PV). Plus de fatigue de côte en conduisant.
+
+**Tests corrigés à la fusion** : hitbox accroupie (le test ne reproduisait pas l'abaissement de `ai.js`), matériau du sac de sable (vérifiait le mauvais impact).
+
+**Constaté, non traité** : calibre .50 absent de l'inventaire (`CALS`) ; `dstBlast` sans hauteur ni ligne de vue ; explosions de véhicule créditées au joueur (`owner:null`) ; aucun plafond au ramassage de grenades ; claymore en cône horizontal ; `pPool` partagé entre feux d'herbe et fumée ; grenade de bot sans `nadeSafePos` ; bots sans clip de marche accroupie ni couché ; `hbxUpdate` recalculé même hors champ ; cellules de navigation de la jeep restées bloquées ; doublon des deux systèmes de balle frôlée.

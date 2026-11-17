@@ -498,12 +498,12 @@ finally{window.setTimeout=st;sfxShot0=s0}});
 T('Hitbox des bots : tête et thorax suivent la pose accroupie et la position sur un mirador',()=>{
 const b=bots.find(x=>!(x.dead>0)&&!x.sur)||bots[0];if(b.dead>0){b.dead=0;spawn(b)}b.dorm=0;let msg='';const sv={pos:b.g.position.clone(),cr:b.cr,crA:b.crA},cp0=C.position.clone(),cq0=C.quaternion.clone();
 try{C.position.set(P.x,(P.gy||0)+1.7,P.z);C.rotation.set(0,P.yaw,0);C.updateMatrixWorld();const fw=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion);fw.y=0;fw.normalize();const bx=C.position.x+fw.x*12,bz=C.position.z+fw.z*12;
-for(const[cr,up]of[[1,0],[0,0],[1,9],[0,9]]){b.cr=cr;b.crA=cr;b.g.position.set(bx,GH(bx,bz)+up,bz);b.fy=b.g.position.y;for(let i=0;i<14;i++)sldUpdate(b,.05,false);b.g.updateMatrixWorld(true);
+for(const[cr,up]of[[1,0],[0,0],[1,9],[0,9]]){b.cr=cr;b.crA=cr;b.fy=GH(bx,bz)+up;b.g.position.set(bx,b.fy-cr*.34*((b.T&&b.T.sc)||1),bz);for(let i=0;i<14;i++)sldUpdate(b,.05,false);b.g.updateMatrixWorld(true);
 const bn=b.sld.bones,ix=SLS.ix,wp=n=>{const p=new THREE.Vector3();bn[ix[n]].getWorldPosition(p);return p};
 const hit=(c,want)=>{for(const d of[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1]]){const o=c.clone().addScaledVector(new THREE.Vector3(...d),1.5);RC.set(o,new THREE.Vector3(-d[0],-d[1],-d[2]));RC.far=3;const h=RC.intersectObjects(b.parts)[0];if(h&&(want==='h'?h.object.userData.head:!h.object.userData.head&&h.object.userData.zone===want))return 1}return 0};
 const hd=wp('Head').add(new THREE.Vector3(0,.1,0)),tr=wp('Spine1').add(wp('Spine2')).multiplyScalar(.5);
 if(!hit(hd,'h'))msg+='tête (accroupi='+cr+', +'+up+' m) ';if(!hit(tr,'t'))msg+='thorax (accroupi='+cr+', +'+up+' m) ';
-if(Math.abs(hd.y-(b.g.position.y+(cr?1.2:1.6)))>.6)msg+='hauteur de tête '+(hd.y-b.g.position.y).toFixed(2)+' (accroupi='+cr+') '}
+if(Math.abs(hd.y-(b.fy+(cr?1.2:1.6)))>.4)msg+='hauteur de tête '+(hd.y-b.fy).toFixed(2)+' (accroupi='+cr+') '}
 return msg}finally{C.position.copy(cp0);C.quaternion.copy(cq0);b.g.position.copy(sv.pos);b.cr=sv.cr;b.crA=sv.crA}});
 T('Impacts : l’effet dépend du calibre et du matériau (quantité, taille du trou, couleurs)',()=>{const sig=(mat,am)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));o.userData.bmat=mat;o.updateMatrixWorld();const h={object:o,face:{normal:new THREE.Vector3(0,0,1)},point:new THREE.Vector3(P.x+200,5,P.z)};const q={a:BAM[am],vx:BAM[am].v,vy:0,vz:0};const i0=pI,r0=Math.random;Math.random=()=>.5;let n=0,cols=new Set();try{const d0=dcI;impactB(h,q,false);const sc=dcP[dcI].scale.x;let e=pI;n=(e-i0+PN)%PN;for(let k=0;k<n;k++){const p=pPool[(i0+1+k)%PN];cols.add(p.r.toFixed(2)+p.g.toFixed(2)+p.bl.toFixed(2))}return{n,sc,cols:[...cols].sort().join('|')}}finally{Math.random=r0}};
 const a=sig('conc','p9'),b=sig('conc','b50'),r=sig('conc','r762');if(!(b.n>a.n))return'le .50 ne produit pas plus d’effets que le 9 mm ('+b.n+' vs '+a.n+')';if(!(b.sc>a.sc*1.8))return'trou du .50 pas plus grand ('+b.sc.toFixed(2)+' vs '+a.sc.toFixed(2)+')';if(!(r.n>=a.n&&r.n<=b.n))return'7,62 hors de l’échelle';
@@ -525,7 +525,7 @@ T('Props 3D : camps, couvert qui arrête les balles, grillage traversable, colli
 if(P3D.list.length<6)return'trop peu de props placés : '+P3D.list.length;const sb=P3D.list.find(o=>o.name==='sandbag'),cr=P3D.list.find(o=>o.name==='crate');if(!sb||!cr)return'sacs de sable ou caisses absents';
 const ray=(o,y,dx,dz)=>{const gy=GH(o.x,o.z);RC.set(new THREE.Vector3(o.x-dx*3,gy+y,o.z-dz*3),new THREE.Vector3(dx,0,dz));RC.far=6;return RC.intersectObjects(solids)[0]};
 let h=ray(sb,.5,1,0),h2=ray(sb,.5,0,1);if(!((h&&h.object.userData.p3d==='sandbag')||(h2&&h2.object.userData.p3d==='sandbag')))return'un sac de sable n’arrête pas un tir';
-if(balMatOf((h||h2).object).t!=='conc')return'matériau balistique du sac de sable incorrect';
+const hs=(h&&h.object.userData.p3d==='sandbag')?h:h2;if(balMatOf(hs.object).t!=='conc')return'matériau balistique du sac de sable incorrect';
 if(!boxes.some(b=>b.p3d==='sandbag'&&b.y1>b.y0))return'collision avec hauteur absente';
 const ci=Math.max(0,Math.floor((sb.x+MH)/NS)),cj=Math.max(0,Math.floor((sb.z+MH)/NS));if(!NAVB[cj*NGN+ci])return'cases de navigation non bloquées sous un sac de sable';
 if(free_(sb.x,sb.z))return'free_ ignore le sac de sable';
