@@ -44,7 +44,7 @@ function fouBuild(){
   const g=new THREE.Group(),body=new THREE.Mesh(bg,bm),hinge=new THREE.Group(),lid=new THREE.Mesh(lg,lm);body.position.y=.25;hinge.position.set(0,.53,-.33);hinge.add(lid);lid.position.z=0;
   g.add(body,hinge);g.position.set(x,GH(x,z),z);g.rotation.y=rnd(0,6.28);S.add(g);
   const r=Math.random,st=[];const add=(id,q)=>st.push([id,q]);
-  add('z'+((r()*4)|0),r()<.5?30:15);if(r()<.7)add('bd',1+((r()*2)|0));if(r()<.3)add('tq',1);if(r()<.2)add('sp',1);if(r()<.18)add('kit',1);if(r()<.3)add('g'+((r()*4)|0),1);if(r()<.2)add('pl',1);
+  add('z'+[0,1,2,4][(r()*4)|0],r()<.5?30:15);if(r()<.7)add('bd',1+((r()*2)|0));if(r()<.3)add('tq',1);if(r()<.2)add('sp',1);if(r()<.18)add('kit',1);if(r()<.3)add('g'+((r()*4)|0),1);if(r()<.2)add('pl',1);
   FOU.cr.push({g,hinge,x,z,st,open:0,a:0});n++}}
 function fouLoose(){return invNear()}
 function fouTarget(){let b=null,bd=2.2;

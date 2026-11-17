@@ -9,7 +9,7 @@ sfxBoom=function(x,y,z,k){const t=audDelay(x,y,z);if(t>.2){AUD.delayed++;setTime
 // ---- claquement supersonique : une balle de bot passe à moins de 3,5 m de la tête
 function audCrack(x,y,z,d){try{AC=AC||new AudioContext();auInit();if(!AU.ready)return;const o=sp3(x,y,z,{noocc:1,ref:3,roll:1.5,air:19000});nz(.012,'highpass',3600,.7,1.4,o,1,.0005);nz(.05,'bandpass',2600,1.2,.9*Math.max(.35,1-d/4),o,rnd(.9,1.1),.0008);AUD.cracks++}catch(e){}}
 function audCrackSeg(q,x0,y0,z0){if(q.ck||q.src!=='b')return false;const sp=balSpd(q);if(sp<343)return false;const o=C.position,dx=q.px-x0,dy=q.py-y0,dz=q.pz-z0,L=dx*dx+dy*dy+dz*dz||1e-6;let u=((o.x-x0)*dx+(o.y-y0)*dy+(o.z-z0)*dz)/L;u=Math.max(0,Math.min(1,u));
- const cx=x0+dx*u,cy=y0+dy*u,cz=z0+dz*u,d=Math.hypot(cx-o.x,cy-o.y,cz-o.z);if(d>3.5)return false;q.ck=1;audCrack(cx,cy,cz,d);return true}
+ const cx=x0+dx*u,cy=y0+dy*u,cz=z0+dz*u,d=Math.hypot(cx-o.x,cy-o.y,cz-o.z);if(d>3.5)return false;q.ck=1;audCrack(cx,cy,cz,d);if(d<1.8&&P.gy!==undefined&&!HM.dead){FXP.shake=Math.max(FXP.shake,.22);HM.pain=Math.min(1,HM.pain+.01)}return true}
 const balTick1=balTick;
 balTick=function(dt){const pre=[];for(const q of BAL.bl)if(q.src==='b'&&!q.ck)pre.push(q,q.px,q.py,q.pz);balTick1(dt);for(let i=0;i<pre.length;i+=4)audCrackSeg(pre[i],pre[i+1],pre[i+2],pre[i+3])};
 // ---- écho urbain : plus de bâtiments autour = plus de réverbération extérieure

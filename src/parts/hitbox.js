@@ -14,6 +14,7 @@ const HBC={h:0xff3030,t:0xff9a30,a:0xffe030,la:0x30a0ff,ra:0x30a0ff,ll:0x40e060,
 function hbxMat(z){if(!HBX.show)return HBX.mat;if(!HBX.mats){HBX.mats={};for(const k in HBC)HBX.mats[k]=new THREE.MeshBasicMaterial({color:HBC[k],wireframe:true,transparent:true,opacity:.7,depthTest:false,fog:false})}return HBX.mats[z]}
 function hbxToggle(){HBX.show=HBX.show?0:1;for(const b of bots)if(b.hbx)for(const m of b.hbx){m.material=hbxMat(m.userData.zone);m.renderOrder=HBX.show?8:0}try{hlMsg(HBX.show?'Hitbox visibles (F5) : rouge tête · orange thorax · jaune ventre · bleu bras · vert jambes':'Hitbox masquées')}catch(e){}}
 addEventListener('keydown',e=>{if(e.code==='F5'&&!e.repeat){e.preventDefault();hbxToggle()}});
+const _hF=new THREE.Frustum(),_hM=new THREE.Matrix4(),_hSp=new THREE.Sphere();HBX.ft=0;
 const _hA=new THREE.Vector3(),_hB=new THREE.Vector3(),_hD=new THREE.Vector3(),_hY=new THREE.Vector3(0,1,0);
 function hbxBuild(b){
  if(!HBX.geo){HBX.geo=new THREE.CylinderGeometry(1,1,1,8,1);HBX.mat=new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide})}
@@ -23,6 +24,10 @@ function hbxBuild(b){
  if(typeof BAL!=='undefined')BAL.tg=null;HBX.n++}
 function hbxUpdate(b){
  const sd=b.sld;if(!sd)return;if(!b.hbx)hbxBuild(b);
+ // pas de recalcul pour un bot dormant, ni hors du champ de la caméra (au plus toutes les 0,4 s) ; mort ou en cours de tir sur lui : toujours
+ if(b.dorm)return;if(!HBX.force&&!b.dead&&b.hbxT!==undefined){const now=performance.now();if(now-HBX.ft>6){HBX.ft=now;C.updateMatrixWorld();_hM.multiplyMatrices(C.projectionMatrix,C.matrixWorldInverse);_hF.setFromProjectionMatrix(_hM)}
+  _hSp.center.set(b.g.position.x,b.g.position.y+1,b.g.position.z);_hSp.radius=2.6;if(!_hF.intersectsSphere(_hSp)&&now-b.hbxT<400)return}
+ b.hbxT=performance.now();
  const ix=SLS.ix,bn=sd.bones;
  for(let i=0;i<HBX.segs.length;i++){const s=HBX.segs[i],m=b.hbx[i];
   if(s[2]==='HeadTop'){_hB.copy(bn[ix.Head].position).sub(bn[ix.Neck].position);if(_hB.lengthSq()<1e-6)_hB.set(0,1,0);_hB.normalize();_hA.copy(bn[ix.Head].position).addScaledVector(_hB,.04);_hB.multiplyScalar(.19).add(bn[ix.Head].position)}

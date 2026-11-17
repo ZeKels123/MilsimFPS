@@ -53,7 +53,7 @@ function balPHit(h,q,fac){const c=q.c,u=h.object.userData,dm0=c.dmg*fac*(q.dk||1
 if(u.an){if(faHit(u.an,h.point,dm0)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}
 if(u.bot&&!u.bot.dead){const b=u.bot,dm=dm0*SKM.dmg*(A.supp?.9:1);{b.pk=1;const hr=bhHit(b,u.head?'h':(u.zone||'t'),dm,'b');hitA=hr.a;brk=hr.brk}hit=1;hitT=.2;hitFx.call(null,h,hitA,brk,u.head,b);bloodB(h,q,u.head,hitA||brk);aiHit(b);$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':(brk?'#fc0':(hitA?'#6cf':'#fff'));if(b.hp<=0)onKill(b,u.head)}
 else if(u.mq){mqHit(u.mq,u,dm0*SKM.dmg*(A.supp?.9:1),h.point);hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color=u.head?'#f55':'#fff'}
-else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.dst)dstHit(u.dst,h,dm0*6);if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impactB(h,q,!!u.door)}
+else{if(u.barrel)barrelHit(u.barrel,h,dm0);if(u.dst)dstHit(u.dst,h,dm0*6,'p');if(u.door)hurtDoor(u.door,dm0*SKM.dmg*(A.supp?.9:1));if(q.n<4)impactB(h,q,!!u.door)}
 if(brk)crack();else if(hitA)snd(1800,.08,.2,'triangle');else if(hit)snd(900,.06,.15,'square');BAL.hits++;return hit}
 
 // ---- matériaux des murs : pénétration (profondeur max en m pour pen=1 à pleine vitesse), ricochet (sinus de l'angle d'incidence rasant limite), vitesse conservée au ricochet
@@ -100,9 +100,8 @@ return 1}
 RC.set(org,dir);RC.far=far;let wt=1e9,wh=null;for(const x of RC.intersectObjects(ray)){if(x.object.userData.glass){if(x.distance<wt)glassHit(x.object,x.point,dir);continue}wt=x.distance;wh=x;break}
 const hr=hlRay(org,dir,Math.min(far,wt));
 if(hr&&hr.t<wt){_bp.copy(org).addScaledVector(dir,hr.t);hlApply(hr.z,q.dmg*balFac(q),'b',q.bot?q.bot.g.position:null);BAL.hits++;return 1}
-// claquement d'une balle qui passe près du joueur
-if(!q.wz&&P.gy!==undefined){_bq.set(P.x-org.x,P.gy+P.eh*.6-org.y,P.z-org.z);const t=Math.max(0,Math.min(far,_bq.dot(dir))),dd=_bq.sub(_bu.copy(dir).multiplyScalar(t)).length();if(dd<1.8&&t>1){q.wz=1;FXP.shake=Math.max(FXP.shake,.22);snd(rnd(1700,2500),.04,.07,'square');HM.pain=Math.min(1,HM.pain+.01)}}
-if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(wh.object.userData.door){if(balDoor(q,wh,dir)===0)return 0}else if(balWall(wh,q,org,dir)===0)return 0;return 1}
+// balle frôlée : voir audCrackSeg (finitions.js), seul système (claquement, suppression, secousse)
+if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6,q.bot?'b':'p');if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(wh.object.userData.door){if(balDoor(q,wh,dir)===0)return 0}else if(balWall(wh,q,org,dir)===0)return 0;return 1}
 return 0}
 return 0}
 function balTick(dt){BAL.t+=dt;if(P.gy!==undefined){if(BAL.pOk){BAL.pv.set((P.x-BAL.pp.x)/Math.max(dt,.001),0,(P.z-BAL.pp.z)/Math.max(dt,.001)).clampLength(0,7)}BAL.pp.set(P.x,0,P.z);BAL.pOk=1}
