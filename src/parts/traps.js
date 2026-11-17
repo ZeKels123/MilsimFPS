@@ -17,13 +17,15 @@ const trapDetR=()=>(typeof TOD!=='undefined'&&(TOD.t<6||TOD.t>19.6))?3.2:5.5;
 function trapNear(){let b=null,bd=1.8;for(const t of TRP.list){if(!t.m.visible)continue;if(P.gy!==undefined&&Math.abs(t.y-P.gy)>1.6)continue;const d=Math.hypot(t.x-P.x,t.z-P.z);if(d<bd){bd=d;b=t}}return b}
 const trapOk=(x,z)=>wDist(x,z)>.8&&Math.abs(x)<MH-2&&Math.abs(z)<MH-2;
 // ---------- effets ----------
-function trapBoom(t,v){const own=t.owner==='p';trapRemove(t);nadeBoom({type:0,p:new THREE.Vector3(t.x,t.y+.25,t.z),owner:own?null:{},wet:true,m:{visible:true}});
+function trapBoom(t,v){const own=t.owner==='p';trapRemove(t);nadeBoom({type:0,p:new THREE.Vector3(t.x,t.y+.25,t.z),owner:own?null:{},src:own?'p':'b',wet:true,m:{visible:true}});
 if(t.ty==='xm'&&v){if(v==='p'){['ll','rl'].forEach(z=>{hlApply(z,40,'g',null);if(!HM.fx[z]){HM.fx[z]=1;hlMsg('Fracture : '+HZN[z])}})}else if(!v.dead){if(own)v.pk=1;bhHit(v,'ll',70,'g');bhHit(v,'rl',45,'g');aiHit(v)}}}
-function trapClaymore(t){trapRemove(t);const x=t.x,y=t.y+.25,z=t.z,fx=-Math.sin(t.yaw),fz=-Math.cos(t.yaw),E=new THREE.Vector3(x,y,z),R=16,inCone=(vx,vz)=>{const dx=vx-x,dz=vz-z,d=Math.hypot(dx,dz);return d<R&&d>.3&&(dx*fx+dz*fz)/d>.82};
+function trapClaymore(t){trapRemove(t);const x=t.x,y=t.y+.25,z=t.z,fx=-Math.sin(t.yaw),fz=-Math.cos(t.yaw),E=new THREE.Vector3(x,y,z),R=16,inCone=(vx,vz,vy)=>{const dx=vx-x,dz=vz-z,dy=vy===undefined?0:vy-y,d=Math.hypot(dx,dy,dz);return d<R&&d>.3&&(dx*fx+dz*fz)/d>.82};// cône 3D autour de l'axe horizontal (±35° en hauteur aussi) : rien au-dessus d'un étage ni dans une fosse
+
 boom(x+fx*1.2,z+fz*1.2,2.2);sfxBoom(x,y,z,1);noise(x,z,90);FXP.shake=Math.max(FXP.shake,Math.max(0,1-Math.hypot(P.x-x,P.z-z)/25));
 for(let i=0;i<22;i++)emit(_no.set(x,y,z),_e.set(fx+rnd(-.35,.35),rnd(-.1,.3),fz+rnd(-.35,.35)).normalize().multiplyScalar(rnd(14,26)),{map:sparkT,color:0xffc870,size:.05,life:.3,add:1,g:3});
-const own=t.owner==='p';for(const b of bots){if(b.dead)continue;const g=b.g.position;if(!inCone(g.x,g.z))continue;hlBlastBot(b,E,R,{owner:null,p:E},own);if(b.hp<=0){if(own)onKill(b,false);else botDie(b)}else if(own){b.pk=1;aiHit(b);b.flinch=1}}
-if(inCone(P.x,P.z)&&!ac.on)hlBlastPlayer(E,R,{owner:null,p:E})}
+const own=t.owner==='p';for(const b of bots){if(b.dead)continue;const g=b.g.position;if(!inCone(g.x,g.z,g.y+1))continue;hlBlastBot(b,E,R,{owner:null,p:E},own);if(b.hp<=0){if(own)onKill(b,false);else botDie(b)}else if(own){b.pk=1;aiHit(b);b.flinch=1}}
+typeof barrelBlast==='function'&&barrelBlast(x,y,z,R,{owner:own?null:{},src:own?'p':'b'},q=>inCone(q.x,q.z,q.m.position.y+.4));
+if(inCone(P.x,P.z,P.gy+P.eh*.5)&&!ac.on)hlBlastPlayer(E,R,{owner:null,p:E})}
 function trapBear(t,b){trapRemove(t);sndAt(t.x,t.y,t.z,140,.25,.4,'sawtooth',{ref:8});sndAt(t.x,t.y,t.z,900,.08,.3,'square',{ref:8});
 if(!b){TRP.snare=4.5;const z=Math.random()<.5?'ll':'rl';hlApply(z,38,'g',null);if(!HM.fx[z]){HM.fx[z]=1;hlMsg('Piège à ours : fracture '+HZN[z])}}
 else{b.stun=Math.max(b.stun||0,4.5);if(t.owner==='p')b.pk=1;bhHit(b,Math.random()<.5?'ll':'rl',46,'g');aiHit(b)}}

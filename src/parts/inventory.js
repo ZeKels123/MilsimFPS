@@ -2,7 +2,7 @@
 // Le poids dépend du JOUEUR (capacité fixe), pas du sac : le sac ne limite que la place (cases).
 const INV={lay:{},bag:'M',sel:null,open:false,gnd:[],init:false,CAP:32,lv:0,t:0};
 const BAGS={0:{n:'Poches',w:4,h:2,kg:0},S:{n:'Petit sac',w:5,h:4,kg:.8,col:0x5a6040},M:{n:'Sac moyen',w:7,h:5,kg:1.4,col:0x46563a},L:{n:'Grand sac',w:9,h:6,kg:2.2,col:0x34452a}};
-const CALS=['5.56','9 mm','12/70','7.62'],CIDX=[0,1,1,2,3,3],CKG=[.012,.008,.04,.025],CST=[60,60,30,30];
+const CALS=['5.56','9 mm','12/70','7.62','.50'],CIDX=[0,1,1,2,4,4],CKG=[.012,.008,.04,.025,.05],CST=[60,60,30,30,50],CALK=[0,1,2,4];// .50 (Signal 50, HMG) : 50 g la cartouche, 50 par case ; 7.62 gardé pour les sauvegardes mais plus aucune arme ne l'utilise : le butin tire dans CALK
 const WKG=[3.6,2.5,1,3.4,5.4,9.5],WSPD=[.96,1,1.03,.92,.86,.78],WSPR=[.97,1,1.02,.93,.88,.8],ARMKG=4;
 const IT={bd:{n:'Bandage',kg:.05,w:1,h:1,st:5,col:'#cfc8ae'},tq:{n:'Garrot',kg:.15,w:1,h:1,st:3,col:'#9a3f2c'},sp:{n:'Attelle',kg:.3,w:1,h:2,st:2,col:'#6f8190'},mo:{n:'Morphine',kg:.05,w:1,h:1,st:4,col:'#cdc545'},kit:{n:'Trousse',kg:.8,w:2,h:1,st:1,col:'#bb3d3d'},pl:{n:'Plaque',kg:1.1,w:2,h:2,st:1,col:'#7d848c'},xm:{n:'Mine antipersonnel',kg:1.2,w:1,h:1,st:3,col:'#4a5230'},xc:{n:'Mine directionnelle',kg:1.6,w:2,h:1,st:2,col:'#6a7a44'},xw:{n:'Piège à fil',kg:.7,w:1,h:1,st:3,col:'#8a8a7a'},xb:{n:'Piège à ours',kg:2,w:2,h:1,st:2,col:'#6a6a6a'}};
 const INV_IDS=['pl','kit','sp','xc','xb','a0','a1','xm','xw','bd','tq','mo','g0','g1','g2','g3'];
@@ -18,7 +18,8 @@ function invSet(id,n){n=Math.max(0,n|0);if(id[0]==='a')invAm(+id[1],n);else if(i
 function invStacks(){const o=[];for(const id of INV_IDS){const q=invGet(id);if(q>0)o.push({id,q})}return o}
 const invCapC=()=>BAGS[INV.bag].w*BAGS[INV.bag].h;
 function invUsed(){let c=0;for(const s of invStacks()){const d=invDef(s.id);c+=Math.ceil(s.q/d.st)*d.w*d.h}return c}
-function invAddable(id,n){const d=invDef(id),cur=invGet(id);let used=invUsed(),add=0;const per=d.w*d.h;for(let i=0;i<n;i++){if(Math.ceil((cur+add+1)/d.st)>Math.ceil((cur+add)/d.st)){if(used+per>invCapC())break;used+=per}add++}return add}
+const GMAX=4;// plafond de grenades par type (le réapprovisionnement en donne 2)
+function invAddable(id,n){const d=invDef(id),cur=invGet(id);if(id[0]==='g')n=Math.max(0,Math.min(n,GMAX-cur));let used=invUsed(),add=0;const per=d.w*d.h;for(let i=0;i<n;i++){if(Math.ceil((cur+add+1)/d.st)>Math.ceil((cur+add)/d.st)){if(used+per>invCapC())break;used+=per}add++}return add}
 function invKg(){let t=ARMKG+BAGS[INV.bag].kg;for(const s of invStacks())t+=((GM.mode==='train'&&s.id[0]==='a')?Math.min(s.q,120):s.q)*invDef(s.id).kg;t+=WKG[invWpn(0)]+WKG[invWpn(1)];return t}
 const invLoad=()=>invKg()/INV.CAP;
 // effet du poids + de l'arme tenue sur le déplacement
@@ -33,7 +34,7 @@ const W=96,c=document.createElement('canvas');c.width=W*d.w;c.height=W*d.h;const
 const lg=(y0,y1,a,b)=>{const g=x.createLinearGradient(0,y0,0,y1);g.addColorStop(0,a);g.addColorStop(1,b);return g},hg=(x0,x1,a,b)=>{const g=x.createLinearGradient(x0,0,x1,0);g.addColorStop(0,a);g.addColorStop(.5,b);g.addColorStop(1,a);return g};
 const rr=(a,b,cw,ch,r,f)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,cw,ch,r);else x.rect(a,b,cw,ch);x.fillStyle=f;x.fill()};
 x.fillStyle=lg(0,h,'#2f3a29','#151b12');x.fillRect(0,0,w,h);
-if(am>=0){const hull=['#c9a24a','#c9a24a','#b83a2e','#c9a24a'][am],tip=['#b86a3a','#c9a24a','#d8d0b0','#b86a3a'][am];for(let i=0;i<3;i++){const cx=24+i*24;
+if(am>=0){const hull=['#c9a24a','#c9a24a','#b83a2e','#c9a24a','#b88a3a'][am],tip=['#b86a3a','#c9a24a','#d8d0b0','#b86a3a','#7a5a2a'][am];for(let i=0;i<3;i++){const cx=24+i*24;
 rr(cx-9,36,18,44,3,hg(cx-9,cx+9,'#7a5a1c',hull));if(am===2){rr(cx-9,62,18,18,2,hg(cx-9,cx+9,'#7a5a1c','#d8b45a'));rr(cx-9,36,18,26,3,hg(cx-9,cx+9,'#6a1c14',hull))}
 else{x.beginPath();x.moveTo(cx-8,36);x.quadraticCurveTo(cx,10,cx+8,36);x.closePath();x.fillStyle=hg(cx-8,cx+8,'#5a3a1a',tip);x.fill();rr(cx-9,76,18,5,1,'#8a6a2a')}}}
 else if(id==='bd'){x.beginPath();x.arc(48,50,28,0,7);x.fillStyle=hg(20,76,'#b8b098','#ece6d0');x.fill();x.beginPath();x.arc(48,50,12,0,7);x.fillStyle='#2a3224';x.fill();for(let r=14;r<28;r+=4){x.beginPath();x.arc(48,50,r,0,7);x.strokeStyle='rgba(120,110,86,.5)';x.lineWidth=1;x.stroke()}rr(46,72,40,12,2,'#e6dfc8');rr(66,72,6,12,0,'#b5382c')}
@@ -79,20 +80,20 @@ function invAddGround(e){// retourne true si l'objet est entièrement ramassé
 if(e.id==='B'){const nk=e.bag.kind;if(INV.bag!==0){hlMsg('Vous portez déjà un sac (Suppr pour le jeter)');return false}
 INV.bag=nk;INV._kind=nk;let any=false;for(const k in e.bag.cont){const q=e.bag.cont[k];if(!q)continue;const r=invPut(k,q);e.bag.cont[k]=q-r;any=any||r>0}
 if(Object.values(e.bag.cont).some(v=>v>0)){hlMsg('Sac équipé — reste du contenu au sol');INV.bag=nk;const rest=invSpawn('B',1,e.m.position.x,e.m.position.y,e.m.position.z,0,0,{kind:'S',cont:e.bag.cont});rest.fall=false;rest.m.scale.setScalar(.6)}else hlMsg(BAGS[nk].n+' équipé');return true}
-const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&!invSlotFor(+e.id[1])?'Pas d’arme de ce calibre':'Sac plein');else hlMsg('Ramassé : '+invDef(e.id).n+' ×'+r);return e.q<=0}
+const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&!invSlotFor(+e.id[1])?'Pas d’arme de ce calibre':e.id[0]==='g'&&invGet(e.id)>=GMAX?'Grenades au maximum ('+GMAX+')':'Sac plein');else hlMsg('Ramassé : '+invDef(e.id).n+' ×'+r);return e.q<=0}
 const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
 function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall||Math.abs(e.m.position.y-P.gy)>=1.6)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
 function invPick(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
 function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.28,sp=()=>{const a=a0+lk++*2.4,d=1.35+(lk%3)*.3+r()*.15;return[p.x+Math.cos(a)*d,p.y+.45,p.z+Math.sin(a)*d]};// anneau autour du corps, écart 2,4 rad : rien sur le cadavre ni les uns sur les autres
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
-if(r()<.75)add('z'+[0,0,1,2,3][(r()*5)|0],r()<.5?30:15);
+if(r()<.75)add('z'+[0,0,1,2,4][(r()*5)|0],r()<.5?30:15);
 if(r()<.4)add('bd',1+((r()*2)|0));if(r()<.15)add('tq',1);if(r()<.1)add('mo',1);if(r()<.08)add('kit',1);
 if(r()<.14)add('g'+((r()*4)|0),1);if(r()<.06)add('x'+'mmwb'[(r()*4)|0],1);if(r()<.07)add('pl',1);if(r()<.035)add('B',1,{kind:r()<.6?'S':'M',cont:{}})}
 function invWorld(){const ok=(x,z)=>wDist(x,z)>6&&!(typeof inRoom==='function'&&inRoom(x,z)>=0);
 const put=(gid,q,bag)=>{for(let t=0;t<30;t++){const x=rnd(-125,125),z=rnd(-125,125);if(!ok(x,z))continue;const e=invSpawn(gid,q,x,GH(x,z)+.1,z,0,0,bag);e.fall=false;e.m.position.y=invGY(e);return}};
 for(let i=0;i<6;i++)put('x'+'mcwbmw'[i],1);['S','S','M','M','L'].forEach(k=>put('B',1,{kind:k,cont:k==='L'?{kit:1,bd:2,z0:60}:{}}));
-for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+((Math.random()*4)|0):r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*4)|0):'pl',r<.4?30:1)}}
+for(let i=0;i<26;i++){const r=Math.random();put(r<.4?'z'+CALK[(Math.random()*4)|0]:r<.65?'bd':r<.73?'tq':r<.8?'sp':r<.87?'kit':r<.94?'g'+((Math.random()*4)|0):'pl',r<.4?30:1)}}
 
 // ---------- interface ----------
 const ivs=document.createElement('style');ivs.textContent='#inv{display:none;position:fixed;inset:0;z-index:30;background:rgba(6,10,6,.84);color:#dfe8d4;font:13px "Segoe UI",sans-serif;align-items:center;justify-content:center;gap:22px;user-select:none}#inv .ip{background:rgba(18,26,16,.92);border:1px solid #3d5230;padding:14px 16px;min-width:300px}#inv h3{margin:0 0 8px;font-size:14px;letter-spacing:.08em;color:#c8f07a}#ig{position:relative;border:1px solid #3d5230}#inv .it{position:absolute;box-sizing:border-box;border:1px solid rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:flex-end;padding:2px 3px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 2px #000;cursor:pointer}#inv .it.sel{outline:2px solid #c8f07a}#inv button{background:#2b3d22;border:1px solid #5a7a42;color:#dfe8d4;padding:5px 10px;margin:3px 4px 0 0;cursor:pointer;font:inherit}#inv button:hover{background:#3b5530}#inv .bar{height:10px;background:#1a2216;border:1px solid #3d5230;margin:4px 0 6px}#inv .bar i{display:block;height:100%}#inv small{opacity:.7}#invw,#invp{position:fixed;z-index:6;pointer-events:none;font:12px "Segoe UI",sans-serif;color:#dfe8d4;text-shadow:0 1px 3px #000}#invw{right:18px;bottom:146px;text-align:right}#invp{left:50%;bottom:22%;transform:translateX(-50%);font-size:15px;display:none}';document.head.appendChild(ivs);
