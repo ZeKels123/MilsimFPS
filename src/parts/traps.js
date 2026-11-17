@@ -69,8 +69,8 @@ const fx=-Math.sin(b.yaw),fz=-Math.cos(b.yaw);
 for(const t of TRP.list){if(t.owner!=='p'||t.kn[sq])continue;const dx=t.x-g.x,dz=t.z-g.z,d=Math.hypot(dx,dz);if(d>det*1.2)continue;if((dx*fx+dz*fz)/Math.max(.1,d)<.15&&d>1.5)continue;if(Math.random()<.55)t.kn[sq]=1}
 // évitement et désamorçage des pièges connus
 for(const t of TRP.list){if(!t.kn[sq])continue;const dx=g.x-t.x,dz=g.z-t.z,d=Math.hypot(dx,dz);
-if(d<2.8&&b.st!=='att'&&!b.see&&Math.random()<.35){b.tdis={t:2.6,tr:t};break}
-if(d<1.6&&d>.05){g.x+=dx/d*(1.7-d)*.6;g.z+=dz/d*(1.7-d)*.6}}
+if(d<2.8&&b.st!=='atk'&&!b.see&&Math.random()<.35){b.tdis={t:2.6,tr:t};break}
+if(d<1.6&&d>.05){const nx_=g.x+dx/d*(1.7-d)*.6,nz_=g.z+dz/d*(1.7-d)*.6;if(nFree(nx_,nz_)){g.x=nx_;g.z=nz_}}}
 // pose par les génies
 if(b.trp&&!b.see&&b.st==='pat'){b.tcd-=st;if(b.tcd<=0){const ks=Object.keys(b.trp).filter(k=>b.trp[k]>0);const pd=Math.hypot(g.x-P.x,g.z-P.z);
 const up=Math.abs(g.y-GH(g.x,g.z))>.6;if(ks.length&&pd>22&&pd<110&&trapOk(g.x,g.z)&&(up||!(typeof inRoom==='function'&&inRoom(g.x,g.z)>=0))){const k=ks[(Math.random()*ks.length)|0];b.trp[k]--;const t=trapAdd(k,g.x+fx*1.6,g.z+fz*1.6,b.yaw,'b',2,up?g.y:undefined);t.kn[sq]=1;b.wait=Math.max(b.wait||0,2.5);b.cr=1}b.tcd=rnd(14,32)}}})}

@@ -4,7 +4,7 @@
 const PERS={key:'mfps_ext',v:1,sig:'',last:null};
 PERS.snap=()=>({v:PERS.v,A:Object.assign({},A),sel,mgIn,nsel:NADE.sel,gfx:GQ.mode,tod:+TOD.t.toFixed(2),wx:TOD.tgt,mode:GM.mode,md:typeof MOO!=='undefined'?MOO.day:3,wm:typeof WMOD!=='undefined'?JSON.parse(JSON.stringify(WMOD)):{},fl:typeof flOn!=='undefined'?!!flOn:false});
 PERS.read=()=>{try{const o=JSON.parse(localStorage.getItem(PERS.key)||'null');return o&&o.v===PERS.v?o:null}catch(e){return null}};
-PERS.write=()=>{try{const o=PERS.snap(),s=JSON.stringify(o);if(s===PERS.sig)return false;PERS.sig=s;localStorage.setItem(PERS.key,s);if(SET.gfx!==o.gfx){SET.gfx=o.gfx;setSave()}return true}catch(e){return false}};
+PERS.write=()=>{if(PERS.off)return false;try{const o=PERS.snap(),s=JSON.stringify(Object.assign({},PERS.snap(),{tod:Math.round(TOD.t*4)/4}));if(s===PERS.sig)return false;PERS.sig=s;localStorage.setItem(PERS.key,s);if(SET.gfx!==o.gfx){SET.gfx=o.gfx;setSave()}return true}catch(e){return false}};
 PERS.apply=o=>{o=o||PERS.read();if(!o)return false;
 if(o.A&&typeof o.A==='object'){for(const k in A)if(typeof o.A[k]==='boolean')A[k]=o.A[k];if(A.supp&&A.brake)A.brake=false}
 if(['scope','angled','holo'].includes(o.sel)&&A[o.sel])sel=o.sel;else{const l=['scope','angled','holo'].filter(k=>A[k]);if(l.length)sel=l[0]}
@@ -17,6 +17,7 @@ if(Number.isInteger(o.md)&&o.md>=0&&typeof MOO!=='undefined')MOO.day=o.md;
 if(o.wm&&typeof o.wm==='object'&&typeof WMOD!=='undefined'){for(const i in o.wm){const m=o.wm[i];if(m&&[0,1,2].includes(m.b)&&[0,1,2].includes(m.s)&&[0,1,2].includes(m.m))WMOD[i]={b:m.b,s:m.s,m:m.m,l:[0,1,2].includes(m.l)?m.l:0}}}
 if(o.fl&&typeof flOn!=='undefined')flOn=true;
 PERS.sig=JSON.stringify(PERS.snap());return true};
-PERS.reset=()=>{try{localStorage.removeItem(PERS.key);localStorage.removeItem('mfps_set')}catch(e){}};
+PERS.reset=()=>{PERS.off=1;try{localStorage.removeItem(PERS.key);localStorage.removeItem('mfps_set')}catch(e){}};
+GQ.mode=Number.isInteger(SET.gfx)&&SET.gfx>=0&&SET.gfx<4?SET.gfx:0;
 PERS.apply();
 setInterval(PERS.write,1500);addEventListener('pagehide',PERS.write);addEventListener('beforeunload',PERS.write);

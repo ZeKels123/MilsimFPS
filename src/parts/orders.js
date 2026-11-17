@@ -16,7 +16,7 @@ function ordInit(){ORD.i=1;Object.assign(VX.L,{
 const ORD={n:0,log:[],i:0};
 // chef explicite : celui que l'escouade a désigné (q.chef) tant qu'il est vivant, sinon le meilleur candidat
 function sqLeader(al){const q=al[0]&&al[0].sq;if(q&&q.chef&&!q.chef.dead&&al.includes(q.chef))return q.chef;return sqLeaderPick(al)}
-function sqLeaderPick(al){return al.find(b=>b.ty===1)||al.find(b=>b.ty===0)||al.find(b=>b.ty===2)||al[0]}
+function sqLeaderPick(al){const a=al.filter(b=>!b.sur);return a.find(b=>b.ty===1)||a.find(b=>b.ty===0)||a.find(b=>b.ty===2)||a[0]||null}
 function sqSay(b,key){if(!ORD.i)ordInit();vxSay(b,key,true,true)}
 function sqAck(list){list.forEach((b,i)=>setTimeout(()=>{if(!b.dead)vxSay(b,'ack',true,true)},900+i*650))}
 function sqIssue(q,k,ld,who){ORD.n++;q.last=k;q.lastT=VX.t;ORD.log.push(k);if(ORD.log.length>20)ORD.log.shift();sqSay(ld,k==='flank'?'oFlank':k==='cover'?'oCover':k==='gren'?'oGren':k==='ret'?'oRet':'oReg');sqAck(who)}

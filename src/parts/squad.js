@@ -17,12 +17,12 @@ if(b.mag<=0){b.relT=b.ty===3?3.6:2.1}}
 
 // ---- v46 : escouades géographiques. Chaque escouade a un point d'ancrage ; ses membres apparaissent et réapparaissent près de leurs camarades vivants (jamais à l'autre bout de la carte)
 const SQA=[];
-function sqK(b){const i=bots.indexOf(b);return(i<0?bots.length:i)%4}
-function sqAnchor(k){if(SQA[k])return SQA[k];let a=null;for(let t=0;t<120&&!a;t++){const x=rnd(-MH+30,MH-30),z=rnd(-MH+30,MH-30);if(!free_(x,z)||!nFree(x,z)||Math.hypot(x-P.x,z-P.z)<55)continue;if(SQA.some(o=>o&&Math.hypot(o[0]-x,o[1]-z)<48))continue;a=[x,z]}
+function sqK(b){const i=bots.indexOf(b);return(i<0?bots.length:i)%SQN}
+function sqAnchor(k){if(SQA[k])return SQA[k];let a=null;for(let t=0;t<120&&!a;t++){const x=rnd(-MH+30,MH-30),z=rnd(-MH+30,MH-30);if(!free_(x,z)||!nFree(x,z)||cityBad(x,z)||Math.hypot(x-P.x,z-P.z)<55)continue;if(SQA.some(o=>o&&Math.hypot(o[0]-x,o[1]-z)<48))continue;a=[x,z]}
 return SQA[k]=a||[rnd(-MH+30,MH-30),rnd(-MH+30,MH-30)]}
 function sqPlace(b,init){const k=sqK(b),mates=bots.filter((o,i)=>o!==b&&!o.dead&&i%SQN===k);let c;
 if(init||!mates.length)c=sqAnchor(k);else{const m=mates[(Math.random()*mates.length)|0];c=[m.g.position.x,m.g.position.z]}
-const r=init?13:9;for(let t=0;t<60;t++){const x=c[0]+rnd(-r,r),z=c[1]+rnd(-r,r);if(Math.abs(x)>MH-5||Math.abs(z)>MH-5||!free_(x,z)||!aiSpawnOk(x,z)||Math.hypot(x-P.x,z-P.z)<45)continue;b.g.position.set(x,0,z);b.fy=GH(x,z);return true}return false}
+const r=init?13:9;for(let t=0;t<60;t++){const x=c[0]+rnd(-r,r),z=c[1]+rnd(-r,r);if(Math.abs(x)>MH-5||Math.abs(z)>MH-5||!free_(x,z)||cityBad(x,z)||!aiSpawnOk(x,z)||Math.hypot(x-P.x,z-P.z)<45)continue;b.g.position.set(x,0,z);b.fy=GH(x,z);return true}return false}
 {const sq_sp0=spawn;spawn=function(b){sq_sp0(b);try{sqPlace(b,false)}catch(e){}}}
 const _fv3=new THREE.Vector3(),_fv4=new THREE.Vector3();
 function sqTick(dt){if(!sqInit_)sqBuild();pmTick(dt);

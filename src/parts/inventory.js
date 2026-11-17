@@ -19,7 +19,7 @@ function invStacks(){const o=[];for(const id of INV_IDS){const q=invGet(id);if(q
 const invCapC=()=>BAGS[INV.bag].w*BAGS[INV.bag].h;
 function invUsed(){let c=0;for(const s of invStacks()){const d=invDef(s.id);c+=Math.ceil(s.q/d.st)*d.w*d.h}return c}
 function invAddable(id,n){const d=invDef(id),cur=invGet(id);let used=invUsed(),add=0;const per=d.w*d.h;for(let i=0;i<n;i++){if(Math.ceil((cur+add+1)/d.st)>Math.ceil((cur+add)/d.st)){if(used+per>invCapC())break;used+=per}add++}return add}
-function invKg(){let t=ARMKG+BAGS[INV.bag].kg;for(const s of invStacks())t+=s.q*invDef(s.id).kg;t+=WKG[invWpn(0)]+WKG[invWpn(1)];return t}
+function invKg(){let t=ARMKG+BAGS[INV.bag].kg;for(const s of invStacks())t+=((GM.mode==='train'&&s.id[0]==='a')?Math.min(s.q,120):s.q)*invDef(s.id).kg;t+=WKG[invWpn(0)]+WKG[invWpn(1)];return t}
 const invLoad=()=>invKg()/INV.CAP;
 // effet du poids + de l'arme tenue sur le déplacement
 function invSpdK(spr){const r=invLoad();let k=r<.5?1:r<.8?1-(r-.5)/.3*.06:r<1?.94-(r-.8)/.2*.1:Math.max(.45,.78-(r-1)*.8);return k*(spr?WSPR[WSEL]:WSPD[WSEL])}

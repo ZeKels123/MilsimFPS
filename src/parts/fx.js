@@ -65,7 +65,7 @@ for(let i=0;i<14+r*4;i++){_p.set(x,.3,z);emit(_p,_e.set(rnd(-1,1),rnd(.5,1.6),rn
 const sc=scP[scI=(scI+1)%scP.length];sc.position.set(x,.025,z);sc.scale.setScalar(r*1.2+.4);sc.visible=true}
 function explUpdate(dt){let li=0,lx=0,lz=0;for(let i=expl.length-1;i>=0;i--){const e=expl[i];e.t+=dt;e.m.scale.setScalar(.3+e.r*Math.min(1,e.t/.25)*.9);e.m.material.opacity=Math.max(0,.95*(1-e.t/.5));e.m.material.color.setHex(e.t<.12?0xffe090:0xff8a20);
 e.rg.scale.setScalar(.5+e.r*2.2*Math.min(1,e.t/.45));e.rg.material.opacity=Math.max(0,.7*(1-e.t/.45));const k=Math.max(0,1-e.t/.5)*(2+e.r);if(k>li){li=k;lx=e.x;lz=e.z}
-if(e.t>.6){S.remove(e.m);S.remove(e.rg);expl.splice(i,1)}}exL.intensity=Math.min(14,li);if(li>0)exL.position.set(lx,2.5,lz)}
+if(e.t>.6){S.remove(e.m);S.remove(e.rg);[e.m,e.rg].forEach(o=>{if(o&&o.geometry)o.geometry.dispose();if(o&&o.material)o.material.dispose()});expl.splice(i,1)}}exL.intensity=Math.min(14,li);if(li>0)exL.position.set(lx,2.5,lz)}
 // --- poussière en suspension
 const DN=120,dpA=new Float32Array(DN*3),dph=[];for(let i=0;i<DN;i++){dpA[i*3]=rnd(-14,14);dpA[i*3+1]=rnd(.3,4.5);dpA[i*3+2]=25+rnd(-14,14);dph.push(rnd(0,6.28))}
 const dgm=new THREE.BufferGeometry();dgm.setAttribute('position',new THREE.BufferAttribute(dpA,3));

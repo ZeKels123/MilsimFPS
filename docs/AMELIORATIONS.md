@@ -682,3 +682,26 @@ Avant, la trajectoire dépendait de la munition mais tous les impacts étaient i
 - Chaque mirador s'enregistre comme poste en hauteur (`UPH`, champ `tower:1`) : 4 postes aux coins de la plateforme, parcours = pied de l'escalier → milieu → haut → plateforme. `aiPost` (déjà utilisé pour les toits de maison) l'attribue aux tireurs d'élite (65 %) quand une cible est entre 9 et 75 m ; la descente réutilise la logique existante (repli si blessé, ou après 14 s sans alerte).
 - Test « Tireur au mirador » : le bot atteint la plateforme (y ≥ 7,4 m − 0,6) en ≤ 90 s de jeu simulé. Le test remet l'état du bot à zéro (sinon il perturbait d'autres tests aléatoires). 91/91 sur 3 lancements consécutifs.
 - Limite : pas de collision avec les parois de la cabine ; le tireur ne se couche pas derrière le garde-corps.
+
+## v56 — Revue fonctionnelle (5 audits en parallèle, corrections vérifiées une à une)
+Cinq sous-agents ont audité le code en lecture seule (IA, armes, joueur, menu/persistance, monde). Chaque défaut a été relu dans le code avant correction.
+
+**Corrigés**
+- Props 3D (sacs, caisses, jersey, mirador) absents de `ray` : les balles et les lignes de vue les traversaient. Ils y sont ajoutés (le test précédent interrogeait `solids` et ne le voyait pas).
+- Reclamer 12 : `balAm` ne reconnaissait plus son nom et tirait des balles 7.62 à 840 m/s ; il tire maintenant de la chevrotine. Mêmes regex corrigées pour l'échauffement et la chambre (+1).
+- Couteau : un bot tué au couteau gardait hp=0 sans `onKill` (pas de kill, pas de butin) ; corrigé.
+- Rafale/enrayage fantômes (couteau, soin, piège) : `fire()` ne tire plus au dé d'enrayage dans ces états.
+- IA : un chef rendu n'est plus redésigné à chaque frame (la morale de l'escouade s'effondrait) ; `aiReset` remet à zéro reddition, butin, morale, panique, reconnaissance, désamorçage (bots « zombies » mains levées après réapparition) ; fuite d'occupation des postes en hauteur (`aiRelPost`) ; budget A* des ordres d'escouade 2 → 6 ; `navEject` sort un bot coincé dans une cellule bloquée a posteriori ; pièges : évitement qui ne pousse plus dans un mur, état `atk`.
+- `sqK` utilisait `%4` avec 8 escouades : les escouades 4–7 réapparaissaient chez les 0–3.
+- Camps/ancres : plus posés dans la ville non encore construite, ni sur la route nord-sud ni sur les ponts ; emprise testée (murs, troncs, bots, eau).
+- Joueur : dégâts de chute inopérants depuis le début (la branche d'impact n'était jamais atteinte) → corrigés et recalés `(v-8)*4` par jambe (≈ 40 à 6,5 m) ; le menu « JOUER » pendant la séquence de mort ne verrouille plus le jeu ; sortie de véhicule avec test d'espace libre ; compteur km/h masqué à toute sortie ; inconscience bloque tir, saut et conduite ; perte de focus relâche touches et tir (alt-tab).
+- Mirador : plancher réel du modèle à 6,5 m (et non 7,4 = haut de la rambarde), décalé de (−0,78 ; +0,72) ; hauteur et centre corrigés. Sac de sable franchissable en saut (collision joueur 0,62 m, les balles gardent la hauteur réelle).
+- Menu : réglages corrompus (keys null, sens texte, gfx hors bornes) validés au chargement ; touches réservées complétées ; pause réelle quand on rouvre le menu en cours de partie ; qualité sauvegardée plus écrasée par Auto ; « Réinitialiser » ne réécrit plus l'état ; apparition à z=23 ; stock infini de l'entraînement ne reste plus sur l'autre arme ; chargement : chunk le plus proche construit en premier, exception capturée ; redimensionnement avec délai ; établi : exclusion du chargeur sur la pompe par `pel`.
+- Ambiance : pluie/ambiance sonore aux étages de la ville (`roofTop`), fuite GPU des explosions (dispose), « homme à terre » annoncé immédiatement.
+- Tests : 93 (dont « Correctifs v56 » et « Réglages corrompus »). Trois tests aléatoires rendus indépendants de l'état du bot (posture) ou de la position des camps.
+
+**Constatés, non traités (à décider)**
+- Portes : les balles du joueur les traversent, celles des bots sont arrêtées (asymétrie, choix de conception à faire).
+- Grenade lancée collée à un mur (apparaît dans le mur) ; +1 en chambre rendu à la réserve au changement d'accessoire ; nettoyage d'arme terminé sur l'arme sélectionnée ; grenades ré-approvisionnées en continu en zone sûre ; feu/explosions de baril sans test de hauteur ; clic molette double avec visée holo.
+- Arbres/buissons sur la route (nécessite de toucher la génération de nature) ; véhicules qui traversent l'eau ; plafond de voix des tirs lointains ; feu d'herbe qui sature le pool de particules ; ombres d'objets perdues par `perfBuild`.
+- Veille (220 m) : les escouades travaillent encore sur les bots endormis.

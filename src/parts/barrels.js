@@ -10,7 +10,7 @@ function brGround(q,r,mat){const m=new THREE.Mesh(brPG,mat);m.rotation.x=-Math.P
 function barrelHit(q,h,dmg){const b=q.m;snd(1300+rnd(0,500),.05,.12,'triangle');
 if(!q.fuel||q.st===2)return;
 q.y0=b.position.y-.475;const nn=h.face.normal.clone().transformDirection(b.matrixWorld);
-q.holes.push({x:h.point.x,y:h.point.y,z:h.point.z,nx:nn.x,nz:nn.z});
+q.holes.push({x:h.point.x,y:h.point.y,z:h.point.z,nx:nn.x,nz:nn.z});if(q.holes.length>24)q.holes.shift();
 if(q.st===0&&q.f>.08&&Math.random()<.2)brIgnite(q,2.5+Math.random()*3.5)}
 function brIgnite(q,fuse){if(q.st!==0||q.f<=.05)return;q.st=1;q.t=fuse}
 function barrelBlast(x,y,z,R){for(const b of BRL){const q=b.userData.barrel;if(!q.fuel||q.st===2)continue;if(Math.hypot(q.x-x,q.z-z)>R+.3)continue;

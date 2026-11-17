@@ -49,7 +49,7 @@ R.setPixelRatio(Math.min(devicePixelRatio||1,q.pr));R.setSize(innerWidth,innerHe
 PP.ssao=!!q.ss;PP.mb=!!q.mb;PP.bl=!!q.bl;PP.on=!!q.post;GQ.shN=q.n;window.GRQ=q.g;if(q.post)ppInit();GQ.warm=0;GQ.fT=GQ.fN=0}
 function gqFrame(dt){GQ.fr++;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=GQ.fr%GQ.shN===0;sun2.shadow.autoUpdate=false;sun2.shadow.needsUpdate=GQ.fr%(GQ.shN*4)===1;GQ.fT+=dt;GQ.fN++;if(GQ.fN>=45){const a=GQ.fT/GQ.fN;GQ.fps=Math.round(1/a);GQ.fT=GQ.fN=0;if(GQ.warm<4)GQ.warm++;else if(GQ.mode===0&&a>.026&&GQ.lvl>0&&document.visibilityState==='visible'){setQuality(GQ.lvl-1);feed('Qualité graphique : '+GQ.names[GQ.lvl]+' (auto)')}}}
 addEventListener('keydown',e=>{if(e.code==='KeyO'&&!e.repeat){GQ.mode=(GQ.mode+1)%5;setQuality(GQ.mode?GQ.mode-1:2);feed('Qualité graphique : '+(GQ.mode?GQ.names[GQ.lvl]:'Auto'))}});
-addEventListener('resize',()=>{if(PP.on)ppInit()});
+{let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(PP.on)ppInit()},150)})}
 // HUD : ne réécrit le DOM que si le texte change
 {const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');['atts','score','ammo'].map(i=>$(i)).concat([wxEl]).forEach(el=>{if(el)Object.defineProperty(el,'innerHTML',{configurable:true,get(){return d.get.call(this)},set(v){if(v!==this._h){this._h=v;d.set.call(this,v)}}})});
 const t=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');['plc','prompt'].map(i=>$(i)).forEach(el=>{if(el)Object.defineProperty(el,'textContent',{configurable:true,get(){return t.get.call(this)},set(v){if(v!==this._t){this._t=v;t.set.call(this,v)}}})})}

@@ -29,3 +29,6 @@ function deathHold(dt){if(!DEATH.on)deathStart();DEATH.t+=dt;if(DEATH.t<DEATH.mi
 addEventListener('keydown',e=>{if(!DEATH.on)return;if((e.code==='Space'||e.code==='Enter')&&DEATH.t>=DEATH.min)DEATH.skip=1;e.stopImmediatePropagation();e.preventDefault()},true);
 addEventListener('mousedown',e=>{if(DEATH.on)e.stopImmediatePropagation()},true);
 addEventListener('wheel',e=>{if(DEATH.on)e.stopImmediatePropagation()},true);
+
+// perte de focus : relâche touches et tir (sinon le joueur avance ou tire seul après un alt-tab)
+addEventListener('blur',()=>{for(const k in K)K[k]=false;mdown=false;ads=false});

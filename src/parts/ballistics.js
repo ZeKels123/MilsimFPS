@@ -13,7 +13,7 @@ for(const k in BAM){const a=BAM[k];a.A=Math.PI*a.d*a.d/4}
 const BCD=[[0,.26],[.7,.27],[.9,.33],[1,.46],[1.1,.56],[1.3,.6],[1.6,.54],[2,.47],[2.6,.41],[3.5,.37],[9,.33]];
 function balCd(M){for(let i=1;i<BCD.length;i++)if(M<=BCD[i][0]){const a=BCD[i-1],b=BCD[i];return a[1]+(b[1]-a[1])*(M-a[0])/(b[0]-a[0])}return .33}
 const BAL={rho:1.225,max:64,bl:[],pv:new THREE.Vector3(),pp:new THREE.Vector3(),pOk:0,tab:{},zr:{},tn:0,tg:null,t:0,tm:[],ti:0,wx:0,wz:0,hits:0};
-function balAm(c){const n=c.n;return n==='Mitrailleuse HMG'?'b50':n==='Fusil'?'r556':n==='MP9'?'p9':n==='Pistolet'?'pis':n==='Fusil à pompe'?'bk':'r762'}
+function balAm(c){const n=c.n;return n==='Mitrailleuse HMG'?'b50':n==='Fusil'?'r556':n==='MP9'?'p9':n==='Pistolet'?'pis':/pompe|Reclamer/.test(n)?'bk':'r762'}
 // intégrateur : q={px,py,pz,vx,vy,vz,a}
 function balStep(q,h,wx,wz){const rx=q.vx-wx,ry=q.vy,rz=q.vz-wz,sp=Math.sqrt(rx*rx+ry*ry+rz*rz)||1e-6,M=sp/343,cd=q.a.sph?(M<.8?.45:.55):balCd(M)*q.a.ff,k=.5*BAL.rho*cd*q.a.A/q.a.m*sp;
 q.vx-=k*rx*h;q.vy-=(9.81+k*ry)*h;q.vz-=k*rz*h;q.px+=q.vx*h;q.py+=q.vy*h;q.pz+=q.vz*h}

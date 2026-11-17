@@ -6,7 +6,7 @@ const WMD={b:[{n:'Standard'},{n:'Court',v:.93,sp:1.12,w:1.015,rc:1.05,i:'vitesse
  l:[{n:'Aucun'},{n:'Laser rouge',sp:.85,i:'dispersion −15 %, repérable par les bots'},{n:'Laser IR',sp:.85,i:'dispersion −15 %, visible seulement avec la vision nocturne'}]};
 const WMN={b:'Canon',s:'Crosse',m:'Chargeur',l:'Module'};
 function wmGet(i){return WMOD[i]||(WMOD[i]={b:0,s:0,m:0,l:0})}
-function wmCan(i,k){return !(k==='m'&&/pompe/.test(WC[i].n))&&!(k==='b'&&/Pistolet/.test(WC[i].n)&&false)}
+function wmCan(i,k){return !(k==='m'&&(WC[i].pel||1)>1)&&!(k==='b'&&/Pistolet/.test(WC[i].n)&&false)}
 function wmK(f,i){i=i===undefined?WSEL:i;const m=wmGet(i);let r=1;for(const k of 'bsml')if(wmCan(i,k)){const v=WMD[k][m[k]|0][f];if(v)r*=v}return r}
 function wmMagK(){return wmK('cap')}
 function wmCycle(k){if(!bench&&!nb)return;const m=wmGet(WSEL);if(!wmCan(WSEL,k)){wpnMsg(WMN[k]+' : non disponible sur cette arme');return}m[k]=((m[k]|0)+1)%WMD[k].length;

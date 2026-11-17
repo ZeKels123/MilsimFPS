@@ -36,7 +36,7 @@ hlCheck()}
 function hlCheck(){if(HM.dead)return;if(HM.z.h<=0)hlDie('Tête');else if(HM.z.t<=0)hlDie('Thorax');else if(HM.bl<=0)hlDie('Hémorragie')}
 function hlDie(w){HM.dead=1;HM.why=w;HM.last=w;P.hp=0}
 function hlHurt(d,k,o){if(k==='f')hlFall(o||9);else hlApply('t',d,'x',null)}
-function hlFall(v){const d=Math.max(0,(v*(1+.25*Math.min(1.5,effLoad()))-6)*6);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
+function hlFall(v){const d=Math.max(0,(v*(1+.25*Math.min(1.5,effLoad()))-8)*4);if(d<=0)return;hlApply('ll',d,'f');hlApply('rl',d,'f')}
 // ---- balle d'un bot : le point visé est le centre du torse, l'écart suit la précision du bot (loi normale), puis le rayon décide
 function gauss(){let u=0;for(let i=0;i<4;i++)u+=Math.random();return(u-2)*1.73}
 function hlBullet(V,A,p,dmg,b){balBot(V,A,p,dmg,b);return false}

@@ -10,8 +10,8 @@ r.px.geometry.dispose();r.px.geometry=new THREE.BoxGeometry(wid,hh,len);r.px.rot
 Object.assign(DRV,{on:1,r,v:0,h:r.h,st:0,x:r.x,z:r.z,len,wid,hgt:hh,vmax:len>6?17:28,yo:r.y-GH(r.x,r.z),cd:0,pit:0,bump:0});
 gun.visible=false;P.yaw=DRV.h;P.pitch=-.2;DRV.fp=0;P.st=1;mdown=false;ads=false;drvSound(true);hlMsg('Conduite : W/S, A/D, Espace frein à main, H vue conducteur, F sortir');snd(220,.12,.12,'square')}
 function drvExit(force){if(!DRV.on)return;const r=DRV.r;if(!force&&Math.abs(DRV.v)>4)return hlMsg('Arrête-toi pour descendre');
-const c=Math.cos(DRV.h),s=Math.sin(DRV.h),d=DRV.wid/2+.9;P.x=DRV.x-c*d;P.z=DRV.z+s*d;P.gy=GH(P.x,P.z);P.vy=0;P.air=0;
-r.drv=0;DRV.on=0;DRV.v=0;gun.visible=true;if(typeof canStand==='function'&&canStand())P.st=0;drvSound(false);
+const c=Math.cos(DRV.h),s=Math.sin(DRV.h),d=DRV.wid/2+.9,L=DRV.len/2+.9;let q=[-c*d,s*d];for(const t of [[-c*d,s*d],[c*d,-s*d],[s*L,c*L],[-s*L,-c*L]])if(free_(DRV.x+t[0],DRV.z+t[1])){q=t;break}P.x=DRV.x+q[0];P.z=DRV.z+q[1];P.gy=GH(P.x,P.z);P.vy=0;P.air=0;
+r.drv=0;DRV.on=0;DRV.v=0;if(DRV.spd)DRV.spd.style.display='none';gun.visible=true;if(typeof canStand==='function'&&canStand())P.st=0;drvSound(false);
 const w=Math.abs(Math.sin(DRV.h))*DRV.len/2+Math.abs(Math.cos(DRV.h))*DRV.wid/2,l=Math.abs(Math.cos(DRV.h))*DRV.len/2+Math.abs(Math.sin(DRV.h))*DRV.wid/2;
 r.bx.x0=DRV.x-w;r.bx.x1=DRV.x+w;r.bx.z0=DRV.z-l;r.bx.z1=DRV.z+l;if(!boxes.includes(r.bx))boxes.push(r.bx);if(DRV.hint)DRV.hint.style.display='none'}
 function drvCol(nx,nz,gy){let imp=0;const f=_drf.set(-Math.sin(DRV.h),0,-Math.cos(DRV.h)),rad=DRV.wid/2,L=DRV.len;
@@ -29,7 +29,7 @@ function drvCamDist(D){const back=_drd.clone().negate(),rx=_drd.z,rz=-_drd.x,rl=
  for(const [lx,ly] of [[0,0],[.5,0],[-.5,0],[0,.45],[0,-.3]]){_dv.set(_dro.x+rx/rl*lx,_dro.y+ly,_dro.z+rz/rl*lx);_drc.set(_dv,back);_drc.far=D;const hs=_drc.intersectObjects(ray,false).filter(h=>h.object!==DRV.r.px);if(hs.length)m=Math.min(m,Math.max(1.2,hs[0].distance-.5))}
  if(DRV.cam===undefined||m<DRV.cam)return m;return Math.min(m,DRV.cam+.18)}
 const _dv=new THREE.Vector3();
-function drvTick(dt){
+function drvTick(dt){if(DRV.on&&typeof BLE!=='undefined'&&BLE.out>0){K.KeyW=K.KeyS=K.KeyA=K.KeyD=false}
 if(!DRV.on){DRV.ht-=dt;if(DRV.ht<=0){DRV.ht=.3;const n=P.gy!==undefined&&!HM.dead&&!ac.on&&!bench&&$('ov').style.display==='none'&&!nb&&!ndR&&!invNear()?drvNear():null;if(!DRV.hint){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:150px;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 0 4px #000;pointer-events:none;z-index:6;display:none';document.body.appendChild(d);DRV.hint=d}
 DRV.hint.textContent='F — Conduire';DRV.hint.style.display=n?'block':'none'}return}
 gun.visible=false;const r=DRV.r;if(HM.dead||r.st>=1||r.hp<=0){if(r.st>=1||r.hp<=0)hlMsg('Le véhicule est en feu !');drvExit(true);return}

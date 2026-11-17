@@ -7,8 +7,8 @@ function wpModes(i){const c=WC[i];if(c.semi)return[1];if(/HMG/.test(c.n))return[
 function wpMode(i){const m=wpModes(i),s=wpS(i);return m[Math.min(s.mode,m.length-1)]}
 const WPMN=['AUTO','SEMI','RAFALE ×3'];
 // arme à chargeur amovible : un coup peut rester dans la chambre au rechargement tactique
-function wpnCh(){const c=WC[WSEL];return /Fusil$|MP9|Pistolet|HMG/.test(c.n)&&!/pompe|précision/.test(c.n)?1:0}
-function wpHeatShot(c){return/HMG/.test(c.n)?.02:/pompe|précision/.test(c.n)?.03:/Pistolet|MP9/.test(c.n)?.012:.017}
+function wpnCh(){const c=WC[WSEL];return /Fusil$|MP9|Pistolet|HMG/.test(c.n)&&!/pompe|précision|Reclamer|Signal/.test(c.n)?1:0}
+function wpHeatShot(c){return/HMG/.test(c.n)?.02:/pompe|précision|Reclamer|Signal/.test(c.n)?.03:/Pistolet|MP9/.test(c.n)?.012:.017}
 // probabilité d'enrayage d'un coup
 function wpJamP(s){const rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);return Math.min(.2,(1/9000)*(1+s.wear*40)*(1+Math.max(0,s.heat-.6)*5)*(1+rain*.8)*(A.supp?1.3:1))}
 function wpnMsg(t){WPN.msg=t;WPN.mt=2.5;if(typeof hlMsg==='function')hlMsg(t)}
@@ -48,5 +48,5 @@ function wpModeNext(){const m=wpModes(WSEL);if(m.length>1){const s=wpS(WSEL);s.m
 addEventListener('mousedown',e=>{if(e.button!==1||$('ov').style.display!=='none'||ac.on||bench)return;e.preventDefault();wpModeNext()});
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat)WPN.h=0;if(e.code==='Semicolon'&&!e.repeat&&$('ov').style.display==='none'&&!ac.on&&!bench)wpModeNext()});
 // enveloppes des fonctions d'origine (renommées fire0 / reload0 à l'assemblage)
-function fire() {if(wpPre())return;const a=ammo;fire0();if(ammo<a)wpPost()}
+function fire() {const s=wpS(WSEL);if((typeof BLE!=='undefined'&&BLE.out>0)||HM.act||TRP.mode||KNF.on){s.bst=0;return}if(wpPre()){s.bst=0;return}const a=ammo;fire0();if(ammo<a)wpPost();else s.bst=0}
 function reload() {if(wpClear())return;reload0()}
