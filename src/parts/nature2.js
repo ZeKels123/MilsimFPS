@@ -4,7 +4,7 @@ const WAT={uT:{value:0},uRain:{value:0},uSunC:{value:new THREE.Color(1,1,1)},uPl
 {const st=.9,x0=-MH,x1=MH,z0=-MH,z1=MH,nx=Math.round((x1-x0)/st),nz=Math.round((z1-z0)/st),pos=[],dep=[],flw=[],idx=[],id=new Int32Array((nx+1)*(nz+1)).fill(-1);
 const SEG=[];for(let i=0;i<BROOK.length-1;i++)SEG.push([BROOK[i],BROOK[i+1]]);RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++)SEG.push([rv[i],rv[i+1]])});
 const flow=(x,z)=>{let bd=9,fx=0,fz=0;for(const sg of SEG){const p=sg[0],q=sg[1],ex=q[0]-p[0],ez=q[1]-p[1],l=Math.hypot(ex,ez),t=Math.max(0,Math.min(1,((x-p[0])*ex+(z-p[1])*ez)/(l*l))),d=Math.hypot(p[0]+ex*t-x,p[1]+ez*t-z);if(d<bd){bd=d;fx=ex/l;fz=ez/l}}const k=1-sstep(2.5,5,bd);return[fx*k,fz*k]};
-const vid=(i,j)=>{const k=j*(nx+1)+i;if(id[k]<0){const x=x0+i*st,z=z0+j*st;id[k]=pos.length/3;pos.push(x,WL,z);dep.push(WL-GH(x,z));const f=flow(x,z);flw.push(f[0],f[1])}return id[k]};
+window.WFLOW=flow;const vid=(i,j)=>{const k=j*(nx+1)+i;if(id[k]<0){const x=x0+i*st,z=z0+j*st;id[k]=pos.length/3;pos.push(x,WL,z);dep.push(WL-GH(x,z));const f=flow(x,z);flw.push(f[0],f[1])}return id[k]};
 for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const x=x0+i*st,z=z0+j*st;if(Math.min(wDist(x,z),wDist(x+st,z),wDist(x,z+st),wDist(x+st,z+st))>.9)continue;const a=vid(i,j),b=vid(i+1,j),c=vid(i+1,j+1),d=vid(i,j+1);idx.push(a,d,b,b,d,c)}
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('aDep',new THREE.Float32BufferAttribute(dep,1));g.setAttribute('aFlow',new THREE.Float32BufferAttribute(flw,2));g.setIndex(idx);
 const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:Object.assign(THREE.UniformsUtils.clone(THREE.UniformsLib.fog),{uT:WAT.uT,uRain:WAT.uRain,uSunC:WAT.uSunC,uPl:WAT.uPl,uTop:skyU.uTop,uHor:skyU.uHor,uSunD:{value:LDIR}}),
@@ -46,8 +46,8 @@ ll.count=n;ll.receiveShadow=true;ll.renderOrder=3;S.add(ll);
 // ponts : pont en bois à garde-corps (le terrain est relevé au niveau du tablier, collisions par boîtes)
 {const wm=std(0x7a5c3a,{roughness:1,envMapIntensity:.3}),dm=std(0x4d3a26,{roughness:1,envMapIntensity:.3}),ub=new THREE.BoxGeometry(1,1,1),oo=new THREE.Object3D();
 const inst=(m,L)=>{const iq=new THREE.InstancedMesh(ub,m,L.length);L.forEach((q,i)=>{oo.position.set(q[0],q[1],q[2]);oo.scale.set(q[3],q[4],q[5]);oo.rotation.set(0,0,0);oo.updateMatrix();iq.setMatrixAt(i,oo.matrix)});iq.castShadow=iq.receiveShadow=true;S.add(iq)};
-BRG.forEach(b=>{const L1=[],L2=[],Y=b.y,hl=b.hl,hw=1.6;for(let z=b.z-hl;z<b.z+hl-.1;z+=.34)L1.push([b.x,Y+.03,z+.17,hw*2,.1,.3]);
-[-1,1].forEach(s=>{L2.push([b.x+s*1.2,Y-.12,b.z,.16,.24,hl*2+.3]);L2.push([b.x+s*(hw-.05),Y+1.0,b.z,.09,.09,hl*2]);L2.push([b.x+s*(hw-.05),Y+.55,b.z,.07,.07,hl*2]);for(let z=b.z-hl+.2;z<=b.z+hl;z+=1.6)L2.push([b.x+s*(hw-.05),Y+.5,z,.1,1.05,.1]);
+BRG.forEach(b=>{const L1=[],L2=[],Y=b.y,hl=b.hl,hw=b.hw;for(let z=b.z-hl;z<b.z+hl-.1;z+=.34)L1.push([b.x,Y+.03,z+.17,hw*2,.1,.3]);
+[-1,1].forEach(s=>{L2.push([b.x+s*(hw-.4),Y-.12,b.z,.16,.24,hl*2+.3]);L2.push([b.x+s*(hw-.05),Y+1.0,b.z,.09,.09,hl*2]);L2.push([b.x+s*(hw-.05),Y+.55,b.z,.07,.07,hl*2]);for(let z=b.z-hl+.2;z<=b.z+hl;z+=1.6)L2.push([b.x+s*(hw-.05),Y+.5,z,.1,1.05,.1]);
 const bx={x0:b.x+s*(hw-.05)-.06,x1:b.x+s*(hw-.05)+.06,z0:b.z-hl,z1:b.z+hl,y0:Y,y1:Y+1.1};boxes.push(bx);const rm=new THREE.Mesh(new THREE.BoxGeometry(.12,1.1,hl*2),dm);rm.position.set(b.x+s*(hw-.05),Y+.55,b.z);rm.visible=false;S.add(rm);solids.push(rm)});
 inst(wm,L1);inst(dm,L2);const dk=new THREE.Mesh(new THREE.BoxGeometry(hw*2,.2,hl*2),dm);dk.position.set(b.x,Y-.05,b.z);dk.visible=false;S.add(dk);solids.push(dk)})}
 // source : rochers
@@ -103,7 +103,11 @@ WND.s.value+=((.22+wcur[6]*.75)-WND.s.value)*Math.min(1,dt*.5);WND.p.value.set(P
 WAT.uT.value=T;WAT.uRain.value=rn;WAT.uSunC.value.copy(sun.color).multiplyScalar(Math.min(1.3,sun.intensity)+.06);
 // joueur dans l'eau
 const pdp=wDep(P.x,P.z),mvg=!!(K.KeyW||K.KeyA||K.KeyS||K.KeyD);WAT.uPl.value.set(P.x,P.z,Math.max(0,WAT.uPl.value.z+((pdp>.05&&mvg?1:0)-WAT.uPl.value.z)*Math.min(1,dt*3)));
-PWADE=pdp>.2?Math.max(.5,1-pdp*.55):1;if(pdp>.08&&mvg){FA.spT-=dt;if(FA.spT<=0){FA.spT=.34;snd(rnd(240,420),.12,.05,'triangle');for(let i=0;i<3;i++)emit(_fv.set(P.x+rnd(-.2,.2),WL+.05,P.z+rnd(-.2,.2)),_e.set(rnd(-.6,.6),rnd(.8,1.7),rnd(-.6,.6)),{color:0xcfe0e0,size:.07,life:.5,a:.5,g:5,grow:.2})}}
+PWADE=pdp>.2?Math.max(.5,1-pdp*.55):1;
+// sous l'eau (v58) : voile bleu-vert et son étouffé quand l'œil passe sous la surface
+{const uw=C.position.y<WL-.02;if(uw!==!!WAT.uw){WAT.uw=uw;if(!WAT.uwEl){const e=document.createElement('div');e.id='uwfx';e.style.cssText='position:fixed;inset:0;z-index:4;pointer-events:none;display:none;background:radial-gradient(ellipse at center,rgba(20,70,80,.55),rgba(5,28,40,.82))';document.body.appendChild(e);WAT.uwEl=e}WAT.uwEl.style.display=uw?'block':'none';try{if(AC){AOUT();ALP.frequency.cancelScheduledValues(AC.currentTime);ALP.frequency.setTargetAtTime(uw?500:20000,AC.currentTime,.08)}}catch(e){}}}
+// courant (v58) : l'eau de la rivière entraîne légèrement le joueur qui y patauge (seulement hors véhicule, jamais dans un obstacle)
+if(pdp>.3&&!DRV.on&&!ac.on&&!HM.dead&&window.WFLOW){const f=WFLOW(P.x,P.z),k=Math.min(1,(pdp-.3)/.5)*.55*dt,nx=P.x+f[0]*k,nz=P.z+f[1]*k;if((f[0]||f[1])&&!boxes.some(o=>nx>o.x0-.45&&nx<o.x1+.45&&nz>o.z0-.45&&nz<o.z1+.45)&&Math.abs(nx)<MH-3&&Math.abs(nz)<MH-3){P.x=nx;P.z=nz;WAT.cur=(WAT.cur||0)+k}}if(pdp>.08&&mvg){FA.spT-=dt;if(FA.spT<=0){FA.spT=.34;snd(rnd(240,420),.12,.05,'triangle');for(let i=0;i<3;i++)emit(_fv.set(P.x+rnd(-.2,.2),WL+.05,P.z+rnd(-.2,.2)),_e.set(rnd(-.6,.6),rnd(.8,1.7),rnd(-.6,.6)),{color:0xcfe0e0,size:.07,life:.5,a:.5,g:5,grow:.2})}}
 if(!faInit){faInit=true;FA.rab.forEach((r,i)=>{faSpot(r,6,60,0,0);r.x=r.tx;r.z=r.tz});FA.deer.forEach((d,i)=>{faSpot(d,4,14,[-40,48,-20][i],[-45,20,55][i]);d.x=d.tx;d.z=d.tz})}
 if(NZ.n!==FA.nz){const n0=FA.nz|0;let z0=NZ;for(const z of NZ.q)if(z.n>n0&&z.r>(z0===NZ?0:z0.r))z0=z;FA.nz=NZ.n;FA.scare=1.2;FA.sx=z0.x;FA.sz=z0.z;FA.sr=z0.r}else FA.scare=Math.max(0,FA.scare-dt);
 // oiseaux

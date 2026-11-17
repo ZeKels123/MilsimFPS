@@ -74,7 +74,7 @@ const fd=(t,k)=>{const m=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADep
 const mf=std(0xffffff,{roughness:1,envMapIntensity:.4}),FAR_=(k)=>windify(mf.clone(),k);
 const tk=new THREE.CylinderGeometry(.16,.3,3,6),tkm=std(0x4a3a2a,{roughness:1});
 const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;
-while((np<NP||no<NO)&&t++<120000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:TYP(),r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
+while((np<NP||no<NO)&&t++<120000){const x=rnd(-MH+3,MH-3),z=rnd(-MH+3,MH-3),d=nzt(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(Math.random()>p||!okPos(x,z,2.2)||wDist(x,z)<2.5||wDep(x,z)>.02||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;const s=rnd(.8,1.5),pine=Math.random()<.68&&np<NP;if(pine)np++;else if(no<NO)no++;else continue;TR.push({x,z,y:GH(x,z),s,ty:pine?0:TYP(),r:rnd(0,6.28),h:rnd(.3,.45),sh:rnd(.7,1.15)})}
 // collisions : une boîte et un maillage invisible par tronc (les tirs les touchent), le tronc visible est instancié
 TR.forEach(q=>{const sc=q.s*[1,1.15,.7,2.9,1.2][q.ty],hh=q.s/sc*(q.ty?1.2:1),m=new THREE.Mesh(tk,tkm);m.scale.set(sc,sc*hh,sc);m.position.set(q.x,q.y+1.5*sc*hh,q.z);m.visible=false;m.userData.bmat='wood';m.updateMatrixWorld(true);solids.push(m);boxes.push({x0:q.x-.3*sc,x1:q.x+.3*sc,z0:q.z-.3*sc,z1:q.z+.3*sc})});
 const tki=new THREE.InstancedMesh(new THREE.CylinderGeometry(.14,.3,1,6),std(0xffffff,{roughness:1,envMapIntensity:.3}),TR.length),oo=new THREE.Object3D();
@@ -82,22 +82,25 @@ TR.forEach((q,i)=>{const hh=q.ty?4.6:6.4,sc=q.ty?q.s*1.1:q.s*.9;oo.position.set(
 // --- LOD : listes d'instances reconstruites quand le joueur bouge
 function lodSet(geoN,matN,geoF,matF,dN,cap,wkd,wkf){const a=new THREE.InstancedMesh(geoN,matN,cap),b=new THREE.InstancedMesh(geoF,matF,cap);[a,b].forEach(m=>m.setColorAt(0,new THREE.Color(1,1,1)));a.count=b.count=0;[a,b].forEach(m=>{m.castShadow=m.receiveShadow=true;m.frustumCulled=false;S.add(m)});if(wkd)a.customDepthMaterial=wkd;if(wkf)b.customDepthMaterial=wkf;return{a,b,dN,cap}}
 const LP=lodSet(GPN,fm(pineT,6),GPF,fm(pineT,6),64,NP,fd(pineT,6),fd(pineT,6)),mLf=fm(leafT,7),dLf=fd(leafT,7),LB=lodSet(GBN,mLf,GBF,mLf,64,NO,dLf,dLf),LX=GX.map(g=>lodSet(g[0],mLf,g[1],mLf,64,NO,dLf,dLf)),LT=[LP,LB,LX[0],LX[1],LX[2]];
-const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)||wDist(x,z)<.8||nearPath(x,z,2.2)||(Math.abs(x)<9&&z>16))continue;BU.push({x,z,y:GH(x,z),s:rnd(.8,1.7),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)})}
+const BU=[];t=0;while(BU.length<NBU&&t++<150000){const x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.9)||wDist(x,z)<.8||wDep(x,z)>.02||nearPath(x,z,2.2)||(Math.abs(x)<9&&z>16))continue;BU.push({x,z,y:GH(x,z),s:rnd(.8,1.7),r:rnd(0,6.28),h:rnd(.22,.3),sh:rnd(.7,1.2)})}
 const LS=lodSet(GSN,fm(bushT,8),GSF,fm(bushT,8),38,NBU,fd(bushT,8),fd(bushT,8));
 const col=new THREE.Color(),M4=new THREE.Matrix4(),SM=new THREE.Matrix4();let last={x:1e9,z:1e9,t:0};
 function put(L,q,hue,near,idx){const m=near?L.a:L.b;oo.position.set(q.x,q.y,q.z);oo.rotation.set(0,q.r,0);oo.scale.set(q.s,q.s*(q.sc||1),q.s);oo.updateMatrix();m.setMatrixAt(idx,oo.matrix);
 col.setHSL(hue+(q.h-.37)*.12,.22,Math.min(.97,.6+.3*q.sh));m.setColorAt(idx,col)}
-function lodUpdate(px,pz){let sa=0,sb=0;const CN=[[0,0],[0,0],[0,0],[0,0],[0,0]];const zk=Math.max(1,Math.min(4,75/C.fov)),R=LP.dN*LP.dN*zk*zk,RS=LS.dN*LS.dN*zk*zk;
-let nt=0;for(const q of TR){const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>190*190)continue;tkPut(q,nt++);const near=d<R,c=CN[q.ty];put(LT[q.ty],q,TSP[q.ty][3],near?1:0,near?c[0]++:c[1]++)}
-for(const q of BU){const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>130*130)continue;if(d<RS)put(LS,q,.27,1,sa++);else put(LS,q,.27,0,sb++)}
+// v58 : index par cellule de 32 m (ne parcourt que les voisins au lieu des 22 000 arbres et buissons)
+const cellIdx=L=>{const m=new Map();for(const q of L){const k=Math.floor(q.x/32)*4099+Math.floor(q.z/32);let a=m.get(k);if(!a)m.set(k,a=[]);a.push(q)}return m},TRC=cellIdx(TR),BUC=cellIdx(BU);
+function cellEach(M,px,pz,R,f){const i0=Math.floor((px-R)/32),i1=Math.floor((px+R)/32),j0=Math.floor((pz-R)/32),j1=Math.floor((pz+R)/32);for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=M.get(i*4099+j);if(a)for(const q of a)f(q)}}
+window.cellEach=cellEach;function lodUpdate(px,pz){let sa=0,sb=0;const CN=[[0,0],[0,0],[0,0],[0,0],[0,0]];const zk=Math.max(1,Math.min(4,75/C.fov)),R=LP.dN*LP.dN*zk*zk,RS=LS.dN*LS.dN*zk*zk;
+let nt=0;cellEach(TRC,px,pz,190,q=>{const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>190*190)return;tkPut(q,nt++);const near=d<R,c=CN[q.ty];put(LT[q.ty],q,TSP[q.ty][3],near?1:0,near?c[0]++:c[1]++)});
+cellEach(BUC,px,pz,130,q=>{const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>130*130)return;if(d<RS)put(LS,q,.27,1,sa++);else put(LS,q,.27,0,sb++)})
 tki.count=nt;tki.instanceMatrix.needsUpdate=true;tki.instanceColor.needsUpdate=true;LT.forEach((L,i)=>{L.a.count=CN[i][0];L.b.count=CN[i][1]});LS.a.count=sa;LS.b.count=sb;[...LT,LS].forEach(L=>{[L.a,L.b].forEach(m=>{m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true})})}
 // --- herbe : une réserve d'instances recentrée sur le joueur, cellules de 3 m calculées une fois puis mémorisées
 const GR={cell:new Map(),pend:[],cx:1e9,cz:1e9,R:46,max:0,q:1};
-function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=6+((hsh(i+5,j+9)*4)|0);for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||BRG.some(b=>Math.abs(x-b.x)<3.2&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;const s=.5+hsh(i+q*13,j)*.6;out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6),.75+hsh(q,i)*.35,.85+hsh(j,q)*.25,.65+hsh(q+j,i)*.35])}GR.cell.set(k,out);return out}
+function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=6+((hsh(i+5,j+9)*4)|0);for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||wDep(x,z)>.02||BRG.some(b=>Math.abs(x-b.x)<b.hw+1.6&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;const s=.5+hsh(i+q*13,j)*.6;out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6),.75+hsh(q,i)*.35,.85+hsh(j,q)*.25,.65+hsh(q+j,i)*.35])}GR.cell.set(k,out);return out}
 function grassFill(){const im=GRASS;if(!im)return;const R=GR.R,ci=Math.floor(GR.cx/3),cj=Math.floor(GR.cz/3),rc=Math.ceil(R/3);let n=0;const mx=Math.floor(im.userData.max*GR.q);
 for(let i=ci-rc;i<=ci+rc&&n<mx;i++)for(let j=cj-rc;j<=cj+rc&&n<mx;j++){const mxx=(i+.5)*3-GR.cx,mzz=(j+.5)*3-GR.cz;if(mxx*mxx+mzz*mzz>R*R)continue;const c=grassCell(i,j);for(const g of c){if(n>=mx)break;oo.position.set(g[0],g[1],g[2]);oo.rotation.set(0,g[3],0);oo.scale.set(g[4],g[5],g[4]);oo.updateMatrix();im.setMatrixAt(n,oo.matrix);col.setRGB(g[6],g[7],g[8]);im.setColorAt(n,col);n++}}
 im.count=n;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;if(GR.cell.size>2600)GR.cell.clear()}
-window.FOL={LP,LB,LS,GPN,GBN,GSN,pineT,leafT,TR,BU};
+window.FOL={LP,LB,LS,GPN,GBN,GSN,pineT,leafT,TR,BU,TRC,BUC};
 window.foliageUpdate=function(dt){const px=P.x,pz=P.z;last.t+=dt;
 if(GRASS){if(!GRASS.userData.max)GRASS.userData.max=GRASS.instanceMatrix.count;GR.q=window.GRQ||1;if(Math.hypot(px-GR.cx,pz-GR.cz)>4||GR.q!==GR.lq){GR.cx=px;GR.cz=pz;GR.lq=GR.q;grassFill()}}
 if(Math.hypot(px-last.x,pz-last.z)>3||last.t>1.5||Math.abs(C.fov-(last.f||75))>6){last.f=C.fov;{last.x=px;last.z=pz;last.t=0;lodUpdate(px,pz)}}};
