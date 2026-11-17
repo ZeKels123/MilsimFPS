@@ -47,7 +47,7 @@ function GH(x,z){if(x<=-AR||x>=AR||z<=-AR||z>=AR)return 0;const fx=(x+AR)/GSP,fz
 const POND={x:40,z:40,rx:10,rz:6.8,rot:.5},BROOK=[[12,61],[17,56.5],[23,56],[27.5,51],[32,46.5],[35,43.5]],
 // v8 : rivière d'un bord à l'autre (amont rejoint le ruisseau, aval part de l'étang) et 3 ponts orientés nord-sud
 RIVER=[[[-750,150],[-500,130],[-300,115],[-150,102],[-122,93],[-92,87],[-62,80],[-36,73],[-12,67],[12,61]],[[40,40],[58,33],[76,22],[96,10],[122,-2],[150,-10],[300,-30],[500,-50],[750,-60]]],
-BRG=[{x:-36,z:73,hl:6.4},{x:25.2,z:53.5,hl:5.4},{x:96,z:10,hl:6.4},{x:224,z:-20,hl:7}],RPTS=[];RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++){const p=rv[i],q=rv[i+1],n=Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1])/4);for(let k=0;k<n;k++)RPTS.push([p[0]+(q[0]-p[0])*k/n,p[1]+(q[1]-p[1])*k/n])}});let WL=0;
+BRG=[{x:-36,z:73,hl:6.4,hw:2.2},{x:25.2,z:53.5,hl:5.4,hw:2.2},{x:96,z:10,hl:6.4,hw:2.2},{x:224,z:-20,hl:7,hw:3.6}],RPTS=[];RIVER.forEach(rv=>{for(let i=0;i<rv.length-1;i++){const p=rv[i],q=rv[i+1],n=Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1])/4);for(let k=0;k<n;k++)RPTS.push([p[0]+(q[0]-p[0])*k/n,p[1]+(q[1]-p[1])*k/n])}});let WL=0;
 function wDist(x,z){const c=Math.cos(POND.rot),s=Math.sin(POND.rot),dx=x-POND.x,dz=z-POND.z,u=(dx*c+dz*s)/POND.rx,v=(-dx*s+dz*c)/POND.rz,a=Math.atan2(v,u);
 let d=(Math.hypot(u,v)-(1+.13*Math.sin(a*3+1)+.07*Math.sin(a*5+.4)))*POND.rz;
 for(let i=0;i<BROOK.length-1;i++){const p=BROOK[i],q=BROOK[i+1],ex=q[0]-p[0],ez=q[1]-p[1],t=Math.max(0,Math.min(1,((x-p[0])*ex+(z-p[1])*ez)/(ex*ex+ez*ez))),l=Math.hypot(p[0]+ex*t-x,p[1]+ez*t-z)-(1.15+.3*Math.sin(i*2.1+t*3));if(l<d)d=l}
@@ -66,12 +66,21 @@ let dh=99;for(const r of hsG[cg]||EMP){const dx=Math.max(r[0]-x,0,x-r[2]),dz=Mat
 const m=sstep(.3,2.2,d)*sstep(1.2,15,dh)*sstep(.5,6,AR-.5-Math.max(Math.abs(x),Math.abs(z)));const wd=WDg[j*GN+i]=wDist(x,z);GHg[j*GN+i]=rel(x,z)*m*(.2+.8*sstep(5,36,wd))}
 {const wDist0=wDist;wDist=function(x,z){const i=Math.round((x+AR)/GSP),j=Math.round((z+AR)/GSP);if(i>=0&&j>=0&&i<GN&&j<GN){const w=WDg[j*GN+i];if(w>14)return w-1.2}return wDist0(x,z)}}
 {let mn=9;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(Math.abs(WDg[j*GN+i])<1.2)mn=Math.min(mn,GHg[j*GN+i])}WL=mn-.12;
-for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const k=j*GN+i,w=WDg[k];if(w>9)continue;const h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
-for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;const dz=Math.abs(z-b.z)-b.hl;if(Math.abs(x-b.x)<=1.9&&dz<=.9)GHg[j*GN+i]=b.y;else if(Math.abs(x-b.x)<=3.4&&dz<=4.2&&dz>.9){const t=sstep(.9,4.2,dz),q=Math.abs(x-b.x)<=1.9?1:1-sstep(1.9,3.4,Math.abs(x-b.x));GHg[j*GN+i]=GHg[j*GN+i]+(Math.max(GHg[j*GN+i],b.y)-GHg[j*GN+i])*(1-t)*q}}}}
+for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const k=j*GN+i,w=WDg[k];if(w>9){const h=GHg[k],x=-AR+i*GSP,z=-AR+j*GSP,f0=WL+.53,f=f0+(WL+.45+.35*nz(x*.07+3,z*.07-5)-f0)*sstep(9,16,w);if(h<f+1.4){const q=(h-f)/.45;GHg[k]=f+.45*(q>9?q:Math.log(1+Math.exp(q)))}continue}const h=GHg[k];GHg[k]=w<=0?WL-Math.min(1.05,.34*-w+.04):(b=>b+(Math.max(h,b)-b)*sstep(.5,8,w))(WL+.05+.2*Math.min(1.5,w)+.02*w)}
+for(const b of BRG){b.y=WL+.55;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;const dz=Math.abs(z-b.z)-b.hl;if(Math.abs(x-b.x)<=b.hw+GSP&&dz<=.9)GHg[j*GN+i]=b.y;else if(Math.abs(x-b.x)<=b.hw+GSP+1.5&&dz<=4.2&&dz>.9){const t=sstep(.9,4.2,dz),q=Math.abs(x-b.x)<=b.hw+GSP?1:1-sstep(b.hw+GSP,b.hw+GSP+1.5,Math.abs(x-b.x));GHg[j*GN+i]=GHg[j*GN+i]+(Math.max(GHg[j*GN+i],b.y)-GHg[j*GN+i])*(1-t)*q}}}}
 // v12 : plateforme plane pour la ville (coin nord-est, 250 x 250 m)
 window.CITYH=1;{const q0=150,q1=744,r0=-744,r1=-350,bl=26;let sm=0,n=0;for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP;if(x>=q0&&x<=q1&&z>=r0&&z<=r1){sm+=GHg[j*GN+i];n++}}
 CITYH=0;
 for(let j=0;j<GN;j++)for(let i=0;i<GN;i++){const x=-AR+i*GSP,z=-AR+j*GSP,d=Math.max(q0-x,x-q1,r0-z,z-r1);if(d<bl){const t=d<=0?1:1-sstep(0,bl,d),k=j*GN+i;GHg[k]+=(CITYH-GHg[k])*t}}}
+// v58 : relief aplani sous la route nord-sud (x = CT.ax) : profil lissé, hors de l'eau, raccordé au pont et à la ville, talus doux
+{const xr=CT.ax,i0=Math.round((xr-3+AR)/GSP),i1=Math.round((xr+3+AR)/GSP),pr=new Float32Array(GN),tm=new Float32Array(GN),RR=14,bg=BRG.find(b=>b.x===xr);
+for(let j=0;j<GN;j++){let a=0,n=0;for(let i=i0;i<=i1;i++){a+=GHg[j*GN+i];n++}pr[j]=a/n}
+for(let ps=0;ps<3;ps++){for(let j=0;j<GN;j++){let a=0,n=0;for(let u=Math.max(0,j-RR);u<=Math.min(GN-1,j+RR);u++){a+=pr[u];n++}tm[j]=a/n}pr.set(tm)}
+for(let j=0;j<GN;j++)pr[j]=Math.max(pr[j],WL+.7);
+for(let ps=0;ps<2;ps++){for(let j=1;j<GN;j++)pr[j]=Math.max(Math.min(pr[j],pr[j-1]+.07*GSP),pr[j-1]-.07*GSP);for(let j=GN-2;j>=0;j--)pr[j]=Math.max(Math.min(pr[j],pr[j+1]+.07*GSP),pr[j+1]-.07*GSP)}
+for(let j=0;j<GN;j++){const z=-AR+j*GSP;pr[j]*=sstep(CT.z1+6,CT.z1+34,z);if(bg){const t=1-sstep(bg.hl+2,bg.hl+22,Math.abs(z-bg.z));pr[j]=pr[j]*(1-t)+bg.y*t}}
+window.RDPR={z0:-AR,dz:GSP,h:pr};
+for(let j=0;j<GN;j++){const z=-AR+j*GSP;if(z<CT.z1+3)continue;for(let i=Math.round((xr-17+AR)/GSP);i<=Math.round((xr+17+AR)/GSP);i++){const k=j*GN+i,x=-AR+i*GSP,dx=Math.abs(x-xr),w=window.WDg[k];if(w<2.2||x<-AR||x>AR)continue;const t=1-sstep(6,16,dx);GHg[k]+=(pr[j]-GHg[k])*t*sstep(2.2,4,w)}}}
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
 scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.normal;
