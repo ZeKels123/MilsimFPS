@@ -20,7 +20,7 @@ function effTick(dt){
 if(P.gy===undefined||HM.dead||ac.on||bench||free||$('ov').style.display!=='none'){EFF.ok=0;EFF.hb=0;return}
 const mx=P.x-EFF.px,mz=P.z-EFF.pz,m=Math.hypot(mx,mz),gy=GH(P.x,P.z),dgy=gy-EFF.pgy;EFF.px=P.x;EFF.pz=P.z;EFF.pgy=gy;
 if(!EFF.ok){EFF.ok=1;return}
-const mvg=m>.3*dt&&m<2*dt*8&&!P.air&&(P.st||0)<2,ld=effLoad();
+const mvg=m>.3*dt&&m<2*dt*8&&!P.air&&(P.st||0)<2&&!DRV.on,ld=effLoad();
 if(mvg&&HM.sta>0){const sl=dgy/Math.max(m,1e-3);EFF.sl=sl;const spr=K.ShiftLeft&&(P.st||0)===0&&!ads;
 let d=dt*STA.walk*Math.max(0,ld-.7)/.3*((P.st||0)===1?.5:1);if(sl>.12)d+=dt*.025*Math.min(1,(sl-.12)*3)*(1+effK())*(spr?1.5:1);HM.sta=Math.max(0,HM.sta-d)}
 // retenue du souffle : [Maj] maintenu en visée

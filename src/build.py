@@ -42,6 +42,7 @@ pr=rd('props_rest.js')
 a_=pr.index('// pad de la zone sûre');b_=pr.index('// ================= TONNEAUX');pr=pr[:a_]+pr[b_:]
 pr=pr.replace('[-16.8,-14.6,0x8a3028]','[-26,-6,0x8a3028]').replace('[19.5,-11.3,0x30506a]','[27,-6,0x30506a]')
 pr=pr.replace("const okPos=(x,z,m)=>","const okPos=(x,z,m)=>wDist(x,z)>m+.5&&")
+pr=pr.replace("const okPos=(x,z,m)=>","const okPos=(x,z,m)=>!(Math.abs(x-CT.ax)<4+m&&!(z<CT.z1+6&&z>CT.z0-6))&&")
 pr=pr.replace("const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS);","const RMS=HS;")
 mk="// ================= RELIEF, ROCHERS"
 assert pr.count(mk)==1

@@ -13,10 +13,13 @@ const bx={x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:y,y1:y+hh};boxes.push(bx);const px=
 // --- convoi militaire le long de la route nord-sud (x = CT.ax), épaulements est et ouest
 const xr=CT.ax,spots=[];for(let z=-330;z<700;z+=29)spots.push(z);for(let i=spots.length-1;i>0;i--){const j=(vr()*(i+1))|0;[spots[i],spots[j]]=[spots[j],spots[i]]}
 const used=[];let nU=0,nC=0;
-for(const z of spots){if(nU>=4&&nC>=2)break;if(used.some(u=>Math.abs(u-z)<110))continue;if(z>-760&&z<-340)continue;
-const side=(nU+nC)%2?1:-1,isC=(nC<2&&nU>=2&&vr()<.5)||(nU>=4&&nC<2),hw=isC?1.8:1.4,hd=isC?4.3:4,x=xr+side*(4+hw+1.8);
-if(wDist(x,z)<12||!free(x,z,hw,hd)||!flat(x,z,hw,hd))continue;
-put(isC?'centauro':'ural',x,z,side>0?0:Math.PI,hw,hd,3);used.push(z);if(isC)nC++;else nU++}
+const onBrg=(x,z,hd)=>BRG.some(b=>Math.abs(x-b.x)<14&&Math.abs(z-b.z)<b.hl+hd+6);
+for(const z0 of spots){if(nU>=4&&nC>=2)break;if(used.some(u=>Math.abs(u-z0)<110))continue;if(z0>-760&&z0<-340)continue;
+const isC=(nC<2&&nU>=2&&vr()<.5)||(nU>=4&&nC<2),hw=isC?1.8:1.4,hd=isC?4.3:4;let done=0;
+// essais : côté alterné puis l'autre côté, avec petits décalages le long de la route
+for(const sd of [(nU+nC)%2?1:-1,(nU+nC)%2?-1:1])for(const dz of [0,7,-7,14,-14]){const z=z0+dz,x=xr+sd*(4+hw+1.8);
+if(z>-760&&z<-340||onBrg(x,z,hd)||wDist(x,z)<12||!free(x,z,hw,hd)||!flat(x,z,hw,hd))continue;
+put(isC?'centauro':'ural',x,z,sd>0?0:Math.PI,hw,hd,3);used.push(z);if(isC)nC++;else nU++;done=1;break}}
 // --- passages d'avions
 const AIR={t:50+vr()*50,on:null,list:['f14','f15','f15','f14']},T0=performance.now();
 function jetGlow(g,y,zz,xs){xs.forEach(x=>{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flareT,color:0xff9a50,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,toneMapped:false,fog:false}));s.scale.set(3.2,3.2,1);s.position.set(x,y,zz);g.add(s)})}
@@ -30,7 +33,9 @@ const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3000;const
 src.connect(bp);bp.connect(lp);o.connect(og);og.connect(lp);lp.connect(g);g.connect(pan);pan.connect(AOUT());src.start();o.start();a.snd={src,o,g,lp,bp,pan}}catch(e){}}
 function airStop(a){if(a.snd){try{a.snd.src.stop();a.snd.o.stop();a.snd.g.disconnect()}catch(e){}a.snd=null}S.remove(a.g);AIR.on=null}
 let last=performance.now();
-function airLoop(){requestAnimationFrame(airLoop);const now=performance.now(),dt=Math.min(.1,(now-last)/1000);last=now;const ov=document.getElementById('ov');if(ov&&ov.style.display!=='none')return;
+function airLoop(){requestAnimationFrame(airLoop);const now=performance.now(),dt=Math.min(.1,(now-last)/1000);last=now;airTick(dt)}
+// en pause (overlay affiché) : le grondement est coupé et le passage est gelé
+function airTick(dt){const ov=document.getElementById('ov');if(ov&&ov.style.display!=='none'){const q=AIR.on&&AIR.on.snd;if(q)try{q.g.gain.setTargetAtTime(0,typeof AC!=='undefined'&&AC?AC.currentTime:0,.03)}catch(e){}return}
 if(!AIR.on){AIR.t-=dt;if(AIR.t<=0){airSpawn();AIR.t=90+vr()*110}return}
 const a=AIR.on;a.t+=dt;const g=a.g;a.p.x+=a.dx*a.sp*dt;a.p.z+=a.dz*a.sp*dt;
 const ex=a.p.x-P.x,ey=a.p.y-(P.gy+1.6),ez=a.p.z-P.z,d=Math.hypot(ex,ey,ez);{const fr=Math.min(1,C.far*.8/Math.max(d,1));g.scale.setScalar(a.s0*fr);g.position.set(P.x+ex*fr,P.gy+1.6+ey*fr,P.z+ez*fr)}
@@ -39,4 +44,13 @@ s.src.playbackRate.setTargetAtTime(k,t,.08);s.o.frequency.setTargetAtTime(85*k,t
 s.lp.frequency.setTargetAtTime(500+6500*Math.exp(-d/450),t,.1);s.g.gain.setTargetAtTime(Math.min(1,Math.pow(170/(d+70),1.5))*.55,t,.08);
 const r=(ex*Math.cos(P.yaw)-ez*Math.sin(P.yaw))/Math.max(d,1);s.pan.pan.setTargetAtTime(Math.max(-1,Math.min(1,r*1.2)),t,.05)}
 if(a.t>a.life)airStop(a)}
-requestAnimationFrame(airLoop);window.AIRSHOW=airSpawn;window.AIRSTOP=airStop}
+requestAnimationFrame(airLoop);window.AIRTICK=airTick;window.AIRSHOW=airSpawn;window.AIRSTOP=airStop}
+
+// ================= jeep UAZ-469 des camps : conduisible et destructible (même mécanisme que les autres véhicules) =================
+// Le modèle regarde vers +z : on l'enveloppe dans un groupe dont l'avant (-z) est l'avant de conduite. Les maillages du décor quittent solids/ray ;
+// une boîte invisible (px) porte les points de vie et la collision des balles, comme pour put().
+function jeepDrv(it){if(!it||it.veh||typeof dstVeh!=='function')return null;const g=it.g,yaw=g.rotation.y,gy=GH(it.x,it.z),hh=2.1,w=1.9,d=4.3,e=new THREE.Group();
+g.traverse(o=>{o.matrixAutoUpdate=true});for(let i=solids.length-1;i>=0;i--)if(solids[i].parent===g)solids.splice(i,1);for(let i=ray.length-1;i>=0;i--)if(ray[i].parent===g)ray.splice(i,1);
+e.position.set(it.x,gy,it.z);e.rotation.y=yaw+Math.PI;e.userData.dyn=1;g.position.set(0,0,0);g.rotation.set(0,Math.PI,0);S.add(e);e.add(g);
+const bx=it.box,px=new THREE.Mesh(new THREE.BoxGeometry(w,hh,d),new THREE.MeshBasicMaterial());px.position.set(it.x,gy+hh/2,it.z);px.rotation.y=yaw+Math.PI;px.visible=false;S.add(px);px.updateMatrixWorld(true);solids.push(px);ray.push(px);
+dstVeh(e,px,bx,it.x,gy,it.z);const r=px.userData.dst;r.hp=r.max=450;r.h=yaw+Math.PI;it.veh=r;return r}
