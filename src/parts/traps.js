@@ -11,7 +11,8 @@ return g}
 // hauteur du sol à poser : l'étage / le toit où se trouve le joueur, pas le terrain en dessous
 function trapY(x,z){if(P.gy===undefined)return GH(x,z);const g0=GSUP;let y;try{y=groundAt(x,z,P.gy,.55)}catch(e){y=GH(x,z)}GSUP=g0;return y}
 function trapAdd(ty,x,z,yaw,owner,arm,yy){const m=trapMesh(ty),y=yy===undefined?GH(x,z):yy;m.position.set(x,y-(ty==='xm'||ty==='xb'?.012:0),z);m.rotation.y=yaw;S.add(m);const t={ty,x,z,y,yaw,m,owner,arm:arm===undefined?1.5:arm,kn:{}};TRP.list.push(t);return t}
-function trapRemove(t){S.remove(t.m);const i=TRP.list.indexOf(t);if(i>=0)TRP.list.splice(i,1)}
+function trapFree(g,mats){if(!g)return;g.traverse(o=>{if(o.isMesh){if(o.geometry)o.geometry.dispose();if(mats&&o.material)o.material.dispose()}})}
+function trapRemove(t){S.remove(t.m);trapFree(t.m);const i=TRP.list.indexOf(t);if(i>=0)TRP.list.splice(i,1)}
 const trapDetR=()=>(typeof TOD!=='undefined'&&(TOD.t<6||TOD.t>19.6))?3.2:5.5;
 function trapNear(){let b=null,bd=1.8;for(const t of TRP.list){if(!t.m.visible)continue;if(P.gy!==undefined&&Math.abs(t.y-P.gy)>1.6)continue;const d=Math.hypot(t.x-P.x,t.z-P.z);if(d<bd){bd=d;b=t}}return b}
 const trapOk=(x,z)=>wDist(x,z)>.8&&Math.abs(x)<MH-2&&Math.abs(z)<MH-2;
@@ -29,9 +30,9 @@ else{b.stun=Math.max(b.stun||0,4.5);if(t.owner==='p')b.pk=1;bhHit(b,Math.random(
 const trapSpdK=()=>TRP.snare>0?.2:TRP.prog>0?.55:TRP.dis?0:1;
 // ---------- interface de pose ----------
 const tps=document.createElement('div');tps.style.cssText='position:fixed;left:50%;bottom:30%;transform:translateX(-50%);z-index:6;pointer-events:none;font:14px "Segoe UI",sans-serif;color:#dfe8d4;text-shadow:0 1px 3px #000;text-align:center;display:none';document.body.appendChild(tps);
-function trapSetMode(m){TRP.mode=m;TRP.prog=0;if(TRP.gh){S.remove(TRP.gh);TRP.gh=null}if(!m)tps.style.display='none'}
+function trapSetMode(m){TRP.mode=m;TRP.prog=0;if(TRP.gh){S.remove(TRP.gh);trapFree(TRP.gh,1);TRP.gh=null}if(!m)tps.style.display='none'}
 function trapCycle(){let m=TRP.mode;for(let i=0;i<5;i++){m=(m+1)%5;if(m===0)break;if((TRP.inv[TSEQ[m-1]]||0)>0)break}trapSetMode(m);if(!m)hlMsg('Pose annulée')}
-function trapGhost(){const ty=TSEQ[TRP.mode-1];if(TRP.ghT!==ty||!TRP.gh){if(TRP.gh)S.remove(TRP.gh);TRP.gh=trapMesh(ty);TRP.gh.traverse(o=>{if(o.isMesh)o.material=new THREE.MeshBasicMaterial({color:0x66ff66,transparent:true,opacity:.5,depthWrite:false})});S.add(TRP.gh);TRP.ghT=ty}
+function trapGhost(){const ty=TSEQ[TRP.mode-1];if(TRP.ghT!==ty||!TRP.gh){if(TRP.gh){S.remove(TRP.gh);trapFree(TRP.gh,1)}TRP.gh=trapMesh(ty);TRP.gh.traverse(o=>{if(o.isMesh)o.material=new THREE.MeshBasicMaterial({color:0x66ff66,transparent:true,opacity:.5,depthWrite:false})});S.add(TRP.gh);TRP.ghT=ty}
 const sn=Math.sin(P.yaw),cs=Math.cos(P.yaw),d=ty==='xw'?2.4:1.7,x=P.x-sn*d,z=P.z-cs*d;TRP.gx=x;TRP.gz=z;TRP.gy=trapY(x,z);TRP.valid=trapOk(x,z)&&Math.abs(TRP.gy-P.gy)<.9;TRP.gh.position.set(x,TRP.gy,z);TRP.gh.rotation.y=P.yaw;const c=TRP.valid?0x66ff66:0xff5544;TRP.gh.traverse(o=>{if(o.isMesh)o.material.color.setHex(c)})}
 addEventListener('keydown',e=>{if(e.repeat||bench||ac.on||$('ov').style.display!=='none')return;
 if(e.code==='KeyB'){e.preventDefault();trapCycle()}

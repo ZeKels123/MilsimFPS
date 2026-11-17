@@ -11,14 +11,17 @@ function barrelHit(q,h,dmg){const b=q.m;snd(1300+rnd(0,500),.05,.12,'triangle');
 if(!q.fuel||q.st===2)return;
 q.y0=b.position.y-.475;const nn=h.face.normal.clone().transformDirection(b.matrixWorld);
 q.holes.push({x:h.point.x,y:h.point.y,z:h.point.z,nx:nn.x,nz:nn.z});if(q.holes.length>24)q.holes.shift();
-if(q.st===0&&q.f>.08&&Math.random()<.2)brIgnite(q,2.5+Math.random()*3.5)}
+if(q.st===0&&q.f>.08&&Math.random()<.2){q.src='p';brIgnite(q,2.5+Math.random()*3.5)}}
+const brOwner=q=>q.src==='b'?{}:null;
+function brLos(x,y,z,q){const ty=q.m.position.y+.1;brE.set(q.x-x,ty-y,q.z-z);const d=brE.length();if(d<.8)return true;brE.multiplyScalar(1/d);brV.set(x,y,z);RC.set(brV,brE);RC.far=d-.35;return!RC.intersectObjects(ray).some(h=>!h.object.userData.glass&&!h.object.userData.barrel)}
+const brBase=q=>q.m.position.y-.45,brAt=(y0,y)=>y>=y0-.6&&y<y0+1.8;
 function brIgnite(q,fuse){if(q.st!==0||q.f<=.05)return;q.st=1;q.t=fuse}
-function barrelBlast(x,y,z,R){for(const b of BRL){const q=b.userData.barrel;if(!q.fuel||q.st===2)continue;if(Math.hypot(q.x-x,q.z-z)>R+.3)continue;
+function barrelBlast(x,y,z,R,n){for(const b of BRL){const q=b.userData.barrel;if(!q.fuel||q.st===2)continue;if(Math.hypot(q.x-x,q.m.position.y-y,q.z-z)>R+.3||!brLos(x,y,z,q))continue;q.src=n&&n.owner?'b':'p';
 if(q.st===0){q.f=Math.max(q.f,.7);brIgnite(q,.35+Math.random()*.9)}else if(q.t>.6)q.t=.3+Math.random()*.4}}
 function brChar(q){const b=q.m;b.material.forEach(mm=>{mm.color.setHex(0x2a2622);mm.map=null;mm.roughness=.85;mm.metalness=.3;mm.needsUpdate=true});q.rings.forEach(r=>r.visible=false);
 b.scale.set(1.04,.86,1.04);b.position.y=q.y0+.4085;b.rotation.x=rnd(-.1,.1);b.rotation.z=rnd(-.1,.1);if(q.pool)q.pool.visible=false;q.holes=[]}
 function brExplode(q){q.st=2;q.y0=q.m.position.y>.9?q.y0:q.m.position.y-.475;const y=q.y0+.5;brChar(q);q.sc=brGround(q,1.9,brSM);q.fire=12+Math.random()*6;
-nadeBoom({type:0,p:new THREE.Vector3(q.x,y,q.z),owner:null,wet:true,m:{visible:false}});
+nadeBoom({type:0,p:new THREE.Vector3(q.x,y,q.z),owner:brOwner(q),wet:true,m:{visible:false}});
 for(let i=0;i<22;i++)emit(brV.set(q.x+rnd(-.3,.3),y,q.z+rnd(-.3,.3)),brE.set(rnd(-2.5,2.5),rnd(4,9),rnd(-2.5,2.5)),{map:flareT,color:0xff8a28,size:rnd(.7,1.4),grow:.8,life:rnd(.5,1),add:1,a:.9,drag:1.2});
 for(let i=0;i<14;i++)emit(brV.set(q.x+rnd(-.4,.4),y+.4,q.z+rnd(-.4,.4)),brE.set(rnd(-1.5,1.5),rnd(2,5),rnd(-1.5,1.5)),{map:puffT,color:0x151413,size:rnd(.8,1.3),grow:1.8,life:rnd(3.5,5.5),a:.65,drag:.8,g:-.6})}
 function brBurnOut(q){q.st=2;brChar(q);q.sc=brGround(q,1.1,brSM);q.fire=7}
@@ -26,7 +29,7 @@ function brFireR(q){return q.st===1?Math.max(1,q.pool?q.pool.scale.x:0):(q.st===
 function brTick(){const now=performance.now(),dt=Math.min(.2,(now-BRS.last)/1000);BRS.last=now;if(dt<=0)return;const ov=document.getElementById('ov');if(ov&&ov.style.display!=='none')return;
 let best=null,bd=28,onP=false;
 for(const b of BRL){const q=b.userData.barrel;if(!q.fuel)continue;const d=Math.hypot(P.x-q.x,P.z-q.z),vis=d<75,y0=q.y0,fr=brFireR(q);
-if(fr>0){if(d<fr)onP=true;for(const bt of bots){if(bt.dead)continue;const g=bt.g.position;if(Math.hypot(g.x-q.x,g.z-q.z)<fr){bt.hp-=28*dt;bt.flinch=1;if(bt.hp<=0)onKill(bt,false)}}}
+if(fr>0){const yb=brBase(q);if(d<fr&&(P.gy===undefined||brAt(yb,P.gy)))onP=true;for(const bt of bots){if(bt.dead)continue;const g=bt.g.position;if(Math.hypot(g.x-q.x,g.z-q.z)<fr&&brAt(yb,g.y)){bt.hp-=28*dt;bt.flinch=1;if(bt.hp<=0){if(q.src==='b')botDie(bt);else onKill(bt,false)}}}}
 
 if(q.st<2&&q.holes.length){let leaking=false;for(const h of q.holes){if(q.f*.95>h.y-y0&&q.f>0){leaking=true;q.f=Math.max(0,q.f-.045*dt);if(vis&&Math.random()<dt*22)emit(brV.set(h.x,h.y,h.z),brE.set(h.nx*1.1,.2,h.nz*1.1),{map:puffT,color:0xb89a3c,size:.03,life:.55,a:.7,g:9})}}
 if(!q.pool)q.pool=brGround(q,.2,brPM);q.pool.scale.setScalar(.25+(1-q.f)*1.25)}

@@ -115,7 +115,7 @@ rep("function invPick(){const e=invNear();","function invPick0(){const e=invNear
 rep("const f=ac.on?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=ac.on?0:(K.KeyD?1:0)-(K.KeyA?1:0);","const f=(ac.on||DRV.on)?0:(K.KeyW?1:0)-(K.KeyS?1:0),r=(ac.on||DRV.on)?0:(K.KeyD?1:0)-(K.KeyA?1:0);")
 rep("function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);","function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05)*(window.MMP?0:1);drvTick(dt);")
 rep("P.z+rz*off);","P.z+rz*off);if(DRV.on)drvCam();bleCam();")
-rep("function nadeBoom(n){","function nadeBoom(n){if(n.type===0)dstBlast(n.p.x,n.p.y,n.p.z,7);")
+rep("function nadeBoom(n){","function nadeBoom(n){if(n.type===0)dstBlast(n.p.x,n.p.y,n.p.z,7*(n.wet?.55:1));")
 rep("$('scope').style.display=sc?'block':'none';","$('scope').style.display=sc?'block':'none';balRet(sc,dt);")
 rep("scBI.visible=!(A.scope||A.angled||A.holo","(sigM.compensater||[]).forEach(m=>{m.visible=!A.supp});scBI.visible=!(A.scope||A.angled||A.holo")
 rep('Fusil de précision <em></em></button>','Signal 50 <em></em></button><button id="w_5" onclick="setWeapon(5)">Mitrailleuse HMG <em></em></button>')
