@@ -1,4 +1,4 @@
-import bpy,json,io,base64,struct,array,mathutils,sys,os
+import math,bpy,json,io,base64,struct,array,mathutils,sys,os
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import proc_props
 from PIL import Image
@@ -10,7 +10,24 @@ SRC=[('sandbag',U+'decor/military_sandbag_barrier_lowpoly.glb',512,0),
      ('barrel',U+'props/barrel_farsmok_CCBY.glb',256,0),
      ('tower',U+'decor/watchtower_zachariblinn_CCBY.glb',512,0),
      ('wire',U+'decor/barbedwire_JohnDoe2311_CCBY.glb',256,0),
-     ('jeep',U+'props/uaz469_grox777_CCBY.glb',512,0)]+[(n,'proc:'+n,0,0) for n in proc_props.GEN]
+     ('jeep',U+'props/uaz469_grox777_CCBY.glb',512,0)]
+# v59 (Sketchfab) : remplacements des décors procéduraux ; OPT[nom]=(fichier, texture max, hauteur ou longueur cible en m, 'h'|'L', yaw auto, mots à exclure)
+OPT={'tankwreck':('tankt72_mrtherich_CCBY.glb',512,8.0,'L',1,['Icosphere'],0.9),
+ 'heli':('huey_duanesmind_CCBY.glb',512,12.0,'L',1,[],0.8),
+ 'carwreck':('carwreck_bytescrafter_CCBY.glb',128,4.6,'L',1,['Icosphere'],0.7),
+ 'cmdtent':('militarytent_reinaw13_CCBY.glb',256,10.0,'L',1,[],0.7),
+ 'container':('container_rmaull2002_CCBY.glb',512,8.5,'L',1,[],0.6),
+ 'fueltank':('rustedtank_mkc_CCBY.glb',256,3.6,'h',1,[],0.4),
+ 'generator':('generator_tboiston_CCBY.glb',256,2.6,'L',1,[],0.6),
+ 'mast':('radiotower_gunnarcorrea_CCBY.glb',256,16.0,'h',0,['Floor'],0.6),
+ 'floodlight':('searchlight_jerd_CCBY.glb',0,1.8,'h',0,[],0.4),
+ 'supply':('militarycrate_luddepudde_CCBY.glb',256,1.4,'L',0,[]),
+ 'pallets':('pallets_annadenisova_CCBY.glb',256,1.0,'s',0,[],0.7),
+ 'messtable':('woodentable_mrsweetly_CCBY.glb',256,1.8,'L',1,[],0.6),
+ 'flag':('flagred_marishka1611_CCBY.glb',128,4.5,'h',0,[]),
+ 'jerry':('jerrycan_sasharx_CCBY.glb',128,.5,'h',0,[]),
+ 'cot':('cot_mseecs298_CCBY.glb',128,1.5,'L',1,[])}
+SRC=[x for x in SRC if x[0] not in OPT]+[(n,U+'props/'+o[0],o[1],0) for n,o in OPT.items()]
 def b64(a):return base64.b64encode(a.tobytes()).decode()
 def img_of(mat):
     if not mat or not mat.use_nodes:return None,None
@@ -34,10 +51,31 @@ for name,path,tex,dec in SRC:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if path.startswith('proc:'):proc_props.make(path[5:])
     else:bpy.ops.import_scene.gltf(filepath=path)
+    bpy.context.view_layer.update()
     ms=[o for o in bpy.data.objects if o.type=='MESH']
+    O=OPT.get(name);EV={};RM=mathutils.Matrix.Identity(4)
+    if O:
+        ms=[o for o in ms if not any(k in o.name for k in O[5])]
+        if len(O)>6:
+            for o in ms:mo=o.modifiers.new('dec','DECIMATE');mo.ratio=O[6]
+        DG=bpy.context.evaluated_depsgraph_get();EV={o.name:o.evaluated_get(DG).to_mesh() for o in ms}
+        pts=[o.matrix_world@v.co for o in ms for v in EV[o.name].vertices]
+        yaw=0
+        if O[4]:
+            best=None
+            for a in range(0,180):
+                c,sn=math.cos(math.radians(a)),math.sin(math.radians(a))
+                xs=[p[0]*c+p[1]*sn for p in pts];ys=[-p[0]*sn+p[1]*c for p in pts]
+                ar=(max(xs)-min(xs))*(max(ys)-min(ys))
+                if best is None or ar<best[0]:best=(ar,a)
+            yaw=-math.radians(best[1])
+        RM=mathutils.Matrix.Rotation(yaw,4,'Z')
+        q=[RM@p for p in pts];ext=[max(p[i] for p in q)-min(p[i] for p in q) for i in range(3)]
+        ref={'h':ext[2],'L':max(ext[0],ext[1]),'s':1}[O[3]];k=O[2]/ref if O[3]!='s' else O[2]
+        RM=mathutils.Matrix.Scale(k,4)@RM;print(name,'yaw',round(math.degrees(yaw)),'ext',[round(e,2) for e in ext],'k',round(k,5))
     allv=[];parts=[]
     for o in ms:
-        mw=o.matrix_world;me=o.data
+        mw=RM@o.matrix_world;me=EV[o.name] if O else o.data
         me.calc_loop_triangles()
         uvl=me.uv_layers.active
         P=array.array('f');N=array.array('f');Uv=array.array('f');I=array.array('H');vm={}
