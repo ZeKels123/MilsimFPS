@@ -3,7 +3,10 @@
 // Petits camps placés près des ancres des escouades ennemies : couverts réels (tir bloqué selon le matériau), collision avec hauteur (on saute par-dessus un sac de sable),
 // les soldats les contournent (grille de navigation) et le grillage laisse passer les balles et la vue.
 const P3D={tex:[],list:[],done:0,tries:0,camps:0};
-const P3S={sandbag:{sc:1,bm:'conc',h:.62},crate:{sc:.45,bm:'wood',h:.375},jersey:{sc:1,bm:'conc',h:3.85,fence:1},tent:{sc:.0075,bm:'plas',h:2.1},barrel:{sc:1,bm:'steel',h:.9},tower:{sc:.0095,bm:'wood',h:8.8},wire:{sc:1,bm:'wood',h:1.2},jeep:{sc:.0097,bm:'veh',h:2.1}};
+const P3S={sandbag:{sc:1,bm:'conc',h:.62},crate:{sc:.45,bm:'wood',h:.375},jersey:{sc:1,bm:'conc',h:3.85,fence:1},tent:{sc:.0075,bm:'plas',h:2.1},barrel:{sc:1,bm:'steel',h:.9},tower:{sc:.0095,bm:'wood',h:8.8},wire:{sc:1,bm:'wood',h:1.2},jeep:{sc:.0097,bm:'veh',h:2.1},
+ // v59 : décor procédural original (tools/proc_props.py), échelle 1 = mètres
+ cmdtent:{sc:1,bm:'plas',h:3.2},messtable:{sc:1,bm:'wood',h:.8},generator:{sc:1,bm:'steel',h:1.6},mast:{sc:1,bm:'steel',h:15.2},floodlight:{sc:1,bm:'steel',h:4},carwreck:{sc:1,bm:'veh',h:1.45},tankwreck:{sc:1,bm:'steel',h:2.3},
+ fueltank:{sc:1,bm:'steel',h:2.9},pallets:{sc:1,bm:'wood',h:.6},container:{sc:1,bm:'steel',h:2.6},flag:{sc:1,bm:'steel',h:6.2},heli:{sc:1,bm:'veh',h:3.9},supply:{sc:1,bm:'wood',h:1.2}};
 function p3dB(s,T){const b=atob(s),n=b.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=b.charCodeAt(i);return new T(u.buffer)}
 function p3dTex(i){if(P3D.tex[i])return P3D.tex[i];const im=new Image(),t=new THREE.Texture(im);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;t.wrapS=t.wrapT=THREE.RepeatWrapping;im.onload=()=>{t.needsUpdate=true};im.src=P3D_TEX[i];return P3D.tex[i]=t}
 const P3G={};
@@ -45,6 +48,14 @@ function p3dCamp(ax,az){let n=0;const a0=Math.random()*6.283;
  if(Math.random()<.3)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=12+Math.random()*4,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,2.6)){const jp=p3dPut('jeep',x,z,Math.random()*6.283);if(typeof jeepDrv==='function')jeepDrv(jp);n++;break}}
  if(Math.random()<.35)for(let t=0;t<12;t++){const a=Math.random()*6.283,d=21+Math.random()*5,x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;const dr=p3dOK(x,z,4.5)&&p3dRamp(x,z);if(dr){const it=p3dPut('tower',x,z,Math.floor(Math.random()*4)*Math.PI/2);p3dTowerUp(it,dr);n++;break}}
  if(n)P3D.camps++;return n}
-function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1])}catch(e){console.warn('camp',e)}});if(typeof navEject==='function')navEject()}
+// v59 : sélection de décor supplémentaire autour d'une ancre (camp) puis épaves/containers dispersés sur la carte
+function p3dRing(name,ax,az,d0,d1,r,tries,rot){for(let t=0;t<(tries||10);t++){const a=Math.random()*6.283,d=d0+Math.random()*(d1-d0),x=ax+Math.sin(a)*d,z=az+Math.cos(a)*d;if(p3dOK(x,z,r)){const y=rot===undefined?Math.random()*6.283:rot;const it=p3dPut(name,x,z,y,p3dLow(x,z,r));return it}}return null}
+function p3dLow(x,z,r){let m=GH(x,z);for(const a of [[r,0],[-r,0],[0,r],[0,-r]])m=Math.min(m,GH(x+a[0]*.7,z+a[1]*.7));return m-.03}
+function p3dCamp2(ax,az){let n=0;const A=(nm,pr,d0,d1,r,t)=>{if(Math.random()<pr&&p3dRing(nm,ax,az,d0,d1,r,t))n++};
+ A('cmdtent',.3,17,23,5.5,14);A('messtable',.45,6,10,2,10);A('generator',.45,5,9,1.1,10);A('supply',.55,4,9,2.2,10);A('pallets',.45,5,10,2.4,10);A('floodlight',.45,6,11,1.2,10);A('flag',.3,4,8,.8,10);
+ A('mast',.2,24,30,1.6,12);A('container',.28,13,20,3.6,14);A('fueltank',.2,12,19,3.6,14);return n}
+function p3dField(){let n=0;const L=[['carwreck',6,2.6],['tankwreck',3,4.8],['heli',2,5.5],['container',3,3.6],['fueltank',1,3.6],['pallets',3,2.4],['supply',3,2.2]];
+ for(const e of L)for(let k=0;k<e[1];k++)for(let t=0;t<60;t++){const a=Math.random()*6.283,d=45+Math.random()*(MH*.5),x=Math.sin(a)*d,z=25+Math.cos(a)*d;if(Math.abs(x)>MH-30||Math.abs(z)>MH-30)continue;if(p3dOK(x,z,e[2])){p3dPut(e[0],x,z,Math.random()*6.283,p3dLow(x,z,e[2]*.8));n++;break}}return n}
+function p3dTry(){P3D.tries++;const an=SQA.filter(Boolean);if(an.length<SQN&&P3D.tries<900)return;P3D.done=1;an.forEach(a=>{try{p3dCamp(a[0],a[1]);p3dCamp2(a[0],a[1])}catch(e){console.warn('camp',e)}});try{p3dField()}catch(e){console.warn('field',e)}if(typeof navEject==='function')navEject()}
 {const _fx=fxFrame;fxFrame=function(dt){if(!P3D.done&&typeof SQA!=='undefined'&&!MM_menuOpen())p3dTry();return _fx.apply(this,arguments)}}
 function MM_menuOpen(){try{return $('mm').style.display!=='none'}catch(e){return false}}

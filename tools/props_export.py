@@ -1,4 +1,6 @@
-import bpy,json,io,base64,struct,array,mathutils,sys
+import bpy,json,io,base64,struct,array,mathutils,sys,os
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import proc_props
 from PIL import Image
 U='/mnt/user-data/uploads/assets jeux/Sketchfab/'
 SRC=[('sandbag',U+'decor/military_sandbag_barrier_lowpoly.glb',512,0),
@@ -8,7 +10,7 @@ SRC=[('sandbag',U+'decor/military_sandbag_barrier_lowpoly.glb',512,0),
      ('barrel',U+'props/barrel_farsmok_CCBY.glb',256,0),
      ('tower',U+'decor/watchtower_zachariblinn_CCBY.glb',512,0),
      ('wire',U+'decor/barbedwire_JohnDoe2311_CCBY.glb',256,0),
-     ('jeep',U+'props/uaz469_grox777_CCBY.glb',512,0)]
+     ('jeep',U+'props/uaz469_grox777_CCBY.glb',512,0)]+[(n,'proc:'+n,0,0) for n in proc_props.GEN]
 def b64(a):return base64.b64encode(a.tobytes()).decode()
 def img_of(mat):
     if not mat or not mat.use_nodes:return None,None
@@ -30,7 +32,8 @@ TX=[];TXI={}
 out={}
 for name,path,tex,dec in SRC:
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    bpy.ops.import_scene.gltf(filepath=path)
+    if path.startswith('proc:'):proc_props.make(path[5:])
+    else:bpy.ops.import_scene.gltf(filepath=path)
     ms=[o for o in bpy.data.objects if o.type=='MESH']
     allv=[];parts=[]
     for o in ms:
@@ -40,10 +43,10 @@ for name,path,tex,dec in SRC:
         P=array.array('f');N=array.array('f');Uv=array.array('f');I=array.array('H');vm={}
         for t in me.loop_triangles:
             for k,li in enumerate(t.loops):
-                v=t.vertices[k];u=uvl.data[li].uv if uvl else (0,0);key=(v,round(u[0],4),round(u[1],4))
+                v=t.vertices[k];u=uvl.data[li].uv if uvl else (0,0);fl=path.startswith('proc:') and not me.polygons[t.polygon_index].use_smooth;key=(v,round(u[0],4),round(u[1],4),t.polygon_index if fl else -1)
                 if key not in vm:
                     vm[key]=len(P)//3;w=mw@me.vertices[v].co;P.extend([w.x,w.z,-w.y]);allv.append((w.x,w.z,-w.y))
-                    n=(mw.to_3x3()@me.vertices[v].normal).normalized();N.extend([n.x,n.z,-n.y]);Uv.extend([u[0],u[1]])
+                    n=(mw.to_3x3()@(t.normal if fl else me.vertices[v].normal)).normalized();N.extend([n.x,n.z,-n.y]);Uv.extend([u[0],u[1]])
                 I.append(vm[key])
         if len(P)//3>65000:print('trop de sommets',name);sys.exit(1)
         mat=o.active_material;im,col=img_of(mat);im=im or anyimg(mat);texurl=None;alpha=False
@@ -77,5 +80,5 @@ for name,path,tex,dec in SRC:
     print(name,'bbox',res['bb'])
     out[name]=res
 js='const P3D_TEX='+json.dumps(TX)+';const P3D_DATA='+json.dumps(out,separators=(',',':'))+';\n'
-open('/home/claude/milsimfps/src/parts/props3d_data.js','w').write(js)
+open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','src','parts','props3d_data.js'),'w').write(js)
 print('total KB',len(js)//1024)

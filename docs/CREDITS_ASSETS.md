@@ -16,3 +16,10 @@ Notes :
 - Military Sandbag Barrier : licence Sketchfab « Free Standard » — usage en jeu autorisé, redistribution du fichier brut interdite (seul le maillage converti est dans le jeu).
 - Téléchargé, non utilisé : Military Outpost Kit 1.0 (britdawgmasterfunk).
 - Les licences CC-BY exigent la mention de l'auteur : ce fichier en tient lieu.
+
+## v59 : décor procédural original (aucune licence externe)
+Faute d'accès réseau à Sketchfab/Poly Pizza/Kenney/OpenGameArt pendant cette session (proxy 403, appareil non connecté), ces 13 modèles ont été écrits pour le jeu (code `tools/proc_props.py`, bmesh Blender, couleurs unies, géométrie sans texture). Ils appartiennent au projet : pas d'attribution requise.
+
+| Modèle | Auteur | Licence | Source |
+|---|---|---|---|
+| Tente de commandement (cmdtent), table de cantine (messtable), générateur (generator), pylône radio (mast), projecteur (floodlight), épave de voiture (carwreck), épave de char (tankwreck), citerne (fueltank), palettes (pallets), container (container), mât à bannière (flag), hélicoptère posé (heli), caisses de ravitaillement (supply) | Projet MILSIM FPS | Original (procédural), usage libre | `tools/proc_props.py` |
