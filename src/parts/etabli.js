@@ -10,7 +10,7 @@ function wmCan(i,k){return !(k==='m'&&(WC[i].pel||1)>1)&&!(k==='b'&&/Pistolet/.t
 function wmK(f,i){i=i===undefined?WSEL:i;const m=wmGet(i);let r=1;for(const k of 'bsml')if(wmCan(i,k)){const v=WMD[k][m[k]|0][f];if(v)r*=v}return r}
 function wmMagK(){return wmK('cap')}
 function wmCycle(k){if(!bench&&!nb)return;const m=wmGet(WSEL);if(!wmCan(WSEL,k)){wpnMsg(WMN[k]+' : non disponible sur cette arme');return}m[k]=((m[k]|0)+1)%WMD[k].length;
- if(ammo>magMax()){reserve+=ammo-magMax();ammo=magMax()}snd(300,.06,.15,'square');if(bench)upBench();wmUi()}
+ {const mx=magMax()+(ammo>0?wpnCh():0);if(ammo>mx){reserve+=ammo-mx;ammo=mx}}snd(300,.06,.15,'square');if(bench)upBench();wmUi()}
 function wmUi(){let d=document.getElementById('wm_ui');const bp=document.querySelector('#bench .bp');if(!bp)return;if(!d){d=document.createElement('div');d.id='wm_ui';d.className='bg';d.style.marginTop='8px';bp.appendChild(d)}
  let h='<div style="font-size:12px;opacity:.7;grid-column:1/-1">Modifications de l\'arme active (propres à chaque arme)</div>';const m=wmGet(WSEL);
  for(const k of 'bsml'){const o=WMD[k][m[k]|0],ok=wmCan(WSEL,k);h+='<button onclick="wmCycle(\''+k+'\')"'+(ok?'':' disabled style="opacity:.4"')+' class="'+(m[k]?'on':'')+'">'+WMN[k]+' <em>'+(ok?o.n:'—')+'</em><small>'+(ok&&o.i?o.i:'Clique pour changer')+'</small></button>'}

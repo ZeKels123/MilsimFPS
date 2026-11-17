@@ -64,7 +64,7 @@ if(gid==='B'&&invBagMesh){const mm=invBagMesh(bag.kind);if(mm)m=mm}
 if(m){}else if(gid==='B'){m=new THREE.Group();const b=BAGS[bag.kind],s=.22+.06*['S','M','L'].indexOf(bag.kind),body=new THREE.Mesh(IGB,igMat(b.col));body.scale.set(s*1.5,s*1.7,s);body.position.y=s*.85;const fl=new THREE.Mesh(IGB,igMat(0x2b3322));fl.scale.set(s*1.4,s*.7,s*.5);fl.position.set(0,s*.9,s*.7);m.add(body,fl);body.castShadow=true}
 else{const d=invDef(gid);m=new THREE.Mesh(IGB,invTexMat(gid));m.scale.set(.1*d.w+.06,.07,.1*d.h+.06);m.castShadow=true}
 m.position.set(x,y,z);S.add(m);const e={id:gid,q,m,bag,vx:vx||0,vz:vz||0,vy:0,fall:true,age:0};INV.gnd.push(e);
-while(INV.gnd.length>90){const o=INV.gnd.shift();S.remove(o.m)}return e}
+while(INV.gnd.length>90){const far=o=>o!==e&&Math.hypot(o.m.position.x-P.x,o.m.position.z-P.z)>8;let k=INV.gnd.findIndex(o=>o.id!=='B'&&far(o));if(k<0)k=INV.gnd.findIndex(o=>o.id!=='B'&&o!==e);if(k<0)k=INV.gnd.findIndex(o=>o!==e);if(k<0)break;S.remove(INV.gnd.splice(k,1)[0].m)}return e}
 const invGY=e=>GH(e.m.position.x,e.m.position.z)+(e.id==='B'?0:.04);
 function invDrop(id,n,fx){const q=Math.min(n,invGet(id));if(q<=0)return;invSet(id,invGet(id)-q);const gid=id[0]==='a'?'z'+CIDX[invWpn(+id[1])]:id;
 const sn=Math.sin(P.yaw),cs=Math.cos(P.yaw);invSpawn(gid,q,P.x-sn*.5+rnd(-.1,.1),P.gy+1.2,P.z-cs*.5+rnd(-.1,.1),-sn*2.4+rnd(-.3,.3),-cs*2.4+rnd(-.3,.3));snd(260,.05,.1,'triangle');if(INV.open)invRender()}
@@ -76,13 +76,13 @@ for(const id of ['bd','tq','kit','a'+slot]){const d=invDef(id),q=cont[id]||0;if(
 const cc={};for(const k in cont)if(cont[k]>0)cc[k.replace(/^a(\d)$/,(m,s)=>'z'+CIDX[invWpn(+s)])]=(cc[k.replace(/^a(\d)$/,(m,s)=>'z'+CIDX[invWpn(+s)])]||0)+cont[k];
 const sn=Math.sin(P.yaw),cs=Math.cos(P.yaw);invSpawn('B',1,P.x-sn*.7,P.gy+1.3,P.z-cs*.7,-sn*1.6,-cs*1.6,{kind,cont:cc});snd(180,.12,.2,'sawtooth');hlMsg('Sac jeté');INV._kind=null;if(INV.open)invRender()}
 function invAddGround(e){// retourne true si l'objet est entièrement ramassé
-if(e.id==='B'){const nk=e.bag.kind;if(INV.bag!==0){hlMsg('Vous portez déjà un sac (V pour le jeter)');return false}
+if(e.id==='B'){const nk=e.bag.kind;if(INV.bag!==0){hlMsg('Vous portez déjà un sac (Suppr pour le jeter)');return false}
 INV.bag=nk;INV._kind=nk;let any=false;for(const k in e.bag.cont){const q=e.bag.cont[k];if(!q)continue;const r=invPut(k,q);e.bag.cont[k]=q-r;any=any||r>0}
 if(Object.values(e.bag.cont).some(v=>v>0)){hlMsg('Sac équipé — reste du contenu au sol');INV.bag=nk;const rest=invSpawn('B',1,e.m.position.x,e.m.position.y,e.m.position.z,0,0,{kind:'S',cont:e.bag.cont});rest.fall=false;rest.m.scale.setScalar(.6)}else hlMsg(BAGS[nk].n+' équipé');return true}
 const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&!invSlotFor(+e.id[1])?'Pas d’arme de ce calibre':'Sac plein');else hlMsg('Ramassé : '+invDef(e.id).n+' ×'+r);return e.q<=0}
 const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
-function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
+function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall||Math.abs(e.m.position.y-P.gy)>=1.6)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}
 function invPick(){const e=invNear();if(!e)return;if(invAddGround(e)){S.remove(e.m);INV.gnd.splice(INV.gnd.indexOf(e),1);snd(520,.05,.1,'triangle')}if(INV.open)invRender()}
 function invLoot(b){const p=b.g.position,r=Math.random;let lk=0;const a0=r()*6.28,sp=()=>{const a=a0+lk++*2.4,d=1.35+(lk%3)*.3+r()*.15;return[p.x+Math.cos(a)*d,p.y+.45,p.z+Math.sin(a)*d]};// anneau autour du corps, écart 2,4 rad : rien sur le cadavre ni les uns sur les autres
 const add=(id,q,bag)=>{const s=sp();invSpawn(id,q,s[0],s[1],s[2],rnd(-.15,.15),rnd(-.15,.15),bag)};
@@ -109,7 +109,7 @@ const pos={};for(const o of un){const l=INV.lay[o.key];if(l&&free(l[0],l[1],o.s.
 let over=0;for(const o of un){if(pos[o.key])continue;let f=null;for(let y=0;y<b.h+6&&!f;y++)for(let x=0;x<b.w&&!f;x++)if(free(x,y,o.s.d))f=[x,y];if(!f){over++;continue}take(f[0],f[1],o.s.d);pos[o.key]=f}
 for(const o of un){const f=pos[o.key];if(!f)continue;const s=o.s;
 h+='<div class="it'+(INV.sel===s.id?' sel':'')+'" data-id="'+s.id+'" data-key="'+o.key+'" title="'+s.d.n+'" style="left:'+f[0]*CELL+'px;top:'+f[1]*CELL+'px;width:'+s.d.w*CELL+'px;height:'+s.d.h*CELL+'px;background:#1b2418 url('+invIconUrl(s.id)+') center/100% 100% no-repeat">'+(s.d.st>1?o.q:'')+'</div>'}
-g.innerHTML=h;$('io').innerHTML='<small>Glisser : ranger · clic : sélectionner · clic droit : jeter 1 · Tab / Échap : fermer · F : ramasser · V : jeter le sac</small>';
+g.innerHTML=h;$('io').innerHTML='<small>Glisser : ranger · clic : sélectionner · clic droit : jeter 1 · Tab / Échap : fermer · F : ramasser · Suppr : jeter le sac</small>';
 const kg=invKg(),r=invLoad(),k=invSpdK(false),col=r<.5?'#6fbf5a':r<.8?'#e6c04a':r<=1?'#e8843a':'#e04a3a';
 const eff=r<.5?'Aucun malus':r<.8?'Sprint légèrement réduit':r<=1?'Chargé : plus lent, endurance qui baisse vite':'SURCHARGÉ : très lent, sprint impossible';
 let rr='<h3>CHARGE</h3><div class="bar"><i style="width:'+Math.min(100,r*100)+'%;background:'+col+'"></i></div><b>'+kg.toFixed(1)+' / '+INV.CAP+' kg</b> <small>(capacité du joueur, indépendante du sac)</small><br><span style="color:'+col+'">'+eff+'</span><br>Vitesse de marche : ×'+k.toFixed(2)+'<h3 style="margin-top:12px">ARMES</h3>';
@@ -118,7 +118,7 @@ rr+='<small>Équipement (gilet, casque) : '+ARMKG+' kg · '+b.n+' : '+b.kg+' kg<
 const s=INV.sel&&invGet(INV.sel)>0?INV.sel:null;if(!s)INV.sel=null;
 if(s){const d=invDef(s),q=invGet(s),use=['bd','tq','sp','mo','kit','pl'].includes(s)||s[0]==='g'||s[0]==='x',nd=s[0]==='a'?Math.min(q,30):1;
 rr+='<h3 style="margin-top:12px">'+d.n.toUpperCase()+' ×'+q+'</h3><small>'+(d.kg*1000|0)+' g l’unité · '+d.w+'×'+d.h+' case(s)</small><br>'+(use?'<button data-act="use">Utiliser</button>':'')+'<button data-act="d1">Jeter '+nd+'</button><button data-act="dall">Tout jeter</button>'}
-if(INV.bag!==0)rr+='<br><button data-act="bag" style="margin-top:12px">Jeter le sac (V)</button>';
+if(INV.bag!==0)rr+='<br><button data-act="bag" style="margin-top:12px">Jeter le sac (Suppr)</button>';
 if(over)rr+='<br><span style="color:#e04a3a">'+over+' objet(s) ne tiennent pas dans la grille</span>';
 $('ir').innerHTML=rr}
 function invOpen(o){if(o===INV.open)return;INV.open=o;if(o){if(bench||ac.on||$('ov').style.display!=='none')return INV.open=false;bench=true;mdown=false;ads=false;iv.style.display='flex';document.exitPointerLock&&document.exitPointerLock();invRender()}
@@ -137,10 +137,10 @@ addEventListener('mouseup',e=>{if(!DR)return;const d=DR;DR=null;if(!d.mv)return;
 const cx=Math.round((L.left-g.left)/CELL),cy=Math.round((L.top-g.top)/CELL);INV.lay[d.key]=[cx,cy];invRender()});
 iv.addEventListener('contextmenu',e=>{const t=e.target.closest('[data-id]');if(t){const s=t.dataset.id;invDrop(s,s[0]==='a'?Math.min(invGet(s),30):1)}});
 addEventListener('keydown',e=>{if(e.repeat)return;
-if(INV.open){if(e.code==='Tab'||e.code==='Escape'||e.code==='KeyB'){e.preventDefault();invOpen(false)}else if(e.code==='KeyV')invDropBag();e.stopImmediatePropagation();return}
+if(INV.open){if(e.code==='Tab'||e.code==='Escape'||e.code==='KeyB'){e.preventDefault();invOpen(false)}else if(e.code==='Delete')invDropBag();e.stopImmediatePropagation();return}
 if(e.code==='Tab'){e.preventDefault();invOpen(true);return}
 if($('ov').style.display!=='none'||ac.on||bench)return;
-if(e.code==='KeyV')invDropBag();
+if(e.code==='Delete')invDropBag();
 else if(e.code==='Backspace'){e.preventDefault();invDrop('a'+slot,Math.min(30,invGet('a'+slot)))}
 else if(e.code==='KeyF'&&!nb&&!ndR&&!trapNear())invPick()});
 function invUpdate(dt){if(P.gy===undefined||HM.z.t===undefined)return;

@@ -560,6 +560,44 @@ const q=sqTestSq(3),al=q.m.filter(b=>!b.dead);if(al.length>=2){const t=al[0].sur
 if(SQN!==8||sqK(bots[5])!==5)return'sqK ne couvre pas 8 escouades : '+sqK(bots[5]);
 const sv=[P.gy,P.vy,P.air,P.x,P.z],z0=Object.assign({},HM.z),gy=GH(P.x,P.z),dd=HM.dead;P.gy=gy+6;P.vy=0;P.air=1;let n=0;while(P.air&&n++<400)lvStep(1/60);const hurt=HM.z.ll<z0.ll||HM.z.rl<z0.rl;
 Object.assign(HM.z,z0);P.gy=sv[0];P.vy=sv[1];P.air=sv[2];HM.dead=dd;return hurt?'':'une chute de 6 m ne blesse pas'});
+T('Touche V : change de viseur sans jeter le sac (le sac se jette avec Suppr)',()=>{const sv={bag:INV.bag,A:Object.assign({},A),sel,ov:$('ov').style.display,open:INV.open,bn:bench,gl:INV.gnd.length,kv:K.KeyV,kd:K.Delete,hm:hlMsg};const msgs=[];
+try{$('ov').style.display='none';INV.open=false;bench=false;INV.bag='M';A.scope=A.holo=true;A.angled=false;sel='scope';hlMsg=m=>{msgs.push(m)};
+dispatchEvent(new KeyboardEvent('keydown',{code:'KeyV',bubbles:true}));if(INV.bag!=='M'||INV.gnd.length!==sv.gl)return'V a jeté le sac';if(sight()!=='holo')return'V ne change pas de viseur : '+sight();
+INV.bag=0;dispatchEvent(new KeyboardEvent('keydown',{code:'Delete',bubbles:true}));if(!msgs.includes('Pas de sac à jeter'))return'Suppr n’appelle pas le jet du sac';
+if(KBD.filter(k=>k[2]==='KeyV').length!==1)return'KeyV doit n’avoir qu’une commande';return''}
+finally{hlMsg=sv.hm;INV.bag=sv.bag;Object.assign(A,sv.A);sel=sv.sel;$('ov').style.display=sv.ov;INV.open=sv.open;bench=sv.bn;K.KeyV=sv.kv;K.Delete=sv.kd}});
+T('Pause (overlay) : le temps de jeu est figé, repris sans l’overlay',()=>{const sv={ov:$('ov').style.display,mmp:window.MMP,t:TOD.t,bl:HM.bl,bd:Object.assign({},HM.bd),x:P.x,z:P.z,md:mdown,k:Object.assign({},K),ads};const raf=window.requestAnimationFrame;
+const run=()=>{window.requestAnimationFrame=()=>0;try{loop()}finally{window.requestAnimationFrame=raf}};
+try{window.MMP=0;mdown=false;for(const k in K)K[k]=false;HM.bd.ll=2;HM.bl=100;
+$('ov').style.display='flex';TOD.t=10;run();if(TOD.t!==10)return'heure avancée sous l’overlay : '+TOD.t;if(HM.bl!==100)return'saignement sous l’overlay : '+HM.bl;
+$('ov').style.display='none';TOD.t=10;HM.bl=100;run();if(TOD.t===10&&HM.bl===100)return'témoin : rien n’avance sans overlay';return''}
+finally{window.requestAnimationFrame=raf;$('ov').style.display=sv.ov;window.MMP=sv.mmp;TOD.t=sv.t;HM.bl=sv.bl;HM.bd=sv.bd;P.x=sv.x;P.z=sv.z;mdown=sv.md;ads=sv.ads;for(const k in K)K[k]=!!sv.k[k]}});
+T('Chute : l’excédent de dégâts passe au thorax, une chute très haute est mortelle',()=>{const sv={z:Object.assign({},HM.z),fx:Object.assign({},HM.fx),bd:Object.assign({},HM.bd),dead:HM.dead,why:HM.why,last:HM.last,hp:P.hp,bl:HM.bl,pain:HM.pain,pit:P.pitch,yaw:P.yaw,dk:DEATH.k,dz:DEATH.z,wps:JSON.stringify(WPS),ar:P.ar,hl:HM.hl};
+try{HM.dead=0;P.hp=100;for(const z in HMAX)HM.z[z]=HMAX[z];HM.fx={};HM.bd={};P.ar=0;
+hlFall(26);if(!(HM.z.t<HMAX.t))return'thorax intact après 26 m/s : '+HM.z.t;if(HM.dead)return'mort dès 26 m/s';
+HM.z.ll=HMAX.ll;HM.z.rl=HMAX.rl;HM.z.t=HMAX.t;HM.fx={};hlFall(6.5);if(HM.z.t<HMAX.t)return'petite chute : thorax touché';
+HM.z.ll=HMAX.ll;HM.z.rl=HMAX.rl;HM.z.t=HMAX.t;HM.dead=0;P.hp=100;hlFall(42);if(!HM.dead||HM.why!=='Thorax')return'chute de 42 m/s non mortelle : '+HM.z.t+' '+HM.why;return''}
+finally{HM.z=sv.z;HM.fx=sv.fx;HM.bd=sv.bd;HM.dead=sv.dead;HM.why=sv.why;HM.last=sv.last;P.hp=sv.hp;HM.bl=sv.bl;HM.pain=sv.pain;P.pitch=sv.pit;P.yaw=sv.yaw;DEATH.k=sv.dk;DEATH.z=sv.dz;P.ar=sv.ar;HM.hl=sv.hl;const w=JSON.parse(sv.wps);for(const i in w)Object.assign(WPS[i],w[i])}});
+T('Ramassage : ignore les objets d’un autre étage ; le sac jeté survit au plafond de 90 objets',()=>{const g0=INV.gnd,fall0=0;const mk=(id,dx,dy)=>{const e=invSpawn(id,1,P.x+dx,P.gy+dy,P.z,0,0,id==='B'?{kind:'S',cont:{}}:undefined);e.fall=false;e.vy=0;e.m.position.y=P.gy+dy;return e};
+INV.gnd=[];const added=[];try{const a=mk('bd',1,3.2);const near0=invNear();if(near0===a)return'objet à 3,2 m de hauteur ramassable';a.m.position.y=P.gy+.4;if(invNear()!==a)return'objet de plain-pied non détecté';
+INV.gnd=[];const b=mk('B',60,.1);for(let i=0;i<95;i++)mk('bd',70+i*.1,.1);if(!INV.gnd.includes(b))return'le sac a été évincé';if(INV.gnd.length>90)return'plafond dépassé : '+INV.gnd.length;return''}
+finally{for(const e of INV.gnd)S.remove(e.m);INV.gnd=g0}});
+T('Changement d’arme / accessoire : la cartouche en chambre n’est pas rendue à la réserve',()=>{const sv=[WSEL,ammo,reserve,reloading];try{let ci=-1,ni=-1;for(let i=0;i<WC.length;i++){equip(i,0,0);if(wpnCh()===1&&ci<0)ci=i;if(wpnCh()===0&&ni<0)ni=i}
+if(ci<0)return'aucune arme à chambre';equip(ci,0,0);equip(ci,magMax(),5);const r0=reserve;equip(ci,magMax()+1,5);if(ammo!==magMax()+1||reserve!==r0)return'cartouche en chambre rendue : '+ammo+'/'+reserve+' (réf. '+r0+')';
+equip(ci,magMax()+3,5);if(ammo!==magMax()+1||reserve!==r0+2)return'excédent mal écrêté : '+ammo+'/'+reserve;
+if(ni>=0){equip(ni,0,0);equip(ni,magMax(),5);const q0=reserve;equip(ni,magMax()+1,5);if(ammo!==magMax()||reserve!==q0+1)return'arme sans chambre : '+ammo+'/'+reserve}return''}
+finally{equip(sv[0],sv[1],sv[2]);reloading=sv[3]}});
+T('Remappage : « défaut » annule l’attente, un second bouton restaure le premier, K remis à zéro',()=>{const sv={w:$('mmw').innerHTML,pn:MM.pn,kw:kbWait,kp:kbPend,kw2:K.KeyW};
+try{mmShow('set');mmKey('fwd');if(typeof kbWait!=='function')return'attente non armée';mmKey('back');if($('kb_fwd').textContent==='Appuie sur une touche…')return'libellé du premier bouton resté bloqué';
+mmSet();if(kbWait!==null)return'mmSet laisse kbWait actif';if($('kb_back').textContent==='Appuie sur une touche…')return'libellé bloqué après mmSet';
+K.KeyW=true;kbBuild();if(K.KeyW)return'touche collée après kbBuild';return''}
+finally{kbWait=null;kbPend=null;$('mmw').innerHTML=sv.w;MM.pn=sv.pn;K.KeyW=sv.kw2}});
+T('Sauvegarde : échec d’écriture retenté, md borné, Ultra accepté, #ov défilable',()=>{const k=PERS.key,old=localStorage.getItem(k),sig=PERS.sig,off=PERS.off,SP=Storage.prototype.setItem,md=MOO.day,sg=SET.gfx,gm=GQ.mode;
+try{PERS.off=0;PERS.sig='';Storage.prototype.setItem=function(){throw new Error('quota')};if(PERS.write())return'écriture annoncée malgré l’échec';Storage.prototype.setItem=SP;if(!PERS.write())return'écriture non retentée après un échec';
+PERS.apply({v:1,md:1e9});if(MOO.day===1e9)return'md sans borne';PERS.apply({v:1,gfx:4});if(GQ.mode!==4)return'Ultra rejeté';
+const src=[...document.scripts].map(s=>s.text).join('');if(/SET\.gfx>=0&&SET\.gfx<4\?/.test(src))return'validation gfx<4 encore présente';
+const cs=getComputedStyle($('ov'));if(cs.overflowY!=='auto')return'#ov sans défilement : '+cs.overflowY;if(!/GM\.mode==='train'\)\{P\.x=TR\.x/.test(loop.toString()))return'réapparition sans zone d’entraînement';return''}
+finally{Storage.prototype.setItem=SP;if(old===null)localStorage.removeItem(k);else localStorage.setItem(k,old);PERS.sig=sig;PERS.off=off;MOO.day=md;SET.gfx=sg;GQ.mode=gm}});
 T('Réglages corrompus : keys null, sens texte, gfx hors bornes',()=>{const c=localStorage.getItem('mfps_set');let r='';try{localStorage.setItem('mfps_set','{"keys":null,"sens":"abc","vol":"x","gfx":99}');const o={vol:.8,sens:1,gfx:0,keys:{}};Object.assign(o,JSON.parse(localStorage.getItem('mfps_set')));const n=(v,a,b,d)=>Number.isFinite(v)?Math.min(b,Math.max(a,v)):d;if(n(o.sens,.3,2.5,1)!==1||n(o.vol,0,1,.8)!==.8)r='bornes non appliquées';if(KRES.indexOf('Backspace')<0||KRES.indexOf('Enter')<0)r='touches réservées incomplètes'}finally{if(c===null)localStorage.removeItem('mfps_set');else localStorage.setItem('mfps_set',c)}return r});
 T('Voix enregistrées : données valides, rattachées à une phrase du jeu, privilégiées dans le choix',()=>{if(typeof VXD==='undefined')return'VXD absent';tacInit();const all=new Set();for(const k in VX.L)VX.L[k].forEach(p=>all.add(p));let n=0;
 for(const p in VXD){if(!all.has(p))return'phrase enregistrée absente du jeu : '+p;if(!VXD[p].length)return'aucun fichier pour '+p;for(const u of VXD[p]){n++;if(!/^data:audio\/mpeg;base64,/.test(u)||u.length<2000)return'données invalides pour '+p}}

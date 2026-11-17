@@ -27,7 +27,8 @@ canvas{display:block}
 #scope:before{width:66vmin;height:1px;transform:translate(-50%,0)}
 #scope:after{height:66vmin;width:1px;transform:translate(0,-50%)}
 #rdot{left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:#ff2a2a;box-shadow:0 0 8px #f00;display:none}
-#ov{position:fixed;inset:0;background:rgba(5,8,4,.88);display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+#ov{position:fixed;inset:0;background:rgba(5,8,4,.88);display:flex;overflow:auto;text-align:center;cursor:pointer;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+#ov>div{margin:auto}@media (max-height:520px){#ov table{margin:6px auto;font-size:11px}#ov td{padding:1px 8px}#ov h1{font-size:20px}}
 #ov h1{color:var(--ac);letter-spacing:.2em;margin:0 0 8px}
 #ov table{margin:14px auto;text-align:left;border-collapse:collapse;font-size:13px}
 #ov td{padding:3px 12px;border-bottom:1px solid #2b3324}#ov td:first-child{color:var(--ac)}
