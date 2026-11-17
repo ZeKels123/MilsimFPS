@@ -3,6 +3,8 @@
 // Collisions avec les obstacles (dégâts du véhicule et du conducteur), soldats écrasés, fumée/incendie via destruct.js, moteur sonore.
 var DRV={on:0,r:null,v:0,h:0,st:0,x:0,z:0,len:4.6,wid:2.2,hgt:1.5,vmax:28,yo:0,cd:0,hint:null,ht:0,snd:null,pit:0,rol:0,bump:0,hn:0,lt:null,wm:0};
 function drvNear(){let b=null,bd=3.6;for(const r of dstS().list){if(r.st>0||r.hp<=0||r.drv)continue;const dy=P.gy-(r.e&&r.e.position?r.e.position.y:r.y);if(dy>2.4||dy<-2)continue;const d=Math.hypot(r.x-P.x,r.z-P.z);if(d<bd){bd=d;b=r}}return b}
+// régime moteur 0..1 par rapport de boîte (5 rapports répartis jusqu'à vmax) : monte dans le rapport, retombe au passage, l'accélérateur ajoute du régime
+function drvRpm(v,vmax,th){const a=Math.abs(v),n=5,w=vmax/n,gi=Math.min(n-1,Math.floor(a/w)),lo=gi===0?0:gi*w*.92,fr=Math.max(0,Math.min(1,(a-lo)/(w*(gi===0?1:1.08))));return Math.min(1,.18+.7*fr+(th?.1:0))}
 function drvSound(on){try{if(!on){if(DRV.snd){DRV.snd.o.stop();DRV.snd=null}return}AC=AC||new AudioContext();const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';f.type='lowpass';f.frequency.value=700;g.gain.value=.05;o.connect(f);f.connect(g);g.connect(AC.destination);o.start();DRV.snd={o,g,f}}catch(e){}}
 // cellules de navigation des bots : la caisse d'un véhicule est retirée quand il roule (drvNav(bx,0)) et reposée à l'arrêt (drvNav(bx,1)) ;
 // en la retirant on ne libère pas ce qui reste bloqué par un autre obstacle, l'eau profonde ou le bord de la carte
@@ -13,7 +15,7 @@ for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const k=j*NGN+i,x=nX(k),z=nZ(k);i
 function drvEnter(r){if(DRV.on||HM.dead||ac.on||bench)return;const g=r.px.geometry.parameters,len=Math.max(g.width,g.depth),wid=Math.min(g.width,g.depth),hh=g.height;
 if(r.h===undefined)r.h=r.e.rotation.y;r.drv=1;const i=boxes.indexOf(r.bx);if(i>=0)boxes.splice(i,1);try{drvNav(r.bx,0)}catch(e){}
 r.px.geometry.dispose();r.px.geometry=new THREE.BoxGeometry(wid,hh,len);r.px.rotation.y=r.h;r.e.rotation.order='YXZ';
-Object.assign(DRV,{on:1,r,v:0,h:r.h,st:0,x:r.x,z:r.z,len,wid,hgt:hh,vmax:len>6?17:28,yo:r.y-GH(r.x,r.z),cd:0,pit:0,rol:0,bump:0,hn:0,wm:0});drvLights(true);
+Object.assign(DRV,{on:1,r,v:0,h:r.h,st:0,x:r.x,z:r.z,len,wid,hgt:hh,vmax:len>6?17:28,yo:r.y-GH(r.x,r.z),cd:0,pit:0,rol:0,bump:0,hn:0,wm:0,rpm:0});drvLights(true);
 gun.visible=false;P.yaw=DRV.h;P.pitch=-.2;DRV.fp=0;P.st=1;mdown=false;ads=false;drvSound(true);hlMsg('Conduite : W/S, A/D, Espace frein à main, H vue conducteur, F sortir');snd(220,.12,.12,'square')}
 function drvExit(force){if(!DRV.on)return;const r=DRV.r;if(!force&&Math.abs(DRV.v)>4)return hlMsg('Arrête-toi pour descendre');
 const c=Math.cos(DRV.h),s=Math.sin(DRV.h),d=DRV.wid/2+.9,L=DRV.len/2+.9;let q=[-c*d,s*d];for(const t of [[-c*d,s*d],[c*d,-s*d],[s*L,c*L],[-s*L,-c*L]])if(free_(DRV.x+t[0],DRV.z+t[1])){q=t;break}P.x=DRV.x+q[0];P.z=DRV.z+q[1];P.gy=GH(P.x,P.z);P.vy=0;P.air=0;
@@ -65,7 +67,7 @@ const e=r.e;e.position.set(nx,gc+DRV.yo,nz);e.rotation.y=DRV.h;e.rotation.x=DRV.
 const c=Math.cos(DRV.h),sn=Math.sin(DRV.h),lx=-.42,lz=-DRV.len*.06;P.x=nx+lx*c+lz*sn;P.z=nz-lx*sn+lz*c;P.gy=gc;P.vy=0;P.air=0;P.st=1;
 DRV.cy=gc+DRV.yo+1.18+Math.sin(performance.now()*.03*Math.min(1,Math.abs(v)/20))*.012*Math.min(1,Math.abs(v)/10);DRV.bump=0;
 if(DRV.lt)DRV.lt.visible=drvNight();DRV.hn=Math.max(0,DRV.hn-dt);if(mdown&&DRV.hn<=0){DRV.hn=.8;snd(330,.4,.25,'square');snd(415,.4,.2,'square');noise(P.x,P.z,38)}
-if(DRV.snd&&AC){const th=f>0?1:0;DRV.snd.o.frequency.value=38+Math.abs(v)*5.5+th*10;DRV.snd.g.gain.value=.03+.03*Math.min(1,Math.abs(v)/15)+th*.015}
+if(DRV.snd&&AC){const th=f>0?1:0;DRV.rpm=(DRV.rpm===undefined?0:DRV.rpm)+(drvRpm(v,DRV.vmax,th)-(DRV.rpm||0))*Math.min(1,dt*9);DRV.snd.o.frequency.value=34+DRV.rpm*72;DRV.snd.g.gain.value=.03+.03*Math.min(1,Math.abs(v)/15)+th*.015}
 if(!DRV.spd){const d=document.createElement('div');d.style.cssText='position:fixed;right:24px;bottom:110px;font:20px monospace;color:#dfe8d0;text-shadow:0 0 4px #000;pointer-events:none;z-index:6';document.body.appendChild(d);DRV.spd=d}
 DRV.spd.style.display='block';DRV.spd.textContent=Math.round(Math.abs(v)*3.6)+' km/h'+(r.hp<r.max*.6?' · ⚠':'');if(DRV.hint)DRV.hint.style.display='none'}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&DRV.on){DRV.fp=!DRV.fp;if(DRV.fp)P.pitch=0}});

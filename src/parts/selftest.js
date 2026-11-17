@@ -281,6 +281,25 @@ T('Convoi et végétation : route dégagée, véhicules sur les bas-côtés, ni 
 for(const v of cv){if(Math.abs(v[1]-CT.ax)<5.6)return'véhicule sur la chaussée '+v[1];if(BRG.some(b=>Math.abs(v[1]-b.x)<14&&Math.abs(v[2]-b.z)<b.hl+6))return'véhicule sur un pont '+v[2];if(wDist(v[1],v[2])<10)return'véhicule près de l’eau'}
 for(let i=0;i<VEHS.length;i++)for(let j=i+1;j<VEHS.length;j++)if(Math.hypot(VEHS[i][1]-VEHS[j][1],VEHS[i][2]-VEHS[j][2])<4)return'véhicules superposés '+VEHS[i][0]+'/'+VEHS[j][0];
 const bad=(window.TRE||[]).filter(t=>Math.abs(t.x-CT.ax)<4.1&&!(t.z<CT.z1+6&&t.z>CT.z0-6));if(bad.length)return bad.length+' arbres sur la route (ex. '+bad[0].x.toFixed(1)+','+bad[0].z.toFixed(1)+')';return''});
+// v59-veh2 : décors Sketchfab et conduite : un véhicule lancé de face est arrêté par chaque décor haut, la navigation des bots le contourne, aucun arbre ne traverse un décor
+T('Props 3D (v59) : un véhicule ne traverse aucun décor (épave, container, hélicoptère, pylône...), navigation bloquée, pas d’arbre dans l’emprise',()=>{const sv=dvSv(),nv=NAVB.slice(),tre0=TRE.length;let msg='';const added=[];
+try{$('ov').style.display='none';
+ for(const nm of ['cmdtent','generator','mast','carwreck','tankwreck','fueltank','container','heli','pallets','jersey','floodlight']){const[x0,z0]=dvSpot(),V=dvMk(x0,z0);let it=null;
+  try{it=p3dPut(nm,x0,z0-20,.4,GH(x0,z0-20));added.push(it);const b=it.box;
+   const ci=Math.round((it.z+MH)/NS-.5)*NGN+Math.round((it.x+MH)/NS-.5);if(NAVB[ci]!==1)msg+=nm+' : cellule de navigation du centre libre ; ';
+   P.x=x0+2;P.z=z0;P.gy=GH(P.x,P.z);drvEnter(V.r);if(!DRV.on){msg+=nm+' : montée impossible ; ';continue}DRV.h=0;K.KeyW=true;let inside=0;
+   for(let i=0;i<160;i++){drvTick(.05);if(DRV.x>b.x0&&DRV.x<b.x1&&DRV.z>b.z0&&DRV.z<b.z1&&b.y1>GH(DRV.x,DRV.z)+.35)inside=1}
+   K.KeyW=false;if(inside)msg+=nm+' : le véhicule est entré dans le décor ; ';
+   if(DRV.z<b.z0-1)msg+=nm+' : le véhicule a traversé le décor ; ';
+   K.KeyS=true;const zs=DRV.z;for(let i=0;i<60;i++)drvTick(.05);K.KeyS=false;if(!(DRV.z>zs+1.5)&&DRV.z<b.z1+8)msg+=nm+' : véhicule coincé contre le décor (marche arrière impossible) ; ';
+  }finally{K.KeyW=K.KeyS=false;V.done()}}
+ // arbre : un décor n'est jamais posé sur un tronc, ni sur un autre décor (emprise rectangulaire)
+ const[xs,zs]=dvSpot();TRE.push({x:xs,z:zs,r:.4,h:8,y:GH(xs,zs)});if(p3dOK(xs,zs,2))msg+='décor posé sur un arbre ; ';TRE.length=tre0;
+ const it2=p3dPut('pallets',xs,zs,.3,GH(xs,zs));added.push(it2);const q=it2.box;if(p3dOK(q.x1+.5,q.z1+.5,1.2))msg+='décor posé dans l’angle d’un autre décor ; ';
+ return msg}finally{TRE.length=tre0;K.KeyW=K.KeyS=false;for(const it of added){S.remove(it.g);let i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);i=P3D.list.indexOf(it);if(i>=0)P3D.list.splice(i,1);it.g.children.forEach(m=>{let j=solids.indexOf(m);if(j>=0)solids.splice(j,1);j=ray.indexOf(m);if(j>=0)ray.splice(j,1)})}NAVB.set(nv);dvRs(sv)}});
+T('Conduite (v59) : le régime moteur monte dans chaque rapport et retombe au passage',()=>{const f=v=>drvRpm(v,28,0);if(!(f(0)<f(4)&&f(4)<f(5)))return'régime non croissant dans le 1er rapport';
+ const w=28/5;if(!(f(w-.2)>f(w+.3)+.15))return'pas de chute de régime au passage de rapport : '+f(w-.2)+' -> '+f(w+.3);if(!(drvRpm(10,28,1)>drvRpm(10,28,0)))return'l’accélérateur n’ajoute pas de régime';
+ for(let v=0;v<=30;v+=.5){const q=drvRpm(v,28,1);if(!(q>=0&&q<=1))return'régime hors bornes '+q}return''});
 T('Conduite : accélération, direction, collision, freinage, descente',()=>{const D=dstS(),e=new THREE.Group(),sv=[P.x,P.z,P.gy,P.st,P.yaw,K.KeyW,K.KeyA,K.Space,$('ov').style.display],[x0,z0]=dvSpot();e.add(new THREE.Mesh(new THREE.BoxGeometry(2.2,1.4,4.6),new THREE.MeshStandardMaterial()));e.position.set(x0,GH(x0,z0),z0);S.add(e);
 const px=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.5,4.6),new THREE.MeshBasicMaterial()),bx={x0:x0-1.2,x1:x0+1.2,z0:z0-2.3,z1:z0+2.3,y0:0,y1:1.5},wall={x0:x0-3,x1:x0+3,z0:z0-44,z1:z0-40,y0:0,y1:3};boxes.push(bx,wall);px.position.set(x0,GH(x0,z0)+.75,z0);S.add(px);dstVeh(e,px,bx,x0,GH(x0,z0),z0);const r=px.userData.dst;let msg='';$('ov').style.display='none';
 try{P.x=x0+2;P.z=z0;P.gy=GH(P.x,P.z);if(drvNear()!==r)return'véhicule non détecté';drvEnter(r);if(!DRV.on||boxes.includes(bx))return'montée';K.KeyW=true;for(let i=0;i<60;i++)drvTick(.05);if(!(DRV.v>8)||!(DRV.z<z0-8))return'accélération '+DRV.v+' '+(z0-DRV.z);
