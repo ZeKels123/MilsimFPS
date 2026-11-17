@@ -14,6 +14,7 @@ function vsAds(){if(!vsOk()){ads=false;return}
 function vsSway(){const a=vsAmp();if(a<=0||ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001;C.rotation.x+=a*(Math.sin(t*1.3)+.5*Math.sin(t*2.9+1));C.rotation.y+=a*(Math.sin(t*1.1+2)+.5*Math.sin(t*2.3))}
 let _vsH=0,_vsV=null;
 function vsFrame(sc){
+ if(sc&&!bench)handL.visible=handR.visible=false;
  if(sc&&!_vsH&&gun.visible&&!DRV.on&&!bench){gun.visible=false;_vsH=1}
  else if(!sc&&_vsH){_vsH=0;if(!DRV.on&&!(P.hp<=0)&&!bench)gun.visible=true}
  if(!_vsV){_vsV=document.createElement('div');_vsV.style.cssText='position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 50%,transparent 36%,rgba(0,0,0,.5) 100%)';document.body.appendChild(_vsV)}
