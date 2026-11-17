@@ -254,9 +254,6 @@ rep("function sfxShot(x,y,z,ty,vol){","function sfxShot0(x,y,z,ty,vol){")
 rep("aiUpdate(dt,inz);nadeUpdate(dt,inz);\n","aiUpdate(dt,inz);nadeUpdate(dt,inz);balTick(dt);\n")
 a=s.index("for(let n=0;n<c.pel;n++){\nconst d=new THREE.Vector3(rnd(-sp,sp)");b=s.index("const k=(A.grip?.6:1)*.014*c.rec")
 s=s[:a]+"for(let n=0;n<c.pel;n++){\nconst d=new THREE.Vector3(rnd(-sp,sp),rnd(-sp,sp),-1).normalize().applyQuaternion(C.quaternion);balPlayer(o,d,c,n)}\n"+s[b:]
-open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
-open(P+'../index.html','w',encoding='utf-8').write(s)
-
 # ---- visée v59 : table par arme, maintien/bascule, annulation, balancement, vignette
 rep("ads=ads&&!reloading&&!bench&&!HNOADS()&&!HM.act;adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS());","vsAds();adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS()*vsRate());")
 rep("?62/3:SIGHT[sk].fov,tf=","?62/3:(sk==='iron'?vsIronFov():SIGHT[sk].fov),tf=")
@@ -265,6 +262,9 @@ rep("camFx(dt);hlCam(dt)}","camFx(dt);hlCam(dt);vsSway()}")
 rep("if(e.button===2)ads=true;","if(e.button===2){VSB.b=1;ads=SET.adsTog?!ads:true}")
 rep("if(e.button===2)ads=false});","if(e.button===2){VSB.b=0;if(!SET.adsTog)ads=false}});")
 rep("balRet(sc,dt);","balRet(sc,dt);vsFrame(sc);")
+open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
+open(P+'../index.html','w',encoding='utf-8').write(s)
+
 # vérification de syntaxe du script principal (échoue le build si une erreur casserait tout le jeu)
 import re,subprocess,shutil,tempfile,os
 if shutil.which('node'):
