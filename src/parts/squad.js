@@ -26,7 +26,7 @@ const r=init?13:9;for(let t=0;t<60;t++){const x=c[0]+rnd(-r,r),z=c[1]+rnd(-r,r);
 {const sq_sp0=spawn;spawn=function(b){sq_sp0(b);try{sqPlace(b,false)}catch(e){}}}
 const _fv3=new THREE.Vector3(),_fv4=new THREE.Vector3();
 function sqTick(dt){if(!sqInit_)sqBuild();pmTick(dt);
-for(const q of SQ){const al=sqRoles(q);if(!al.length){q.ret=0;continue}q.aT-=dt;sqChef(q,al);
+for(const q of SQ){const al=sqRoles(q);if(!al.length){q.ret=0;continue}q.aT-=dt;q.cA=(q.cA||0)+dt;sqChef(q,al);
 // contact : la position du joueur est partagée dans l'escouade
 if(al.some(b=>b.see)){q.lk.x=P.x;q.lk.z=P.z;q.t=7}else q.t=Math.max(0,q.t-dt);
 // pertes récentes
@@ -34,7 +34,7 @@ const dead=q.n0-al.length;if(q.dead0===undefined)q.dead0=0;if(dead>q.dead0){q.lo
 const hurt=al.reduce((s,b)=>s+sqHurt(b),0)/al.length;
 if(!q.ret&&q.t>0&&((q.lost>0&&al.length<=Math.ceil(q.n0/2))||hurt>.5)&&al.length>0){q.ret=22;q.fb=null;feed('Une escouade se replie');{const l_=sqLeader(al);if(l_)sqIssue(q,'ret',l_,al.filter(b=>b!==l_))}}
 if(q.ret>0){q.ret-=dt;if(!q.fb||q.aT<=0){q.aT=5;const g0=al[0].g.position;let best=null;for(let n=0;n<24;n++){const a=Math.atan2(g0.x-P.x,g0.z-P.z)+rnd(-.6,.6),r=rnd(30,48),x=g0.x+Math.sin(a)*r,z=g0.z+Math.cos(a)*r;if(!nFree(x,z)||Math.hypot(x-P.x,z-P.z)<35)continue;best=[x,z];break}q.fb=best||(q.fb||[g0.x,g0.z]);
-al.forEach((b,i)=>{if(b.lvl||b.route)return;b.fleeT=6;b.heal=null;goTo(b,q.fb[0]+rnd(-3,3),q.fb[1]+rnd(-3,3),2.4,'cov')})}
+al.forEach((b,i)=>{if(b.lvl||b.route||b.sur)return;b.fleeT=6;b.heal=null;goTo(b,q.fb[0]+rnd(-3,3),q.fb[1]+rnd(-3,3),2.4,'cov')})}
 if(q.ret<=0)q.fb=null;continue}
 sqCmd(q,al,dt);sqOrders(q,al,dt);
 // appui : tir de suppression sur la dernière position connue quand personne ne voit le joueur
@@ -75,7 +75,7 @@ return{k,pts,i:0,halt:0,wt:0,T:k==='ambush'?rnd(60,100):rnd(70,130),a0:rnd(0,6.2
 function sqCmd(q,al,dt){const lead=q.chef;if(!lead||al.length<2)return;
 if(q.t>0||al.some(b=>b.alert||b.see||b.fleeT>0)){q.mis=null;return}
 if(lead.heal||lead.lvl||lead.route||lead.stun>0||lead.sur||lead.dorm)return;
-let m=q.mis;if(!m||m.T<=0){m=q.mis=sqNewMis(q,lead);q.mT=0;try{if(m.k==='ambush')sqSay(lead,'oAmb');else if(q.rev){q.rev=0;sqSay(lead,'oRev')}else if(m.k!=='guard'&&Math.random()<.6)sqSay(lead,'oMove')}catch(e){}}
+q.cA=0;let m=q.mis;if(!m||m.T<=0){m=q.mis=sqNewMis(q,lead);q.mT=0;try{if(m.k==='ambush')sqSay(lead,'oAmb');else if(q.rev){q.rev=0;sqSay(lead,'oRev')}else if(m.k!=='guard'&&Math.random()<.6)sqSay(lead,'oMove')}catch(e){}}
 m.T-=dt;const wp=m.pts[m.i%m.pts.length],lg=lead.g.position,d=Math.hypot(wp[0]-lg.x,wp[1]-lg.z);
 if(m.k==='ambush'&&m.set&&m.sp!==1){const dm=Math.min(...al.map(b=>Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)));if(dm<26){m.sp=1;al.forEach(b=>aiAlert(b,P.x,P.z,.5));q.mis=null;try{sqSay(lead,'oCover')}catch(e){}return}if(dm>230){q.mis=null;return}}
 const mem=[lead].concat(al.filter(b=>b!==lead&&!b.heal&&!b.lvl&&!b.route&&b.stun<=0&&!b.unarm&&!b.sur));const n=mem.length;
@@ -86,7 +86,7 @@ if(d<7||m.wt>50){m.halt=m.k==='search'?rnd(8,14):rnd(5,9);if(Math.random()<.5)tr
 q.mT=(q.mT||0)-dt;if(q.mT>0)return;q.mT=3.2;const hd=Math.atan2(wp[0]-lg.x,wp[1]-lg.z);q.fm=m.k==='search'?'wedge':(d>45?'col':'line');
 mem.forEach((b,i)=>{if(b.st!=='pat'&&b.st)return;const t=i===0?wp:sqSlotPos(q.fm,wp,hd,i,n),x=nFree(t[0],t[1])?t[0]:wp[0],z=nFree(t[0],t[1])?t[1]:wp[1];
 if(i===0||Math.hypot(b.g.position.x-x,b.g.position.z-z)>2.8){const far=Math.hypot(b.g.position.x-lg.x,b.g.position.z-lg.z);if(goTo(b,x,z,i===0?1:(far>14?1.2:1),'pat')){b.wait=0}else if(i===0){m.i++;m.wt=0}}})}
-{const aT_=aiThink;aiThink=function(b){const q=b.sq;if(q&&q.mis&&b.st==='pat'&&!b.path&&!b.alert&&!b.see&&!b.heal&&!b.lvl&&!b.route&&!b.sur&&!(b.fleeT>0)&&b.seenT>3){b.decT=rnd(.55,1.05);return}return aT_(b)}}
+{const aT_=aiThink;aiThink=function(b){const q=b.sq;if(q&&q.mis&&(q.cA||0)<4&&b.st==='pat'&&!b.path&&!b.alert&&!b.see&&!b.heal&&!b.lvl&&!b.route&&!b.sur&&!(b.fleeT>0)&&b.seenT>3){b.decT=rnd(.55,1.05);return}return aT_(b)}}
 
 // ---- tireur en hauteur : un tireur d'élite prend un poste en surplomb (et, si le joueur joue souvent en hauteur, un deuxième homme aussi)
 function sqOverwatch(q,mem,m,wp){let n=0;const hab=pmHabitHigh();for(const b of mem){if(b.lvl||b.route||b.dead)continue;if(b.ty===2||(hab&&b.ty<2&&n===1)){b.lk.x=P.x;b.lk.z=P.z;if(aiPost(b,b.ty))n++}}return n}

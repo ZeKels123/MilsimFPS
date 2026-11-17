@@ -1,7 +1,7 @@
 const BOT_CORPSE=60;
 
 // ================= IA DES BOTS (v5) : navigation A*, couvert, contournement, poursuite, grenades =================
-const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={dorm:220,flank:null,nadeCd:4,budget:0,poi:[],kills:0,nz:0,tick:0};
+const NS=.75,NGN=Math.ceil(2*MH/NS),NAVB=new Uint8Array(NGN*NGN),NAVC=new Float32Array(NGN*NGN),AI={dorm:220,flank:null,nadeCd:4,budget:0,spent:0,tb:4,ejT:2,poi:[],kills:0,nz:0,tick:0};
 const nIdx=(x,z)=>{const i=Math.floor((x+MH)/NS),j=Math.floor((z+MH)/NS);return i<0||j<0||i>=NGN||j>=NGN?-1:j*NGN+i},nFree=(x,z)=>{const k=nIdx(x,z);return k>=0&&!NAVB[k]},nX=k=>-MH+(k%NGN+.5)*NS,nZ=k=>-MH+((k/NGN|0)+.5)*NS;
 function navBuild(){NAVB.fill(0);NAVC.fill(0);const db=new Set(doors.map(d=>d.box)),m=.3;
 for(const o of boxes){if(db.has(o)||o.y0>1.7)continue;const i0=Math.max(0,Math.ceil((o.x0-m+MH)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+MH)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+MH)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+MH)/NS-.5));for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++)NAVB[j*NGN+i]=1}
@@ -30,7 +30,7 @@ function aiSpawnOk(x,z){try{return nFree(x,z)&&Math.hypot(x-P.x,z-P.z)>38}catch(
 function navEject(){for(const b of bots){if(b.dead||b.lvl||b.route)continue;const g=b.g.position;if(nFree(g.x,g.z))continue;const k=nSnap(g.x,g.z);if(k>=0&&!NAVB[k]){g.x=nX(k);g.z=nZ(k);b.path=null;b.stuck=0}}}
 function aiRelPost(b){if(b.after){if(b.after.h)b.after.h.occ=Math.max(0,(b.after.h.occ||1)-1);if(b.after.post)b.after.post.occ=0;b.after=null}else if(b.hh){b.hh.occ=Math.max(0,(b.hh.occ||1)-1);if(b.rp)b.rp.occ=0;b.hh=b.rp=null}}
 function aiReset(b,ty){aiRelPost(b);b.ty=ty;b.st='pat';b.path=null;b.pi=0;b.spK=1;b.lk={x:0,z:0};b.seenT=99;b.alert=0;b.see=false;b.seeT=rnd(0,.3);b.decT=rnd(0,1);b.react=0;b.mag=[12,24,4,70][ty];b.relT=0;b.shots=0;b.burst=0;b.nadeCd=rnd(6,14);b.stun=0;b.blind=0;b.fleeT=0;b.cr=0;b.crA=0;b.stuck=0;b.srch=0;b.ran=0;b.thr=0;b.lvl=0;b.route=null;b.after=null;b.hold=0;b.down=0;b.onv=0;b.wp.visible=true;b.bl=null;b.dair=0;b.dv=null;b.g.rotation.z=0;b.fy=GH(b.g.position.x,b.g.position.z);b.yaw=rnd(0,6.28);b.wait=0;b.g.rotation.y=b.yaw;b.sur=0;b.looted=0;b.mor=1;b.pnc=0;b.rcg=0;b.tdis=null;b.heal=null;b.evac=null;b.evacBy=null;b.ordCover=0;b.mcall=0;bhInit(b)}
-function goTo(b,x,z,spK,st){if(AI.budget<=0){b.decT=.06;return false}AI.budget--;const g=b.g.position,p=navPath(g.x,g.z,x,z);if(!p){b.path=null;return false}b.path=p;b.pi=0;b.spK=spK;b.st=st;b.cr=0;b.stuck=0;return true}
+function goTo(b,x,z,spK,st){if(AI.budget<=0||AI.spent>AI.tb){b.decT=.06;return false}AI.budget--;const g=b.g.position,t0_=performance.now(),p=navPath(g.x,g.z,x,z);AI.spent+=performance.now()-t0_;if(!p){b.path=null;return false}b.path=p;b.pi=0;b.spK=spK;b.st=st;b.cr=0;b.stuck=0;return true}
 function aiAlert(b,x,z,t){if(b.dead||b.blind>0)return;b.lk.x=x;b.lk.z=z;if(!b.alert||b.seenT>t){b.seenT=t;b.srch=0;if(!b.alert){b.alert=1;b.decT=Math.min(b.decT,rnd(.15,.5));b.react=rnd(.3,.7)}}}
 function aiHit(b){if(b.dead)return;aiAlert(b,P.x,P.z,.4);b.seenT=Math.min(b.seenT,.4);b.decT=Math.min(b.decT,.2);const g=b.g.position;for(const o of bots)if(o!==b&&!o.dead&&Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z)<20)aiAlert(o,P.x+rnd(-3,3),P.z+rnd(-3,3),1.5)}
 function findCover(b,tx,tz,far){const g=b.g.position;let best=null,bs=1e9;for(let n=0;n<34;n++){const a=rnd(0,6.28),r=rnd(2.5,far||15),x=g.x+Math.cos(a)*r,z=g.z+Math.sin(a)*r;if(!nFree(x,z))continue;const dt_=Math.hypot(x-tx,z-tz);if(dt_<7)continue;
@@ -80,7 +80,7 @@ function botDie(b){if(b.dead)return;b.dead=BOT_CORPSE;botDeath(b,false)}
 // ombre : à l'ombre (abri du soleil ou pièce non éclairée) les bots te voient moins loin
 const SHD={t:0,k:1,v:1};
 function shadeK(dt){SHD.t-=dt;if(SHD.t<=0){SHD.t=.35;let sh=false;if(P.gy!==undefined){const ri=inRoom(P.x,P.z);if(ri>=0&&P.gy+1<roofTop(P.x,P.z))sh=!(typeof ILON!=='undefined'&&ILON);else if(SUND.y>.12){_la.set(P.x,P.gy+P.bh,P.z);RC.set(_la,SUND);RC.far=60;for(const h of RC.intersectObjects(ray))if(!h.object.userData.glass){sh=true;break}}}SHD.k=sh?.62:1}SHD.v+=(SHD.k-SHD.v)*Math.min(1,dt*3);return SHD.v}
-function aiUpdate(dt,inz){dwUpdate(dt);AI.budget=6;sqTick(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45*moonVis()):1)*(.3+.7*Math.min(1,wcur[3]*1.4))*shadeK(dt),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
+function aiUpdate(dt,inz){dwUpdate(dt);AI.spent=0;if((AI.ejT-=dt)<=0){AI.ejT=2;navEject()}AI.budget=6;sqTick(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45*moonVis()):1)*(.3+.7*Math.min(1,wcur[3]*1.4))*shadeK(dt),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
 if(NZ.n!==AI.nz){const n0=AI.nz|0;AI.nz=NZ.n;for(const z of NZ.q){if(z.n<=n0)continue;for(const b of bots){if(b.dead)continue;const d=Math.hypot(b.g.position.x-z.x,b.g.position.z-z.z);if(d<z.r&&!b.see){const e=1+d*.07;aiAlert(b,z.x+rnd(-e,e),z.z+rnd(-e,e),1.2)}}}}
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*NT.length|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
@@ -92,7 +92,7 @@ b.seeT-=dt;if(b.seeT<=0){b.seeT=rnd(.18,.3);const sdt_=b.seeT;let s=false;if(tgt
 s=percGate(b,s,pd,sdt_);if(s&&!b.see){if(!b.alert||b.seenT>3)b.react=rnd(.35,.8)*(b.ty===2?1.5:1);b.decT=Math.min(b.decT,.1);b.alert=1}b.see=s;
 if(s){b.lk.x=P.x;b.lk.z=P.z;b.seenT=0;b.srch=0;for(const o of bots)if(o!==b&&!o.dead&&!o.see&&o.seenT>2&&Math.hypot(o.g.position.x-g.x,o.g.position.z-g.z)<32)aiAlert(o,P.x+rnd(-2,2),P.z+rnd(-2,2),1.5)}}
 // grenades proches : fuite
-if(b.fleeT>0)b.fleeT-=dt;else if(b.stun<=0&&!b.lvl&&!b.route)for(const n of NADE.list){if(n.type||n.t>2.4)continue;const d=Math.hypot(n.p.x-g.x,n.p.z-g.z);if(d<6.5&&(b.blind<=0)){const a=Math.atan2(g.x-n.p.x,g.z-n.p.z)+rnd(-.5,.5);AI.budget++;if(goTo(b,g.x+Math.sin(a)*11,g.z+Math.cos(a)*11,2.7,'fle')){b.fleeT=n.t+.3;b.decT=b.fleeT}break}}
+if(b.fleeT>0)b.fleeT-=dt;else if(b.stun<=0&&!b.lvl&&!b.route)for(const n of NADE.list){if(n.type||n.t>2.4)continue;const d=Math.hypot(n.p.x-g.x,n.p.z-g.z);if(d<6.5&&(b.blind<=0)){const a=Math.atan2(g.x-n.p.x,g.z-n.p.z)+rnd(-.5,.5);AI.budget++;AI.spent=0;if(goTo(b,g.x+Math.sin(a)*11,g.z+Math.cos(a)*11,2.7,'fle')){b.fleeT=n.t+.3;b.decT=b.fleeT}break}}
 b.decT-=dt;if(b.decT<=0)aiThink(b);
 // déplacement
 if((b.stun>0||b.blind>0)&&(b.lvl||b.route)){b.path=null}else if(b.stun>0||b.blind>0){b.path=null;const a=b.tm*1.3+i,sp=bt.sp*.35*dt,nx=g.x+Math.sin(a)*sp,nz=g.z+Math.cos(a*1.3)*sp;if(nFree(nx,nz)){g.x=nx;g.z=nz}}else if(b.route)aiRoute(b,dt);else if(b.thr<=0)aiMove(b,dt);

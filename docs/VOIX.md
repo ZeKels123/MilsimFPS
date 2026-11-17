@@ -93,8 +93,8 @@ Mis à jour le 2026-11-15 · 84 phrases · 3 enregistrées
 
 ## Annonces horaires (assemblées)
 
-« Contact *H* heures, *D* mètres ! » et « Perdu de vue, dernier contact *H* heures, *D* mètres. » : H de 1 à 12, D arrondi à 10 m (10, 20, 30…).
-Pour des voix enregistrées il faut : « Contact », « Perdu de vue, dernier contact », les nombres 1 à 12, « heures », les distances 10 à 100 m, « mètres ».
+« Contact *H* heures, *D* mètres ! » et « Perdu de vue, dernier contact *H* heures, *D* mètres. » : H de 1 à 12 (« 1 heure » au singulier, « heures » sinon), D arrondi à 10 m (10, 20, 30…).
+Pour des voix enregistrées il faut : « Contact », « Perdu de vue, dernier contact », les nombres 1 à 12, « heure » (pour 1), « heures », les distances 10 à 100 m, « mètres ».
 
 ## Sons non dialogués souhaités (pas encore dans le jeu)
 
