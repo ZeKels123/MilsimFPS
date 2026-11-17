@@ -13,7 +13,7 @@ for(const k in BAM){const a=BAM[k];a.A=Math.PI*a.d*a.d/4}
 const BCD=[[0,.26],[.7,.27],[.9,.33],[1,.46],[1.1,.56],[1.3,.6],[1.6,.54],[2,.47],[2.6,.41],[3.5,.37],[9,.33]];
 function balCd(M){for(let i=1;i<BCD.length;i++)if(M<=BCD[i][0]){const a=BCD[i-1],b=BCD[i];return a[1]+(b[1]-a[1])*(M-a[0])/(b[0]-a[0])}return .33}
 const BAL={rho:1.225,max:64,bl:[],pv:new THREE.Vector3(),pp:new THREE.Vector3(),pOk:0,tab:{},zr:{},tn:0,tg:null,t:0,tm:[],ti:0,wx:0,wz:0,hits:0};
-function balAm(c){const n=c.n;return n==='Mitrailleuse HMG'?'b50':n==='Fusil'?'r556':n==='MP9'?'p9':n==='Pistolet'?'pis':/pompe|Reclamer/.test(n)?'bk':'r762'}
+function balAm(c){const n=c.n;return n==='Mitrailleuse HMG'||n==='Signal 50'?'b50':n==='Fusil'?'r556':n==='MP9'?'p9':n==='Pistolet'?'pis':/pompe|Reclamer/.test(n)?'bk':'r762'}
 // intégrateur : q={px,py,pz,vx,vy,vz,a}
 function balStep(q,h,wx,wz){const rx=q.vx-wx,ry=q.vy,rz=q.vz-wz,sp=Math.sqrt(rx*rx+ry*ry+rz*rz)||1e-6,M=sp/343,cd=q.a.sph?(M<.8?.45:.55):balCd(M)*q.a.ff,k=.5*BAL.rho*cd*q.a.A/q.a.m*sp;
 q.vx-=k*rx*h;q.vy-=(9.81+k*ry)*h;q.vz-=k*rz*h;q.px+=q.vx*h;q.py+=q.vy*h;q.pz+=q.vz*h}
@@ -22,6 +22,10 @@ function balSim(am,th,R,wz){const a=BAM[am],q={px:0,py:0,pz:0,vx:a.v*Math.cos(th
 while(q.px<R&&t<6&&Math.hypot(q.vx,q.vy)>40){balStep(q,h,0,wz||0);t+=h}return{y:q.py,t,v:Math.hypot(q.vx,q.vy),z:q.pz}}
 function balAngle(am,R){let lo=0,hi=.2;for(let i=0;i<22;i++){const m=(lo+hi)/2;if(balSim(am,m,R).y<0)lo=m;else hi=m}return(lo+hi)/2}
 function balZero(am){return BAL.zr[am]!==undefined?BAL.zr[am]:(BAL.zr[am]=balAngle(am,BAM[am].z))}
+// hausse propre à chaque arme (BZM[indice] en m) : deux armes de même calibre (Signal 50 et HMG) ne partagent plus leur réglage ; par défaut la distance du calibre
+const BZM={};
+function balZm(c){const i=WC.indexOf(c),a=BAM[balAm(c)];return BZM[i]!==undefined?BZM[i]:a.z}
+function balZeroW(c){const am=balAm(c),z=balZm(c),k=am+':'+z;return BAL.zr[k]!==undefined?BAL.zr[k]:(BAL.zr[k]=balAngle(am,z))}
 // table pour les bots : angle de tir et durée de vol par tranche de 25 m jusqu'à 600 m
 function balComp(am,D){let t=BAL.tab[am];if(!t){t=BAL.tab[am]={ang:[],tof:[]};for(let r=0;r<=24;r++){const R=Math.max(5,r*25),an=balAngle(am,R);t.ang.push(an);t.tof.push(balSim(am,an,R).t)}}
 const f=Math.max(0,Math.min(24,D/25)),i=Math.min(23,f|0),k=f-i;return{ang:t.ang[i]+(t.ang[i+1]-t.ang[i])*k,tof:t.tof[i]+(t.tof[i+1]-t.tof[i])*k}}
@@ -36,7 +40,7 @@ const v=a.v*(x.vk||1),q={px:o.x,py:o.y,pz:o.z,vx:d.x*v,vy:d.y*v,vz:d.z*v,a,am,sr
 if(x.tr){q.m=balMesh();q.m.visible=false;q.tr=1}BAL.bl.push(q);return q}
 // tir du joueur : réglage à zéro de l'arme (visée = point d'impact à la distance de réglage)
 const _bu=new THREE.Vector3(),_bo=new THREE.Vector3(),_bd=new THREE.Vector3(),_bp=new THREE.Vector3(),_bq=new THREE.Vector3();
-function balPlayer(o,d,c,n){const am=balAm(c);d.addScaledVector(_bu.set(0,1,0).applyQuaternion(C.quaternion),Math.tan(balZero(am))).normalize();
+function balPlayer(o,d,c,n){const am=balAm(c);d.addScaledVector(_bu.set(0,1,0).applyQuaternion(C.quaternion),Math.tan(balZeroW(c))).normalize();
 balSpawn(o,d,am,{src:'p',c,n,tr:am!=='bk'&&(BAL.tn++%3===0),off:MZ.clone().sub(o)})}
 // tir d'un bot : erreur de visée (loi normale), compensation de chute et anticipation du déplacement du joueur
 function balBotAm(b){return b.ty===0?'p9':b.ty===1?'r556':b.ty===2?'r762':'r762'}
@@ -72,6 +76,11 @@ x=_br.intersectObject(h.object,false)[0];if(!x)return 1;th=Math.max(.005,1.5-x.d
 const kv=Math.max(.3,1-.75*th/D),j=.012*th/D;q.vx=(q.vx+(Math.random()-.5)*sp*j)*kv;q.vy=(q.vy+(Math.random()-.5)*sp*j)*kv;q.vz=(q.vz+(Math.random()-.5)*sp*j)*kv;
 q.px=x.point.x+dir.x*.03;q.py=x.point.y+dir.y*.03;q.pz=x.point.z+dir.z*.03;BAL.pen=(BAL.pen|0)+1;if(x.face&&Math.hypot(x.point.x-P.x,x.point.z-P.z)<45){_bn.copy(x.face.normal).transformDirection(x.object.matrixWorld);if(_bn.dot(dir)<0)_bn.negate();const sc2=impScale(q);_bp.copy(x.point);decalS(_bp,_bn,sc2*1.25*(mt.t==='wood'?1.2:1),mt.t==='veh'?'steel':mt.t==='plas'?'conc':mt.t);for(let i=0;i<Math.round(2+2*sc2);i++)emit(_bp,_e.set(dir.x,dir.y,dir.z).multiplyScalar(2+rnd(0,2)).add(_bx.set(rnd(-.6,.6),rnd(-.2,.8),rnd(-.6,.6))),{color:mt.t==='wood'?0xc9a56a:0xa8a49a,size:.025,life:.4,a:1,g:9,drag:.4})}
 if(Math.hypot(x.point.x-P.x,x.point.z-P.z)<60){_bp.copy(x.point);emit(_bp,_e.set(dir.x,dir.y+.3,dir.z),{color:0xb8a890,size:.1,grow:.6,life:.4,a:.4,drag:2})}return 0}
+// porte fermée (bois ~4,5 cm), règle commune au joueur et aux bots : la balle traverse si sa profondeur de pénétration dans le bois
+// (pen × munition × k bois × (vitesse/v0)²) dépasse l'épaisseur ; elle perd alors de la vitesse selon la part d'énergie absorbée. Plombs lointains et balles lentes sont arrêtés.
+const BDOOR=.045;
+function balDoor(q,h,dir){const sp=balSpd(q);if(sp<120)return 1;const D=q.a.pen*(q.apk||1)*BMT.wood.k*Math.pow(sp/q.a.v,2);if(D<=BDOOR)return 1;
+const kv=Math.max(.3,1-.75*BDOOR/D);q.vx*=kv;q.vy*=kv;q.vz*=kv;q.px=h.point.x+dir.x*.08;q.py=h.point.y+dir.y*.08;q.pz=h.point.z+dir.z*.08;BAL.pen=(BAL.pen|0)+1;return 0}
 function balTarget(){if(!BAL.tg)BAL.tg=[...ray,...botParts.filter(q=>!q.userData.bot.dead),...FA.hit.filter(q=>!q.userData.an.dead),...MQP];return BAL.tg}
 function balSpd(q){return Math.sqrt(q.vx*q.vx+q.vy*q.vy+q.vz*q.vz)}
 // segment d'un projectile : renvoie 1 si le projectile est arrêté
@@ -85,7 +94,7 @@ if(q.cb){q.cb(h,q);return 1}
 balPHit(h,q,fac);
 if(u.bot&&q.a.thru&&sp>350){q.sk.add(u.bot);q.vx*=.55;q.vy*=.55;q.vz*=.55;org.copy(h.point).addScaledVector(dir,.05);far-=h.distance+.05;continue}
 if(!u.bot&&!u.mq&&!u.an&&!u.barrel&&!u.door&&!u.glass&&!u.cb){if(balWall(h,q,org,dir)===0)return 0}
-if(u.door&&q.a.pen*(q.apk||1)*sp/900>.15){q.vx*=.6;q.vy*=.6;q.vz*=.6;q.px=h.point.x+dir.x*.08;q.py=h.point.y+dir.y*.08;q.pz=h.point.z+dir.z*.08;return 0}
+if(u.door&&balDoor(q,h,dir)===0)return 0
 return 1}
 // balle d'un bot : murs, puis le joueur
 RC.set(org,dir);RC.far=far;let wt=1e9,wh=null;for(const x of RC.intersectObjects(ray)){if(x.object.userData.glass){if(x.distance<wt)glassHit(x.object,x.point,dir);continue}wt=x.distance;wh=x;break}
@@ -93,7 +102,7 @@ const hr=hlRay(org,dir,Math.min(far,wt));
 if(hr&&hr.t<wt){_bp.copy(org).addScaledVector(dir,hr.t);hlApply(hr.z,q.dmg*balFac(q),'b',q.bot?q.bot.g.position:null);BAL.hits++;return 1}
 // claquement d'une balle qui passe près du joueur
 if(!q.wz&&P.gy!==undefined){_bq.set(P.x-org.x,P.gy+P.eh*.6-org.y,P.z-org.z);const t=Math.max(0,Math.min(far,_bq.dot(dir))),dd=_bq.sub(_bu.copy(dir).multiplyScalar(t)).length();if(dd<1.8&&t>1){q.wz=1;FXP.shake=Math.max(FXP.shake,.22);snd(rnd(1700,2500),.04,.07,'square');HM.pain=Math.min(1,HM.pain+.01)}}
-if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(!wh.object.userData.door&&balWall(wh,q,org,dir)===0)return 0;return 1}
+if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(wh.object.userData.door){if(balDoor(q,wh,dir)===0)return 0}else if(balWall(wh,q,org,dir)===0)return 0;return 1}
 return 0}
 return 0}
 function balTick(dt){BAL.t+=dt;if(P.gy!==undefined){if(BAL.pOk){BAL.pv.set((P.x-BAL.pp.x)/Math.max(dt,.001),0,(P.z-BAL.pp.z)/Math.max(dt,.001)).clampLength(0,7)}BAL.pp.set(P.x,0,P.z);BAL.pOk=1}
@@ -101,7 +110,9 @@ if(!BAL.bl.length)return;dt=Math.min(dt,.05);BAL.tg=null;balWind();const n=Math.
 for(let i=BAL.bl.length-1;i>=0;i--){const q=BAL.bl[i];_bo.set(q.px,q.py,q.pz);for(let s=0;s<n;s++)balStep(q,h,BAL.wx,BAL.wz);q.t+=dt;
 _bd.set(q.px-_bo.x,q.py-_bo.y,q.pz-_bo.z);const L=_bd.length();if(L<1e-6){continue}_bd.multiplyScalar(1/L);q.dist+=L;
 let end=balSeg(q,_bo,_bd,L);
-if(!end){const gy=GH(q.px,q.pz);if(q.py<gy-.2&&q.t>.02){end=1;if(Math.hypot(q.px-P.x,q.pz-P.z)<150)impactG(q,gy);}}
+if(!end&&q.t>.02){// sol : testé tous les ~1 m le long du segment (une crête fine ne doit pas être enjambée), premier point sous le terrain
+const ns=Math.max(1,Math.ceil(L)),x1=q.px,y1=q.py,z1=q.pz;for(let k=1;k<=ns;k++){const u=k/ns,sx=_bo.x+(x1-_bo.x)*u,sy=_bo.y+(y1-_bo.y)*u,sz=_bo.z+(z1-_bo.z)*u,gy=GH(sx,sz);
+if(sy<gy-(k===ns?.2:.05)){q.px=sx;q.py=sy;q.pz=sz;end=1;if(Math.hypot(sx-P.x,sz-P.z)<150)impactG(q,gy);break}}}
 if(!end&&(balSpd(q)<70||q.t>8||q.dist>1400||Math.abs(q.px)>lim||Math.abs(q.pz)>lim||q.py<-20))end=1;
 if(q.m){if(end)q.m.visible=false;else{const sp=balSpd(q),Ls=Math.min(14,Math.max(2.5,sp*.018)),w=.04+Math.hypot(q.px-C.position.x,q.pz-C.position.z)*.006;_bp.set(q.px,q.py,q.pz);if(q.off){const f=Math.max(0,1-q.dist/25);_bp.addScaledVector(q.off,f)}
 q.m.position.copy(_bp).addScaledVector(_bd,-Ls/2);q.m.scale.set(w,w,Ls);q.m.lookAt(_bq.copy(_bp));q.m.visible=q.dist>2}}
@@ -113,14 +124,14 @@ const BRT={c:null,x:null,k:'',t:0,dr:{}};
 function balDrift1(am,R){const k=am+R;return BRT.dr[k]!==undefined?BRT.dr[k]:(BRT.dr[k]=balSim(am,balAngle(am,R),R,1).z)}
 function balRet(on,dt){if(!on){if(BRT.c&&BRT.c.style.display!=='none')BRT.c.style.display='none';return}
 if(!BRT.c){const c=document.createElement('canvas');c.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none';$('scope').appendChild(c);BRT.c=c;BRT.x=c.getContext('2d')}
-const c=BRT.c;c.style.display='block';BRT.t-=dt;balWind();const W=innerWidth,H=innerHeight,am=balAm(WC[WSEL]),fv=C.fov,fw=C.getWorldDirection(_bu),fx=fw.x,fz=fw.z,hl=Math.hypot(fx,fz)||1,wx=BAL.wx,wz=BAL.wz,cross=(wx*(-fz)+wz*fx)/hl,head=(wx*fx+wz*fz)/hl,key=[W,H,fv.toFixed(2),am,cross.toFixed(1),head.toFixed(1)].join();
+const c=BRT.c;c.style.display='block';BRT.t-=dt;balWind();const W=innerWidth,H=innerHeight,am=balAm(WC[WSEL]),fv=C.fov,fw=C.getWorldDirection(_bu),fx=fw.x,fz=fw.z,hl=Math.hypot(fx,fz)||1,wx=BAL.wx,wz=BAL.wz,cross=(wx*(-fz)+wz*fx)/hl,head=(wx*fx+wz*fz)/hl,key=[W,H,fv.toFixed(2),am,balZm(WC[WSEL]),cross.toFixed(1),head.toFixed(1)].join();
 if(key===BRT.k&&BRT.t>0)return;BRT.k=key;BRT.t=.12;if(c.width!==W||c.height!==H){c.width=W;c.height=H}
 const g=BRT.x,cx=W/2,cy=H/2,ppm=(H/2)/Math.tan(fv*Math.PI/360)*.001,rad=Math.min(W,H)*.33;g.clearRect(0,0,W,H);g.strokeStyle='rgba(0,0,0,.92)';g.fillStyle='rgba(0,0,0,.92)';g.lineWidth=Math.max(1,ppm*.12);g.font=Math.max(10,rad*.035)+'px sans-serif';g.textBaseline='middle';
 // épaisseur du réticule : filets fins dans le tiers central
 const lim=rad*.92;g.lineWidth=Math.max(1,rad*.0025);g.beginPath();g.moveTo(cx-lim,cy);g.lineTo(cx-ppm*.6,cy);g.moveTo(cx+ppm*.6,cy);g.lineTo(cx+lim,cy);g.moveTo(cx,cy-lim);g.lineTo(cx,cy-ppm*.6);g.moveTo(cx,cy+ppm*.6);g.lineTo(cx,cy+lim);g.stroke();
 const dr=Math.max(1.2,ppm*.16);for(let m=-10;m<=10;m++){if(!m)continue;const px=cx+m*ppm,py=cy+m*ppm;if(Math.abs(m*ppm)<lim){g.beginPath();g.arc(px,cy,dr,0,7);g.fill();g.beginPath();g.arc(cx,py,dr,0,7);g.fill()}}
 // repères de chute : distances (m) pour lesquelles la balle passe n mil sous le point de réglage
-const z0=balZero(am);g.textAlign='left';g.lineWidth=Math.max(1,rad*.003);for(let R=Math.ceil(BAM[am].z/50)*50+50;R<=900;R+=50){const mil=(balAngle(am,R)-z0)*1000,py=cy+mil*ppm;if(py>cy+lim)break;
+const z0=balZeroW(WC[WSEL]);g.textAlign='left';g.lineWidth=Math.max(1,rad*.003);for(let R=Math.ceil(balZm(WC[WSEL])/50)*50+50;R<=900;R+=50){const mil=(balAngle(am,R)-z0)*1000,py=cy+mil*ppm;if(py>cy+lim)break;
 g.beginPath();g.moveTo(cx+dr*2.5,py);g.lineTo(cx+dr*2.5+rad*.05,py);g.stroke();g.fillText(R,cx+dr*2.5+rad*.06,py)}
 // vent : flèche (direction du vent par rapport au regard), force, dérive à 300 m en mil
 const sp=Math.hypot(wx,wz),ang=Math.atan2(cross,head),ax=cx-rad*.62,ay=cy+rad*.72;g.save();g.translate(ax,ay);g.rotate(Math.atan2(cross,-head)+Math.PI);
@@ -129,7 +140,8 @@ const mil300=cross*balDrift1(am,300)/300*1000;g.textAlign='left';g.fillText('VEN
 // point de visée corrigé du vent à 300 m
 if(Math.abs(mil300)>.05){const px=cx-mil300*ppm;g.beginPath();g.moveTo(px,cy-dr*3);g.lineTo(px,cy+dr*3);g.stroke()}}
 // le son d'un tir lointain arrive avec le retard dû à la vitesse du son
-function sfxShot(x,y,z,ty,vol) {const d=Math.hypot(x-P.x,z-P.z);if(d>60)setTimeout(()=>sfxShot0(x,y,z,ty,vol),Math.min(d,900)/343*1000);else sfxShot0(x,y,z,ty,vol)}
+// le retard du son (343 m/s) est appliqué une seule fois, par l'enveloppe de finitions.js (audDelay) ; cette version se contente de jouer le tir
+function sfxShot(x,y,z,ty,vol) {sfxShot0(x,y,z,ty,vol)}
 
 // ================= impacts selon le calibre (énergie de la balle) et le matériau touché =================
 for(const k in BAM){BAM[k].k=k}

@@ -105,7 +105,7 @@ WAT.uT.value=T;WAT.uRain.value=rn;WAT.uSunC.value.copy(sun.color).multiplyScalar
 const pdp=wDep(P.x,P.z),mvg=!!(K.KeyW||K.KeyA||K.KeyS||K.KeyD);WAT.uPl.value.set(P.x,P.z,Math.max(0,WAT.uPl.value.z+((pdp>.05&&mvg?1:0)-WAT.uPl.value.z)*Math.min(1,dt*3)));
 PWADE=pdp>.2?Math.max(.5,1-pdp*.55):1;if(pdp>.08&&mvg){FA.spT-=dt;if(FA.spT<=0){FA.spT=.34;snd(rnd(240,420),.12,.05,'triangle');for(let i=0;i<3;i++)emit(_fv.set(P.x+rnd(-.2,.2),WL+.05,P.z+rnd(-.2,.2)),_e.set(rnd(-.6,.6),rnd(.8,1.7),rnd(-.6,.6)),{color:0xcfe0e0,size:.07,life:.5,a:.5,g:5,grow:.2})}}
 if(!faInit){faInit=true;FA.rab.forEach((r,i)=>{faSpot(r,6,60,0,0);r.x=r.tx;r.z=r.tz});FA.deer.forEach((d,i)=>{faSpot(d,4,14,[-40,48,-20][i],[-45,20,55][i]);d.x=d.tx;d.z=d.tz})}
-if(NZ.n!==FA.nz){FA.nz=NZ.n;FA.scare=1.2;FA.sx=NZ.x;FA.sz=NZ.z;FA.sr=NZ.r}else FA.scare=Math.max(0,FA.scare-dt);
+if(NZ.n!==FA.nz){const n0=FA.nz|0;let z0=NZ;for(const z of NZ.q)if(z.n>n0&&z.r>(z0===NZ?0:z0.r))z0=z;FA.nz=NZ.n;FA.scare=1.2;FA.sx=z0.x;FA.sz=z0.z;FA.sr=z0.r}else FA.scare=Math.max(0,FA.scare-dt);
 // oiseaux
 const birdsOn=rn<.5;FA.birds.forEach((b,i)=>{if(b.dead){_fm.compose(b.p,_fq.set(0,0,0,1),_fs.set(0,0,0));FA.bm.setMatrixAt(i,_fm);return}if(b.st===1){// posé
 const th=Math.hypot(P.x-b.perch.x,P.z-b.perch.z)<9||(FA.scare>0&&Math.hypot(FA.sx-b.perch.x,FA.sz-b.perch.z)<Math.min(FA.sr,45));if(th){b.st=0;b.t=rnd(18,30);b.v.set(rnd(-2,2),4,rnd(-2,2))}else{b.yaw+=Math.sin(T*.7+i)*dt*.3;_fe.set(0,b.yaw,0);_fq.setFromEuler(_fe);_fm.compose(b.perch,_fq,_fs.set(.55,.55,.55));FA.bm.setMatrixAt(i,_fm);return}}

@@ -1,7 +1,8 @@
 let PWADE=1,PSTUN=1,GRASS=null,AMST=null,ALP=null;function AOUT(){if(!ALP){ALP=AC.createBiquadFilter();ALP.type='lowpass';ALP.frequency.value=20000;AMST=AC.createGain();ALP.connect(AMST);AMST.connect(AC['destination'])}return ALP}
 // ---- v5 : vent partagé, bruit entendu par la faune et les bots
-const WND={t:{value:0},s:{value:.3},d:{value:new THREE.Vector2(.8,.6)},p:{value:new THREE.Vector2(0,23)}},NZ={x:0,z:0,r:0,n:0};
-function noise(x,z,r){NZ.x=x;NZ.z=z;NZ.r=r;NZ.n++}
+const WND={t:{value:0},s:{value:.3},d:{value:new THREE.Vector2(.8,.6)},p:{value:new THREE.Vector2(0,23)}},NZ={x:0,z:0,r:0,n:0,q:[]};
+// NZ garde le dernier bruit ; NZ.q conserve les derniers bruits de la même période (tir + explosion dans la même image) pour que les écouteurs (ai.js, nature2.js) ne perdent pas le plus fort
+function noise(x,z,r){NZ.x=x;NZ.z=z;NZ.r=r;NZ.n++;NZ.q.push({x,z,r,n:NZ.n});if(NZ.q.length>12)NZ.q.shift()}
 // k : 0 herbe, 1 buisson, 2 cône bas, 3 cône haut, 4 feuillu, 5 roseau
 function windify(m,k){m.defines=Object.assign({},m.defines,{WK:k});m.onBeforeCompile=sh=>{sh.uniforms.uWt=WND.t;sh.uniforms.uWs=WND.s;sh.uniforms.uWd=WND.d;sh.uniforms.uWp=WND.p;
 sh.vertexShader='uniform float uWt,uWs;uniform vec2 uWd,uWp;\n'+sh.vertexShader.replace('#include <project_vertex>',`vec4 mvPosition=vec4(transformed,1.);
