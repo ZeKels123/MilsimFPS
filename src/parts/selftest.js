@@ -75,6 +75,33 @@ try{camP(()=>{anAt(b,8);b.crA=0;b.cr=0;b.relT=0;b.mvA=0;b.aimT=1;b.aimA=1;b.relA
 const up=dir(.5),dn=dir(-.5),z=dir(0);if(!(up>z+.2&&dn<z-.2))msg+='arme non inclinée '+[dn,z,up].map(v=>v.toFixed(2))+' ';b.aimA=0;const off=dir(.5);if(Math.abs(off-z)>.05)msg+='inclinaison sans visée ';
 b.aimA=1;b.pit=NaN;sldUpdate(b,.05,false);if(!fin(anWy(b,'Head').y))msg+='NaN '})}finally{b.pit=pit0;b.aimA=a0[0];b.aimT=a0[1];b.relA=a0[2];anLoad(b,sv)}return msg});
 T('Couteau : un coup interrompu par le rangement ne bloque plus les coups suivants',()=>{const sv={t:KNF.t,on:KNF.on,s:KNF.s,vis:KN.visible,gs:gun.scale.x};try{KNF.on=0;KNF.s=0;KNF.t=.2;knUpdate(.016);if(KNF.t!==0)return'coup bloqué '+KNF.t;return''}finally{KNF.t=sv.t;KNF.on=sv.on;KNF.s=sv.s;KN.visible=sv.vis;gun.scale.setScalar(sv.gs)}});
+T('IA : « Contact 1 heure » au singulier (et « 2 heures » au pluriel)',()=>{const b=bots.find(x=>!(x.dead>0));if(!b)return'';const g=b.g.position,sy=b.yaw,sx=P.x,sz=P.z;let msg='';
+try{b.yaw=0;for(const [h,att] of [[1,-30],[2,-60]]){const a=att*Math.PI/180;P.x=g.x+Math.sin(a)*50;P.z=g.z+Math.cos(a)*50;tacCall(b,'contact');const t=TAC.last||'';if(h===1&&(!/Contact 1 heure,/.test(t)||/1 heures/.test(t)))msg+='singulier : '+t+' ';if(h===2&&!/Contact 2 heures,/.test(t))msg+='pluriel : '+t+' '}}
+finally{b.yaw=sy;P.x=sx;P.z=sz}return msg});
+T('IA : évacuation — le minuteur de 16 s expire en temps réel (pas ~960 s)',()=>{const b=bots[0],w=bots[1];if(!b||!w)return'';const sv=[b.evac,w.evacBy,b.see,b.path,w.path];let msg='';
+try{const q={ret:0,t:1,evT:0};b.see=false;b.path=[[0,0]];w.path=null;b.evac={w,t:16,cx:0,cz:0,ph:0};w.evacBy=b;
+for(let i=0;i<5;i++)tacEvac(q,[b],2);if(!b.evac)msg+='expirée trop tôt ';
+for(let i=0;i<5;i++)tacEvac(q,[b],2);if(b.evac)msg+='toujours active après 20 s simulées ('+b.evac.t.toFixed(1)+') '}
+finally{[b.evac,w.evacBy,b.see,b.path,w.path]=sv}return msg});
+T('IA : repli — un bot qui se rend n’est pas renvoyé en fuite',()=>{if(!sqInit_)sqBuild();const q=SQ.find(x=>x.m.filter(b=>!(b.dead>0)).length>=3);if(!q)return'';const al0=q.m.filter(b=>!(b.dead>0)),ch=q.chef,s=al0.find(b=>b!==ch&&!b.lvl&&!b.route),o=al0.find(b=>b!==ch&&b!==s&&!b.lvl&&!b.route);if(!s||!o)return'';
+const sv=[q.ret,q.fb,q.aT,s.sur,s.st,s.fleeT,s.unarm,o.fleeT,o.st,o.path,s.path,o.heal,s.heal];let msg='';
+try{s.sur=1;s.st='sur';s.fleeT=0;s.path=null;o.fleeT=0;q.ret=22;q.fb=null;q.aT=0;sqTick(.01);if(s.fleeT>0||s.st!=='sur')msg+='le reddi repart : '+s.st+' '+s.fleeT+' ';if(!(o.fleeT>0)&&!o.sur&&!(o.dead>0))msg+='le repli ne s’applique plus aux autres '}
+finally{[q.ret,q.fb,q.aT,s.sur,s.st,s.fleeT,s.unarm,o.fleeT,o.st,o.path,s.path,o.heal,s.heal]=sv}return msg});
+T('IA : un bot du groupe sans ordre du chef depuis >4 s reprend sa patrouille (pas de gel)',()=>{if(!sqInit_)sqBuild();const q=SQ.find(x=>x.m.filter(b=>!(b.dead>0)).length>=2);if(!q)return'';const al=q.m.filter(b=>!(b.dead>0)),ld=q.chef||al[0],b=al.find(x=>x!==ld&&!x.lvl&&!x.route&&!x.heal);if(!b)return'';
+const sv=[q.mis,q.cA,ld.dorm,b.st,b.path,b.wait,b.alert,b.see,b.seenT,b.fleeT,b.sur,b.decT,AI.budget,AI.spent,q.t];let msg='';
+try{ld.dorm=1;q.t=0;q.mis={k:'patrol',pts:[[0,0]],i:0,T:100,halt:0,wt:0};q.cA=0;sqTick(.1);if(!(q.cA>=.1))msg+='cA non incrémenté ';
+const prep=()=>{b.st='pat';b.path=null;b.wait=0;b.alert=0;b.see=false;b.seenT=99;b.fleeT=0;b.sur=0;b.heal=null;q.mis={k:'patrol',pts:[[0,0]],i:0,T:100,halt:0,wt:0};AI.budget=5;AI.spent=0};
+prep();q.cA=1;aiThink(b);if(b.path)msg+='ordre récent : ne devrait pas repartir seul ';
+prep();q.cA=6;aiThink(b);if(!b.path)msg+='gelé malgré chef muet depuis 6 s '}
+finally{[q.mis,q.cA,ld.dorm,b.st,b.path,b.wait,b.alert,b.see,b.seenT,b.fleeT,b.sur,b.decT,AI.budget,AI.spent,q.t]=sv}return msg});
+T('IA : un bot dans une cellule bloquée est éjecté périodiquement (navEject dans aiUpdate)',()=>{const b=bots.find(x=>!(x.dead>0)&&!x.lvl&&!x.route&&!x.sur&&!x.dorm);if(!b)return'';const g=b.g.position,sv=[g.x,g.z,b.path,AI.ejT];let msg='';
+try{let k=-1;const i0=Math.floor((P.x+MH)/NS),j0=Math.floor((P.z+MH)/NS);for(let r=3;r<40&&k<0;r++)for(let d=-r;d<=r&&k<0;d++){for(const [i,j] of [[i0+d,j0+r],[i0+d,j0-r],[i0+r,j0+d],[i0-r,j0+d]]){if(i<2||j<2||i>=NGN-2||j>=NGN-2)continue;const c=j*NGN+i;if(NAVB[c]&&nSnap(nX(c),nZ(c))>=0&&Math.hypot(nX(c)-P.x,nZ(c)-P.z)<100){k=c;break}}}
+if(k<0)return'';g.x=nX(k);g.z=nZ(k);if(nFree(g.x,g.z))return'';AI.ejT=.001;aiUpdate(.01,false);if(!nFree(g.x,g.z))msg+='toujours dans la cellule bloquée '}
+finally{g.x=sv[0];g.z=sv[1];b.path=sv[2];AI.ejT=sv[3]}return msg});
+T('IA : budget A* en temps — plus de calcul de chemin au-delà de 4 ms par image',()=>{const b=bots.find(x=>!(x.dead>0));if(!b)return'';const sv=[AI.budget,AI.spent,b.path,b.decT,b.st];let msg='';
+try{const g=b.g.position;AI.budget=5;AI.spent=AI.tb+1;const r=goTo(b,g.x+6,g.z,1,'pat');if(r||AI.budget!==5)msg+='goTo exécuté malgré le budget temps dépassé ';
+AI.spent=0;AI.budget=5;goTo(b,g.x+6,g.z,1,'pat');if(AI.budget!==4)msg+='budget non consommé ';if(!(AI.spent>=0&&AI.spent<AI.tb*5))msg+='temps mesuré incohérent '+AI.spent}
+finally{[AI.budget,AI.spent,b.path,b.decT,b.st]=sv}return msg});
 T('Soldats Mixamo : 33 os, 7 clips, poses finies sur tous les bots',()=>{if(SLS.nb!==33)return'os '+SLS.nb;for(const k of ['walk','run','fire','reload','death','strafe','idle'])if(!SLA[k]||SLA[k].n<4)return'clip '+k;for(const b of bots){if(!b.sld)return'bot sans soldat';const cr=[b.cr,b.crA];b.cr=0;b.crA=0;sldUpdate(b,.05,true);const p=b.sld.bones[5].position;b.cr=cr[0];b.crA=cr[1];if(!isFinite(p.x+p.y+p.z)||p.y<1.2||p.y>1.9)return'tête hors plage '+p.y}return true});
 T('Mise en veille : un bot à 400 m n\'est ni mis à jour ni affiché',()=>{const b=bots[0],g=b.g.position,x=g.x,z=g.z,v=b.g.visible,d0=b.dead,e0=ENM.off;ENM.off=0;b.dead=0;b.dorm=0;g.x=P.x+400;g.z=P.z;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok=b.dorm===1&&b.g.visible===false;g.x=P.x+30;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok2=!b.dorm&&b.g.visible;g.x=x;g.z=z;b.g.visible=v;b.dead=d0;b.dorm=0;ENM.off=e0;return ok&&ok2||'veille '+ok+' réveil '+ok2});
 T('Voix des bots : phrases définies, annonce sans erreur',()=>{for(const k of ['contact','hit','reload','grenade','down','flank','cover','lost','ack'])if(!VX.L[k]||!VX.L[k].length)return'manque '+k;const b=bots.find(o=>!o.dead);if(!b)return true;b.vxCd=0;VX.last=0;vxSay(b,'hit');return typeof vxTick==='function'});

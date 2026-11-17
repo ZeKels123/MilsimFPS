@@ -9,7 +9,7 @@ let tacI=0;function tacInit(){if(!tacI){tacI=1;Object.assign(VX.L,TACL)}}
 function tacClock(b,x,z){const g=b.g.position,a=Math.atan2(x-g.x,z-g.z);let r=a-b.yaw;r=Math.atan2(Math.sin(r),Math.cos(r));let h=Math.round(-r/(Math.PI/6));h=((h%12)+12)%12;return h||12}
 function tacDist(b,x,z){const d=Math.hypot(x-b.g.position.x,z-b.g.position.z);return Math.max(10,Math.round(d/10)*10)}
 function tacCall(b,kind){tacInit();const x=kind==='lost'?b.lk.x:P.x,z=kind==='lost'?b.lk.z:P.z,h=tacClock(b,x,z),d=tacDist(b,x,z);
- const txt=kind==='lost'?'Perdu de vue, dernier contact '+h+' heures, '+d+' mètres.':'Contact '+h+' heures, '+d+' mètres !';TAC.n.call++;TAC.log.push(txt);if(TAC.log.length>20)TAC.log.shift();TAC.last=txt;
+ const hs=h+(h===1?' heure':' heures'),txt=kind==='lost'?'Perdu de vue, dernier contact '+hs+', '+d+' mètres.':'Contact '+hs+', '+d+' mètres !';TAC.n.call++;TAC.log.push(txt);if(TAC.log.length>20)TAC.log.shift();TAC.last=txt;
  if(kind==='lost'&&Math.random()<.5)return;VX.L.tmp[0]=txt;vxSay(b,'tmp',kind==='lost')}
 function tacSay(b,key,force){tacInit();vxSay(b,key,true,!!force)}
 // ---- fumigène ----
@@ -48,8 +48,8 @@ function tacSurrender(b){if(b.sur||b.dead)return;b.sur=1;b.unarm=1;b.see=false;b
  TAC.n.sur++;tacSay(b,'sur',true);try{feed('Un ennemi se rend')}catch(e){}}
 function tacLoot(){for(const b of bots){if(!b.sur||b.dead||b.looted)continue;if(Math.hypot(b.g.position.x-P.x,b.g.position.z-P.z)<2.3){b.looted=1;try{invLoot(b)}catch(e){}}}}
 // ---- évacuation d'un blessé ----
-function tacEvac(q,al,dt){if(q.ret>0||q.t<=0)return;q.evT=(q.evT||0)-dt;if(q.evT>0)return;q.evT=2;
- for(const b of al){if(b.evac){const e=b.evac;e.t-=dt*2;const w=e.w;if(!w||w.dead||e.t<=0||b.see){b.evac=null;if(w)w.evacBy=null;continue}if(b.path||w.path)continue;b.evac=null;w.evacBy=null;w.heal={t:4,tgt:null,passive:1};b.heal={t:4,tgt:null,passive:1};}}
+function tacEvac(q,al,dt){if(q.ret>0||q.t<=0)return;q.evA=(q.evA||0)+dt;q.evT=(q.evT||0)-dt;if(q.evT>0)return;q.evT=2;const el=q.evA;q.evA=0;
+ for(const b of al){if(b.evac){const e=b.evac;e.t-=el;const w=e.w;if(!w||w.dead||e.t<=0||b.see){b.evac=null;if(w)w.evacBy=null;continue}if(b.path||w.path)continue;b.evac=null;w.evacBy=null;w.heal={t:4,tgt:null,passive:1};b.heal={t:4,tgt:null,passive:1};}}
  const w=al.find(b=>!b.evacBy&&!b.sur&&sqHurt(b)>.45&&!b.heal&&!b.lvl&&!b.route);if(!w)return;
  if(!w.mcall||w.mcall<TAC.t){w.mcall=TAC.t+14;tacSay(w,'med')}
  const h=al.filter(b=>b!==w&&!b.evac&&!b.heal&&!b.see&&!b.lvl&&!b.route&&b.stun<=0&&!b.sur&&sqHurt(b)<.2).sort((a,c)=>Math.hypot(a.g.position.x-w.g.position.x,a.g.position.z-w.g.position.z)-Math.hypot(c.g.position.x-w.g.position.x,c.g.position.z-w.g.position.z))[0];
