@@ -39,7 +39,8 @@ function envGeo(){const g=new THREE.SphereGeometry(50,64,32),p=g.attributes.posi
 for(let i=0;i<p.count;i++){d.fromBufferAttribute(p,i).normalize();const y=d.y;c.copy(hor).lerp(top,Math.sqrt(Math.max(0,y)));if(y<0)c.lerp(hor.clone().multiplyScalar(.6),Math.min(1,-y*4));
 const s=Math.max(0,d.dot(SUND)),s2=s*s,s4=s2*s2,s16=s4*s4*s4*s4,s48=s16*s16*s16;c.r+=sc.r*(.25*s4+1.5*s48);c.g+=sc.g*(.25*s4+1.5*s48);c.b+=sc.b*(.25*s4+1.5*s48);col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b}
 g.setAttribute('color',new THREE.BufferAttribute(col,3));return g}
-function mkEnv(r){try{const sc=new THREE.Scene();sc.add(new THREE.Mesh(envGeo(),new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));const pm=new THREE.PMREMGenerator(r),t=pm.fromScene(sc,.02).texture;pm.dispose();return t}catch(e){return null}}
+function envFree(t){if(!t)return;if(t.userData&&t.userData.rt){t.userData.rt.dispose();t.userData.rt=null}if(t.dispose)t.dispose()}
+function mkEnv(r){let g=null,m=null;try{const sc=new THREE.Scene();g=envGeo();m=new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide});sc.add(new THREE.Mesh(g,m));const pm=new THREE.PMREMGenerator(r),rt=pm.fromScene(sc,.02),t=rt.texture;t.userData=t.userData||{};t.userData.rt=rt;pm.dispose();return t}catch(e){return null}finally{if(g)g.dispose();if(m)m.dispose()}}
 const hemi=new THREE.HemisphereLight(0xbcd2ff,0x5a5238,.3);S.add(hemi);
 const sun=new THREE.DirectionalLight(0xfff0d8,1.25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
 {const q=sun.shadow.camera;q.left=q.bottom=-28;q.right=q.top=28;q.near=1;q.far=170;q.updateProjectionMatrix()}

@@ -25,6 +25,7 @@ const dd=Math.min(d,L1+L2-.005),a=(L1*L1-L2*L2+dd*dd)/(2*dd),hh=Math.sqrt(Math.m
 const E=new THREE.Vector3().copy(S).addScaledVector(_h2,a).addScaledVector(_h3,hh);thrSeg(ar[0],S,E);thrSeg(ar[1],E,W.clone())}
 const THS=[new THREE.Vector3(.25,-.3,.02),new THREE.Vector3(-.25,-.3,.02)],THP=[new THREE.Vector3(.55,-.83,0),new THREE.Vector3(-.55,-.83,0)],_tl=new THREE.Vector3();
 function thrTick(dt){
+if(THR.on&&HM.dead){THR.on=false;THR.cook=0;THR.rel=true;tvm.visible=false}
 if(!THR.on){if(THR.g>0){THR.g=Math.max(0,THR.g-dt*5)}if(!ac.on)gun.visible=THR.g<.9;return}
 const T=THR;T.t+=THR.frz?0:dt;if(T.t>=.99&&!T.rel&&K.KeyC&&!ac.on&&(T.cook||0)<NT[T.k].fuse-.45){T.t=.989;T.cook=(T.cook||0)+dt}const t=T.t,G=T.G,held=t<.99;
 T.g=t<.2?t/.2:t<T.dur-.25?1:Math.max(0,(T.dur-t)/.25);if(!ac.on)gun.visible=T.g<.9;tvm.visible=T.g>.3&&t<T.dur-.08;
@@ -44,4 +45,4 @@ thrArm(thH,THS[0],THP[0],thArm[0]);thrArm(thL,THS[1],THP[1],thArm[1]);
 if(t>=.99&&!T.rel){T.rel=true;thrRelease()}
 if(t>=T.dur){T.on=false;tvm.visible=false}}
 function thrRelease(){const k=THR.k;C.updateMatrixWorld();const d=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion),p=nadeSafePos(C.position,d,.45);p.y-=.12;
-throwNade(k,p,d.multiplyScalar(17).add(new THREE.Vector3(0,3.6,0)),null);const n=NADE.list[NADE.list.length-1];if(n&&THR.cook>0)n.t=Math.max(.4,n.t-THR.cook);THR.cook=0;snd(420,.09,.12,'triangle')}
+if(!throwNade(k,p,d.multiplyScalar(17).add(new THREE.Vector3(0,3.6,0)),null)){NADE.inv[k]++;THR.cook=0;hlMsg('Lancer impossible : grenade rendue');return}const n=NADE.list[NADE.list.length-1];if(n&&THR.cook>0)n.t=Math.max(.4,n.t-THR.cook);THR.cook=0;snd(420,.09,.12,'triangle')}

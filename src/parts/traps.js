@@ -38,7 +38,9 @@ addEventListener('keydown',e=>{if(e.repeat||bench||ac.on||$('ov').style.display!
 if(e.code==='KeyB'){e.preventDefault();trapCycle()}
 else if(e.code==='Digit9'||e.code==='Numpad9'){const mine=TRP.list.filter(t=>t.ty==='xc'&&t.owner==='p'&&t.arm<=0);if(!mine.length)hlMsg('Aucune mine directionnelle posée');else{hlMsg('Détonation à distance');mine.forEach(trapClaymore)}}
 else if(e.code==='KeyF'&&!TRP.dis){const t=trapNear();if(t)TRP.dis={t,p:0}}},true);
-function trapUpdate(dt){enmTick();if(P.gy===undefined||HM.z.t===undefined||HM.dead)return;
+function trapUpdate(dt){enmTick();if(P.gy===undefined||HM.z.t===undefined)return;
+// joueur mort : le monde continue (épaves, fumigènes, feu d'herbe, minuteries tactiques), seule la partie joueur (pose, désamorçage, déclenchement) est suspendue
+if(HM.dead){if(TRP.dis){TRP.dis=null;tps.style.display='none'}if(!BRN.init)brnInit();dstTick(dt);tacTick(dt);monTick(dt);return}
 if(TRP.snare>0)TRP.snare-=dt;
 const det=trapDetR();for(const t of TRP.list){const d=Math.hypot(t.x-P.x,t.z-P.z);t.m.visible=t.owner==='p'||d<det||t.arm>0&&t.owner==='p'}
 // pose

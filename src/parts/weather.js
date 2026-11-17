@@ -66,7 +66,7 @@ const night=Math.max(0,Math.min(1,.5-e*4)),I=(.3+.95*night)*(ind?1:0);
 if(ri<0)ILON=false;if(ri>=0&&ILON){const r=ROOMS[ri],r2=ROOMS[ri^1];inL.position.set(r.x,2.3,r.z);inL2.position.set(r2.x,2.3,r2.z);inL.intensity+=(I*1.2-inL.intensity)*Math.min(1,dt*8);inL2.intensity+=(I*.8-inL2.intensity)*Math.min(1,dt*8)}else{inL.intensity*=Math.max(0,1-dt*8);inL2.intensity*=Math.max(0,1-dt*8)}
 fl.intensity=flOn?3.2:0;
 // recalcul de l'environnement (reflets PBR) quand le ciel a assez changé
-const sig=TOD.t+cov*3+gr*3;if(Math.abs(sig-TOD.envW)>.28&&fz<.05&&performance.now()-TOD.envT>4000){TOD.envW=sig;TOD.envT=performance.now();const o=S.environment;S.environment=mkEnv(R);if(o&&o.dispose)o.dispose()}
+const sig=TOD.t+cov*3+gr*3;if(Math.abs(sig-TOD.envW)>.28&&fz<.05&&performance.now()-TOD.envT>4000){TOD.envW=sig;TOD.envT=performance.now();const o=S.environment;S.environment=mkEnv(R);envFree(o)}
 // matériaux de la bascule sol <-> lune : ombres
 // HUD
 const hh=Math.floor(TOD.t),mm=Math.floor((TOD.t-hh)*60);wxEl.innerHTML=(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+' · '+WXI[TOD.tgt]+' '+WXN[TOD.tgt]+((TOD.t>19||TOD.t<6)?' '+MOO.ico:'')+(flOn?' · lampe ON':'')+'<br><span style="opacity:.55">[N] heure · [M] météo · [L] lampe</span>';wxEl.style.display=ac.on?'none':'block'}
