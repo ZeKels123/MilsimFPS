@@ -21,4 +21,4 @@ for(const h of UPH){if(!h.tower)continue;const on=bots.filter(b=>bvOn(b)&&b.hh==
  if(on.length>=2){o.hold=999;BVR.n++;continue}
  if((h.occ||0)>=2)continue;
  let c=null,bd=1e9;for(const b of bots){if(b===o||b.dead>0||b.lvl||b.route||b.after||b.sur||b.dorm||b.unarm||b.alert||b.seenT<8||b.hp<b.T.hp*.6)continue;const d=Math.hypot(b.g.position.x-h.cx,b.g.position.z-h.cz)+(b.ty===2?0:12);if(d<BVR.rng&&d<bd){bd=d;c=b}}
- if(c&&bvPost(c,h,o))h.relv=c}}
+ if(c){AI.budget=Math.max(AI.budget,1);if(bvPost(c,h,o))h.relv=c}}}
