@@ -784,3 +784,11 @@ Dernière suite : 215/215.
 ## v61 (correctif sol des maisons)
 - Le nivellement d'eau relevait le sol d'environ 0,2 m partout : l'herbe affleurait dans les pièces (planchers à y=0). Le sol est ramené à 0 sous chaque maison, raccord progressif sur 15 m (relief.js).
 - Test « Mirador : escalier » : le bas de la rampe est comparé au sol réel à cet endroit (échec intermittent sur terrain en pente).
+
+## v62 (fusion perf, sol, textures, immersion, tests)
+- Performance : index spatial okPos, décodage des modèles plus rapide, bld() en flux, cascade d'ombres simplifiée, ciel après l'opaque, passe Gfx sautée si inutile. Chargement mesuré environ 15 à 26 % plus court (SwiftShader, relatif).
+- Sol : herbe et terre mélangées en shader selon pente, altitude et berges, sans répétition visible ; chemins tassés ; herbe en lames triangulaires fines, couleur reprise du sol, fondu entre 20 et 42 m.
+- Textures de bâtiments : crépi lisse/grossier et brique, béton avec coulures, carrelage, parquet, plafond, huisseries peintes, portes à panneaux, tuiles, dalles, trottoirs en UV monde.
+- Immersion : sons de plongeon, de nage et de clapotis, portée du bruit des pas selon la surface, traçantes dès la première image, rechargement accroupi, phares avec éblouissement la nuit.
+- Tests : correctif Mirador v59, doublon Mixamo supprimé, tests Explosion, fumigène, embuscade et missions rendus robustes. Suite : 247/247.
+- À revoir : grain du crépi trop fort, vert trop saturé à l'ombre, phares sur un vrai véhicule, hash de monde déterministe.
