@@ -33,7 +33,7 @@ rep("new THREE.MeshBasicMaterial({color:0x4aa84a,transparent:true,opacity:.28})"
 rep("function lintel(g,f,ax){const m=new THREE.Mesh(new THREE.BoxGeometry(ax==='x'?1.2:.4,.7,ax==='x'?.4:1.2),L(0x8a8878));m.position.set(ax==='x'?g:f,2.65,ax==='x'?f:g);S.add(m);solids.push(m)}",
     "function lintel(g,f,ax){const w=ax==='x'?1.2:.4,d=ax==='x'?.4:1.2,x=ax==='x'?g:f,z=ax==='x'?f:g,bg=new THREE.BoxGeometry(w,.7,d);wuv(bg,x,2.65,z,2,2);grime(bg,2.65);const m=new THREE.Mesh(bg,surf(0x8a8878));m.castShadow=m.receiveShadow=true;m.position.set(x,2.65,z);S.add(m);solids.push(m)}")
 rep("const g=.6,mat=L(0x7a5230),pv=new THREE.Group(),m=new THREE.Mesh(new THREE.BoxGeometry(2*g,2.3,.07),mat);",
-    "const g=.6,mat=woodMat(0x7a5230),pv=new THREE.Group(),gd=new THREE.BoxGeometry(2*g,2.3,.07),m=(fitUV(gd,2*g,2.3,.07,1.2),new THREE.Mesh(gd,mat));m.castShadow=m.receiveShadow=true;")
+    "const g=.6,mat=pm(T_door,0x996639,{roughness:.75}),pv=new THREE.Group(),gd=new THREE.BoxGeometry(2*g,2.3,.07),m=new THREE.Mesh(gd,mat);m.castShadow=m.receiveShadow=true;")
 rep("d.mat.color.setRGB(.48*r,.32*r,.19*r)","d.mat.color.setRGB(.6*r,.4*r,.24*r)")
 rep("const fl=new THREE.Mesh(new THREE.PlaneGeometry(W,D),L(0x6d6a60));","const fgm=new THREE.PlaneGeometry(W,D);scaleUV(fgm,W/2,D/2);const fl=new THREE.Mesh(fgm,matTile);fl.receiveShadow=true;")
 rep("L(0x6f6d62));ce.position.set(cx,3.08,cz);","L(0x6f6d62));ce.castShadow=ce.receiveShadow=true;ce.position.set(cx,3.08,cz);")
