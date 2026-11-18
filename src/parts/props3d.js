@@ -5,8 +5,8 @@
 const P3D={tex:[],list:[],done:0,tries:0,camps:0};
 const P3S={sandbag:{sc:1,bm:'conc',h:.62},crate:{sc:.45,bm:'wood',h:.375},jersey:{sc:1,bm:'conc',h:3.85,fence:1},tent:{sc:.0075,bm:'plas',h:2.1},barrel:{sc:1,bm:'steel',h:.9},tower:{sc:.0095,bm:'wood',h:8.8},wire:{sc:1,bm:'wood',h:1.2},jeep:{sc:.0097,bm:'veh',h:2.1},
  // v59 : décor Sketchfab CC-BY (tools/props_export.py : mise à l'échelle en mètres, yaw aligné, décimation) ; mêmes clés que les anciens décors procéduraux
- cmdtent:{sc:1,bm:'plas',h:3.3},messtable:{sc:1,bm:'wood',h:.62},generator:{sc:1,bm:'steel',h:1.45,sa:1},mast:{sc:1,bm:'steel',h:16},floodlight:{sc:1,bm:'steel',h:1.8},carwreck:{sc:1,bm:'veh',h:1.41},tankwreck:{sc:1,bm:'steel',h:1.74},
- fueltank:{sc:1,bm:'steel',h:3.6},pallets:{sc:1,bm:'wood',h:.96},container:{sc:1,bm:'steel',h:3.8},flag:{sc:1,bm:'wood',h:4.5},heli:{sc:1,bm:'veh',h:2.85},supply:{sc:1,bm:'wood',h:.62},jerry:{sc:1,bm:'steel',h:.5},cot:{sc:1,bm:'wood',h:.73}};
+ cmdtent:{sc:1,bm:'plas',h:3.3},messtable:{sc:1,bm:'wood',h:.62},generator:{sc:1,bm:'steel',h:1.45,sa:1},mast:{sc:1,bm:'steel',h:16},floodlight:{sc:1,bm:'steel',h:1.8},carwreck:{sl:1,sc:1,bm:'veh',h:1.41},tankwreck:{sl:1,sc:1,bm:'steel',h:1.74},
+ fueltank:{sc:1,bm:'steel',h:3.6},pallets:{sc:1,bm:'wood',h:.96},container:{sl:1,sc:1,bm:'steel',h:3.8},flag:{sc:1,bm:'wood',h:4.5},heli:{sl:1,sc:1,bm:'veh',h:2.85},supply:{sc:1,bm:'wood',h:.62},jerry:{sc:1,bm:'steel',h:.5},cot:{sc:1,bm:'wood',h:.73}};
 // multiplicateur de couleur des textures trop sombres (éclairage du jeu)
 const P3K={jersey:4.5,crate:1.8,tent:6,cmdtent:5,carwreck:2.6,heli:2.4,supply:3,tankwreck:1.3,container:1.6};
 function p3dB(s,T){const b=atob(s),n=b.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=b.charCodeAt(i);return new T(u.buffer)}
@@ -17,11 +17,19 @@ function p3dMake(name){const d=P3D_DATA[name],g=new THREE.Group();let G=P3G[name
   const mat=new THREE.MeshStandardMaterial({roughness:.92,metalness:.04});if(pt.ti!=null&&pt.ti!==undefined){mat.map=p3dTex(pt.ti);if(!pt.alpha){const k=P3K[name]||1;mat.color.setRGB(k,k,k)}}else mat.color.setRGB(pt.col[0],pt.col[1],pt.col[2]);if(pt.alpha){mat.alphaTest=.5;mat.side=THREE.DoubleSide}return{geo,mat,alpha:pt.alpha}})}
  G.forEach(q=>{const m=new THREE.Mesh(q.geo,q.mat);m.castShadow=!q.alpha;m.receiveShadow=true;m.userData.p3dAlpha=q.alpha;g.add(m)});return g}
 function p3dNav(o){const m=.3;const i0=Math.max(0,Math.ceil((o.x0-m+MH)/NS-.5)),i1=Math.min(NGN-1,Math.floor((o.x1+m+MH)/NS-.5)),j0=Math.max(0,Math.ceil((o.z0-m+MH)/NS-.5)),j1=Math.min(NGN-1,Math.floor((o.z1+m+MH)/NS-.5));for(let j=j0;j<=j1;j++)for(let k=i0;k<=i1;k++)NAVB[j*NGN+k]=1}
-function p3dPut(name,x,z,yaw,gy0){const c=P3S[name],g=p3dMake(name),gy=gy0!==undefined?gy0:GH(x,z);g.scale.setScalar(c.sc);g.rotation.y=yaw;g.position.set(x,gy,z);S.add(g);g.updateMatrixWorld(true);
+// v60 : collision orientée — l'emprise alignée sur les axes d'un modèle allongé tourné (hélico, container, épaves) est bien trop large : on la remplace par des tranches le long de l'axe long
+function p3dSlices(x,z,yaw,w,d,y0,y1,nm){const L=Math.max(w,d),W=Math.min(w,d),k=Math.min(8,Math.max(3,Math.ceil(1.5*L/W))),ux=w>=d?Math.cos(yaw):Math.sin(yaw),uz=w>=d?-Math.sin(yaw):Math.cos(yaw),s=L/k,hx=(s*Math.abs(ux)+W*Math.abs(uz))/2,hz=(s*Math.abs(uz)+W*Math.abs(ux))/2,r=[];
+ for(let i=0;i<k;i++){const t=-L/2+s*(i+.5),cx=x+ux*t,cz=z+uz*t;r.push({x0:cx-hx,x1:cx+hx,z0:cz-hz,z1:cz+hz,y0,y1,p3d:nm})}return r}
+function p3dPut(name,x,z,yaw,gy0){const c=P3S[name],g=p3dMake(name);g.scale.setScalar(c.sc);g.rotation.y=yaw;
  const bb=P3D_DATA[name].bb,w=bb[0]*c.sc,d=bb[2]*c.sc,co=Math.abs(Math.cos(yaw)),si=Math.abs(Math.sin(yaw)),hx=(w*co+d*si)/2,hz=(w*si+d*co)/2;
- const box={x0:x-hx,x1:x+hx,z0:z-hz,z1:z+hz,y0:gy-.2,y1:gy+c.h,p3d:name};boxes.push(box);p3dNav(box);
+ // v60 : sur une pente, le décor posé au centre flottait côté aval (tente, barrière) : on le pose sur le point le plus bas de son emprise (côté amont enterré)
+ const gy=gy0!==undefined?gy0:(c.sa||name==='tower'||name==='jeep'||Math.max(hx,hz)<1.2?GH(x,z):Math.min(GH(x,z),GH(x-hx*.8,z-hz*.8),GH(x+hx*.8,z-hz*.8),GH(x-hx*.8,z+hz*.8),GH(x+hx*.8,z+hz*.8))-.03);
+ g.position.set(x,gy,z);S.add(g);g.updateMatrixWorld(true);
+ const box={x0:x-hx,x1:x+hx,z0:z-hz,z1:z+hz,y0:gy-.2,y1:gy+c.h,p3d:name};let bxs=[box];
+ if(c.sl&&Math.min(w,d)>0&&Math.max(w,d)/Math.min(w,d)>=1.6&&Math.abs(Math.sin(2*yaw))>.2)bxs=p3dSlices(x,z,yaw,w,d,gy-.2,gy+c.h,name);
+ bxs.forEach(b=>{boxes.push(b);p3dNav(b)});
  g.children.forEach(m=>{if(m.userData.p3dAlpha&&!c.sa)return;m.userData.bmat=c.bm;m.userData.p3d=name;solids.push(m);ray.push(m)});
- g.traverse(o=>{o.matrixAutoUpdate=false});const r=Math.max(hx,hz);const it={name,x,z,r,g,box};P3D.list.push(it);return it}
+ g.traverse(o=>{o.matrixAutoUpdate=false});const r=Math.max(hx,hz);const it={name,x,z,r,g,box,bxs};P3D.list.push(it);return it}
 // mirador : plateforme à 7,4 m (surface marchable) + escalier droit axé sur le monde ; la colonne pleine est réduite au noyau pour qu'on puisse monter
 const P3W=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9});
 function p3dRamp(x,z){const L=9.5;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){let ok=true;for(let t=1.8;t<=1.8+L+2&&ok;t+=1.2)for(const w of [-.9,0,.9]){const px=x+d[0]*t+d[1]*w,pz=z+d[1]*t+d[0]*w;if(!free_(px,pz)||!nFree(px,pz)||inRoom(px,pz)>=0||GH(px,pz)<(typeof WL!=='undefined'?WL:0)+.4||Math.abs(GH(px,pz)-GH(x,z))>3){ok=false;break}}if(ok)return d}return null}

@@ -101,7 +101,7 @@ RC.set(org,dir);RC.far=far;let wt=1e9,wh=null;for(const x of RC.intersectObjects
 const hr=hlRay(org,dir,Math.min(far,wt));
 if(hr&&hr.t<wt){_bp.copy(org).addScaledVector(dir,hr.t);hlApply(hr.z,q.dmg*balFac(q),'b',q.bot?q.bot.g.position:null);BAL.hits++;return 1}
 // balle frôlée : voir audCrackSeg (finitions.js), seul système (claquement, suppression, secousse)
-if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6,q.bot?'b':'p');if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(wh.object.userData.door){if(balDoor(q,wh,dir)===0)return 0}else if(balWall(wh,q,org,dir)===0)return 0;return 1}
+if(wh){if(wh.object.userData.dst)dstHit(wh.object.userData.dst,wh,q.dmg*balFac(q)*6,q.bot?'b':'p');if(wh.object.userData.door&&!wh.object.userData.door.dead)hurtDoor(wh.object.userData.door,(q.dmg||0)*balFac(q)*3);if(Math.hypot(wh.point.x-P.x,wh.point.z-P.z)<70)impactB(wh,q,!!wh.object.userData.door);if(wh.object.userData.door){if(balDoor(q,wh,dir)===0)return 0}else if(balWall(wh,q,org,dir)===0)return 0;return 1}
 return 0}
 return 0}
 function balTick(dt){BAL.t+=dt;if(P.gy!==undefined){if(BAL.pOk){BAL.pv.set((P.x-BAL.pp.x)/Math.max(dt,.001),0,(P.z-BAL.pp.z)/Math.max(dt,.001)).clampLength(0,7)}BAL.pp.set(P.x,0,P.z);BAL.pOk=1}
