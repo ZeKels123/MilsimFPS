@@ -17,7 +17,9 @@ const _wr=new THREE.Raycaster(),_wo=new THREE.Vector3(),_wd=new THREE.Vector3();
 function wpRest(){if(P.gy===undefined)return 0;_wd.set(-Math.sin(P.yaw),0,-Math.cos(P.yaw));let r=0;for(const dy of[.55,1.0]){_wo.set(P.x,P.gy+Math.min(P.eh,1.7)-dy,P.z);_wr.set(_wo,_wd);_wr.far=.75;if(_wr.intersectObjects(ray,false).length){r=1;break}}
 if(r){_wo.set(P.x,P.gy+P.eh+.05,P.z);_wr.set(_wo,_wd);_wr.far=.75;if(_wr.intersectObjects(ray,false).length)r=0}return r}
 function wpRecoil(){const c=WC[WSEL],st=Math.min(2,P.st||0);let k=[1,.8,.6][st];WPN.rest=wpRest();if(WPN.rest)k*=.72;if(/HMG/.test(c.n)&&st===2)k*=.5;return k}
-function wpSpread(){const s=wpS(WSEL),st=Math.min(2,P.st||0);return(1+Math.max(0,s.heat-.5)*.8)*(1+s.wear*.3)*(ads?1:[1,.85,.7][st])}
+// fusil de précision (Signal 50) : en visée établie et immobile, cône quasi nul (0,45 mil au lieu de 3,75 mil) ; en mouvement, la pénalité de déplacement reste entière
+function wpPrec(){return/Signal/.test(WC[WSEL].n)&&ads&&adsT>.85&&!(K.KeyW||K.KeyA||K.KeyS||K.KeyD)?.12:1}
+function wpSpread(){const s=wpS(WSEL),st=Math.min(2,P.st||0);return(1+Math.max(0,s.heat-.5)*.8)*(1+s.wear*.3)*(ads?1:[1,.85,.7][st])*wpPrec()}
 // avant le tir : enrayage ?
 function wpPre(){if(reloading||plateT>0||ac.on||ammo<=0)return false;const s=wpS(WSEL);if(s.jam||s.clr>0||s.hot)return true;
 if(WPN.rng()<wpJamP(s)){s.jam=1;s.bst=0;cd=.3;snd(900,.03,.12,'square');wpnMsg('ENRAYAGE — [R] pour dégager');return true}return false}
@@ -34,6 +36,8 @@ function wpFin(){const s=wpS(WSEL);s.jam=0;if(ammo>0)ammo--;snd(520,.08,.12,'tri
 function wpCleanStart(){if(WPN.cl>0||reloading||bench)return;const s=wpS(WSEL);if(s.wear<.03&&!s.jam)return wpnMsg('Arme propre');WPN.cl=.001;WPN.cT=(typeof nb!=='undefined'&&nb)?3:10;snd(260,.1,.1,'triangle');wpnMsg('Nettoyage de l’arme…')}
 let _wsm=0;
 function wpTick(dt){const s=wpS(WSEL),c=WC[WSEL],rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);
+// fusil de précision en visée : le recul de la caméra revient vers le point visé (sans cela la lunette reste décalée de ~30 mil après chaque coup)
+if(WPN.rcP||WPN.rcY){if(WPN.rcW!==WSEL||DRV.on||ac.on||P.hp<=0)WPN.rcP=WPN.rcY=0;else if((WPN.rcT-=dt)<=0){const f=1-Math.exp(-dt*7),dp=WPN.rcP*f,dy=WPN.rcY*f;P.pitch-=dp;P.yaw-=dy;WPN.rcP-=dp;WPN.rcY-=dy;if(Math.abs(WPN.rcP)+Math.abs(WPN.rcY)<1e-5)WPN.rcP=WPN.rcY=0}}
 if(WPN.mt>0){WPN.mt-=dt;if(WPN.mt<=0)WPN.msg=''}
 for(const i in WPS){const q=WPS[i];q.heat=Math.max(0,q.heat-dt*.05*(1+rain*1.5)*(i==WSEL&&mdown?.4:1));if(q.hot&&q.heat<.6){q.hot=0;if(i==WSEL)wpnMsg('Canon refroidi')}}
 if(K.KeyH&&WPN.cl<=0&&!bench&&!reloading&&!mdown){WPN.h=(WPN.h||0)+dt;if(WPN.h>1.2){WPN.h=-99;wpCleanStart()}}else if(!K.KeyH)WPN.h=0;
@@ -48,5 +52,5 @@ function wpModeNext(){const m=wpModes(WSEL);if(m.length>1){const s=wpS(WSEL);s.m
 addEventListener('mousedown',e=>{if(e.button!==1||$('ov').style.display!=='none'||ac.on||bench)return;e.preventDefault();wpModeNext()});
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat)WPN.h=0;if(e.code==='Semicolon'&&!e.repeat&&$('ov').style.display==='none'&&!ac.on&&!bench)wpModeNext()});
 // enveloppes des fonctions d'origine (renommées fire0 / reload0 à l'assemblage)
-function fire() {const s=wpS(WSEL);if((typeof BLE!=='undefined'&&BLE.out>0)||HM.act||TRP.mode||KNF.on){s.bst=0;return}if(wpPre()){s.bst=0;return}const a=ammo;fire0();if(ammo<a)wpPost();else s.bst=0}
+function fire() {const s=wpS(WSEL);if((typeof BLE!=='undefined'&&BLE.out>0)||HM.act||TRP.mode||KNF.on){s.bst=0;return}if(wpPre()){s.bst=0;return}const a=ammo,p0=P.pitch,y0=P.yaw;fire0();if(ammo<a){wpPost();if(/Signal/.test(WC[WSEL].n)&&ads){WPN.rcP=P.pitch-p0;WPN.rcY=P.yaw-y0;WPN.rcT=.12;WPN.rcW=WSEL}}else s.bst=0}
 function reload() {if(wpClear())return;reload0()}
