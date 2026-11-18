@@ -50,7 +50,7 @@ function grdTick(dt){const night=TOD.t>21||TOD.t<5,rain=(typeof rainU!=='undefin
     if(best&&grdGo(best,p.x+1.4,p.z,1.2)){best.relf=1;p.rel=best}else p.t=8}}}}
  // abri contre la pluie
  GRD.sT-=dt;if(GRD.sT<=0){GRD.sT=2.5;for(const b of bots){if(b.dead||b.dorm)continue;const g=b.g.position;
-  if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){let best=null,bd=70;for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<bd){bd=d;best=r}}if(best&&grdGo(b,best.x,best.z,1.3)){b.shel=best;GRD.n.shel++}}}
+  if(rain>.4){if(!b.shel){if(grdBot(b)&&b.st==='pat'&&!b.sent&&!b.relf&&inRoom(g.x,g.z)<0&&Math.random()<.25){const cs=[];for(const r of ROOMS){const d=Math.hypot(r.x-g.x,r.z-g.z);if(d<70)cs.push([d,r])}cs.sort((u,v)=>u[0]-v[0]);for(let k=0;k<cs.length&&k<3;k++)if(grdGo(b,cs[k][1].x,cs[k][1].z,1.3)){b.shel=cs[k][1];GRD.n.shel++;break}}}
    else if(b.alert||b.see)b.shel=0;else if(inRoom(g.x,g.z)>=0){b.path=null;b.decT=Math.max(b.decT,2.5)}else if(!b.path)grdGo(b,b.shel.x,b.shel.z,1.3)}
   else if(rain<.15&&b.shel)b.shel=0}}}
 function finTick(dt){anmTick(dt);perfTick(dt);AUD.tin-=dt;audUrbTick(dt);grdTick(dt);reaTick(dt)}
