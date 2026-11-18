@@ -768,3 +768,10 @@ Intégré : combat (calibre .50, souffle avec hauteur/ligne de vue, crédit des 
 Constaté non traité : tirs sur les avions (décoratifs, hors listes de rayons) ; bots sans dégâts de portes (ai.js) ; boîte de collision des décors alignée sur les axes ; mire de secours sur arme à lunette ; flou hors axe en ADS ; éblouissement par phares de véhicules ; lunette LPVO + jumelles sans image ; coût du shader NVG à mesurer sur vrai GPU.
 Tests instables connus (échecs isolés variables) : Escouade (v59), Soldats Mixamo (tête hors plage), relève de garde de nuit, tireur en surplomb/mirador, explosion de l'épave.
 Dernière suite : 203 à 205 / 206 selon les exécutions (échecs variables : tireur au mirador, tireur en surplomb, mémoire du joueur).
+
+## v60 (correctifs)
+
+Corrigé : touche \ partagée survie/visée (survie sur Début, visée dans le menu des touches) ; arme visible dans la lunette ; jumelles (piles à l'abaissement, jumelles jetées, visée pendant la transition) ; heure corrompue à la restauration ; Signal 50 en visée (dispersion 3,75 → ~0,45 mil à l'arrêt, recul de caméra rattrapé en ~0,4 s) ; collision en tranches pour les décors allongés (Huey, container, épaves) ; décors flottants sur pente (4 trouvés) ; balles de bots qui abîment les portes ; poste de mirador non libéré quand le tireur est réorienté ; abri contre la pluie (3 pièces essayées) ; bot réapparu avec la pose de mort (tête au sol) ; chef d'escouade réglé sur l'allure du plus lent (écart max 69 → 42 m) ; tests instables rendus déterministes.
+Mesures : chargement 36–74 s (SwiftShader), props 3D déjà partagés (≈10 draw calls), aucune fuite sur ~5400 pas × 4 conditions.
+Constaté non traité : avions décoratifs non touchables ; fuite mineure de passes de rendu au redimensionnement (ppInit) ; flou hors axe et mire de secours en lunette ; traçante vue en lunette à vérifier à la main.
+Dernière suite : 215/215.
