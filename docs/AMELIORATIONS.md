@@ -780,3 +780,7 @@ Dernière suite : 215/215.
 - Bots : bras touché, boiterie par jambe, rampe progressive, remise à zéro d'animation.
 - Visée : touche V (cycle des optiques / mire métallique), vision nocturne combinée à la lunette (uSc), flou hors axe (uAds), ppFree.
 - Immersion : berges (bots qui longent la rive, sable/boue sans eau profonde) ; la relève des tireurs de mirador (bots_vie.js) reste instable, son test a été retiré (voir PROCHAINES_AMELIORATIONS).
+
+## v61 (correctif sol des maisons)
+- Le nivellement d'eau relevait le sol d'environ 0,2 m partout : l'herbe affleurait dans les pièces (planchers à y=0). Le sol est ramené à 0 sous chaque maison, raccord progressif sur 15 m (relief.js).
+- Test « Mirador : escalier » : le bas de la rampe est comparé au sol réel à cet endroit (échec intermittent sur terrain en pente).

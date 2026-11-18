@@ -828,8 +828,8 @@ for(const o of l){if(GH(o.x,o.z)<WL+.1)return o.name+' dans l’eau';if(cityBad(
 for(let a=0;a<P3D.list.length;a++)for(let b=a+1;b<P3D.list.length;b++){const A=P3D.list[a],B=P3D.list[b];if(!NEW.includes(A.name)&&!NEW.includes(B.name))continue;if(Math.hypot(A.x-B.x,A.z-B.z)<Math.min(A.r,B.r)*.8)return'chevauchement '+A.name+' / '+B.name}
 return''});
 T('Mirador : escalier, plateforme marchable à 6,5 m, colonne franchissable par-dessus',()=>{let sp=null;for(let a=0;a<1200&&!sp;a++){const r=40+((a/12)|0)*6,an=(a%12)*.5236+a*.07,x=P.x+Math.cos(an)*r,z=P.z+Math.sin(an)*r;if(p3dOK(x,z,4.5)){const d=p3dRamp(x,z);if(d)sp=[x,z,d]}}if(!sp)return'aucun emplacement libre pour un mirador';
-const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const gy=GH(it.x,it.z),top=groundAt(it.cx,it.cz,gy+7);const mid=groundAt(it.cx+sp[2][0]*6,it.cz+sp[2][1]*6,gy+7),low=groundAt(it.x+sp[2][0]*10.5,it.z+sp[2][1]*10.5,gy+.5);
-const ok=Math.abs(top-(gy+6.5))<.05&&mid>gy+2&&mid<gy+5.5&&low<gy+1;
+const it=p3dPut('tower',sp[0],sp[1],0);p3dTowerUp(it,sp[2]);const gy=GH(it.x,it.z),top=groundAt(it.cx,it.cz,gy+7);const mid=groundAt(it.cx+sp[2][0]*6,it.cz+sp[2][1]*6,gy+7),lx=it.x+sp[2][0]*10.5,lz=it.z+sp[2][1]*10.5,low=groundAt(lx,lz,gy+.5);
+const ok=Math.abs(top-(gy+6.5))<.05&&mid>gy+2&&mid<gy+5.5&&low<Math.max(gy,GH(lx,lz))+1;
 const bxs=boxes.filter(o=>o.stair).length;S.remove(it.g);const i=boxes.indexOf(it.box);if(i>=0)boxes.splice(i,1);const j=P3D.list.indexOf(it);if(j>=0)P3D.list.splice(j,1);for(let q=solids.length-1;q>=0;q--)if(solids[q].parent===it.g)solids.splice(q,1);
 return ok&&bxs>20?'':'plateforme '+top.toFixed(2)+' (attendu '+(gy+6.5).toFixed(2)+'), milieu '+mid.toFixed(2)+', bas '+low.toFixed(2)});
 T('Tireur au mirador : un tireur d\u2019élite monte l\u2019escalier et tient la plateforme',()=>{let sp=null;for(let a=0;a<1200&&!sp;a++){const r=40+((a/12)|0)*6,an=(a%12)*.5236+a*.07,x=P.x+Math.cos(an)*r,z=P.z+Math.sin(an)*r;if(p3dOK(x,z,4.5)){const d=p3dRamp(x,z);if(d)sp=[x,z,d]}}if(!sp)return'aucun emplacement libre pour un mirador';
