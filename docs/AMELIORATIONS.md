@@ -767,4 +767,4 @@ Intégré : combat (calibre .50, souffle avec hauteur/ligne de vue, crédit des 
 
 Constaté non traité : tirs sur les avions (décoratifs, hors listes de rayons) ; bots sans dégâts de portes (ai.js) ; boîte de collision des décors alignée sur les axes ; mire de secours sur arme à lunette ; flou hors axe en ADS ; éblouissement par phares de véhicules ; lunette LPVO + jumelles sans image ; coût du shader NVG à mesurer sur vrai GPU.
 Tests instables connus (échecs isolés variables) : Escouade (v59), Soldats Mixamo (tête hors plage), relève de garde de nuit, tireur en surplomb/mirador, explosion de l'épave.
-Dernière suite : 202/206.
+Dernière suite : 203 à 205 / 206 selon les exécutions (échecs variables : tireur au mirador, tireur en surplomb, mémoire du joueur).
