@@ -75,7 +75,7 @@ canvas{display:block}
 <div class="t"><span>Génération du terrain, de la forêt et des bâtiments…</span><span>Astuce : [P] pour se coucher, Q/E pour pencher</span><span>Astuce : les ennemis communiquent par radio, écoute-les</span><span>Astuce : [Ctrl] posture, [C] lancer une grenade</span></div>
 <div class="m">Chargement (le premier lancement peut prendre quelques secondes)…</div></div>
 <script>window.ldDone=function(){var e=document.getElementById('ld');if(!e)return;if(!window.__ldN)window.__ldN=0;if(++window.__ldN<3)return;try{if(typeof MERGED!=='undefined'&&!(MERGED.out>0)&&window.__ldN<240)return}catch(x){}window.ldDone=function(){};var bi=e.querySelector('.b i');if(bi){try{bi.animate({transform:[getComputedStyle(bi).transform,'scaleX(1)']},{duration:350,fill:'forwards'})}catch(x){bi.style.transform='scaleX(1)'}}e.style.pointerEvents='none';setTimeout(function(){e.style.opacity=0},450);setTimeout(function(){e.remove()},1200)}</script>
-<script src="../three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script type="text/plain" id="gamesrc">
 const $=id=>document.getElementById(id),rnd=(a,b)=>a+Math.random()*(b-a);
 const MH=750;
