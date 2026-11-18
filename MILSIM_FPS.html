@@ -2861,7 +2861,7 @@ function botDie(b){if(b.dead)return;{let n=null,nd=30;for(const o of bots){if(o=
 // ombre : à l'ombre (abri du soleil ou pièce non éclairée) les bots te voient moins loin
 const SHD={t:0,k:1,v:1};
 function shadeK(dt){SHD.t-=dt;if(SHD.t<=0){SHD.t=.35;let sh=false;if(P.gy!==undefined){const ri=inRoom(P.x,P.z);if(ri>=0&&P.gy+1<roofTop(P.x,P.z))sh=!(typeof ILON!=='undefined'&&ILON);else if(SUND.y>.12){_la.set(P.x,P.gy+P.bh,P.z);RC.set(_la,SUND);RC.far=60;for(const h of RC.intersectObjects(ray))if(!h.object.userData.glass){sh=true;break}}}SHD.k=sh?.62:1}SHD.v+=(SHD.k-SHD.v)*Math.min(1,dt*3);return SHD.v}
-function aiUpdate(dt,inz){vxTick(dt);dwUpdate(dt);AI.spent=0;if((AI.ejT-=dt)<=0){AI.ejT=2;navEject()}AI.budget=6;sqTick(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=skStealth()*(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45*moonVis()):1)*(.3+.7*Math.min(1,wcur[3]*1.4))*shadeK(dt),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
+function aiUpdate(dt,inz){vxTick(dt);dwUpdate(dt);AI.spent=0;if((AI.ejT-=dt)<=0){AI.ejT=2;navEject()}AI.budget=6;sqTick(dt);bvTick(dt);AI.budget=2;AI.heat=Math.max(0,(AI.heat||0)-dt*5);AI.nadeCd-=dt;const vis=skStealth()*(TOD.t>20.2||TOD.t<5.2?(flOn?.8:.45*moonVis()):1)*(.3+.7*Math.min(1,wcur[3]*1.4))*shadeK(dt),sprint=K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD),tgt=!inz&&!ac.on&&P.hp>0;
 if(NZ.n!==AI.nz){const n0=AI.nz|0;AI.nz=NZ.n;for(const z of NZ.q){if(z.n<=n0)continue;for(const b of bots){if(b.dead)continue;const d=Math.hypot(b.g.position.x-z.x,b.g.position.z-z.z);if(d<z.r&&!b.see){const e=1+d*.07;aiAlert(b,z.x+rnd(-e,e),z.z+rnd(-e,e),1.2)}}}}
 if(P.kills!==AI.kills){AI.kills=P.kills;if(P.kills%3===0){const k=Math.random()*NT.length|0;if(NADE.inv[k]<3){NADE.inv[k]++;feed('+1 grenade '+NT[k].n)}}}
 for(let i=0;i<bots.length;i++){const b=bots[i];if(b.dead>0){b.dead-=dt;botDead(b,dt);if(b.dead<=0)spawn(b);continue}
@@ -2897,6 +2897,30 @@ if(!losBlock(V,W,pdd)){b.fl=.07;b.rec=1;b.mag--;b.shots++;sfxShot(g.x,g.y+1.4,g.
 _lb.set(P.x,P.gy+P.eh*.68,P.z);hlBullet(V,_lb,pr,bt.dmg*(.8+Math.random()*.4),b);if(b.mag<=0){b.relT=b.ty===3?3.6:b.ty===2?2.8:2.1;b.decT=Math.min(b.decT,.1)}}else{b.see=false;b.seeT=.1}}}}
 function g_rot(b){b.g.rotation.y=b.yaw}
 aiInit();
+// ---- v60 : relève des tireurs de mirador (nouveau fichier, branché par build.py : bvTick(dt) dans aiUpdate)
+// Un tireur en poste sur un mirador n'en descend plus tout seul quand il est tranquille : il tient jusqu'à l'arrivée de son remplaçant (ou 4 min sans relève).
+// Au bout de BVR.T s de garde, un autre soldat libre proche monte par l'escalier ; dès qu'il est en place, le premier redescend.
+const BVR={T:50,max:240,rng:62,acc:0,n:0,on:true};
+function bvPost(c,h,from){if(c.lvl||c.route||c.after||!h.roofPosts)return false;c.lk.x=from.lk.x;c.lk.z=from.lk.z;let bp=null,bq=-9;
+for(const p of h.roofPosts){if(p.occ>0)continue;const dx=c.lk.x-p[0],dz=c.lk.z-p[1],d=Math.hypot(dx,dz)||1,q=(dx*Math.sin(p[2])+dz*Math.cos(p[2]))/d;if(q>bq){bq=q;bp=p}}
+if(!bp)return false;const route=[h.iA,h.iB,h.rA,h.rB,h.rL].concat(bp[3]?[h.rM]:[],[bp]),F=h.iF;
+if(!goTo(c,F[0],F[1],2.2,'ups'))return false;c.after={route:route.map(q=>[q[0],q[1]]),post:bp,lvl:2,h:h,F:[F[0],F[1]]};h.occ=(h.occ||0)+1;bp.occ=1;return true}
+function bvOn(b){return b.lvl===2&&b.hh&&b.hh.tower&&!b.route&&!(b.dead>0)}
+function bvTick(dt){if(!BVR.on)return;
+for(const b of bots){if(!bvOn(b)){if(b.bvT)b.bvT=0;continue}
+ if(b.hp>=b.T.hp*.4&&b.hold>12&&b.hold<900)b.hold=12;if(b.st==='hold')b.bvT=(b.bvT||0)+dt}
+if((BVR.acc+=dt)<2)return;BVR.acc=0;
+for(const h of UPH){if(!h.tower)continue;const on=bots.filter(b=>bvOn(b)&&b.hh===h&&b.st==='hold');
+ if(h.relv){const c=h.relv,pend=c.after&&c.after.h===h;
+  if(c.dead>0||(!pend&&c.hh!==h)){h.relv=null;continue}
+  if(c.hh===h&&c.lvl===2&&c.st==='hold'){const old=on.filter(b=>b!==c).sort((a,b)=>(b.bvT||0)-(a.bvT||0))[0];if(old){old.hold=999;BVR.n++}h.relv=null}
+  continue}
+ const o=on.filter(b=>(b.bvT||0)>BVR.T).sort((a,b)=>(b.bvT||0)-(a.bvT||0))[0];if(!o)continue;
+ if(on.length===1&&o.bvT>BVR.max){o.hold=999;continue}
+ if(on.length>=2){o.hold=999;BVR.n++;continue}
+ if((h.occ||0)>=2)continue;
+ let c=null,bd=1e9;for(const b of bots){if(b===o||b.dead>0||b.lvl||b.route||b.after||b.sur||b.dorm||b.unarm||b.alert||b.seenT<8||b.hp<b.T.hp*.6)continue;const d=Math.hypot(b.g.position.x-h.cx,b.g.position.z-h.cz)+(b.ty===2?0:12);if(d<BVR.rng&&d<bd){bd=d;c=b}}
+ if(c&&bvPost(c,h,o))h.relv=c}}
 // ================= STREAMING (v14) : construction à la demande autour du joueur + masquage par distance =================
 const LZR={build:160,show:180,hide:200};
 function lzBuiltAt(x,z){for(const q of LZ.built)if(x>=q.r[0]&&x<=q.r[1]&&z>=q.r[2]&&z<=q.r[3])return true;return false}
@@ -5275,6 +5299,25 @@ return n?bad:'aucun point d’eau échantillonné'});
 T('Props (v59) : aucun prop 3D ne flotte au-dessus du sol ni ne repose dans l’eau',()=>{let msg='';for(const it of P3D.list){if(wDep(it.x,it.z)>.3){msg+=it.name+' dans l’eau ('+it.x.toFixed(0)+','+it.z.toFixed(0)+') ';break}const y=it.g.position.y,gy=GH(it.x,it.z);if(it.name!=='tower'&&y-gy>1.2&&!UPH.some(h=>Math.abs(h.cx-it.x)<8&&Math.abs(h.cz-it.z)<8)){msg+=it.name+' flotte à '+(y-gy).toFixed(1)+' m ';break}}return msg});
 T('Streaming (v59) : les modèles de la ville sont décodés au chargement, plus de pic de 350 ms à la première instance',()=>{if(!LZ.warm||!LZ.warm.length)return'aucun modèle pré-chauffé';const q=LZ.q.filter(o=>o.mn).concat(LZ.built.filter(o=>o.mn));let worst=0,nm='';for(const n of LZ.warm){const t0=performance.now();mdl(n);const d=performance.now()-t0;if(d>worst){worst=d;nm=n}}
 if(worst>40)return'instance de '+nm+' en '+worst.toFixed(0)+' ms après pré-chauffage';const miss=LZ.q.filter(o=>o.mn&&!LZ.warm.includes(o.mn));return miss.length?miss.length+' modèles en attente non pré-chauffés':''});
+T('Mirador (v60) : le tireur tient son poste jusqu’à sa relève ; un remplaçant monte, puis le premier redescend, jamais de mirador vide entre les deux',()=>{const A=imTower(0);if(!A)return'pas de place pour un mirador';const{q,al}=imMk();if(al.length<2){imDrop(A);return'escouade trop petite'}
+const o=al[al.length-1],c=al[al.length-2],sn=[o,c],sv=sn.map(b=>[b.ty,b.T,b.g.position.x,b.g.position.z]),px=P.x,pz=P.z,hs=UPH.splice(0,UPH.length-1),T0=BVR.T,n0=BVR.n;let res='',clampMax=0,inTop=false,gone=-1,steps=0;const qm=q.m;
+try{q.m=qm.filter(b=>b!==o&&b!==c);sn.forEach((b,i)=>{b.ty=2;b.T=BT[2];b.lvl=0;b.route=null;b.path=null;b.after=null;b.dead=0;b.dorm=0;b.sur=0;b.alert=0;b.see=false;b.seenT=30;b.hold=0;b.bvT=0;b.hp=Math.max(b.hp,b.T.hp);b.g.position.set(A.it.x+A.d[0]*(14+i*3),GH(A.it.x,A.it.z),A.it.z+A.d[1]*(14+i*3));b.fy=b.g.position.y;b.lk.x=A.it.x-A.d[0]*35;b.lk.z=A.it.z-A.d[1]*35});
+P.x=A.it.x+20;P.z=A.it.z+20;P.gy=GH(P.x,P.z);BVR.T=1e9;AI.budget=6;let ok=false;for(let k=0;k<40&&!ok;k++)ok=aiPost(o,2);if(!ok)return'aucun poste au mirador';
+for(let i=0;i<900&&!(o.lvl===2&&o.st==='hold'&&o.fy>A.it.top-.6);i++){aiUpdate(.1,false);o.alert=0;o.see=false;o.seenT=Math.max(o.seenT,5);c.seenT=30;c.alert=0}
+c.ty=0;if(!(o.fy>A.it.top-.6))return'le premier tireur n’est pas monté';
+for(let i=0;i<300;i++){o.hold=Math.max(o.hold,30);o.alert=0;o.see=false;o.seenT=Math.max(o.seenT,5);c.seenT=30;c.alert=0;c.lvl=0;aiUpdate(.1,false);clampMax=Math.max(clampMax,o.hold)}
+if(clampMax>13.5)res+='le tireur tranquille quitte ou dépasse son poste (hold '+clampMax.toFixed(1)+') ';if(o.lvl!==2)res+='il est descendu sans relève ';
+P.x=A.it.x;P.z=A.it.z+190;P.gy=GH(P.x,P.z);c.path=null;c.st='pat';c.g.position.set(A.it.x+A.d[0]*17,GH(A.it.x,A.it.z),A.it.z+A.d[1]*17);c.fy=c.g.position.y;BVR.T=5;o.bvT=6;for(let i=0;i<2400&&gone<0;i++){steps=i;o.alert=0;o.see=false;o.seenT=Math.max(o.seenT,5);if(c.lvl!==2){c.alert=0;c.seenT=30}aiUpdate(.1,false);if(c.lvl===2&&c.st==='hold'&&c.fy>A.it.top-.6)inTop=true;if(o.lvl===0&&!o.hh)gone=i}
+if(!inTop)res+='le remplaçant n’est pas monté c.st '+c.st+' c.lvl '+c.lvl+' after '+!!c.after+' path '+!!c.path+' relv '+!!A.h.relv+' d '+Math.hypot(c.g.position.x-A.h.cx,c.g.position.z-A.h.cz).toFixed(0)+' ';else if(gone<0)res+='le premier n’est pas redescendu ';else if(c.lvl!==2||c.hh!==A.h)res+='mirador vide après la relève ';if(BVR.n<=n0)res+='relève non comptée [relv '+!!A.h.relv+' o.bvT '+(o.bvT|0)+' o.st '+o.st+' c.st '+c.st+' c.lvl '+c.lvl+' c.alert '+c.alert+' c.seenT '+(c.seenT|0)+' c.hp '+(c.hp|0)+'/'+(c.T.hp|0)+' c.unarm '+c.unarm+' c.sur '+c.sur+' d '+Math.hypot(c.g.position.x-A.h.cx,c.g.position.z-A.h.cz).toFixed(0)+' occ '+A.h.occ+'] ';if(A.h.occ!==1)res+='occupation '+A.h.occ+' au lieu de 1 '}
+finally{q.m=qm;sn.forEach((b,i)=>{b.ty=sv[i][0];b.T=sv[i][1];b.route=null;b.lvl=0;b.path=null;b.after=null;b.hh=null;b.rp=null;b.down=0;b.hold=0;b.bvT=0;b.st='pat';b.alert=0;b.cr=0;b.crA=0;b.aimA=0;b.pit=0;b.mvA=0;b.relA=0;b.see=false;b.prn=0;b.prA=0;b.upr=null;b.fdn=null;b.g.position.set(sv[i][2],GH(sv[i][2],sv[i][3]),sv[i][3]);b.fy=b.g.position.y});UPH.length=0;hs.forEach(o2=>UPH.push(o2));P.x=px;P.z=pz;BVR.T=T0;imDrop(A)}
+return res});
+T('Berges (v60) : un bot longe la rive sur le sable et la boue sans rester coincé, sans entrer en eau profonde',()=>{const b=bots.find(x=>!(x.dead>0)&&!x.lvl&&!x.route&&!x.sur&&!x.dorm);if(!b)return'';const g=b.g.position,sv=[g.x,g.z,b.path,b.st,b.pi,b.spK],pv=[P.x,P.z],bank=(p)=>{for(let r=0;r<60;r++){const a=r*2.4,d=1.2+(r%5)*.3,x=p[0]+Math.cos(a)*d*2.2,z=p[1]+Math.sin(a)*d*2.2,w=wDist(x,z);if(w>.4&&w<2.4&&wDep(x,z)<.2&&nFree(x,z)&&SHORE.ok(x,z))return[x,z]}return null};
+let msg='',n=0,worst=0;const sq=typeof SQ!=='undefined'&&SQ.find(q=>q.m.includes(b)),qm=sq&&sq.m;try{if(sq)sq.m=qm.filter(x=>x!==b);for(let a=0;a<RPTS.length-6&&n<5;a+=17){const A=bank(RPTS[a]),B=bank(RPTS[a+5]);if(!A||!B||Math.hypot(A[0]-B[0],A[1]-B[1])<10||Math.abs(A[0])>MH-40||Math.abs(A[1])>MH-40)continue;n++;P.x=A[0];P.z=A[1]+190;P.gy=GH(P.x,P.z);
+g.set(A[0],GH(A[0],A[1]),A[1]);b.fy=g.y;b.path=null;b.stuck=0;AI.budget=6;AI.spent=0;if(!goTo(b,B[0],B[1],1.4,'pat')){msg+='aucun chemin le long de la rive ('+A.map(v=>v.toFixed(0))+') ';continue}
+let i=0,dp=0;for(;i<900&&Math.hypot(g.x-B[0],g.z-B[1])>2.2;i++){b.alert=0;b.see=false;aiUpdate(.1,false);dp=Math.max(dp,wDep(g.x,g.z))}
+worst=Math.max(worst,dp);if(Math.hypot(g.x-B[0],g.z-B[1])>2.2)msg+='coincé à '+Math.hypot(g.x-B[0],g.z-B[1]).toFixed(1)+' m du but ('+A.map(v=>v.toFixed(0))+') ';if(dp>.7)msg+='passé en eau profonde ('+dp.toFixed(2)+' m) '}
+if(!n)return'aucune rive échantillonnée'}
+finally{if(sq)sq.m=qm;P.x=pv[0];P.z=pv[1];P.gy=GH(P.x,P.z);g.x=sv[0];g.z=sv[1];g.y=GH(sv[0],sv[1]);b.fy=g.y;b.path=sv[2];b.st=sv[3];b.pi=sv[4];b.spK=sv[5]}return msg});
 T('Soldats Mixamo : 33 os, 7 clips, poses finies sur tous les bots',()=>{if(SLS.nb!==33)return'os '+SLS.nb;for(const k of ['walk','run','fire','reload','death','strafe','idle'])if(!SLA[k]||SLA[k].n<4)return'clip '+k;for(const b of bots){if(!b.sld)return'bot sans soldat';const cr=[b.cr,b.crA,b.prA],gp=b.g.position.clone(),dd=b.dead;b.cr=0;b.crA=0;b.prA=0;b.dead=0;b.g.position.set(P.x+8,gp.y,P.z);sldUpdate(b,.05,true);const p=b.sld.bones[5].position;b.cr=cr[0];b.crA=cr[1];b.prA=cr[2];b.dead=dd;b.g.position.copy(gp);if(!isFinite(p.x+p.y+p.z)||p.y<1.0||p.y>1.9)return'tête hors plage '+p.y+' cr '+cr+' pr '+b.prA+' onv '+b.onv+' cur '+(b.sld.cur)+' rel '+b.relT+' hm '+b.hm+' st '+b.st+' lvl '+b.lvl+' fy '+(b.fy-gp.y).toFixed(2)}return true});
 T('Mise en veille : un bot à 400 m n\'est ni mis à jour ni affiché',()=>{const b=bots[0],g=b.g.position,x=g.x,z=g.z,v=b.g.visible,d0=b.dead,e0=ENM.off;ENM.off=0;b.dead=0;b.dorm=0;g.x=P.x+400;g.z=P.z;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok=b.dorm===1&&b.g.visible===false;g.x=P.x+30;for(let k=0;k<4;k++)aiUpdate(.05,false);const ok2=!b.dorm&&b.g.visible;g.x=x;g.z=z;b.g.visible=v;b.dead=d0;b.dorm=0;ENM.off=e0;return ok&&ok2||'veille '+ok+' réveil '+ok2});
 T('Voix des bots : phrases définies, annonce sans erreur',()=>{for(const k of ['contact','hit','reload','grenade','down','flank','cover','lost','ack'])if(!VX.L[k]||!VX.L[k].length)return'manque '+k;const b=bots.find(o=>!o.dead);if(!b)return true;b.vxCd=0;VX.last=0;vxSay(b,'hit');return typeof vxTick==='function'});
