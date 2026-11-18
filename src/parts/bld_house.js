@@ -1,15 +1,18 @@
 // ---------- moteur de bâtiment : 2 pièces, cloison + porte intérieure, vitres cassables ----------
+// variété par bâtiment (déterministe, sans toucher au hasard de la carte) : type de mur et léger écart de teinte
+const BKTN=[0xf4e8de,0xe6d0c0,0xd8bfa8,0xf0dac6,0xcfb8a6],wallKind=(x,z)=>{const h=hsh(Math.round(x*3),Math.round(z*7)+5);return h<.24?1:h<.55?2:0};
+function bjit(c,x,z){const k=.93+.12*hsh(Math.round(x*11)+1,Math.round(z*13)+2);return bright(c,k)}
 const FDU=[.2,-1.2,1.9,-2,0,-1.5,0,-1.2,3.2,4.5];
 function house(cxF,czF,W0,D0,side,st,lay,bk,o){o=o||{};const bun=!!o.bun,Dr=o.Dr||3.2,H=bun?3:2.8,t=bun?.42:.3,
 fz=side==='S'?1:side==='N'?-1:0,fx=side==='E'?1:side==='W'?-1:0,ux=fz,uz=-fx,dfx=fx!==0,
 W=W0+(fx?Dr:0),D=D0+(fz?Dr:0),cx=cxF-fx*Dr/2,cz=czF-fz*Dr/2,x0=cx-W/2,x1=cx+W/2,z0=cz-D/2,z1=cz+D/2,
-wm=pm(bun?T_conc:T_plas,st.w,{roughness:.95}),sm=pm(T_wood,st.s,{roughness:.7}),
+wk=bun?0:wallKind(cxF,czF),WT=wk===1?2.4:3,wm=bun?pm(T_conc,bjit(st.w,cxF,czF),{roughness:.95}):wk===1?pm(T_brick,bjit(BKTN[(hsh(cxF*5,czF*3)*BKTN.length)|0],cxF,czF),{roughness:.9}):pm(wk===2?T_plas2:T_plas,bjit(st.w,cxF,czF),{roughness:.95}),sm=pm(T_paint,st.s,{roughness:.7}),
 Df=dfx?W0:D0,Lt=dfx?D:W,hf=Df/2-t/2,hu=Lt/2-t/2,hb=Dr/2-t/2,OV=Dr/2,fd=dfx?fx:fz;
 const grp=(ax,f,c,out)=>{const g=new THREE.Group();g.position.set(ax==='x'?c:f,YO,ax==='x'?f:c);g.rotation.y=ax==='x'?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2);S.add(g);return g};
 const winD=(ax,f,o,out)=>{const g=grp(ax,f,o.c,out),w=o.w,h=o.y1-o.y0,yc=(o.y0+o.y1)/2,fm=bun?darkM:frameM;
-gb(g,w,.06,t+.04,0,o.y1-.03,0,fm);gb(g,w,.06,t+.04,0,o.y0+.03,0,fm);gb(g,.06,h,t+.04,-w/2+.03,yc,0,fm);gb(g,.06,h,t+.04,w/2-.03,yc,0,fm);
+gb(g,w,.06,t+.04,0,o.y1-.03,0,fm,.8);gb(g,w,.06,t+.04,0,o.y0+.03,0,fm,.8);gb(g,.06,h,t+.04,-w/2+.03,yc,0,fm,.8);gb(g,.06,h,t+.04,w/2-.03,yc,0,fm,.8);
 if(o.slit){for(let k=-3;k<=3;k++)gb(g,.03,h,.05,k*w/7,yc,0,darkM);gb(g,w+.3,.12,.3,0,o.y0-.06,t/2+.1,concM2)}
-else{gb(g,.04,h,.05,0,yc,0,fm);gb(g,w,.04,.05,0,yc+.15,0,fm);
+else{gb(g,.04,h,.05,0,yc,0,fm,.8);gb(g,w,.04,.05,0,yc+.15,0,fm,.8);
 const gp=new THREE.PlaneGeometry(w-.1,h-.1),gl=new THREE.Mesh(gp,glassM);gl.position.set(0,yc,0);gl.userData.glass={hp:2,w:w-.1,h:h-.1};gl.userData.home=g;g.add(gl);solids.push(gl);GLASS.push(gl);{const sy=YO+o.y0,hw=w/2-.05,dp=t/2+.3,vs=ax==='x'?surfRect(o.c-hw,o.c+hw,f-dp,f+dp,sy,{gl}):surfRect(f-dp,f+dp,o.c-hw,o.c+hw,sy,{gl});gl.userData.glass.vs=vs;gl.userData.glass.nv={ax,c:o.c,f,w,y:sy}}
 gb(g,w+.24,.05,.2,0,o.y0-.025,t/2+.07,stoneM,1.2);
 [-1,1].forEach(s=>{gb(g,.55,h+.08,.04,s*(w/2+.3),yc,t/2+.03,sm,1.1);gb(g,.5,.03,.05,s*(w/2+.3),yc+.35,t/2+.035,darkM);gb(g,.5,.03,.05,s*(w/2+.3),yc-.35,t/2+.035,darkM)})}};
@@ -23,7 +26,7 @@ for(let k=0;k<5;k++){const b=gb(g,.14,.4,.01,-.6+k*.3,.2,t/2+.02,k%2?darkM:std(0
 const doorI=(ax,f,c,out)=>{const g=grp(ax,f,c,out),m=bun?darkM:beamM;gb(g,.14,2.34,t+.05,-.66,1.17,0,m,1.2);gb(g,.14,2.34,t+.05,.66,1.17,0,m,1.2);gb(g,1.5,.1,t+.05,0,2.33,0,m,1.2)};
 const run=(ax,f,a,b,out,ops,ib)=>{ops.sort((p,q)=>p.c-q.c);let cur=a;
 const piece=(u0,u1,y0,y1,col)=>{if(u1-u0<.01||y1-y0<.01)return;const w=u1-u0,h=y1-y0,m=(u0+u1)/2,y=(y0+y1)/2;
-ax==='x'?blk(w,h,t,m,y,f,wm,{T:3,s:1,c:col}):blk(t,h,w,f,y,m,wm,{T:3,s:1,c:col});
+ax==='x'?blk(w,h,t,m,y,f,wm,{T:WT,s:1,c:col}):blk(t,h,w,f,y,m,wm,{T:WT,s:1,c:col});
 if(y0===0&&!ib&&!bun&&!YO)ax==='x'?blk(w,.42,t+.1,m,.21,f,stoneM,{T:1.2}):blk(t+.1,.42,w,f,.21,m,stoneM,{T:1.2})};
 ops.forEach(q=>{const l=q.c-q.w/2,r=q.c+q.w/2;piece(cur,l,0,H,1);if(q.door){piece(l,r,2.3,H,0);q.int?doorI(ax,f,q.c,out):(bun?doorB:doorD)(ax,f,q.c,out)}else{piece(l,r,0,q.y0,1);piece(l,r,q.y1,H,0);winD(ax,f,q,out)}cur=r});piece(cur,b,0,H,1)};
 const lat=dfx?cz:cx,dcF=(dfx?cx:cz)+fd*Dr/2,dcB=(dfx?cx:cz)-fd*Df/2,opp={N:'S',S:'N',E:'W',W:'E'}[side];
@@ -42,7 +45,7 @@ const FL=bun?slabM:(lay===1||lay===3)?matTile:floorM,BFL=bun?slabM:[matTile,floo
 const fcx=cx+(dfx?fx:0)*Dr/2,fcz=cz+(dfx?0:fz)*Dr/2,bcx=cx-(dfx?fx:0)*Df/2,bcz=cz-(dfx?0:fz)*Df/2;
 {const bw=dfx?Dr-t:Lt-t,bd=dfx?Lt-t:Dr-t,T_=BFL===floorM?1.2:2,g=new THREE.PlaneGeometry(bw,bd);scaleUV(g,bw/T_,bd/T_);const m=new THREE.Mesh(g,BFL);m.rotation.x=-Math.PI/2;m.position.set(bcx,.022,bcz);m.receiveShadow=true;S.add(m)}
 ROOMS.push({x:fcx,z:fcz,hx:(dfx?Df:Lt)/2,hz:(dfx?Lt:Df)/2,bun},{x:bcx,z:bcz,hx:(dfx?Dr:Lt)/2,hz:(dfx?Lt:Dr)/2,bun});
-if(!bun&&!o.up){blk(W-t,.1,D-t,cx,H+.05,cz,furnM,{fit:1.2,s:1});for(let k=-1;k<2;k++)blk(.12,.14,D-t,cx+k*W*.27,H-.07,cz,beamM,{fit:1.2})}
+if(!bun&&!o.up){blk(W-t,.1,D-t,cx,H+.05,cz,ceilM,{fit:3,s:1});for(let k=-1;k<2;k++)blk(.12,.14,D-t,cx+k*W*.27,H-.07,cz,beamM,{fit:1.2})}
 // ---- v6 : étage, escalier intérieur, toit plat accessible (o.up) ----
 const FT=H+.1,UDU=o.du!==undefined?o.du:FDU[o.fl!==undefined?o.fl:lay],si=UDU>0?-1:1,ci=-si,vB=-Df/2-Dr,vF=Df/2,vT=-Df/2+.2,RT=FT+H+.28;
 const L_=(u,v)=>[cx+u*ux+(v+OV)*fx,cz+u*uz+(v+OV)*fz],rW=(u0,u1,v0,v1)=>{const a=L_(u0,v0),b=L_(u1,v1);return[Math.min(a[0],b[0]),Math.max(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[1],b[1])]};
@@ -90,7 +93,7 @@ else{const RW=dfx?W:D,RD=dfx?D:W,rot=!dfx;
 const oh=.5,og=.4,tn=.62,an=Math.atan(tn),b=RD/2+oh,yr=H+RD/2*tn,ye=H-oh*tn,sl=Math.hypot(b,yr-ye),rg=new THREE.Group();rg.position.set(cx,0,cz);rg.rotation.y=rot?Math.PI/2:0;S.add(rg);
 [0,Math.PI].forEach(ry=>{const p=new THREE.Group();p.rotation.y=ry;rg.add(p);const g=new THREE.BoxGeometry(RW+2*og,.1,sl);fitUV(g,RW+2*og,.1,sl,1);const m=new THREE.Mesh(g,[beamM,beamM,tileM,beamM,beamM,beamM]);m.rotation.x=an;m.position.set(0,(yr+ye)/2+.05*Math.cos(an),b/2+.05*Math.sin(an));m.castShadow=m.receiveShadow=true;p.add(m)});
 {const r=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,RW+2*og,8),std(0xa8553a,{roughness:.85}));r.rotation.z=Math.PI/2;r.position.y=yr+.09;r.castShadow=true;rg.add(r)}
-[-1,1].forEach(s=>{const X=s*(RW/2),g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([X,H,-RD/2-t/2,X,H,RD/2+t/2,X,yr+t/2*tn,0],3));const u=(RD/2+t/2)/3;g.setAttribute('uv',new THREE.Float32BufferAttribute([-u,.4,u,.4,0,.4+(yr-H)/3],2));g.computeVertexNormals();const m=new THREE.Mesh(g,Object.assign(wm.clone(),{side:THREE.DoubleSide}));m.castShadow=m.receiveShadow=true;rg.add(m);
+[-1,1].forEach(s=>{const X=s*(RW/2),g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([X,H,-RD/2-t/2,X,H,RD/2+t/2,X,yr+t/2*tn,0],3));const u=(RD/2+t/2)/WT;g.setAttribute('uv',new THREE.Float32BufferAttribute([-u,.4,u,.4,0,.4+(yr-H)/WT],2));g.computeVertexNormals();const m=new THREE.Mesh(g,Object.assign(wm.clone(),{side:THREE.DoubleSide}));m.castShadow=m.receiveShadow=true;rg.add(m);
 const v=new THREE.Mesh(new THREE.BoxGeometry(.06,.4,.4),darkM);v.position.set(X+s*.01,H+.75,0);rg.add(v)});
 {const lx=RW*.27,lz=-RD*.18,hx=rot?cx+lz:cx+lx,hz=rot?cz-lx:cz+lz,hh=yr+.55-H;blk(.6,hh,.6,hx,H+hh/2,hz,stoneM,{T:1.2});blk(.76,.08,.76,hx,yr+.59,hz,darkM)}}
 // mobilier (v>0 vers la porte d'entrée). F : pièce avant ; F2 : pièce arrière

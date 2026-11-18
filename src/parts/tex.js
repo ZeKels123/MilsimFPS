@@ -1,4 +1,5 @@
 // ================= MATÉRIAUX & TEXTURES PROCÉDURALES (v3) =================
+const TEX_T0=performance.now();
 const std=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.9,metalness:0,envMapIntensity:.6},o));
 const L=(c,o)=>std(c,o);
 const AN=Math.min(8,R.capabilities.getMaxAnisotropy());
@@ -9,6 +10,8 @@ for(let x=0;x<sz;x++){const fx=x/sz*cx,ix=fx|0,tx=fx-ix,sx=tx*tx*(3-2*tx),x0=ix%
 const a=g[y0+x0],b=g[y0+x1],c=g[y1+x0],d=g[y1+x1];o[y*sz+x]=a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy}}
 return o}
 function fbm(sz,cx,cy,oct,seed){const o=new Float32Array(sz*sz);let a=1,t=0;for(let k=0;k<oct;k++){const n=vnoise(sz,cx<<k,cy<<k,seed+k*31);for(let i=0;i<o.length;i++)o[i]+=n[i]*a;t+=a;a*=.5}for(let i=0;i<o.length;i++)o[i]/=t;return o}
+// bruit basse fréquence calculé à résolution réduite puis interpolé (3 à 4 fois moins cher pour les champs lisses)
+function fbmS(sz,cx,cy,oct,seed,res){res=res||128;const s=fbm(res,cx,cy,oct,seed),o=new Float32Array(sz*sz),k=res/sz;for(let y=0;y<sz;y++){const fy=y*k,iy=fy|0,ty=fy-iy,y0=iy*res,y1=((iy+1)%res)*res;for(let x=0;x<sz;x++){const fx=x*k,ix=fx|0,tx=fx-ix,x1=(ix+1)%res;o[y*sz+x]=(s[y0+ix]*(1-tx)+s[y0+x1]*tx)*(1-ty)+(s[y1+ix]*(1-tx)+s[y1+x1]*tx)*ty}}return o}
 function ctex(sz,px,post){const c=document.createElement('canvas');c.width=c.height=sz;const x=c.getContext('2d'),im=x.createImageData(sz,sz);px(im.data,sz);x.putImageData(im,0,0);post&&post(x,sz);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=AN;return t}
 const c01=v=>v<0?0:v>1?1:v;
 function hsh(a,b){let h=(Math.imul(a|0,374761393)+Math.imul(b|0,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296}
@@ -24,35 +27,76 @@ function cracks(x,sz,n,col){x.strokeStyle=col;x.lineWidth=.9;for(let k=0;k<n;k++
 // --- béton banché (panneaux de coffrage 2 m x 1 m)
 const T_conc=ptex(512,(d,H,sz)=>{const a=fbm(sz,3,3,5,11),b=fbm(sz,64,64,3,5),c=fbm(sz,32,2,3,9),holes=[];
 for(let j=0;j<2;j++)for(const hx of [128,384])for(const hy of [70,186])holes.push([(hx+j*256)%512,j*256+hy]);
-for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X;let v=.86+(a[i]-.5)*.2+(b[i]-.5)*.1+(c[i]-.5)*.07,h=.5+(b[i]-.5)*.5+(a[i]-.5)*.2;
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X;let v=(.84+.05*hsh(((X+(y<256?0:256))%512)>>8,y>>8))+(a[i]-.5)*.2+(b[i]-.5)*.1+(c[i]-.5)*.07,h=.5+(b[i]-.5)*.5+(a[i]-.5)*.2,rr=1,gg=1,bb=1;
 const ry=y%256,sx=(X+(y<256?0:256))%512;
 if(ry<3||sx<3){v*=.6;h-=.5}else if(ry<5||sx<5)v*=1.05;
-for(const q of holes){const dx=X-q[0],dy=y-q[1],r=dx*dx+dy*dy;if(r<64){const k=1-r/64;v*=1-.6*k;h-=.7*k}}
-P4(d,i,v*255,v*252,v*243);H[i]=h}},
+for(const q of holes){const dx=X-q[0],dy=y-q[1],r=dx*dx+dy*dy;if(r<64){const k=1-r/64;v*=1-.6*k;h-=.7*k}if(dy>0&&dy<90&&Math.abs(dx)<4+c[i]*4){const k=(1-dy/90)*(1-Math.abs(dx)/8);if(k>0){v*=1-.1*k;rr*=1+.05*k;bb*=1-.14*k;gg*=1-.05*k}}}
+const ef=c01((b[i]-.6)*6)*c01((a[i]-.5)*3)*.12;v+=ef;
+P4(d,i,v*255*rr,v*252*gg,v*243*bb);H[i]=h}},
 (x,sz)=>{for(let i=0;i<420;i++){x.fillStyle='rgba(40,40,38,'+rnd(.15,.4)+')';x.beginPath();x.arc(rnd(2,sz-2),rnd(2,sz-2),rnd(.5,1.5),0,6.3);x.fill()}
 for(let i=0;i<9;i++){const px=rnd(10,sz-10),w=rnd(3,9),y0=rnd(5,sz*.5),h=rnd(60,200),g=x.createLinearGradient(0,y0,0,y0+h);g.addColorStop(0,'rgba(50,46,40,0)');g.addColorStop(.25,'rgba(50,46,40,.13)');g.addColorStop(1,'rgba(50,46,40,0)');x.fillStyle=g;x.fillRect(px,y0,w,h)}
 cracks(x,sz,3,'rgba(40,38,35,.45)')},3);
-// --- crépi (hauteur non répétée : saleté en bas, coulures sous le toit)
-const T_plas=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,31),b=fbm(sz,96,96,2,13),e=fbm(sz,10,3,3,57),st=fbm(sz,40,2,3,71);
-for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,vv=1-y/sz;let r=.93+(a[i]-.5)*.1+(b[i]-.5)*.05,g=r*.985,bl=r*.95;
-const dk=c01((.17+(e[i]-.5)*.2-vv)/.15);r*=1-.18*dk;g*=1-.2*dk;bl*=1-.24*dk;
-const tk=c01((vv-.7)/.2)*c01((st[i]-.45)*4);r*=1-.06*tk;g*=1-.06*tk;bl*=1-.05*tk;
-P4(d,i,r*255,g*255,bl*255);H[i]=b[i]*.7+a[i]*.3}},(x,sz)=>cracks(x,sz,5,'rgba(70,62,52,.4)'),2.2);
+// --- briques (30 x 7,5 cm, appareil à demi-brique) : 8 x 32 rangées sur 2,4 m ; teintes cuites variées, joints en retrait, fumées, efflorescences
+function brickTex(seed,hue){hue=hue||[186,92,70];return ptex(512,(d,H,sz)=>{const n1=fbm(sz,64,64,3,seed),n2=fbmS(sz,4,4,4,seed+9),sk=fbmS(sz,36,2,3,seed+17,256),ef=fbmS(sz,8,8,3,seed+23),mm=fbm(sz,96,96,2,seed+29);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,row=y>>4,ry=y&15,xo=(X+((row&1)<<5))&511,bx=xo&63,bi=xo>>6,hh=hsh(bi+row*8,seed+row),h2=hsh(bi*5+3,row*11+seed),vv=1-y/sz;
+const dirt=1-.3*c01((.16-vv)/.16)-.14*c01((vv-.72)/.2)*c01((sk[i]-.42)*4);let r,g,b,h;
+if(ry<2||bx<2){const k=(.8+.3*mm[i])*dirt;r=178*k;g=172*k;b=158*k;h=.12+(mm[i]-.5)*.12}
+else{const u=bx-2,v=ry-2,e=Math.min(u,61-u,v,13-v),k=c01(e/2.2);let t=(.74+.38*hh)*(.86+.26*n1[i])*(.92+.16*n2[i]);if(h2>.91)t*=.82;else if(h2<.06)t*=1.18;
+const ch=h2>.91?.86:1;r=hue[0]*t*dirt;g=hue[1]*t*dirt*ch;b=hue[2]*t*dirt*(h2>.91?1.15:1);
+const w=c01((ef[i]-.64)*5)*c01((.4-vv)/.3)*.3;r+=(225-r)*w;g+=(222-g)*w;b+=(210-b)*w;h=.55+.22*k+(n1[i]-.5)*.2}
+P4(d,i,r,g,b);H[i]=h}},(x,sz)=>cracks(x,sz,2,'rgba(30,24,20,.5)'),2.8)}
+// --- crépi : o.gc grain, o.sc coulures, o.k relief, o.pat seuil des plaques tombées (briques apparentes), o.cr fissures, o.mo moisissure
+function plasTex(seed,o){return ptex(512,(d,H,sz)=>{const a=fbmS(sz,4,4,4,seed),b=fbm(sz,o.gc,o.gc,2,seed+13),g2=fbm(sz,256,256,1,seed+5),e=fbmS(sz,10,3,3,seed+27),st=fbmS(sz,o.sc,2,3,seed+41,256),pk=fbmS(sz,5,5,4,seed+53),sw=fbmS(sz,12,12,2,seed+67),mo=fbmS(sz,6,6,3,seed+79);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,vv=1-y/sz;let r=.93+(a[i]-.5)*.17+(b[i]-.5)*.05*o.k+(g2[i]-.5)*.045*o.k,g=r*.985,bl=r*.95;
+const dk=c01((.17+(e[i]-.5)*.22-vv)/.15);r*=1-.18*dk;g*=1-.2*dk;bl*=1-.24*dk;
+const tk=c01((vv-.66)/.22)*c01((st[i]-.46)*4.5),rk=c01((st[i]-.58)*5)*.05;r*=1-.07*tk-rk;g*=1-.07*tk-rk;bl*=1-.06*tk-rk;
+if(o.mo){const m=c01((mo[i]-.58)*4)*c01((.3-vv)/.3);r*=1-.16*m;g*=1-.05*m;bl*=1-.2*m}
+let h=(b[i]*.4+g2[i]*.25)*o.k+sw[i]*.22+a[i]*.1;
+if(o.pat){const pt=c01((pk[i]+(.22-vv)*.6-o.pat)/.035);if(pt>0){const row=y>>4,xo=(X+((row&1)<<5))&511,bx=xo&63,ry=y&15,hh=hsh((xo>>6)+row*8,seed+7);let br,bg,bb,bh;
+if(ry<2||bx<2){br=150;bg=144;bb=132;bh=.1}else{const t=.7+.4*hh;br=190*t;bg=100*t;bb=78*t;bh=.45}
+const q=c01(pt*1.4),rim=pt<.45?1-pt/.45:0;r=(r*(1-q)+br/255*q)*(1-.22*rim);g=(g*(1-q)+bg/255*q)*(1-.22*rim);bl=(bl*(1-q)+bb/255*q)*(1-.22*rim);h=h*(1-q)+(bh-.3)*q+rim*.12}}
+P4(d,i,r*255,g*255,bl*255);H[i]=h}},(x,sz)=>{cracks(x,sz,o.cr,'rgba(70,62,52,.4)');for(let i=0;i<o.cr*6;i++){x.fillStyle='rgba(60,54,46,'+rnd(.1,.3)+')';x.beginPath();x.arc(rnd(4,sz-4),rnd(4,sz-4),rnd(.6,1.8),0,6.3);x.fill()}},o.ns)}
+const T_plas=plasTex(31,{gc:96,sc:40,k:1,pat:.63,cr:5,mo:1,ns:2.4});
+const T_plas2=plasTex(177,{gc:200,sc:24,k:2.2,pat:0,cr:3,mo:0,ns:3.4});
+const T_brick=brickTex(211);
+// --- plafond : enduit clair, auréoles d'humidité, coins noircis
+const T_ceil=ptex(256,(d,H,sz)=>{const a=fbm(sz,3,3,4,301),b=fbm(sz,64,64,2,303),w=fbm(sz,4,4,3,307);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X;let v=.95+(a[i]-.5)*.08+(b[i]-.5)*.04;const s=c01((w[i]-.7)*5)*.7;const ring=s>0&&s<.5?.03:0;
+const ed=Math.min(X,y,sz-1-X,sz-1-y),cn=c01((20-ed)/20)*c01((a[i]-.45)*3)*.1;P4(d,i,(v*(1-.1*s-ring-cn))*255,(v*(1-.14*s-ring-cn))*250,(v*(1-.26*s-ring-cn))*238);H[i]=b[i]*.6}},null,1.6);
+// --- carrelage 4 x 4 (50 cm sur 2 m) : joints encrassés, carreaux d'accent, éclats ; rugosité variable
+const T_tile=(()=>{const sz=512,n=fbmS(sz,5,5,4,81),m=fbm(sz,128,128,2,83),dt=fbmS(sz,48,48,3,87,256),RG=new Float32Array(sz*sz);
+const t=ptex(sz,(d,H)=>{for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&127,gy=y&127,ti=X>>7,tj=y>>7,hh=hsh(ti+3,tj+7),ed=Math.min(gx,gy,127-gx,127-gy);let r,g,b,h,rg;
+if(gx<3||gy<3){const k=.44*(.8+dt[i]*.4);r=k*255;g=k*250;b=k*238;h=.05;rg=.95}
+else{let v=(.86+.1*hh)*(.94+(n[i]-.5)*.1)*(.97+(m[i]-.5)*.04)*(((ti+tj)&1)?.93:1);if(hh>.88)v*=.78;const dd=c01((9-ed)/9)*dt[i]*.14;v*=1-dd;
+r=v*236;g=v*(hh>.88?240:232);b=v*(hh>.88?240:216);h=.72-(ed<8?(8-ed)*.012:0);rg=.3+(n[i]-.5)*.3+dd*2+(dt[i]>.62?.25:0)}
+P4(d,i,r,g,b);H[i]=h;RG[i]=c01(rg)}},(x,s)=>{for(let k=0;k<4;k++){const px=rnd(10,s-10),py=rnd(10,s-10);x.fillStyle='rgba(50,44,36,.5)';x.beginPath();x.moveTo(px,py);x.lineTo(px+rnd(3,9),py+rnd(-3,3));x.lineTo(px+rnd(-2,5),py+rnd(3,9));x.fill()}cracks(x,s,2,'rgba(40,36,30,.55)')},3.2);
+const c=document.createElement('canvas');c.width=c.height=sz;const x=c.getContext('2d'),im=x.createImageData(sz,sz);for(let i=0;i<sz*sz;i++){const v=RG[i]*255;im.data[i*4]=v;im.data[i*4+1]=v;im.data[i*4+2]=v;im.data[i*4+3]=255}x.putImageData(im,0,0);t.rough=tx(c);return t})();
+// --- peinture écaillée sur bois (huisseries, volets)
+const T_paint=ptex(128,(d,H,sz)=>{const g=fbm(sz,32,3,3,401),n=fbm(sz,40,40,2,403),w=fbm(sz,6,6,3,407);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,ch=c01((w[i]-.74)*7);let v=.94+(g[i]-.5)*.07+(n[i]-.5)*.04;let r=v,gg=v,b=v*.97,h=.6+(g[i]-.5)*.2;if(ch>0){const q=ch,wr=.55+(g[i])*.3;r=r*(1-q)+wr*.9*q;gg=gg*(1-q)+wr*.74*q;b=b*(1-q)+wr*.55*q;h-=.25*q}
+P4(d,i,r*255,gg*255,b*255);H[i]=h}},null,2);
+// --- porte intérieure/extérieure (1,2 x 2,3 m étirés sur 256 x 256) : montants, traverses, 4 panneaux moulurés, usure autour de la poignée
+const T_door=(()=>{const sz=256,g=fbm(sz,56,2,4,501),n=fbm(sz,5,5,3,503),w=fbm(sz,12,12,2,507);
+return ptex(sz,(d,H)=>{for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X;let v=.8+(g[i]-.5)*.3+(n[i]-.5)*.1,h=.6+(g[i]-.5)*.2;
+const st=X<28||X>227,rl=y<22||y>233||(y>112&&y<134)||y>218;
+if(!st&&!rl){const px=X<128?X-28:X-128,pw=X<128?100:100,py=y<112?y-22:y-134,ph=y<112?90:84,ed=Math.min(px,pw-px,py,ph-py);const e=ed<0?0:ed;if(e<5){v*=.62+.07*e;h=.25+.07*e}else{h=.55+Math.min(.12,(e-5)*.01);v*=1.02}}
+const hx=X-212,hy=y-130,wr=c01(1-Math.hypot(hx,hy*.6)/30)*.18;v*=1-wr*(.5+w[i]);if(y>226)v*=.85;P4(d,i,v*255,v*240,v*222);H[i]=h}},(x,s)=>{x.strokeStyle='rgba(35,22,10,.35)';x.lineWidth=1;for(let k=0;k<3;k++){const px=rnd(8,s-8),py=rnd(150,220);x.beginPath();x.moveTo(px,py);x.lineTo(px+rnd(-14,14),py+rnd(8,26));x.stroke()}},2.4)})();
 // --- pierre (moellons)
 const T_stone=ptex(256,(d,H,sz)=>{const G=5,cs=sz/G,n=fbm(sz,48,48,2,91),pts=[];for(let j=0;j<G;j++)for(let i=0;i<G;i++)pts.push([(i+.15+hsh(i,j)*.7)*cs,(j+.15+hsh(i+9,j+5)*.7)*cs,hsh(i*3+1,j*7+2)]);
 for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const ci=X/cs|0,cj=y/cs|0;let f1=1e9,f2=1e9,id=0;
 for(let dj=-1;dj<2;dj++)for(let di=-1;di<2;di++){const p=pts[((cj+dj+G)%G)*G+(ci+di+G)%G];let dx=Math.abs(X-p[0]),dy=Math.abs(y-p[1]);if(dx>sz/2)dx=sz-dx;if(dy>sz/2)dy=sz-dy;const q=Math.hypot(dx,dy*1.5);if(q<f1){f2=f1;f1=q;id=p[2]}else if(q<f2)f2=q}
 const e=c01((f2-f1)/7),i=y*sz+X,k=(.66+.34*id)*(.85+n[i]*.3);let r=182*k*(id>.7?1.08:1),g=172*k,b=152*k;r=92+(r-92)*e;g=86+(g-86)*e;b=76+(b-76)*e;P4(d,i,r,g,b);H[i]=e*(.7+.3*n[i])}},null,3);
-// --- bois (planches) ; joints=1 : parquet
-function woodTex(joints,seed){return ptex(512,(d,H,sz)=>{const g=fbm(sz,64,2,4,seed),m=fbm(sz,5,5,3,seed+3),f=fbm(sz,128,8,2,seed+7);
-for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,pl=X>>7,e=X&127,ph=hsh(pl,seed),sh=.8+ph*.2,ring=.5+.5*Math.sin((X+(m[i]-.5)*90+pl*37)*.33+(g[i]-.5)*5);
-let v=sh*(.76+(g[i]-.5)*.3+ring*.1+(f[i]-.5)*.1),h=.6+(g[i]-.5)*.5+ring*.12;
-if(e<2||e>125){v*=.35;h=0}else if(e<4||e>123){v*=.8;h*=.6}
-if(joints&&Math.abs(y-(ph*sz|0))<2){v*=.4;h=0}
-P4(d,i,v*255,v*236,v*205);H[i]=h}},
+// --- bois (planches) ; joints=1 : parquet à lames étroites ; pw = largeur d'une lame en pixels
+function woodTex(joints,seed,pw){pw=pw||128;const NP=512/pw;return ptex(512,(d,H,sz)=>{const g=fbm(sz,64,2,4,seed),m=fbm(sz,5,5,3,seed+3),f=fbm(sz,128,8,2,seed+7),sc=fbm(sz,160,6,2,seed+13);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,pl=(X/pw)|0,e=X%pw,ph=hsh(pl,seed),ph2=hsh(pl+17,seed),sh=.78+ph*.22,ring=.5+.5*Math.sin((X+(m[i]-.5)*90+pl*37)*.33+(g[i]-.5)*5);
+let v=sh*(.76+(g[i]-.5)*.3+ring*.1+(f[i]-.5)*.1)*(sc[i]>.66?.93:1),h=.6+(g[i]-.5)*.5+ring*.12;const cr=1+(ph2-.5)*.1,cb=1-(ph2-.5)*.14;
+if(e<2||e>pw-3){v*=.35;h=0}else if(e<4||e>pw-5){v*=.8;h*=.6}
+if(joints){if(Math.abs(y-(ph*sz|0))<2||Math.abs(y-((ph2*sz)|0))<2){v*=.4;h=0}}else if(Math.abs(y-(ph*sz|0))<2&&hsh(pl,seed+5)>.5){v*=.5;h=.1}
+P4(d,i,v*255*cr,v*236,v*205*cb);H[i]=h}},
 (x,sz)=>{for(let k=0;k<5;k++){const px=rnd(20,sz-20),py=rnd(20,sz-20),rg=x.createRadialGradient(px,py,0,px,py,9);rg.addColorStop(0,'rgba(45,28,14,.7)');rg.addColorStop(.5,'rgba(60,38,18,.35)');rg.addColorStop(1,'rgba(60,38,18,0)');x.fillStyle=rg;x.save();x.translate(px,py);x.scale(.6,1);x.fillRect(-9,-9,18,18);x.restore()}
-if(!joints){x.fillStyle='rgba(20,15,10,.7)';for(let p=0;p<4;p++)for(const yy of [26,sz-26]){x.beginPath();x.arc(p*128+64,yy,3,0,6.3);x.fill()}}},3)}
-const T_wood=woodTex(0,9),T_floor=woodTex(1,23);
+if(!joints){x.fillStyle='rgba(20,15,10,.7)';for(let p=0;p<NP;p++)for(const yy of [26,sz-26]){x.beginPath();x.arc(p*pw+pw/2,yy,3,0,6.3);x.fill()}}
+else{x.fillStyle='rgba(25,18,10,.55)';for(let p=0;p<NP;p++){const yy=(hsh(p,seed)*sz)|0;for(const q of [-4,5]){x.beginPath();x.arc(p*pw+pw*.22,(yy+q+sz)%sz,1.2,0,6.3);x.arc(p*pw+pw*.78,(yy+q+sz)%sz,1.2,0,6.3);x.fill()}}}},3)}
+const T_wood=woodTex(0,9),T_floor=woodTex(1,23,64);
 // --- caisse de munitions
 const T_crate=(()=>{const sz=256,mk=()=>{const c=document.createElement('canvas');c.width=c.height=sz;return c},c1=mk(),c2=mk(),B=22;
 const draw=(x,hm)=>{const col=(c,h)=>x.fillStyle=hm?'rgb('+h+','+h+','+h+')':c;
@@ -67,12 +111,12 @@ if(!hm){x.fillStyle='rgba(25,22,18,.72)';x.textAlign='right';x.font='bold 20px m
 const g=x.createRadialGradient(sz/2,sz/2,sz*.3,sz/2,sz/2,sz*.75);g.addColorStop(0,'rgba(30,20,10,0)');g.addColorStop(1,'rgba(30,20,10,.3)');x.fillStyle=g;x.fillRect(0,0,sz,sz)}};
 draw(c1.getContext('2d'),0);const x2=c2.getContext('2d');draw(x2,1);const id=x2.getImageData(0,0,sz,sz).data,H=new Float32Array(sz*sz);for(let i=0;i<sz*sz;i++)H[i]=id[i*4]/255;
 return{map:tx(c1,1),normalMap:nmap(H,sz,2.2)}})();
-// --- tuiles
-const T_roof=ptex(256,(d,H,sz)=>{const n=fbm(sz,32,32,3,61),ms=fbm(sz,5,5,3,67);
-for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,row=y>>6,r=(y&63)/64,cxp=(X+(row&1)*32)&255,col=cxp>>6,c=(cxp&63)/64,hh=hsh(col+row*7,row*13+3);
-let k=(.72+.36*hh)*(.62+.38*r)*(.9+n[i]*.2);if(Math.min(c,1-c)<.05)k*=.6;if(r<.07)k*=.55;
-let r_=200*k,g_=100*k,b_=68*k;if(hh>.82){r_*=.8;g_*=.86;b_*=.82}
-const mo=c01((ms[i]-.62)*5)*.45;r_+=(70-r_)*mo;g_+=(88-g_)*mo;b_+=(50-b_)*mo;
+// --- tuiles (4 x 4 par 256 px) : teintes cuites par tuile, recouvrement ombré, lichens, mousse, fumées
+const T_roof=ptex(256,(d,H,sz)=>{const n=fbm(sz,32,32,3,61),ms=fbm(sz,5,5,3,67),li=fbm(sz,20,20,3,69),sk=fbm(sz,24,2,2,73);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,row=y>>6,r=(y&63)/64,cxp=(X+(row&1)*32)&255,col=cxp>>6,c=(cxp&63)/64,hh=hsh(col+row*7,row*13+3),h3=hsh(col*3+row,row*5+1);
+let k=(.72+.36*hh)*(.62+.38*r)*(.9+n[i]*.2)*(.94+.1*Math.sin(Math.PI*c));if(Math.min(c,1-c)<.05)k*=.7;if(r<.07)k*=.6;k*=1-.1*c01((sk[i]-.55)*5);
+let r_=200*k,g_=100*k,b_=68*k;if(hh>.82){r_*=.8;g_*=.86;b_*=.82}if(h3<.12){r_*=.86;g_*=.92;b_*=1.05}
+const mo=c01((ms[i]-.62)*5)*.45;r_+=(70-r_)*mo;g_+=(88-g_)*mo;b_+=(50-b_)*mo;const l=c01((li[i]-.68)*6)*.32*(h3>.5?1:.4);r_+=(165*k-r_)*l;g_+=(170*k-g_)*l;b_+=(110*k-b_)*l;
 P4(d,i,r_,g_,b_);H[i]=(.25+.75*r)*(.7+.3*Math.sin(Math.PI*c))}},null,3);
 // --- sol (v62) : deux tuiles de 6 m (herbe fine, terre) mélangées par le shader du terrain selon un poids d'herbe par sommet
 const gwrap=(sz,px,py,m,f)=>{const ox=px<m?[0,sz]:px>sz-m?[0,-sz]:[0],oy=py<m?[0,sz]:py>sz-m?[0,-sz]:[0];for(const u of ox)for(const v of oy)f(px+u,py+v)};
@@ -104,8 +148,8 @@ vec3 gc=g1*mix(1.,l2,.5)*mac,dc=d1*mix(1.,l2,.3)*(.9+.2*l3);
 float tt=smoothstep(.0,1.,(vGs-.5)*3.+.5+(l2-1.)*1.6);
 diffuseColor.rgb*=mix(dc,gc,tt);`)};return m}
 // --- dalles béton
-const T_slab=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,15),b=fbm(sz,64,64,2,8);
-for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&255,gy=y&255,hh=hsh((X>>8)+3,(y>>8)+11);let v=(.72+hh*.12)*(.9+(a[i]-.5)*.25+(b[i]-.5)*.12),h=.6+(b[i]-.5)*.3;
+const T_slab=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,15),b=fbm(sz,64,64,2,8),o_=fbm(sz,6,6,3,19),tr=fbm(sz,10,10,2,23);
+for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&255,gy=y&255,hh=hsh((X>>8)+3,(y>>8)+11);const oil=c01((o_[i]-.66)*6)*.28,sw_=(tr[i]-.5)*.07;let v=(.72+hh*.12)*(.9+(a[i]-.5)*.25+(b[i]-.5)*.12+sw_)*(1-oil),h=.6+(b[i]-.5)*.3+sw_;
 const eg=Math.min(gx,gy,255-gx,255-gy);if(eg<3){v*=.45;h=0}else if(eg<7){v*=.88;h*=.5+eg/14}P4(d,i,v*255,v*250,v*240);H[i]=h}},(x,sz)=>cracks(x,sz,4,'rgba(35,33,30,.5)'),3);
 // --- fût métallique
 const T_barrel=(()=>{const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#e6e6e6';x.fillRect(0,0,512,256);
@@ -114,6 +158,7 @@ for(let i=0;i<40;i++){x.strokeStyle='rgba(255,255,255,'+rnd(.1,.3)+')';x.lineWid
 const g=x.createLinearGradient(0,256,0,165);g.addColorStop(0,'rgba(110,55,22,.8)');g.addColorStop(1,'rgba(110,55,22,0)');x.fillStyle=g;x.fillRect(0,165,512,91);
 for(let i=0;i<70;i++){const px=rnd(12,500),py=rnd(120,256),r=rnd(3,12),rg=x.createRadialGradient(px,py,0,px,py,r);rg.addColorStop(0,'rgba(120,60,25,.6)');rg.addColorStop(1,'rgba(120,60,25,0)');x.fillStyle=rg;x.fillRect(px-r,py-r,2*r,2*r)}
 x.fillStyle='rgba(245,245,235,.92)';x.fillRect(150,92,120,52);x.fillStyle='rgba(20,20,20,.85)';x.font='bold 22px monospace';x.textAlign='center';x.fillText('DIESEL',210,117);x.font='11px monospace';x.fillText('200 L · UN 1202',210,135);return tx(c)})();
+window.TEXMS=performance.now()-TEX_T0;
 // --- matériaux de surface
 const bright=(c,f)=>{const r=Math.min(255,(c>>16&255)*f),g=Math.min(255,(c>>8&255)*f),b=Math.min(255,(c&255)*f);return (r<<16)|(g<<8)|b};
 const SURF={};
@@ -123,7 +168,7 @@ else if(c===0x7a5a36){m=pm(T_wood,0xe8b888,{roughness:.7});m.userData.k='wood'}
 else{m=pm(T_conc,bright(c,1.25),{roughness:.93,vertexColors:true});m.userData.k='wall'}
 return SURF[c]=m}
 const woodMat=c=>pm(T_wood,bright(c,1.25),{roughness:.75});
-const matTile=pm(T_slab,0xb4b2a8,{roughness:.7});
+const matTile=pm(T_tile,0xe4e0d4,{roughness:1,roughnessMap:T_tile.rough});
 function scaleUV(g,su,sv){const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*su,uv.getY(i)*sv);uv.needsUpdate=true}
 function fitUV(g,w,h,d,T){const uv=g.attributes.uv,ou=Math.random(),dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];
 for(let f=0;f<6;f++)for(let i=0;i<4;i++){const j=f*4+i;uv.setXY(j,uv.getX(j)*dims[f][0]/T+ou,uv.getY(j)*dims[f][1]/T)}uv.needsUpdate=true}

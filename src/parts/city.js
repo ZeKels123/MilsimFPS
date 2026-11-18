@@ -16,13 +16,13 @@ const roadC=h=>{const[c,g]=mkC(256,256);g.fillStyle='#35373b';g.fillRect(0,0,256
 const L=(x,y,w,ht)=>h?g.fillRect(y,x,ht,w):g.fillRect(x,y,w,ht);g.fillStyle='#e7e2c6';L(5,0,3,256);L(248,0,3,256);g.fillStyle='#e9d95a';L(124,0,2,256);L(130,0,2,256);return c};
 const rdN=roadC(0),rdE=roadC(1);
 const asphN=len=>std(0xffffff,{map:cvT(rdN,1,len/16),roughness:.95}),asphE=len=>std(0xffffff,{map:cvT(rdE,len/16,1),roughness:.95,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
-const pavM=std(0x8d8d88,{roughness:1}),roofM=std(0x3b3d40,{roughness:.9}),concM=std(0x9a9a94,{roughness:.95});
+const pavM=pm(T_slab,0xb0b0a8,{roughness:1}),roofM=pm(T_slab,0x5a5c60,{roughness:.95}),concM=pm(T_conc,0xc4c2b8,{roughness:.95});
 const SX=[[224,14],[330,12],[420,12],[508,14],[615,14]],SZ=[[-420,12],[-525,14],[-630,12],[-706,12]];
 SX.forEach(([x,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(w,.06,388),asphN(388));e.position.set(x,Y+.03,-544);e.receiveShadow=true;S.add(e)});
 SZ.forEach(([z,w])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(588,.06,w),asphE(588));e.position.set(444,Y+.035,z);e.receiveShadow=true;S.add(e)});
 const BX=[[150,217],[231,324],[336,414],[426,500],[516,606],[624,738]],BZ=[[-738,-712],[-700,-636],[-624,-532],[-518,-426],[-414,-350]];
 const GRID=[['park','park','park','park','park','park'],['apt','off','hotel','apt','shop','resto'],['shop','off','resto','shop','apt','off'],['resto','off','off','park','hotel','apt'],['apt','shop','apt','resto','off','shop']];
-BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const e=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,.08,z1-z0),pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
+BZ.forEach(([z0,z1])=>BX.forEach(([x0,x1])=>{const pg_=new THREE.BoxGeometry(x1-x0,.08,z1-z0);wuv(pg_,(x0+x1)/2,Y+.04,(z0+z1)/2,2,2);const e=new THREE.Mesh(pg_,pavM);e.position.set((x0+x1)/2,Y+.04,(z0+z1)/2);e.receiveShadow=true;S.add(e)}));
 // --- modèles importés (cache de géométrie)
 const MG={},CV=[[.42,.025,.03],[.025,.07,.26],[.78,.78,.76],[.012,.012,.015],[.36,.37,.4],[.03,.13,.07],[.46,.38,.24],[.5,.16,.03]];const mdl=n=>{const[nm,ci]=n.split(':');if(!MG[n])MG[n]=mkMdl(nm,ci!==undefined?CV[ci|0]:undefined);return MG[n].clone()};window.mdl=mdl;
 const mdlAt=(n,x,y,z,ry,hw,hd,hh,sol)=>{const e=mdl(n);e.position.set(x,Y+y,z);e.rotation.y=ry;S.add(e);const bx=hw?{x0:x-hw,x1:x+hw,z0:z-hd,z1:z+hd,y0:Y+y,y1:Y+y+hh}:null;if(bx)boxes.push(bx);if(sol&&hw){const px=new THREE.Mesh(new THREE.BoxGeometry(hw*2,hh,hd*2),new THREE.MeshBasicMaterial());px.position.set(x,Y+y+hh/2,z);px.visible=false;S.add(px);solids.push(px);if(/^(car|mazda|lambo)/.test(n))dstVeh(e,px,bx,x,Y+y,z)}return e};
@@ -31,8 +31,8 @@ const hydM=std(0xb3201a,{roughness:.5,metalness:.3}),hydC=std(0xc9c9c4,{roughnes
 const HYG=HYDD.map(d=>{const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(Float32Array.from(d.p,v=>v/1000),3));G.setAttribute('normal',new THREE.BufferAttribute(Float32Array.from(d.q,v=>v/100),3));return G});
 const hydrant=(x,z)=>{HYG.forEach((G,k)=>{const e=new THREE.Mesh(G,k===1?hydC:hydM);e.position.set(x,Y,z);e.castShadow=true;S.add(e);if(k===0)solids.push(e)});boxes.push({x0:x-.27,x1:x+.27,z0:z-.27,z1:z+.27,y0:Y,y1:Y+.95})};window.HYDRANT=hydrant;
 // --- murs avec ouvertures ; fenêtres cassables (linteau, appui, volets)
-const trimM=std(0x5b5f63,{roughness:.8}),trimL=std(0xcfc9bb,{roughness:.9}),railM=std(0x2c3034,{roughness:.5,metalness:.6}),inM=std(0xe6e1d6,{roughness:.95});
-const seg=(x0,x1,z0,z1,y0,y1,m)=>blk(x1-x0,y1-y0,z1-z0,(x0+x1)/2,Y+(y0+y1)/2,(z0+z1)/2,m,{T:3,s:1,c:1});
+const trimM=std(0x5b5f63,{roughness:.8}),trimL=std(0xcfc9bb,{roughness:.9}),railM=std(0x2c3034,{roughness:.5,metalness:.6}),inM=pm(T_plas2,0xe6e1d6,{roughness:.95});
+const seg=(x0,x1,z0,z1,y0,y1,m)=>blk(x1-x0,y1-y0,z1-z0,(x0+x1)/2,Y+(y0+y1)/2,(z0+z1)/2,m,{T:m.userData.T||3,s:1,c:1});
 function winG(ax,f,c,w,y0,y1,tt,o){const h=y1-y0,gm=new THREE.Mesh(new THREE.PlaneGeometry(w-.1,h-.1),glassM);gm.position.set(ax==='x'?c:f,Y+(y0+y1)/2,ax==='x'?f:c);if(ax==='z')gm.rotation.y=Math.PI/2;
 gm.userData.glass={hp:2,w:w-.1,h:h-.1};gm.userData.home=S;S.add(gm);solids.push(gm);GLASS.push(gm);
 const sy=Y+y0,hw=w/2-.05,dp=tt/2+.3,vs=ax==='x'?surfRect(c-hw,c+hw,f-dp,f+dp,sy,{gl:gm}):surfRect(f-dp,f+dp,c-hw,c+hw,sy,{gl:gm});gm.userData.glass.vs=vs;gm.userData.glass.nv={ax,c,f,w,y:sy};
@@ -42,7 +42,7 @@ if(o&&o.sh){const q=o.out*(tt/2+.03);[-1,1].forEach(s=>{ax==='x'?blk(.5,h,.05,c+
 function wall(ax,f,a0,a1,ops,m,yb,hh,tt){tt=tt||t;ops.sort((p,q)=>p.c-q.c);let cur=a0;
 const P=(u0,u1,y0,y1)=>{if(u1-u0<.02||y1-y0<.02)return;const A=yb+y0,B=yb+y1;ax==='x'?seg(u0,u1,f-tt/2,f+tt/2,A,B,m):seg(f-tt/2,f+tt/2,u0,u1,A,B,m)};
 for(const o of ops){const u0=o.c-o.w/2,u1=o.c+o.w/2;P(cur,u0,0,hh);if(o.y0>0)P(u0,u1,0,o.y0);if(o.y1<hh)P(u0,u1,o.y1,hh);if(o.gl)winG(ax,f,o.c,o.w,yb+o.y0,yb+o.y1,tt,o);cur=u1}P(cur,a1,0,hh)}
-const floorM=std(0x8a8478,{roughness:.9}),stM=std(0x77736b,{roughness:.8}),wdM=std(0x8a6a44,{roughness:.7}),wd2=std(0x6f5a43,{roughness:.8}),mtM=std(0x4a5560,{roughness:.6}),bedM=std(0xd8d4c8,{roughness:.9}),clM=[0x8a3a30,0x3a5a7a,0x4c6b45].map(c=>std(c,{roughness:.9})),acM=std(0x9a9da0,{roughness:.5,metalness:.4});
+const floorM=pm(T_slab,0x9a9486,{roughness:.9}),stM=std(0x77736b,{roughness:.8}),wdM=pm(T_wood,0xc8a070,{roughness:.7}),wd2=pm(T_wood,0x9a7e5e,{roughness:.8}),mtM=std(0x4a5560,{roughness:.6}),bedM=std(0xd8d4c8,{roughness:.9}),clM=[0x8a3a30,0x3a5a7a,0x4c6b45].map(c=>std(c,{roughness:.9})),acM=std(0x9a9da0,{roughness:.5,metalness:.4});
 const PAL={apt:[0xd8cdb9,0xc9b79a,0xb9c2c9,0xd2a98a,0xe3dccb],off:[0x8f9ca6,0x7d8791,0xa7adb0,0x6f7f8c],shop:[0xa85a45,0x8c6b4f,0xb07a55,0x7d6a5c],resto:[0xd6c7a0,0xc9a37a,0xb5876a,0xdcd2bd],hotel:[0xc7b595,0xb9a98f,0xd9c9ae]};
 const SGN={shop:['BOULANGERIE','PHARMACIE','TABAC PRESSE','SUPERETTE','LIBRAIRIE','QUINCAILLERIE','FLEURISTE','COIFFEUR'],resto:['RESTAURANT','PIZZERIA','CAFE DU CENTRE','BRASSERIE','KEBAB','BISTROT'],hotel:['HOTEL'],off:['BANQUE','ASSURANCES','CABINET MEDICAL','POSTE','NOTAIRE']};
 const AWN=[0x8a2f2a,0x2f5a3a,0x2c4a7a,0xb8862a].map(c=>std(c,{roughness:.9})),SHC=[0x3f6a4a,0x6a3a2c,0x34506e,0x5a5a5a].map(c=>std(c,{roughness:.8}));
@@ -52,7 +52,8 @@ function slab(yT,X0,X1,Z0,Z1,hole,mat){const P=(a,b,c,d)=>{if(b-a<.05||d-c<.05)r
 if(!hole){P(X0,X1,Z0,Z1);return}const h=hole;P(X0,h.x0,Z0,Z1);P(h.x1,X1,Z0,Z1);P(h.x0,h.x1,Z0,h.z0);P(h.x0,h.x1,h.z1,Z1)}
 // ---- bâtiment (v14) : couloir central, pièces cloisonnées, cage d'escalier fermée jusqu'au toit, tous les étages accessibles
 function*bld(cx,cz,w,d,fl,ty,face){const x0=cx-w/2,x1=cx+w/2,z0=cz-d/2,z1=cz+d/2,H=fl*FH,X=w>=d,Lu=X?w:d,Hv=(X?d:w)/2,cv=X?cz:cx,U0=X?x0:z0,U1=X?x1:z1;
-const m=pm(ty==='off'?T_conc:T_plas,PAL[ty][(rn()*PAL[ty].length)|0],{roughness:.95}),shM=ty==='apt'?SHC[(rn()*4)|0]:null,com=ty==='shop'||ty==='resto',res=ty==='apt'||ty==='hotel';
+const pc_=PAL[ty][(rn()*PAL[ty].length)|0],hk=hsh(Math.round(cx),Math.round(cz)),bk_=ty==='shop'||(ty==='resto'&&hk<.4)||(ty==='apt'&&hk<.2),m=bk_?pm(T_brick,bjit(BKTN[(hk*97|0)%BKTN.length],cx,cz),{roughness:.9}):pm(ty==='off'?T_conc:(ty==='hotel'||hk<.5)?T_plas:T_plas2,bjit(pc_,cx,cz),{roughness:.95});m.userData.T=bk_?2.4:3;
+const shM=ty==='apt'?SHC[(rn()*4)|0]:null,com=ty==='shop'||ty==='resto',res=ty==='apt'||ty==='hotel';
 const fu=X?(face==='W'?0:face==='E'?1:-1):(face==='N'?0:face==='S'?1:-1),fvs=X?(face==='N'?-1:face==='S'?1:0):(face==='W'?-1:face==='E'?1:0),se=fu===0?1:0,ou=se?-1:1;
 const uw=u=>se?U1-u:U0+u;
 const B=(u0,u1,v0,v1,y0,y1,mat,o)=>{const a=uw(u0),b=uw(u1),ua=Math.min(a,b),ub=Math.max(a,b),va=cv+Math.min(v0,v1),vb=cv+Math.max(v0,v1);return X?blk(ub-ua,y1-y0,vb-va,(ua+ub)/2,Y+(y0+y1)/2,(va+vb)/2,mat,o):blk(vb-va,y1-y0,ub-ua,(va+vb)/2,Y+(y0+y1)/2,(ua+ub)/2,mat,o)};
