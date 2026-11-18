@@ -74,12 +74,35 @@ let k=(.72+.36*hh)*(.62+.38*r)*(.9+n[i]*.2);if(Math.min(c,1-c)<.05)k*=.6;if(r<.0
 let r_=200*k,g_=100*k,b_=68*k;if(hh>.82){r_*=.8;g_*=.86;b_*=.82}
 const mo=c01((ms[i]-.62)*5)*.45;r_+=(70-r_)*mo;g_+=(88-g_)*mo;b_+=(50-b_)*mo;
 P4(d,i,r_,g_,b_);H[i]=(.25+.75*r)*(.7+.3*Math.sin(Math.PI*c))}},null,3);
-// --- sol : terre battue + herbe
-const T_grd=ptex(1024,(d,H,sz)=>{const a=fbm(sz,5,5,5,21),b=fbm(sz,24,24,3,7),c=fbm(sz,160,160,2,3),e=fbm(sz,3,3,3,45),gb=fbm(sz,256,96,2,77);
-for(let i=0;i<sz*sz;i++){const m=c01((a[i]+(b[i]-.5)*.5-.5)/.1),dry=c01((e[i]-.45)*3),dk=.8+c[i]*.4,gk=.6+gb[i]*.8;
-const dr=(126+(b[i]-.5)*40)*dk,dg=(108+(b[i]-.5)*34)*dk,db=(82+(b[i]-.5)*26)*dk,gr=(62+dry*50)*gk,gg=(94+dry*26)*gk,gl=(40+dry*10)*gk;
-P4(d,i,dr+(gr-dr)*m,dg+(gg-dg)*m,db+(gl-db)*m);H[i]=(1-m)*(c[i]*.5+b[i]*.3)+m*(.5+gb[i]*.6)}},
-(x,sz)=>{for(let i=0;i<650;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(1.2,3.6),v=120+rnd(0,70)|0;x.fillStyle='rgba(20,16,10,.4)';x.beginPath();x.ellipse(px+1,py+1.2,s,s*.8,0,0,6.3);x.fill();x.fillStyle='rgb('+v+','+(v-6)+','+(v-18)+')';x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}},2.5);
+// --- sol (v62) : deux tuiles de 6 m (herbe fine, terre) mélangées par le shader du terrain selon un poids d'herbe par sommet
+const gwrap=(sz,px,py,m,f)=>{const ox=px<m?[0,sz]:px>sz-m?[0,-sz]:[0],oy=py<m?[0,sz]:py>sz-m?[0,-sz]:[0];for(const u of ox)for(const v of oy)f(px+u,py+v)};
+const gstroke=(x,sz,n,len,wd,cols,ang)=>{x.lineCap='round';for(let i=0;i<n;i++){const px=rnd(0,sz),py=rnd(0,sz),a=ang!==undefined?ang+rnd(-.6,.6):rnd(0,6.283),l=rnd(len[0],len[1]);x.strokeStyle=cols[(Math.random()*cols.length)|0];x.lineWidth=rnd(wd[0],wd[1]);
+gwrap(sz,px,py,14,(X,Y)=>{x.beginPath();x.moveTo(X,Y);x.lineTo(X+Math.cos(a)*l,Y+Math.sin(a)*l);x.stroke()})}};
+function gtile(kind){const sz=512,a=fbm(sz,4,4,3,kind?31:21),b=fbm(sz,16,16,3,kind?17:7),c=fbm(sz,64,64,2,kind?13:3),e=fbm(sz,2,2,2,kind?55:45),H=new Float32Array(sz*sz),cv=document.createElement('canvas');cv.width=cv.height=sz;const x=cv.getContext('2d'),im=x.createImageData(sz,sz),d=im.data;
+for(let i=0;i<sz*sz;i++){const k=.8+c[i]*.42,gr=(Math.random()-.5)*(kind?20:10);let r,g,bl;
+if(!kind){const lu=c01((a[i]-.3)*2.2),dr=c01((e[i]-.5)*3);r=(50+lu*22+dr*50+(b[i]-.5)*26)*k+gr;g=(80+lu*26+dr*20+(b[i]-.5)*30)*k+gr;bl=(30+lu*6+dr*6)*k+gr*.6}
+else{r=(124+(b[i]-.5)*46+(a[i]-.5)*30)*k+gr;g=(106+(b[i]-.5)*40+(a[i]-.5)*24)*k+gr;bl=(80+(b[i]-.5)*30+(a[i]-.5)*16)*k+gr*.8}
+P4(d,i,r,g,bl);H[i]=b[i]*.55+c[i]*.45}
+x.putImageData(im,0,0);
+if(!kind){gstroke(x,sz,5200,[5,12],[.8,1.5],['rgba(28,50,18,.5)','rgba(34,60,20,.45)','rgba(92,128,46,.4)','rgba(120,152,62,.35)']);gstroke(x,sz,900,[5,12],[.8,1.3],['rgba(165,150,76,.35)','rgba(140,128,62,.35)']);
+for(let i=0;i<70;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle=Math.random()<.5?'rgba(214,208,150,.55)':'rgba(236,236,226,.5)';x.beginPath();x.arc(px,py,rnd(.9,1.8),0,6.3);x.fill()}
+for(let i=0;i<220;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle='rgba(66,52,36,.35)';x.beginPath();x.ellipse(px,py,rnd(1,3),rnd(.8,2),rnd(0,3),0,6.3);x.fill()}}
+else{for(let i=0;i<900;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(.9,3.4),v=118+rnd(0,72)|0;x.fillStyle='rgba(20,16,10,.4)';x.beginPath();x.ellipse(px+.8,py+1,s,s*.8,0,0,6.3);x.fill();x.fillStyle='rgb('+v+','+(v-8)+','+(v-22)+')';x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}
+gstroke(x,sz,420,[4,10],[.7,1.2],['rgba(170,150,98,.4)','rgba(110,96,70,.4)'])}
+let m=0;const dd=x.getImageData(0,0,sz,sz).data;for(let i=0;i<sz*sz;i++)m+=dd[i*4]+dd[i*4+1]+dd[i*4+2];
+return{map:tx(cv),normalMap:nmap(H,sz,2.2),mean:m/(sz*sz*765)}}
+const T_gg=gtile(0),T_gd=gtile(1);
+// shader du terrain : attribut gsp (poids d'herbe), tuiles herbe/terre, 2e échelle tournée + 3e très large contre le motif répété, transition irrégulière
+function groundMat(m){m.map.repeat.set(2,2);m.onBeforeCompile=sh=>{sh.uniforms.tGr={value:T_gg.map};sh.uniforms.tDi={value:T_gd.map};sh.uniforms.uMg={value:T_gg.mean};sh.uniforms.uMd={value:T_gd.mean};
+sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float gsp;varying float vGs;').replace('#include <begin_vertex>','#include <begin_vertex>\nvGs=gsp;');
+sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D tGr,tDi;uniform float uMg,uMd;varying float vGs;').replace('#include <map_fragment>',`
+vec2 w2=vec2(vUv.x*.8+vUv.y*.6,-vUv.x*.6+vUv.y*.8)*2.9+vec2(.31,.57);
+vec3 g1=texture2D(tGr,vUv).rgb,g2=texture2D(tGr,w2).rgb,d1=texture2D(tDi,vUv*1.37+vec2(.2,.4)).rgb;
+float l2=dot(g2,vec3(.3333))/uMg,l3=dot(texture2D(tGr,vUv*.137+vec2(.5,.2)).rgb,vec3(.3333))/uMg;
+float mac=.8+.3*l3;
+vec3 gc=g1*mix(1.,l2,.5)*mac,dc=d1*mix(1.,l2,.3)*(.9+.2*l3);
+float tt=smoothstep(.0,1.,(vGs-.5)*3.+.5+(l2-1.)*1.6);
+diffuseColor.rgb*=mix(dc,gc,tt);`)};return m}
 // --- dalles béton
 const T_slab=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,15),b=fbm(sz,64,64,2,8);
 for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&255,gy=y&255,hh=hsh((X>>8)+3,(y>>8)+11);let v=(.72+hh*.12)*(.9+(a[i]-.5)*.25+(b[i]-.5)*.12),h=.6+(b[i]-.5)*.3;
@@ -117,9 +140,9 @@ const t=new THREE.CanvasTexture(c);t.anisotropy=AN;return new THREE.MeshBasicMat
 // ================= SOL =================
 const fg=new THREE.PlaneGeometry(60,60,40,40);scaleUV(fg,10,10);
 {const p=fg.attributes.position,c=new Float32Array(p.count*3);for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2);c[i*3]=.8+.22*n;c[i*3+1]=.84+.16*n;c[i*3+2]=.74+.2*n}fg.setAttribute('color',new THREE.BufferAttribute(c,3))}
-const floor=new THREE.Mesh(fg,pm(T_grd,0xffffff,{roughness:1,vertexColors:true}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;S.add(floor);
+fg.setAttribute('gsp',new THREE.BufferAttribute(new Float32Array(fg.attributes.position.count).fill(.8),1));const floor=new THREE.Mesh(fg,groundMat(std(0xffffff,{map:T_gg.map,normalMap:T_gg.normalMap,roughness:1,vertexColors:true})));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;S.add(floor);
 let NOL=false;
 const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
 function terrainH(x,z){const d=Math.max(Math.abs(x),Math.abs(z)),k=sstep(95,165,d);return k*Math.max(0,5+5*Math.sin(x*.045+1.3)*Math.cos(z*.04)+2.5*Math.sin(x*.11)*Math.sin(z*.09+.7)+1.2*Math.sin(x*.27+z*.21))}
 {const og=new THREE.PlaneGeometry(3600,3600,600,600);og.rotateX(-Math.PI/2);const p=og.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,Math.max(Math.abs(p.getX(i)),Math.abs(p.getZ(i)))<=MH-3?-9:terrainH(p.getX(i),p.getZ(i))-.03);scaleUV(og,345,345);og.computeVertexNormals();
-const o=new THREE.Mesh(og,pm(T_grd,0xd8dccc,{roughness:1,envMapIntensity:.5}));o.receiveShadow=true;S.add(o)}
+og.setAttribute('gsp',new THREE.BufferAttribute(new Float32Array(og.attributes.position.count).fill(.78),1));const o=new THREE.Mesh(og,groundMat(std(0xd8dccc,{map:T_gg.map,normalMap:T_gg.normalMap,roughness:1,envMapIntensity:.5})));o.receiveShadow=true;S.add(o)}
