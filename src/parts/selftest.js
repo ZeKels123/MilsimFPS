@@ -954,6 +954,49 @@ T('Végétation (v58) : aucun arbre, buisson ni herbe dans l’eau',()=>{let n=0
 T('Eau (v58) : profondeur bornée, jamais plus que la rivière (véhicules, œil du joueur)',()=>{let mx=0;for(let x=-745;x<745;x+=4)for(let z=-745;z<745;z+=4)mx=Math.max(mx,wDep(x,z));return mx>1.3?'profondeur max '+mx.toFixed(2)+' m':''});
 T('Sous l’eau (v58) : voile et son étouffé quand l’œil passe sous la surface, retiré en sortant',()=>{const p=RPTS[40],sv={x:P.x,z:P.z,gy:P.gy,cy:C.position.y};try{P.x=p[0];P.z=p[1];P.gy=GH(p[0],p[1]);C.position.set(P.x,WL-.3,P.z);natureUpdate(.01);const el=document.getElementById('uwfx');if(!el||el.style.display!=='block')return'pas de voile sous l’eau';C.position.y=WL+1.6;natureUpdate(.01);if(el.style.display!=='none')return'voile non retiré';return''}finally{P.x=sv.x;P.z=sv.z;P.gy=sv.gy;C.position.y=sv.cy;natureUpdate(.01)}});
 T('Végétation (v58) : index par cellule identique au parcours complet, et rapide',()=>{const px=P.x,pz=P.z;for(const c of[[px,pz],[300,-200],[-600,500]]){let a=0,b=0;for(const q of FOL.TR)if((q.x-c[0])**2+(q.z-c[1])**2<=190*190)a++;cellEach(FOL.TRC,c[0],c[1],190,q=>{if((q.x-c[0])**2+(q.z-c[1])**2<=190*190)b++});if(a!==b)return'arbres '+a+' vs '+b}const t=performance.now();for(let i=0;i<10;i++)cellEach(FOL.TRC,px+i,pz,190,q=>q);const ms=(performance.now()-t)/10;return ms>8?'trop lent '+ms.toFixed(1)+' ms':''});
+T('Eau (v61) : plongeon, nage et sortie de l’eau génèrent des sons et la portée des pas dépend de la surface',()=>{
+if(!(stepRange('wood')>stepRange('grass')&&stepRange('grass')>stepRange('sand')&&stepRange('sand')>stepRange('mud')&&stepRange('water')>stepRange('grass')&&stepRange('conc')>stepRange('grass')))return'portées des surfaces incohérentes';
+const sv={x:P.x,z:P.z,gy:P.gy,air:P.air,nq:NZ.q.slice(),nr:NZ.r};let msg='';
+try{const r1=auStepNoise('mud',10),r2=auStepNoise('wood',10),r3=auStepNoise('water',10);if(!(Math.abs(r1-6.5)<.01&&NZ.r===r3&&r2>r1&&r3>r2))msg='rayons '+r1+' '+r2+' '+r3;
+let sp=null;for(let a=0;a<RPTS.length&&!sp;a++)for(let k=0;k<300&&!sp;k++){const x=RPTS[a][0]+((k%20)-10)*.5,z=RPTS[a][1]+(((k/20)|0)-7)*.5;if(wDep(x,z)>.9&&Math.abs(x)<MH-8&&Math.abs(z)<MH-8)sp=[x,z]}
+if(!msg&&!sp)msg='aucun endroit assez profond';
+if(!msg){AC=AC||new AudioContext();auInit();const sx=sp[0],sz=sp[1];P.x=sx-4;P.z=sz;P.gy=GH(P.x,P.z);AW.ok=0;auWater(.016);const w0=[AW.plunges,AW.strokes];
+for(let i=0;i<4;i++){P.x+=.1*(i+1)*4;P.gy=GH(P.x,P.z);auWater(.016)}
+P.x=sx;P.z=sz;P.gy=GH(sx,sz);AW.ok=1;AW.px=P.x-.05;AW.pz=P.z;AW.d=0;AW.t=0;auWater(.016);const dp=AW.plunges;AW.t=0;for(let i=0;i<120;i++){P.x+=.02;auWater(.016)}
+if(dp<=w0[0])msg='plongeon sans son';else if(AW.strokes<=w0[1])msg='nage sans brasse';
+const f0=AW.drips;P.x=sx-6;P.gy=GH(P.x,P.z);AW.ok=0;auWater(.016);AW.d=.8;AW.px=P.x-.1;auWater(.016);
+sfxFoot(sx,GH(sx,sz),sz,'water',1);sfxFoot(sx,GH(sx,sz),sz,'land',1);sfxSwim(1,1);sfxSwim(0,1);sfxDrip(1)}
+}catch(e){msg=String(e)}
+P.x=sv.x;P.z=sv.z;P.gy=sv.gy;P.air=sv.air;NZ.q=sv.nq;NZ.r=sv.nr;AW.ok=0;return msg});
+T('Traçantes (v61) : en visée le départ est sur la ligne de mire, placée dès la première image',()=>{const sv=[adsT,MZ.clone()];let msg='';try{C.updateMatrixWorld();const o=C.getWorldPosition(new THREE.Vector3()),dir=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion),tg=o.clone().addScaledVector(dir,60);
+const dist=(p)=>{const v=p.clone().sub(o),k=v.dot(dir);return v.addScaledVector(dir,-k).length()};
+MZ.copy(o).addScaledVector(dir,.8).add(new THREE.Vector3(.08,-.12,0).applyQuaternion(C.quaternion));
+adsT=0;tracer(MZ,tg);let t=trP[trI];const d0=dist(t.a);adsT=1;tracer(MZ,tg);t=trP[trI];const d1=dist(t.a);adsT=.5;tracer(MZ,tg);const d5=dist(trP[trI].a);
+if(!(d0>.1))msg='hors visée : décalage '+d0.toFixed(3);else if(d1>.01)msg='visée : décalage restant '+d1.toFixed(3);else if(!(d5>d1&&d5<d0))msg='visée à moitié : '+d5.toFixed(3);
+else if(t.m.position.lengthSq()<1||!t.m.visible)msg='traçante non placée à la première image';}catch(e){msg=String(e)}
+adsT=sv[0];MZ.copy(sv[1]);return msg});
+T('Rechargement accroupi (v61) : l’arme est ramenée contre le corps, puis revient',()=>{const sv=[P.st,reloading,CRR.k];let msg='';try{const mk=()=>({x:0,y:0,z:0,rx:0,ry:0,rz:0,cyc:0});CRR.k=0;P.st=1;reloading=1;let O=mk();for(let i=0;i<40;i++){O=crReloadMod(mk(),.5,.05)}
+const st=mk();P.st=0;CRR.k=0;const O0=crReloadMod(mk(),.5,.05);P.st=1;
+if(!(O.z>.05&&O.y<-.02&&O.rx>.2&&O.x<0))msg='pose accroupie absente '+JSON.stringify(O);else if(O0.z!==0||O0.rx!==0)msg='debout : pose modifiée';
+else{reloading=0;let q=O;for(let i=0;i<60;i++)q=crReloadMod(mk(),0,.05);if(Math.abs(q.z)>.001)msg='pose non relâchée '+q.z}}catch(e){msg=String(e)}
+P.st=sv[0];reloading=sv[1];CRR.k=sv[2];return msg});
+T('Phares (v61) : faisceaux la nuit, éteints le jour ou détruit, éblouissement face aux phares seulement',()=>{let V=null,msg='';const sv=[TOD.t,P.x,P.z,P.gy,P.yaw,C.position.clone(),C.quaternion.clone(),HL.gz];
+try{const[x0,z0]=dvSpot();V=dvMk(x0,z0);const r=V.r,e=V.e;e.rotation.y=0;e.updateMatrixWorld(true);r.hlOn=1;delete r.hl;
+TOD.t=23;hlTick(.5);if(!r.hl||!r.hl.g.visible||!r.hl.pool.visible)msg='phares éteints la nuit';
+if(!msg){const py=e.position.y,pos=r.hl.pool.geometry.attributes.position;let ok=0;for(let i=0;i<pos.count;i+=7)if(Math.abs(pos.getY(i)-GH(pos.getX(i),pos.getZ(i)))<.2)ok++;if(ok<5)msg='flaque hors du sol'}
+// joueur 25 m devant le véhicule (avant = -z), regardant vers lui
+const look=(ax,az,tx,tz)=>{const ey=(GH(ax,az))+1.7;P.x=ax;P.z=az;P.gy=GH(ax,az);C.position.set(ax,ey,az);const m=new THREE.Matrix4().lookAt(C.position,new THREE.Vector3(tx,ey,tz),new THREE.Vector3(0,1,0));C.quaternion.setFromRotationMatrix(m);C.updateMatrixWorld(true)};
+const run=(n)=>{for(let i=0;i<n;i++){HL.t=0;hlTick(.1)}return HL.gz};
+if(!msg){HL.gz=0;HL.occT=0;const ax=e.position.x,az=e.position.z-25;look(ax,az,e.position.x,e.position.z);const gz=run(12);
+if(!(gz>.2)&&!HL.blockedByLos){// ligne de vue possiblement coupée par le décor : ne pas conclure
+ let n=0;_phv.set(ax,GH(ax,az)+1.7,az);RC.set(_phv,new THREE.Vector3(0,0,1));RC.far=24;for(const q of RC.intersectObjects(solids))if(q.object!==r.px&&!q.object.userData.glass){n=1;break}if(!n)msg='pas d’éblouissement face aux phares : '+gz.toFixed(2)}
+else{look(ax,az,ax,az-30);const g2=run(40);if(g2>.05)msg='éblouissement en regardant ailleurs : '+g2.toFixed(2);
+ e.rotation.y=Math.PI;e.updateMatrixWorld(true);hlPool(r);HL.gz=0;look(ax,az,e.position.x,e.position.z);const g3=run(12);if(g3>.05)msg='éblouissement par l’arrière du véhicule : '+g3.toFixed(2);e.rotation.y=0}}
+if(!msg){TOD.t=12;hlTick(.5);HL.t=0;hlTick(.5);if(r.hl.g.visible)msg='phares allumés le jour';}
+if(!msg){TOD.t=23;HL.t=0;hlTick(.5);if(!r.hl.g.visible)msg='phares non rallumés';r.hp=0;r.st=1;HL.t=0;hlTick(.5);if(r.hl.g.visible)msg='phares allumés sur véhicule détruit';r.hp=700;r.st=0}
+}catch(er){msg=String(er)}
+try{if(V){if(V.r.hl){S.remove(V.r.hl.pool)}V.done()}}catch(er){}
+TOD.t=sv[0];P.x=sv[1];P.z=sv[2];P.gy=sv[3];P.yaw=sv[4];C.position.copy(sv[5]);C.quaternion.copy(sv[6]);C.updateMatrixWorld(true);HL.gz=0;HL.recs=[];return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;

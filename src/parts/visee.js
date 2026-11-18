@@ -25,3 +25,8 @@ function vsFrame(sc){VSX.sc=sc?1:0;
  _vsV.style.opacity=(sc?0:adsT*.9).toFixed(2)}
 addEventListener('blur',()=>{VSB.b=0});
 addEventListener('keydown',e=>{if(e.code==='Backslash'&&!e.repeat&&$('ov').style.display==='none'){SET.adsTog=!SET.adsTog;if(SET.adsTog&&!VSB.b)ads=false;setSave();try{hlMsg('Visée : '+(SET.adsTog?'bascule':'maintien'))}catch(x){}try{snd(SET.adsTog?420:320,.04,.08,'square')}catch(x){}}});
+// ================= v61 : rechargement accroupi =================
+// Accroupi, le joueur ramène l'arme contre la poitrine, canon relevé et incliné vers l'intérieur, et la rabaisse un peu : le chargeur se change à l'abri, près du corps.
+const CRR={k:0,n:0};
+function crReloadMod(O,ru,dt){const on=reloading>0&&P.st===1&&!DRV.on&&!ac.on;CRR.k+=((on?1:0)-CRR.k)*Math.min(1,(dt||.016)*(on?8:6));if(CRR.k<.002){CRR.k=0;return O}CRR.n++;const k=CRR.k,b=Math.sin(Math.PI*Math.min(1,Math.max(0,ru)));
+O.x+=-.035*k;O.y+=-.03*k-.012*b*k;O.z+=.07*k+.015*b*k;O.rx+=.24*k+.06*b*k;O.ry+=.2*k;O.rz+=.12*k;return O}

@@ -44,8 +44,13 @@ else for(let i=0;i<4;i++)emit(_p,_e.set(rnd(-.5,.5),rnd(0,.8),rnd(-.5,.5)),{colo
 // --- traceurs
 const trP=[];let trI=0;
 for(let i=0;i<14;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffe2a0,transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}));m.visible=false;S.add(m);trP.push({m,a:new THREE.Vector3(),b:new THREE.Vector3(),t:0,max:.07,L:3})}
-function tracer(a,b){const len=a.distanceTo(b);if(len<4)return;const t=trP[trI=(trI+1)%trP.length];t.a.copy(a);t.b.copy(b);t.t=t.max=.07;t.L=Math.min(len*.5,7);t.m.visible=true}
-function trUpdate(dt){for(const t of trP){if(!t.m.visible)continue;t.t-=dt;if(t.t<=0){t.m.visible=false;continue}const f=1-t.t/t.max,len=t.a.distanceTo(t.b),c=t.L/2+f*(len-t.L);_e.copy(t.b).sub(t.a).normalize();t.m.position.copy(t.a).addScaledVector(_e,c);_p.copy(t.m.position).add(_e);t.m.lookAt(_p);t.m.scale.set(.012,.012,t.L)}}
+const _tr1=new THREE.Vector3(),_tr2=new THREE.Vector3();
+function trPlace(t){const f=1-t.t/t.max,len=t.a.distanceTo(t.b),c=t.L/2+f*(len-t.L);_e.copy(t.b).sub(t.a).normalize();t.m.position.copy(t.a).addScaledVector(_e,c);_p.copy(t.m.position).add(_e);t.m.lookAt(_p);t.m.scale.set(.012,.012,t.L)}
+// v61 : tir du joueur (a===MZ) : en visée, le départ de la traçante est ramené sur la ligne de mire (décalage latéral du canon * (1-adsT)) ; la traçante est placée dès la première image
+function tracer(a,b){const len=a.distanceTo(b);if(len<4)return;const t=trP[trI=(trI+1)%trP.length];t.a.copy(a);t.b.copy(b);
+if(a===MZ&&typeof adsT==='number'&&adsT>0){C.getWorldPosition(_tr1);_tr2.copy(b).sub(_tr1);const dl=_tr2.length();if(dl>1){_tr2.multiplyScalar(1/dl);_e.copy(t.a).sub(_tr1);t.a.sub(_e.addScaledVector(_tr2,-_e.dot(_tr2)).multiplyScalar(Math.min(1,adsT)))}}
+t.t=t.max=.07;t.L=Math.min(t.a.distanceTo(t.b)*.5,7);trPlace(t);t.m.visible=true}
+function trUpdate(dt){for(const t of trP){if(!t.m.visible)continue;t.t-=dt;if(t.t<=0){t.m.visible=false;continue}trPlace(t)}}
 // --- flash de bouche + lumière + douilles
 flash.material.blending=THREE.AdditiveBlending;flash.material.transparent=true;flash.material.toneMapped=false;flash.material.opacity=.9;flash.material.depthWrite=false;
 {const f1=new THREE.Sprite(new THREE.SpriteMaterial({map:flareT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,toneMapped:false,fog:false}));f1.scale.set(.42,.42,1);f1.position.z=-.05;flash.add(f1)}
