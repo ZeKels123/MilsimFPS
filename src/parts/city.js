@@ -1,6 +1,8 @@
 // ================= VILLE (v15) : 588 x 388 m (x 150..738, z -738..-350), étages accessibles, vitres cassables =================
 const CT={x0:150,x1:738,z0:-738,z1:-350,y:0,ax:224,az:-525};
 const LZ={q:[],built:[],t:0,n:0,k:0};function lazy(r,fn,mn){LZ.q.push({r,fn,mn})}
+// v62 : bâtiments construits par étapes (générateur) ; graine pseudo-aléatoire propre à chaque bâtiment, sauvée/restaurée à chaque étape
+function lazyG(r,fn){LZ.q.push({r,fn,g:1})}
 (()=>{const Y=CT.y,FH=3.4,t=.35;let sd=4242;const rn=()=>(sd=(Math.imul(sd,1664525)+1013904223)>>>0)/4294967296;
 const mkC=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return[c,c.getContext('2d')]};
 const cvT=(c,rx,ry)=>{const t_=new THREE.CanvasTexture(c);t_.wrapS=t_.wrapT=THREE.RepeatWrapping;t_.anisotropy=AN;t_.repeat.set(rx,ry);return t_};
@@ -49,7 +51,7 @@ const sign=(txt,bg)=>{const[c,g]=mkC(512,96);g.fillStyle=bg;g.fillRect(0,0,512,9
 function slab(yT,X0,X1,Z0,Z1,hole,mat){const P=(a,b,c,d)=>{if(b-a<.05||d-c<.05)return;blk(b-a,.3,d-c,(a+b)/2,yT-.15,(c+d)/2,mat||floorM,{T:2,s:1});surfRect(a,b,c,d,Y+yT)};
 if(!hole){P(X0,X1,Z0,Z1);return}const h=hole;P(X0,h.x0,Z0,Z1);P(h.x1,X1,Z0,Z1);P(h.x0,h.x1,Z0,h.z0);P(h.x0,h.x1,h.z1,Z1)}
 // ---- bâtiment (v14) : couloir central, pièces cloisonnées, cage d'escalier fermée jusqu'au toit, tous les étages accessibles
-function bld(cx,cz,w,d,fl,ty,face){const x0=cx-w/2,x1=cx+w/2,z0=cz-d/2,z1=cz+d/2,H=fl*FH,X=w>=d,Lu=X?w:d,Hv=(X?d:w)/2,cv=X?cz:cx,U0=X?x0:z0,U1=X?x1:z1;
+function*bld(cx,cz,w,d,fl,ty,face){const x0=cx-w/2,x1=cx+w/2,z0=cz-d/2,z1=cz+d/2,H=fl*FH,X=w>=d,Lu=X?w:d,Hv=(X?d:w)/2,cv=X?cz:cx,U0=X?x0:z0,U1=X?x1:z1;
 const m=pm(ty==='off'?T_conc:T_plas,PAL[ty][(rn()*PAL[ty].length)|0],{roughness:.95}),shM=ty==='apt'?SHC[(rn()*4)|0]:null,com=ty==='shop'||ty==='resto',res=ty==='apt'||ty==='hotel';
 const fu=X?(face==='W'?0:face==='E'?1:-1):(face==='N'?0:face==='S'?1:-1),fvs=X?(face==='N'?-1:face==='S'?1:0):(face==='W'?-1:face==='E'?1:0),se=fu===0?1:0,ou=se?-1:1;
 const uw=u=>se?U1-u:U0+u;
@@ -68,17 +70,17 @@ for(let i=0;i<n;i++)[.27,.73].forEach((q,j)=>{const c=t+i*bw+bw*q;if(dr&&Math.ab
 if(com&&g0&&s===fvs){ops.push({c,w:Math.min(bw*.4,3.4),y0:.5,y1:2.8,gl:1});return}
 if(res&&k>0&&j===0&&(i+k)%2===0){ops.push({c,w:1.5,y0:.05,y1:2.35,gl:1});B(c-1.3,c+1.3,s*Hv,s*(Hv+1.1),yb-.14,yb,concM,{s:1});SF(c-1.3,c+1.3,s>0?Hv:-(Hv+1.1),s>0?Hv+1.1:-Hv,yb);
 B(c-1.3,c+1.3,s*(Hv+1.04),s*(Hv+1.1),yb,yb+1,railM,{s:1,c:1});B(c-1.3,c-1.24,s*Hv,s*(Hv+1.1),yb,yb+1,railM,{s:1,c:1});B(c+1.24,c+1.3,s*Hv,s*(Hv+1.1),yb,yb+1,railM,{s:1,c:1});return}
-ops.push(wop(c))});Wu(s*(Hv-t/2),0,Lu,ops,m,yb,FH,t,s)});
+ops.push(wop(c))});Wu(s*(Hv-t/2),0,Lu,ops,m,yb,FH,t,s)});yield;
 // pignons : côté escalier puis côté opposé
 {const vr=cw+(Hv-cw)/2,o1=[wop(-vr),wop(vr)],o2=[];Wv(t/2,-Hv,Hv,o1,m,yb,FH,t,-ou);
 if(com&&g0&&!lob){const vw=Math.min((Hv-cw)*1.1,3.4);o2.push({c:-vr,w:vw,y0:.5,y1:2.8,gl:1},{c:vr,w:vw,y0:.5,y1:2.8,gl:1})}else o2.push(wop(-vr),wop(vr));
-o2.push(g0&&!lob?{c:0,w:2.6,y0:0,y1:2.6}:{c:0,w:1.5,y0:.9,y1:2.5,gl:1});Wv(Lu-t/2,-Hv,Hv,o2,m,yb,FH,t,ou)}
+o2.push(g0&&!lob?{c:0,w:2.6,y0:0,y1:2.6}:{c:0,w:1.5,y0:.9,y1:2.5,gl:1});Wv(Lu-t/2,-Hv,Hv,o2,m,yb,FH,t,ou)}yield;
 // couloir + cage d'escalier + cloisons
 {const segs=open?[[t,t+SL]]:(g0&&lob?[[t,Math.max(la,t+SL)],[lb,Lu-t]]:[[t,Lu-t]]),dcs=[];for(let i=0;i<n;i++)dcs.push(i===0?t+SL+.85:t+i*bw+bw/2);
 segs.forEach(q=>{if(q[1]-q[0]<.3)return;[-1,1].forEach(s=>Wu(s*cw,q[0],q[1],open?[]:dcs.filter(c=>c>q[0]+.8&&c<q[1]-.8).map(c=>({c,w:1.1,y0:0,y1:2.2})),inM,yb,FH,.2,s))});
-if(!open)for(let i=1;i<n;i++){const up=t+i*bw;if(g0&&lob&&up>la+.1&&up<lb-.1)continue;Wv(up,cw+.1,Hv-t,[],inM,yb,FH,.2,1);Wv(up,-(Hv-t),-(cw+.1),[],inM,yb,FH,.2,1)}}
+if(!open)for(let i=1;i<n;i++){const up=t+i*bw;if(g0&&lob&&up>la+.1&&up<lb-.1)continue;Wv(up,cw+.1,Hv-t,[],inM,yb,FH,.2,1);Wv(up,-(Hv-t),-(cw+.1),[],inM,yb,FH,.2,1)}}yield;
 // escalier à deux volées + palier intermédiaire + mur d'échiffre
-ST(t+3.8,-.75,t+1.4,-.75,1.4,yb,yb+FH/2);B(t,t+1.4,-cw+.1,cw-.1,yb+FH/2-.15,yb+FH/2,stM,{s:1});SF(t,t+1.4,-cw,cw,yb+FH/2);ST(t+1.4,.75,t+3.8,.75,1.4,yb+FH/2,yb+FH);B(t+1.4,t+3.8,-.06,.06,yb,yb+FH,inM,{s:1,c:1});
+ST(t+3.8,-.75,t+1.4,-.75,1.4,yb,yb+FH/2);B(t,t+1.4,-cw+.1,cw-.1,yb+FH/2-.15,yb+FH/2,stM,{s:1});SF(t,t+1.4,-cw,cw,yb+FH/2);ST(t+1.4,.75,t+3.8,.75,1.4,yb+FH/2,yb+FH);B(t+1.4,t+3.8,-.06,.06,yb,yb+FH,inM,{s:1,c:1});yield;
 // mobilier
 const F=(s,u,v,du,dv,h,y0,mat)=>B(u-du/2,u+du/2,s*(v-dv/2),s*(v+dv/2),yb+y0,yb+y0+h,mat,{s:1,c:1}),vm=(cw+Hv-t)/2,vf=Hv-t;
 if(open&&ty==='off'){for(let u=t+SL+2.5;u<Lu-t-1.5;u+=4)[-1,1].forEach(s=>{for(let v=2;v<vf-1.2;v+=3.4){if(rn()<.2)continue;F(s,u,v,1.6,.8,.75,0,wdM);if(rn()<.35)MD('chair',u,s*(v+.9),yb,rn()*6.28,.3,.9);else F(s,u,v+.9,.45,.45,.48,0,mtM)}})}
@@ -90,20 +92,20 @@ if(kind===3){F(s,uc,vf-1.5,1.6,.8,.75,0,wdM);if(rn()<.5)MD('chair',uc,s*(vf-2.5)
 else if(kind===4){F(s,uc,vf-1.3,1.6,2.1,.45,0,wdM);F(s,uc,vf-1.3,1.5,2,.16,.45,bedM);F(s,ub-.3,cw+1.8,.6,1.3,.75,0,wdM);F(s,ub-1.1,cw+1.8,.42,.42,.46,0,clM[1]);F(s,ua+.3,vm,.55,1.2,1.9,0,wd2)}
 else if(kind===0){F(s,uc,vf-1.3,1.6,2.1,.45,0,wdM);F(s,uc,vf-1.3,1.5,2,.16,.45,bedM);F(s,ua+.3,vm,.6,1.6,2,0,wd2)}
 else if(kind===1){const c=clM[(rn()*3)|0];F(s,ua+.75,vm,.9,2.2,.45,0,c);F(s,ua+.2,vm,.3,2.2,.9,0,c);MD('table',uc+.6,s*vm,yb,X?0:1.57,.6,.75);if(rn()<.4)MD('chair',uc+.6,s*(vm+1.4),yb,rn()*6.28,.3,.9)}
-else{F(s,ub-.33,vm,.65,Math.min(3,vf-cw-1),.9,0,inM);F(s,uc-.5,vm,1.2,.8,.75,0,wdM);F(s,uc-.5,vm+.9,.4,.4,.46,0,clM[2]);F(s,uc-.5,vm-.9,.4,.4,.46,0,clM[2])}})}}
+else{F(s,ub-.33,vm,.65,Math.min(3,vf-cw-1),.9,0,inM);F(s,uc-.5,vm,1.2,.8,.75,0,wdM);F(s,uc-.5,vm+.9,.4,.4,.46,0,clM[2]);F(s,uc-.5,vm-.9,.4,.4,.46,0,clM[2])}})}yield}
 // dalles d'étage + toit (trémie de la cage d'escalier)
 {const a=uw(t),b=uw(t+3.8),u0=Math.min(a,b),u1=Math.max(a,b),hole=X?{x0:u0,x1:u1,z0:cv-cw,z1:cv+cw}:{x0:cv-cw,x1:cv+cw,z0:u0,z1:u1};
-for(let k=1;k<fl;k++)slab(k*FH,x0+t,x1-t,z0+t,z1-t,hole);slab(H,x0+.05,x1-.05,z0+.05,z1-.05,hole,roofM)}
+for(let k=1;k<fl;k++){slab(k*FH,x0+t,x1-t,z0+t,z1-t,hole);yield}slab(H,x0+.05,x1-.05,z0+.05,z1-.05,hole,roofM)}
 // édicule de toit + garde-corps de trémie + acrotère
 [-1,1].forEach(s=>Wu(s*cw,0,t+SL,[],m,H,2.4,.2,s));Wv(t/2,-cw,cw,[],m,H,2.4,t,-ou);B(0,t+SL+.3,-cw-.2,cw+.2,H+2.4,H+2.6,roofM,{s:1});B(t+3.74,t+3.8,-cw,0,H,H+1,railM,{s:1,c:1});
-[d/2,-d/2].forEach(q=>blk(w+.3,.9,.3,cx,Y+H+.45,cz+q,concM,{s:1,c:1}));[w/2,-w/2].forEach(q=>blk(.3,.9,d+.3,cx+q,Y+H+.45,cz,concM,{s:1,c:1}));
+[d/2,-d/2].forEach(q=>blk(w+.3,.9,.3,cx,Y+H+.45,cz+q,concM,{s:1,c:1}));[w/2,-w/2].forEach(q=>blk(.3,.9,d+.3,cx+q,Y+H+.45,cz,concM,{s:1,c:1}));yield;
 // bandeaux d'étage + corniche
 for(let k=1;k<=fl;k++){const top=k===fl,p=top?.14:.06,ya=k*FH-(top?.02:.26),yc=k*FH+(top?.3:-.02)-(top?.3:0)+(top?.28:0),mt=top?trimM:trimL;
-[-1,1].forEach(s=>B(-p,Lu+p,s*Hv,s*(Hv+p),ya,yc,mt,{ns:1}));B(-p,0,-Hv,Hv,ya,yc,mt,{ns:1});B(Lu,Lu+p,-Hv,Hv,ya,yc,mt,{ns:1})}
+[-1,1].forEach(s=>B(-p,Lu+p,s*Hv,s*(Hv+p),ya,yc,mt,{ns:1}));B(-p,0,-Hv,Hv,ya,yc,mt,{ns:1});B(Lu,Lu+p,-Hv,Hv,ya,yc,mt,{ns:1});yield}
 // façade d'entrée : auvent, enseigne
 {const Lf=lob?Lu:2*Hv,FB=(a0,a1,p0,p1,y0,y1,mat,o)=>lob?B(Lu/2+a0,Lu/2+a1,fvs*(Hv+p0),fvs*(Hv+p1),y0,y1,mat,o):B(Lu+p0,Lu+p1,a0,a1,y0,y1,mat,o);
 if(com){FB(-Lf/2+.4,Lf/2-.4,0,1.3,2.92,3.02,AWN[(rn()*4)|0],{s:1});FB(-Math.min(3.6,Lf/2-1),Math.min(3.6,Lf/2-1),0,.1,3.5,4.2,sign(SGN[ty][(rn()*SGN[ty].length)|0],ty==='shop'?'#2a3a2c':'#5a2a1f'))}
-else{FB(-2.3,2.3,0,1.6,2.75,2.9,trimM,{s:1});[-2.1,2.1].forEach(q=>FB(q-.07,q+.07,1.4,1.54,0,2.75,railM,{s:1,c:1}));if(ty!=='apt')FB(-3,3,0,.1,3.5,4.2,sign(SGN[ty][(rn()*SGN[ty].length)|0],ty==='hotel'?'#5a1f1f':'#1d2b3a'))}}
+else{FB(-2.3,2.3,0,1.6,2.75,2.9,trimM,{s:1});[-2.1,2.1].forEach(q=>FB(q-.07,q+.07,1.4,1.54,0,2.75,railM,{s:1,c:1}));if(ty!=='apt')FB(-3,3,0,.1,3.5,4.2,sign(SGN[ty][(rn()*SGN[ty].length)|0],ty==='hotel'?'#5a1f1f':'#1d2b3a'))}}yield;
 // équipements de toit
 for(let q=0;q<2+((rn()*3)|0);q++){const u=t+SL+2+rn()*(Lu-SL-5),v=(rn()*2-1)*(Hv-2.2);B(u-.6,u+.6,v-.6,v+.6,H,H+.8,acM,{s:1,c:1})}
 if(ty==='apt'){const a=uw(Lu-3),tk=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1.8,12),wd2);tk.position.set(X?a:cv,Y+H+1.5,X?cv:a);tk.castShadow=true;S.add(tk);B(Lu-3.9,Lu-2.1,-.9,.9,H,H+.6,trimM,{s:1,c:1})}
@@ -120,7 +122,7 @@ for(let k=0;k<4;k++){const a=k*1.5708+.78,bx=cx+Math.cos(a)*9,bz=cz+Math.sin(a)*
 for(let k=0;k<12;k++){const a=rn()*6.28,r=10+rn()*22,x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;if(Math.abs(x-cx)>(x1-x0)/2-4||Math.abs(z-cz)>(z1-z0)/2-4)continue;tree(x,z)}return}
 const place=(p,L,Sd,fl,bt,alt)=>{const[a0,a1,c0,c1]=p,pcx=(a0+a1)/2,pcz=(c0+c1)/2,dx=(pcx-cx)/IW,dz=(pcz-cz)/ID,ew=Math.abs(dx)>Math.abs(dz)+.01||(Math.abs(Math.abs(dx)-Math.abs(dz))<=.01&&alt),face=ew?(dx>0?'E':'W'):(dz>0?'S':'N');
 const w=Math.min(a1-a0,ew?Sd:L),d=Math.min(c1-c0,ew?L:Sd),al=(q0,q1,i0,i1,sz)=>q0===i0&&q1!==i1?q0+sz/2:q1===i1&&q0!==i0?q1-sz/2:(q0+q1)/2;
-const bx=face==='E'?a1-w/2:face==='W'?a0+w/2:al(a0,a1,ix0,ix1,w),bz=face==='S'?c1-d/2:face==='N'?c0+d/2:al(c0,c1,iz0,iz1,d),s0=(rn()*4e9)>>>0;lazy([bx-w/2-2,bx+w/2+2,bz-d/2-2,bz+d/2+2],()=>{const sv=sd;sd=s0;bld(bx,bz,w,d,fl,bt,face);sd=sv})};
+const bx=face==='E'?a1-w/2:face==='W'?a0+w/2:al(a0,a1,ix0,ix1,w),bz=face==='S'?c1-d/2:face==='N'?c0+d/2:al(c0,c1,iz0,iz1,d),s0=(rn()*4e9)>>>0;lazyG([bx-w/2-2,bx+w/2+2,bz-d/2-2,bz+d/2+2],function*(){const it=bld(bx,bz,w,d,fl,bt,face);let cur=s0;for(;;){const sv=sd;sd=cur;let r;try{r=it.next()}finally{cur=sd;sd=sv}if(r.done)return;yield}})};
 const mx=cx,mz=cz,Q=[[ix0,mx-3,iz0,mz-3],[mx+3,ix1,iz0,mz-3],[ix0,mx-3,mz+3,iz1],[mx+3,ix1,mz+3,iz1]];
 if(ty==='off'){const lr=IW>=ID,A=lr?[ix0,mx-3,iz0,iz1]:[ix0,ix1,iz0,mz-3],Bc=lr?[mx+3,ix1,iz0,iz1]:[ix0,ix1,mz+3,iz1],sw=rn()<.5;place(sw?A:Bc,40,22,6+((rn()*3)|0),'off',0);place(sw?Bc:A,28,20,3+((rn()*2)|0),'off',0)}
 else if(ty==='hotel'){const lr=IW>=ID,A=lr?[ix0,ix1,iz0,mz-3]:[ix0,mx-3,iz0,iz1],Bc=lr?[ix0,ix1,mz+3,iz1]:[mx+3,ix1,iz0,iz1];place(A,46,22,5+((rn()*2)|0),'hotel',0);place(lr?[ix0,ix0+22,Bc[2],Bc[3]]:[Bc[0],Bc[1],iz0,iz0+22],22,16,2,'resto',0);const tx=lr?ix1-8:(Bc[0]+Bc[1])/2,tz=lr?(Bc[2]+Bc[3])/2:iz1-8;tree(tx,tz);tree(tx-(lr?9:0),tz-(lr?0:9))}

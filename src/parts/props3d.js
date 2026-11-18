@@ -35,7 +35,7 @@ const P3W=new THREE.MeshStandardMaterial({color:0x6b5a44,roughness:.9});
 function p3dRamp(x,z){const L=9.5;for(const d of [[1,0],[-1,0],[0,1],[0,-1]]){let ok=true;for(let t=1.8;t<=1.8+L+2&&ok;t+=1.2)for(const w of [-.9,0,.9]){const px=x+d[0]*t+d[1]*w,pz=z+d[1]*t+d[0]*w;if(!free_(px,pz)||!nFree(px,pz)||inRoom(px,pz)>=0||GH(px,pz)<(typeof WL!=='undefined'?WL:0)+.4||Math.abs(GH(px,pz)-GH(x,z))>3){ok=false;break}}if(ok)return d}return null}
 // plancher réel du modèle : y=6,5 m, centre décalé de (-0,78 ; +0,72) dans le repère du modèle (mesuré sur la géométrie) ; la rotation du modèle déplace ce centre
 function p3dTowerUp(it,d){const H=6.5,L=9.5,gy=GH(it.x,it.z),yw=it.g.rotation.y,ox=-.78,oz=.72,x=it.x+ox*Math.cos(yw)+oz*Math.sin(yw),z=it.z-ox*Math.sin(yw)+oz*Math.cos(yw),b=it.box;
- b.x0=x-1.5;b.x1=x+1.5;b.z0=z-1.5;b.z1=z+1.5;b.y1=gy+H;surfRect(x-2,x+2,z-2,z+2,gy+H);
+ b.x0=x-1.5;b.x1=x+1.5;b.z0=z-1.5;b.z1=z+1.5;b.y1=gy+H;okgDirty();surfRect(x-2,x+2,z-2,z+2,gy+H);
  const xa=x+d[0]*(2+L),za=z+d[1]*(2+L),xb=x+d[0]*2,zb=z+d[1]*2;
  const s0=solids.length,r=stairs(xa,za,xb,zb,1.5,GH(xa,za),gy+H,P3W,{rail:1});for(let i=s0;i<solids.length;i++)ray.push(solids[i]);it.ramp=r;
  {const ps=[[-1.5,-1.5],[1.5,-1.5],[-1.5,1.5],[1.5,1.5]].map(q=>[x+q[0],z+q[1],Math.atan2(q[0],q[1]),0]),F=[xa,za],mid=[(xa+xb)/2,(za+zb)/2],top=[xb,zb],ctr=[x,z];
