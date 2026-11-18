@@ -28,13 +28,17 @@ while(n<NB){let x=rnd(-28.2,28.2),z=rnd(-28.2,28.2);if(n%2){if(Math.random()<.5)
 bs.castShadow=bs.receiveShadow=true;S.add(bs);
 const pm=std(0x2a3238,{roughness:.04,metalness:.15,envMapIntensity:1.8,transparent:true,opacity:.88,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});n=0;
 while(n<7){const x=rnd(-26,26),z=rnd(-26,16),r=rnd(.8,1.8);if(!okPos(x,z,r+.3))continue;const p=new THREE.Mesh(new THREE.CircleGeometry(r,24),pm);p.rotation.x=-Math.PI/2;p.scale.y=rnd(.6,1);p.position.set(x,.016,z);p.rotation.z=rnd(0,3);S.add(p);n++}}
-// ================= HERBE =================
-{const gt=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');for(let i=0;i<11;i++){const bx=rnd(6,58),tx=bx+rnd(-14,14),ty=rnd(3,34),w=rnd(2.5,5),g=x.createLinearGradient(0,64,0,ty);g.addColorStop(0,'rgb(40,62,24)');g.addColorStop(1,'rgb('+(110+rnd(0,50)|0)+','+(150+rnd(0,40)|0)+',60)');x.fillStyle=g;x.beginPath();x.moveTo(bx-w,64);x.quadraticCurveTo(bx,40,tx,ty);x.quadraticCurveTo(bx+w*.4,40,bx+w,64);x.fill()}return new THREE.CanvasTexture(c)})();
-gt.anisotropy=AN;const gw=.45,gh=.7,pos=[],uvs=[],nor=[],idx=[];
-[0,Math.PI/2].forEach(rot=>[1,-1].forEach(fl=>{const o=pos.length/3,c=Math.cos(rot),s=Math.sin(rot);[[-gw,0,0,0],[gw,0,1,0],[gw,gh,1,1],[-gw,gh,0,1]].forEach(q=>{pos.push(q[0]*c,q[1],-q[0]*s);uvs.push(q[2],q[3]);nor.push(0,1,0)});if(fl>0)idx.push(o,o+1,o+2,o,o+2,o+3);else idx.push(o,o+2,o+1,o,o+3,o+2)}));
-const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setIndex(idx);
-const N=1400,im=new THREE.InstancedMesh(g,std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5}),N),o=new THREE.Object3D(),col=new THREE.Color();let n=0;
-while(n<N){const x=rnd(-29.5,29.5),z=rnd(-29.5,29.5);if(!okPos(x,z,.3))continue;const s=rnd(.5,1.1);o.position.set(x,0,z);o.rotation.y=rnd(0,6.3);o.scale.set(s,s*rnd(.7,1.3),s);o.updateMatrix();im.setMatrixAt(n,o.matrix);col.setRGB(rnd(.75,1.1),rnd(.85,1.1),rnd(.65,1));im.setColorAt(n,col);n++}
+// ================= HERBE (v62) : vraies lames fines (triangles à pointe penchée, sans carte alpha donc sans bord dentelé), couleur pied/pointe =================
+{const NBL=12,pos=[],nor=[],cl=[],idx=[];
+for(let b=0;b<NBL;b++){const a=b/NBL*6.2832+hsh(b,3)*.5,rr=.03+hsh(b,5)*.22,bx=Math.cos(a)*rr,bz=Math.sin(a)*rr,hh=.5+hsh(b,7)*.5,dir=a+(hsh(b,11)-.5)*1.6,ln=.1+hsh(b,9)*.24,w=.017+hsh(b,13)*.009,
+dx=Math.cos(dir),dz=Math.sin(dir),sx=-dz*w,sz=dx*w,o=pos.length/3,nl=Math.hypot(dx*.4,1,dz*.4),v=.82+hsh(b,15)*.36,y_=hsh(b,17);
+pos.push(bx-sx,0,bz-sz,bx+sx,0,bz+sz,bx+dx*ln*hh,hh,bz+dz*ln*hh);for(let k=0;k<3;k++)nor.push(dx*.4/nl,1/nl,dz*.4/nl);
+cl.push(.17*v,.25*v,.085*v,.17*v,.25*v,.085*v,(.4+.2*y_)*v,(.52+.1*y_)*v,(.17+.05*y_)*v);idx.push(o,o+1,o+2)}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));g.setIndex(idx);
+const N=9000,gm=windify(std(0xffffff,{vertexColors:true,side:THREE.DoubleSide,roughness:1,envMapIntensity:.5}),0),ob=gm.onBeforeCompile;
+// la face arrière d'une lame garde la même normale (sinon elle serait éclairée par en dessous, donc sombre)
+gm.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace('#include <normal_fragment_begin>',THREE.ShaderChunk.normal_fragment_begin.replace('normal = normal * faceDirection;',''))};
+const im=new THREE.InstancedMesh(g,gm,N);im.setColorAt(0,new THREE.Color(1,1,1));im.count=0;im.frustumCulled=false;
 im.receiveShadow=true;S.add(im)}
 // ================= FORÊT, POTEAUX D'ÉCLAIRAGE =================
 {const N=150,mt=std(0xffffff,{roughness:1,envMapIntensity:.5}),tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.22,.4,3.2,6),std(0x4a3a2a,{roughness:1}),N),c1=new THREE.InstancedMesh(new THREE.ConeGeometry(2.1,6.5,8),mt,N),c2=new THREE.InstancedMesh(new THREE.ConeGeometry(1.5,4.5,8),mt,N),o=new THREE.Object3D(),col=new THREE.Color();

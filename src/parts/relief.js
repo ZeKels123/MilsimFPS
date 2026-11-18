@@ -38,6 +38,8 @@ float lp=dot(position,vec3(7.1,5.3,6.7));mvPosition.xyz+=vec3(sin(uWt*4.1+lp),si
 #endif
 #if WK==0
 vec2 dp=mvPosition.xz-uWp;float pd=length(dp);mvPosition.xz+=dp/max(pd,.05)*(1.-smoothstep(.15,1.,pd))*position.y*.6;mvPosition.y-=(1.-smoothstep(.1,.8,pd))*position.y*.45;
+// v62 : la touffe rapetisse avec la distance à la caméra (fondu continu, pas d'apparition brusque en bord de réserve)
+float gf_=1.-smoothstep(20.,42.,length(wo.xz-cameraPosition.xz));mvPosition.xz=wo.xz+(mvPosition.xz-wo.xz)*(.35+.65*gf_);mvPosition.y=wo.y+(mvPosition.y-wo.y)*gf_;
 #endif
 mvPosition=modelViewMatrix*mvPosition;gl_Position=projectionMatrix*mvPosition;`)};return m}
 // ================= RELIEF JOUABLE (v4) : GH(x,z) est utilisée par le joueur, les bots, les tirs et les props =================
@@ -87,10 +89,20 @@ for(let j=0;j<GN;j++){const z=-AR+j*GSP;if(z<CT.z1+3)continue;for(let i=Math.rou
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
 scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.normal;
-for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),h=p.getZ(i),sl=1-nn.getZ(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2),k=1+.09*Math.max(-1,Math.min(1.5,h)),
-d=sstep(.03,.16,sl)*.8+sstep(.5,1.6,h)*.25*(1-sstep(.1,.2,sl))+(nz(X*.15,Y*.15)-.5)*.35-.14,dr=Math.max(0,Math.min(1,d));
-const wv=wDist(X,-Y),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1;c[i*3]=(((.8+.22*n)*.8*(1-dr)+.9*dr)*k*(1-mu)+.62*mu)*ku;c[i*3+1]=(((.84+.16*n)*1.05*(1-dr)+.74*dr)*k*(1-mu)+.55*mu)*ku;c[i*3+2]=(((.74+.2*n)*.74*(1-dr)+.6*dr)*k*(1-mu)+.42*mu)*ku}
-for(let ps=0;ps<2;ps++){const t=c.slice();for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*3;for(let k=0;k<3;k++)c[n+k]=(t[n+k]*4+2*(t[n-3+k]+t[n+3+k]+t[n-GN*3+k]+t[n+GN*3+k])+t[n-GN*3-3+k]+t[n-GN*3+3+k]+t[n+GN*3-3+k]+t[n+GN*3+3+k])/16}}
+// v62 : sol varié — poids d'herbe par sommet (attribut gsp, mélangé herbe/terre par le shader du terrain) + teinte lente (vert frais / foin / terre brune / roche sur les pentes), terre nue en parcelles, berges boueuses
+const cc=new Float32Array(p.count*4);
+for(let i=0;i<p.count;i++){const X=p.getX(i),Z=-p.getY(i),h=p.getZ(i),gr_=Math.sqrt(2*Math.max(0,1-nn.getZ(i))),
+f1=nz(X*.019+11,Z*.019-7)*.55+nz(X*.043+3,Z*.043+9)*.3+nz(X*.1,Z*.1+4)*.15,f2=nz(X*.011-5,Z*.011+13)*.6+nz(X*.029+8,Z*.029-2)*.4,f3=nz(X*.085+5,Z*.085)*.55+nz(X*.27,Z*.27+3)*.3+nz(X*.9,Z*.9)*.15,
+wv=wDist(X,Z),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1,st=1-sstep(.1,.3,gr_);
+let gx=.92-sstep(.09,.3,gr_)*.95-sstep(1.6,3.6,h)*.3*st-sstep(.64,.8,f3)*.75;gx=Math.max(0,Math.min(1,gx*(1-mu*.95)));
+const dy=sstep(.45,.65,f2),lu=sstep(.3,.7,f1),bl=.9+.2*lu,rk=sstep(.2,.45,gr_),k=1+.09*Math.max(-1,Math.min(1.5,h)),dk=.9+.3*f3,
+gr=(.84+.36*dy)*bl,gg=(1.02-.02*dy)*bl,gb=(.8-.12*dy)*bl,dr=(1+(.82-1)*rk)*dk,dg=(.92+(.82-.92)*rk)*dk,db=(.8+(.8-.8)*rk)*dk;
+cc[i*4]=((gr*gx+dr*(1-gx))*k*(1-mu)+.62*mu)*ku;cc[i*4+1]=((gg*gx+dg*(1-gx))*k*(1-mu)+.55*mu)*ku;cc[i*4+2]=((gb*gx+db*(1-gx))*k*(1-mu)+.42*mu)*ku;cc[i*4+3]=gx}
+for(let ps=0;ps<2;ps++){const t=cc.slice(),W=GN*4;for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*4;for(let k=0;k<4;k++)cc[n+k]=(t[n+k]*4+2*(t[n-4+k]+t[n+4+k]+t[n-W+k]+t[n+W+k])+t[n-W-4+k]+t[n-W+4+k]+t[n+W-4+k]+t[n+W+4+k])/16}}
+const gsp=new Float32Array(p.count);for(let i=0;i<p.count;i++){c[i*3]=cc[i*4];c[i*3+1]=cc[i*4+1];c[i*3+2]=cc[i*4+2];gsp[i]=cc[i*4+3]}
+g.setAttribute('gsp',new THREE.BufferAttribute(gsp,1));
+// accès au champ de sol : index du sommet le plus proche (herbe, chemins)
+window.GFLD={c,g:gsp,geo:g,k:(x,z)=>{const i=Math.round((x+AR)/GSP),j=Math.round((z+AR)/GSP);return i<0||j<0||i>=GN||j>=GN?-1:j*GN+i}};
 g.setAttribute('color',new THREE.BufferAttribute(c,3));g.computeBoundingSphere();g.computeBoundingBox();floor.geometry.dispose();floor.geometry=g}
 
 // optimisation : le rayon contre le sol marche sur le champ de hauteur au lieu de tester ~40 000 triangles

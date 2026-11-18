@@ -230,12 +230,35 @@ let k=(.72+.36*hh)*(.62+.38*r)*(.9+n[i]*.2);if(Math.min(c,1-c)<.05)k*=.6;if(r<.0
 let r_=200*k,g_=100*k,b_=68*k;if(hh>.82){r_*=.8;g_*=.86;b_*=.82}
 const mo=c01((ms[i]-.62)*5)*.45;r_+=(70-r_)*mo;g_+=(88-g_)*mo;b_+=(50-b_)*mo;
 P4(d,i,r_,g_,b_);H[i]=(.25+.75*r)*(.7+.3*Math.sin(Math.PI*c))}},null,3);
-// --- sol : terre battue + herbe
-const T_grd=ptex(1024,(d,H,sz)=>{const a=fbm(sz,5,5,5,21),b=fbm(sz,24,24,3,7),c=fbm(sz,160,160,2,3),e=fbm(sz,3,3,3,45),gb=fbm(sz,256,96,2,77);
-for(let i=0;i<sz*sz;i++){const m=c01((a[i]+(b[i]-.5)*.5-.5)/.1),dry=c01((e[i]-.45)*3),dk=.8+c[i]*.4,gk=.6+gb[i]*.8;
-const dr=(126+(b[i]-.5)*40)*dk,dg=(108+(b[i]-.5)*34)*dk,db=(82+(b[i]-.5)*26)*dk,gr=(62+dry*50)*gk,gg=(94+dry*26)*gk,gl=(40+dry*10)*gk;
-P4(d,i,dr+(gr-dr)*m,dg+(gg-dg)*m,db+(gl-db)*m);H[i]=(1-m)*(c[i]*.5+b[i]*.3)+m*(.5+gb[i]*.6)}},
-(x,sz)=>{for(let i=0;i<650;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(1.2,3.6),v=120+rnd(0,70)|0;x.fillStyle='rgba(20,16,10,.4)';x.beginPath();x.ellipse(px+1,py+1.2,s,s*.8,0,0,6.3);x.fill();x.fillStyle='rgb('+v+','+(v-6)+','+(v-18)+')';x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}},2.5);
+// --- sol (v62) : deux tuiles de 6 m (herbe fine, terre) mélangées par le shader du terrain selon un poids d'herbe par sommet
+const gwrap=(sz,px,py,m,f)=>{const ox=px<m?[0,sz]:px>sz-m?[0,-sz]:[0],oy=py<m?[0,sz]:py>sz-m?[0,-sz]:[0];for(const u of ox)for(const v of oy)f(px+u,py+v)};
+const gstroke=(x,sz,n,len,wd,cols,ang)=>{x.lineCap='round';for(let i=0;i<n;i++){const px=rnd(0,sz),py=rnd(0,sz),a=ang!==undefined?ang+rnd(-.6,.6):rnd(0,6.283),l=rnd(len[0],len[1]);x.strokeStyle=cols[(Math.random()*cols.length)|0];x.lineWidth=rnd(wd[0],wd[1]);
+gwrap(sz,px,py,14,(X,Y)=>{x.beginPath();x.moveTo(X,Y);x.lineTo(X+Math.cos(a)*l,Y+Math.sin(a)*l);x.stroke()})}};
+function gtile(kind){const sz=512,a=fbm(sz,4,4,3,kind?31:21),b=fbm(sz,16,16,3,kind?17:7),c=fbm(sz,64,64,2,kind?13:3),e=fbm(sz,2,2,2,kind?55:45),H=new Float32Array(sz*sz),cv=document.createElement('canvas');cv.width=cv.height=sz;const x=cv.getContext('2d'),im=x.createImageData(sz,sz),d=im.data;
+for(let i=0;i<sz*sz;i++){const k=.8+c[i]*.42,gr=(Math.random()-.5)*(kind?20:10);let r,g,bl;
+if(!kind){const lu=c01((a[i]-.3)*2.2),dr=c01((e[i]-.5)*3);r=(50+lu*22+dr*50+(b[i]-.5)*26)*k+gr;g=(80+lu*26+dr*20+(b[i]-.5)*30)*k+gr;bl=(30+lu*6+dr*6)*k+gr*.6}
+else{r=(124+(b[i]-.5)*46+(a[i]-.5)*30)*k+gr;g=(106+(b[i]-.5)*40+(a[i]-.5)*24)*k+gr;bl=(80+(b[i]-.5)*30+(a[i]-.5)*16)*k+gr*.8}
+P4(d,i,r,g,bl);H[i]=b[i]*.55+c[i]*.45}
+x.putImageData(im,0,0);
+if(!kind){gstroke(x,sz,5200,[5,12],[.8,1.5],['rgba(28,50,18,.5)','rgba(34,60,20,.45)','rgba(92,128,46,.4)','rgba(120,152,62,.35)']);gstroke(x,sz,900,[5,12],[.8,1.3],['rgba(165,150,76,.35)','rgba(140,128,62,.35)']);
+for(let i=0;i<70;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle=Math.random()<.5?'rgba(214,208,150,.55)':'rgba(236,236,226,.5)';x.beginPath();x.arc(px,py,rnd(.9,1.8),0,6.3);x.fill()}
+for(let i=0;i<220;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle='rgba(66,52,36,.35)';x.beginPath();x.ellipse(px,py,rnd(1,3),rnd(.8,2),rnd(0,3),0,6.3);x.fill()}}
+else{for(let i=0;i<900;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(.9,3.4),v=118+rnd(0,72)|0;x.fillStyle='rgba(20,16,10,.4)';x.beginPath();x.ellipse(px+.8,py+1,s,s*.8,0,0,6.3);x.fill();x.fillStyle='rgb('+v+','+(v-8)+','+(v-22)+')';x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}
+gstroke(x,sz,420,[4,10],[.7,1.2],['rgba(170,150,98,.4)','rgba(110,96,70,.4)'])}
+let m=0;const dd=x.getImageData(0,0,sz,sz).data;for(let i=0;i<sz*sz;i++)m+=dd[i*4]+dd[i*4+1]+dd[i*4+2];
+return{map:tx(cv),normalMap:nmap(H,sz,2.2),mean:m/(sz*sz*765)}}
+const T_gg=gtile(0),T_gd=gtile(1);
+// shader du terrain : attribut gsp (poids d'herbe), tuiles herbe/terre, 2e échelle tournée + 3e très large contre le motif répété, transition irrégulière
+function groundMat(m){m.map.repeat.set(2,2);m.onBeforeCompile=sh=>{sh.uniforms.tGr={value:T_gg.map};sh.uniforms.tDi={value:T_gd.map};sh.uniforms.uMg={value:T_gg.mean};sh.uniforms.uMd={value:T_gd.mean};
+sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float gsp;varying float vGs;').replace('#include <begin_vertex>','#include <begin_vertex>\nvGs=gsp;');
+sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D tGr,tDi;uniform float uMg,uMd;varying float vGs;').replace('#include <map_fragment>',`
+vec2 w2=vec2(vUv.x*.8+vUv.y*.6,-vUv.x*.6+vUv.y*.8)*2.9+vec2(.31,.57);
+vec3 g1=texture2D(tGr,vUv).rgb,g2=texture2D(tGr,w2).rgb,d1=texture2D(tDi,vUv*1.37+vec2(.2,.4)).rgb;
+float l2=dot(g2,vec3(.3333))/uMg,l3=dot(texture2D(tGr,vUv*.137+vec2(.5,.2)).rgb,vec3(.3333))/uMg;
+float mac=.8+.3*l3;
+vec3 gc=g1*mix(1.,l2,.5)*mac,dc=d1*mix(1.,l2,.3)*(.9+.2*l3);
+float tt=smoothstep(.0,1.,(vGs-.5)*3.+.5+(l2-1.)*1.6);
+diffuseColor.rgb*=mix(dc,gc,tt);`)};return m}
 // --- dalles béton
 const T_slab=ptex(512,(d,H,sz)=>{const a=fbm(sz,4,4,4,15),b=fbm(sz,64,64,2,8);
 for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&255,gy=y&255,hh=hsh((X>>8)+3,(y>>8)+11);let v=(.72+hh*.12)*(.9+(a[i]-.5)*.25+(b[i]-.5)*.12),h=.6+(b[i]-.5)*.3;
@@ -273,7 +296,7 @@ const t=new THREE.CanvasTexture(c);t.anisotropy=AN;return new THREE.MeshBasicMat
 // ================= SOL =================
 const fg=new THREE.PlaneGeometry(60,60,40,40);scaleUV(fg,10,10);
 {const p=fg.attributes.position,c=new Float32Array(p.count*3);for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2);c[i*3]=.8+.22*n;c[i*3+1]=.84+.16*n;c[i*3+2]=.74+.2*n}fg.setAttribute('color',new THREE.BufferAttribute(c,3))}
-const floor=new THREE.Mesh(fg,pm(T_grd,0xffffff,{roughness:1,vertexColors:true}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;S.add(floor);
+fg.setAttribute('gsp',new THREE.BufferAttribute(new Float32Array(fg.attributes.position.count).fill(.8),1));const floor=new THREE.Mesh(fg,groundMat(std(0xffffff,{map:T_gg.map,normalMap:T_gg.normalMap,roughness:1,vertexColors:true})));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;S.add(floor);
 let NOL=false;
 const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
 function terrainH(x,z){const d=Math.max(Math.abs(x),Math.abs(z)),k=sstep(95,165,d);return k*Math.max(0,5+5*Math.sin(x*.045+1.3)*Math.cos(z*.04)+2.5*Math.sin(x*.11)*Math.sin(z*.09+.7)+1.2*Math.sin(x*.27+z*.21))}
@@ -285,7 +308,7 @@ const cg=new THREE.BufferGeometry();for(const k in g.attributes)cg.setAttribute(
 const e=new THREE.Mesh(cg,m.material);e.position.copy(m.position);e.rotation.copy(m.rotation);e.receiveShadow=m.receiveShadow;e.castShadow=m.castShadow;e.userData.keep=1;e.userData.chunk=1;e.updateMatrix();e.matrixAutoUpdate=false;S.add(e);out.push(e)}
 g.setDrawRange(0,0);return out}
 {const og=new THREE.PlaneGeometry(3600,3600,360,360);og.rotateX(-Math.PI/2);const p=og.attributes.position;for(let i=0;i<p.count;i++)p.setY(i,Math.max(Math.abs(p.getX(i)),Math.abs(p.getZ(i)))<=MH-3?-9:terrainH(p.getX(i),p.getZ(i))-.03);scaleUV(og,345,345);og.computeVertexNormals();
-const o=new THREE.Mesh(og,pm(T_grd,0xd8dccc,{roughness:1,envMapIntensity:.5}));o.receiveShadow=true;window.RINGM=o}
+og.setAttribute('gsp',new THREE.BufferAttribute(new Float32Array(og.attributes.position.count).fill(.78),1));const o=new THREE.Mesh(og,groundMat(std(0xd8dccc,{map:T_gg.map,normalMap:T_gg.normalMap,roughness:1,envMapIntensity:.5})));o.receiveShadow=true;window.RINGM=o}
 
 const solids=[],boxes=[];
 function box(x,z,w,h,d,c){const mt=surf(c),k=mt.userData.k,bg=new THREE.BoxGeometry(w,h,d,1,k==='wall'?Math.max(1,Math.round(h)):1,1);if(k==='wall'){wuv(bg,x,h/2,z,2,2);grime(bg,h/2)}else if(k==='wood')fitUV(bg,w,h,d,1.2);const m=new THREE.Mesh(bg,mt);m.castShadow=m.receiveShadow=true;m.position.set(x,h/2,z);S.add(m);solids.push(m);boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2})}
@@ -831,6 +854,8 @@ float lp=dot(position,vec3(7.1,5.3,6.7));mvPosition.xyz+=vec3(sin(uWt*4.1+lp),si
 #endif
 #if WK==0
 vec2 dp=mvPosition.xz-uWp;float pd=length(dp);mvPosition.xz+=dp/max(pd,.05)*(1.-smoothstep(.15,1.,pd))*position.y*.6;mvPosition.y-=(1.-smoothstep(.1,.8,pd))*position.y*.45;
+// v62 : la touffe rapetisse avec la distance à la caméra (fondu continu, pas d'apparition brusque en bord de réserve)
+float gf_=1.-smoothstep(20.,42.,length(wo.xz-cameraPosition.xz));mvPosition.xz=wo.xz+(mvPosition.xz-wo.xz)*(.35+.65*gf_);mvPosition.y=wo.y+(mvPosition.y-wo.y)*gf_;
 #endif
 mvPosition=modelViewMatrix*mvPosition;gl_Position=projectionMatrix*mvPosition;`)};return m}
 // ================= RELIEF JOUABLE (v4) : GH(x,z) est utilisée par le joueur, les bots, les tirs et les props =================
@@ -880,10 +905,20 @@ for(let j=0;j<GN;j++){const z=-AR+j*GSP;if(z<CT.z1+3)continue;for(let i=Math.rou
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
 scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.normal;
-for(let i=0;i<p.count;i++){const X=p.getX(i),Y=p.getY(i),h=p.getZ(i),sl=1-nn.getZ(i),n=.5+.25*Math.sin(X*.21+1)*Math.cos(Y*.17)+.25*Math.sin(X*.07-Y*.09+2),k=1+.09*Math.max(-1,Math.min(1.5,h)),
-d=sstep(.03,.16,sl)*.8+sstep(.5,1.6,h)*.25*(1-sstep(.1,.2,sl))+(nz(X*.15,Y*.15)-.5)*.35-.14,dr=Math.max(0,Math.min(1,d));
-const wv=wDist(X,-Y),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1;c[i*3]=(((.8+.22*n)*.8*(1-dr)+.9*dr)*k*(1-mu)+.62*mu)*ku;c[i*3+1]=(((.84+.16*n)*1.05*(1-dr)+.74*dr)*k*(1-mu)+.55*mu)*ku;c[i*3+2]=(((.74+.2*n)*.74*(1-dr)+.6*dr)*k*(1-mu)+.42*mu)*ku}
-for(let ps=0;ps<2;ps++){const t=c.slice();for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*3;for(let k=0;k<3;k++)c[n+k]=(t[n+k]*4+2*(t[n-3+k]+t[n+3+k]+t[n-GN*3+k]+t[n+GN*3+k])+t[n-GN*3-3+k]+t[n-GN*3+3+k]+t[n+GN*3-3+k]+t[n+GN*3+3+k])/16}}
+// v62 : sol varié — poids d'herbe par sommet (attribut gsp, mélangé herbe/terre par le shader du terrain) + teinte lente (vert frais / foin / terre brune / roche sur les pentes), terre nue en parcelles, berges boueuses
+const cc=new Float32Array(p.count*4);
+for(let i=0;i<p.count;i++){const X=p.getX(i),Z=-p.getY(i),h=p.getZ(i),gr_=Math.sqrt(2*Math.max(0,1-nn.getZ(i))),
+f1=nz(X*.019+11,Z*.019-7)*.55+nz(X*.043+3,Z*.043+9)*.3+nz(X*.1,Z*.1+4)*.15,f2=nz(X*.011-5,Z*.011+13)*.6+nz(X*.029+8,Z*.029-2)*.4,f3=nz(X*.085+5,Z*.085)*.55+nz(X*.27,Z*.27+3)*.3+nz(X*.9,Z*.9)*.15,
+wv=wDist(X,Z),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1,st=1-sstep(.1,.3,gr_);
+let gx=.92-sstep(.09,.3,gr_)*.95-sstep(1.6,3.6,h)*.3*st-sstep(.64,.8,f3)*.75;gx=Math.max(0,Math.min(1,gx*(1-mu*.95)));
+const dy=sstep(.45,.65,f2),lu=sstep(.3,.7,f1),bl=.9+.2*lu,rk=sstep(.2,.45,gr_),k=1+.09*Math.max(-1,Math.min(1.5,h)),dk=.9+.3*f3,
+gr=(.84+.36*dy)*bl,gg=(1.02-.02*dy)*bl,gb=(.8-.12*dy)*bl,dr=(1+(.82-1)*rk)*dk,dg=(.92+(.82-.92)*rk)*dk,db=(.8+(.8-.8)*rk)*dk;
+cc[i*4]=((gr*gx+dr*(1-gx))*k*(1-mu)+.62*mu)*ku;cc[i*4+1]=((gg*gx+dg*(1-gx))*k*(1-mu)+.55*mu)*ku;cc[i*4+2]=((gb*gx+db*(1-gx))*k*(1-mu)+.42*mu)*ku;cc[i*4+3]=gx}
+for(let ps=0;ps<2;ps++){const t=cc.slice(),W=GN*4;for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*4;for(let k=0;k<4;k++)cc[n+k]=(t[n+k]*4+2*(t[n-4+k]+t[n+4+k]+t[n-W+k]+t[n+W+k])+t[n-W-4+k]+t[n-W+4+k]+t[n+W-4+k]+t[n+W+4+k])/16}}
+const gsp=new Float32Array(p.count);for(let i=0;i<p.count;i++){c[i*3]=cc[i*4];c[i*3+1]=cc[i*4+1];c[i*3+2]=cc[i*4+2];gsp[i]=cc[i*4+3]}
+g.setAttribute('gsp',new THREE.BufferAttribute(gsp,1));
+// accès au champ de sol : index du sommet le plus proche (herbe, chemins)
+window.GFLD={c,g:gsp,geo:g,k:(x,z)=>{const i=Math.round((x+AR)/GSP),j=Math.round((z+AR)/GSP);return i<0||j<0||i>=GN||j>=GN?-1:j*GN+i}};
 g.setAttribute('color',new THREE.BufferAttribute(c,3));g.computeBoundingSphere();g.computeBoundingBox();floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);floor.geometry.setIndex(null);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}
 
 // optimisation : le rayon contre le sol marche sur le champ de hauteur au lieu de tester ~40 000 triangles
@@ -906,6 +941,12 @@ PATHS.forEach(p=>{const pts=[];for(let i=0;i<p.length-1;i++){const a=p[i],b=p[i+
 const pos=[],uv=[],idx=[];let dist=0;pts.forEach((q,i)=>{const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];let tx=b[0]-a[0],tz=b[1]-a[1];const l=Math.hypot(tx,tz)||1;tx/=l;tz/=l;if(i)dist+=Math.hypot(q[0]-pts[i-1][0],q[1]-pts[i-1][1]);
 const w=1.45+.35*Math.sin(i*.7+p[0][0]);[-1,1].forEach(s=>{const X=q[0]-tz*s*w,Z=q[1]+tx*s*w;pos.push(X,GH(X,Z)+.04,Z);uv.push(s>0?1:0,dist/5)});if(i){const o=(i-1)*2;idx.push(o,o+1,o+2,o+1,o+3,o+2)}});
 const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,pmat);m.receiveShadow=true;m.renderOrder=1;S.add(m)})}
+// v62 : sol tassé le long des chemins — la bande de terre se raccorde à l'herbe au lieu de la recouvrir d'un aplat
+function pathWear(){const F=window.GFLD;if(!F)return 0;const c=F.c,gs=F.g;let n=0;for(const pa of PATHS)for(let i=0;i<pa.length-1;i++){const a=pa[i],b=pa[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l2=dx*dx+dz*dz||1,
+i0=Math.max(0,Math.floor((Math.min(a[0],b[0])-4+AR)/GSP)),i1=Math.min(GN-1,Math.ceil((Math.max(a[0],b[0])+4+AR)/GSP)),j0=Math.max(0,Math.floor((Math.min(a[1],b[1])-4+AR)/GSP)),j1=Math.min(GN-1,Math.ceil((Math.max(a[1],b[1])+4+AR)/GSP));
+for(let j=j0;j<=j1;j++)for(let ix=i0;ix<=i1;ix++){const x=-AR+ix*GSP,z=-AR+j*GSP,t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/l2)),w=1-sstep(1.2,3.6,Math.hypot(a[0]+dx*t-x,a[1]+dz*t-z));if(w<=.01)continue;const k=j*GN+ix;gs[k]*=1-.92*w;const m=.7*w;c[k*3]+=(.98-c[k*3])*m;c[k*3+1]+=(.88-c[k*3+1])*m;c[k*3+2]+=(.74-c[k*3+2])*m;n++}}
+F.geo.attributes.color.needsUpdate=true;F.geo.attributes.gsp.needsUpdate=true;return n}
+window.pathWear=pathWear;pathWear();
 // ================= RELIEF, ROCHERS, BUISSONS, FLAQUES =================
 {const o=new THREE.Object3D(),col=new THREE.Color();
 const N=1000,rk=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1,0),std(0x8a877c,{roughness:.95,flatShading:true}),N);let n=0;
@@ -916,13 +957,17 @@ while(n<NB){let x=rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(n%2){if(Math.random()<.5)
 bs.castShadow=bs.receiveShadow=true;S.add(bs);
 const pm=std(0x2a3238,{roughness:.04,metalness:.15,envMapIntensity:1.8,transparent:true,opacity:.88,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});n=0;
 while(n<56){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,16),r=rnd(.8,1.8);if(!okPos(x,z,r+.3))continue;const p=new THREE.Mesh(new THREE.CircleGeometry(r,24),pm);p.rotation.x=-Math.PI/2;p.scale.y=rnd(.6,1);p.position.set(x,.016+GH(x,z),z);p.rotation.z=rnd(0,3);S.add(p);n++}}
-// ================= HERBE =================
-{const gt=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');for(let i=0;i<11;i++){const bx=rnd(6,58),tx=bx+rnd(-14,14),ty=rnd(3,34),w=rnd(2.5,5),g=x.createLinearGradient(0,64,0,ty);g.addColorStop(0,'rgb(40,62,24)');g.addColorStop(1,'rgb('+(110+rnd(0,50)|0)+','+(150+rnd(0,40)|0)+',60)');x.fillStyle=g;x.beginPath();x.moveTo(bx-w,64);x.quadraticCurveTo(bx,40,tx,ty);x.quadraticCurveTo(bx+w*.4,40,bx+w,64);x.fill()}return new THREE.CanvasTexture(c)})();
-gt.anisotropy=AN;const gw=.45,gh=.7,pos=[],uvs=[],nor=[],idx=[];
-[0,Math.PI/2].forEach(rot=>[1,-1].forEach(fl=>{const o=pos.length/3,c=Math.cos(rot),s=Math.sin(rot);[[-gw,0,0,0],[gw,0,1,0],[gw,gh,1,1],[-gw,gh,0,1]].forEach(q=>{pos.push(q[0]*c,q[1],-q[0]*s);uvs.push(q[2],q[3]);nor.push(0,1,0)});if(fl>0)idx.push(o,o+1,o+2,o,o+2,o+3);else idx.push(o,o+2,o+1,o,o+3,o+2)}));
-const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setIndex(idx);
-const N=9000,im=new THREE.InstancedMesh(g,windify(std(0xffffff,{map:gt,alphaTest:.5,roughness:1,envMapIntensity:.5}),0),N),o=new THREE.Object3D(),col=new THREE.Color();let n=0;
-while(n<N){break;const x=0,z=0;if(0)continue;const s=rnd(.5,1.1);o.position.set(x,GH(x,z),z);o.rotation.y=rnd(0,6.3);o.scale.set(s,s*rnd(.7,1.3),s);o.updateMatrix();im.setMatrixAt(n,o.matrix);col.setRGB(rnd(.75,1.1),rnd(.85,1.1),rnd(.65,1));im.setColorAt(n,col);n++}
+// ================= HERBE (v62) : vraies lames fines (triangles à pointe penchée, sans carte alpha donc sans bord dentelé), couleur pied/pointe =================
+{const NBL=12,pos=[],nor=[],cl=[],idx=[];
+for(let b=0;b<NBL;b++){const a=b/NBL*6.2832+hsh(b,3)*.5,rr=.03+hsh(b,5)*.22,bx=Math.cos(a)*rr,bz=Math.sin(a)*rr,hh=.5+hsh(b,7)*.5,dir=a+(hsh(b,11)-.5)*1.6,ln=.1+hsh(b,9)*.24,w=.017+hsh(b,13)*.009,
+dx=Math.cos(dir),dz=Math.sin(dir),sx=-dz*w,sz=dx*w,o=pos.length/3,nl=Math.hypot(dx*.4,1,dz*.4),v=.82+hsh(b,15)*.36,y_=hsh(b,17);
+pos.push(bx-sx,0,bz-sz,bx+sx,0,bz+sz,bx+dx*ln*hh,hh,bz+dz*ln*hh);for(let k=0;k<3;k++)nor.push(dx*.4/nl,1/nl,dz*.4/nl);
+cl.push(.17*v,.25*v,.085*v,.17*v,.25*v,.085*v,(.4+.2*y_)*v,(.52+.1*y_)*v,(.17+.05*y_)*v);idx.push(o,o+1,o+2)}
+const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));g.setIndex(idx);
+const N=9000,gm=windify(std(0xffffff,{vertexColors:true,side:THREE.DoubleSide,roughness:1,envMapIntensity:.5}),0),ob=gm.onBeforeCompile;
+// la face arrière d'une lame garde la même normale (sinon elle serait éclairée par en dessous, donc sombre)
+gm.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace('#include <normal_fragment_begin>',THREE.ShaderChunk.normal_fragment_begin.replace('normal = normal * faceDirection;',''))};
+const im=new THREE.InstancedMesh(g,gm,N);im.setColorAt(0,new THREE.Color(1,1,1));im.count=0;im.frustumCulled=false;
 im.receiveShadow=true;S.add(im);GRASS=im}
 // ================= FORÊT, POTEAUX D'ÉCLAIRAGE =================
 {const N=150,mt=std(0xffffff,{roughness:1,envMapIntensity:.5}),tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.22,.4,3.2,6),std(0x4a3a2a,{roughness:1}),N),c1=new THREE.InstancedMesh(new THREE.ConeGeometry(2.1,6.5,8),windify(mt.clone(),2),N),c2=new THREE.InstancedMesh(new THREE.ConeGeometry(1.5,4.5,8),windify(mt.clone(),3),N),o=new THREE.Object3D(),col=new THREE.Color();
@@ -1077,7 +1122,11 @@ cellEach(BUC,px,pz,130,q=>{const dx=q.x-px,dz=q.z-pz,d=dx*dx+dz*dz;if(d>130*130)
 tki.count=nt;tki.instanceMatrix.needsUpdate=true;tki.instanceColor.needsUpdate=true;LT.forEach((L,i)=>{L.a.count=CN[i][0];L.b.count=CN[i][1]});LS.a.count=sa;LS.b.count=sb;[...LT,LS].forEach(L=>{[L.a,L.b].forEach(m=>{m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true})})}
 // --- herbe : une réserve d'instances recentrée sur le joueur, cellules de 3 m calculées une fois puis mémorisées
 const GR={cell:new Map(),pend:[],cx:1e9,cz:1e9,R:46,max:0,q:1};
-function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=6+((hsh(i+5,j+9)*4)|0);for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||wDep(x,z)>.02||BRG.some(b=>Math.abs(x-b.x)<b.hw+1.6&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;const s=.5+hsh(i+q*13,j)*.6;out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6),.75+hsh(q,i)*.35,.85+hsh(j,q)*.25,.65+hsh(q+j,i)*.35])}GR.cell.set(k,out);return out}
+function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=9+((hsh(i+5,j+9)*5)|0),F=window.GFLD,nzg=window.NZT;for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||wDep(x,z)>.02||BRG.some(b=>Math.abs(x-b.x)<b.hw+1.6&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;
+// v62 : l'herbe pousse là où le sol est herbeux (le poids d'herbe du terrain), par touffes plus ou moins denses ; sa couleur reprend celle du sol
+const kk=F?F.k(x,z):-1,gx=kk<0?.8:F.g[kk];if(hsh(i*11+q*3,j*7+q)>sstep(.42,.8,gx)*(.4+1*nzg(x*.17+9,z*.17+4)))continue;
+const s=.55+hsh(i+q*13,j)*.55,v=.82+hsh(q,i*3+j)*.36,tn=kk<0?[.9,1,.8]:[F.c[kk*3],F.c[kk*3+1],F.c[kk*3+2]];
+out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6)*(.7+.5*gx),tn[0]*v,tn[1]*v*(.92+hsh(j,q)*.16),tn[2]*v])}GR.cell.set(k,out);return out}
 function grassFill(){const im=GRASS;if(!im)return;const R=GR.R,ci=Math.floor(GR.cx/3),cj=Math.floor(GR.cz/3),rc=Math.ceil(R/3);let n=0;const mx=Math.floor(im.userData.max*GR.q);
 for(let i=ci-rc;i<=ci+rc&&n<mx;i++)for(let j=cj-rc;j<=cj+rc&&n<mx;j++){const mxx=(i+.5)*3-GR.cx,mzz=(j+.5)*3-GR.cz;if(mxx*mxx+mzz*mzz>R*R)continue;const c=grassCell(i,j);for(const g of c){if(n>=mx)break;oo.position.set(g[0],g[1],g[2]);oo.rotation.set(0,g[3],0);oo.scale.set(g[4],g[5],g[4]);oo.updateMatrix();im.setMatrixAt(n,oo.matrix);col.setRGB(g[6],g[7],g[8]);im.setColorAt(n,col);n++}}
 im.count=n;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;if(GR.cell.size>2600)GR.cell.clear()}
@@ -6306,6 +6355,19 @@ T('Perf v62 : ombres en cascade — une seule carte échantillonnée hors de la 
 T('Perf v62 : la passe plein écran Gfx est sautée sans AO, flou de mouvement ni visée, et réactivée dès qu’un effet est actif',()=>{if(!PP.comp){ppInit();if(!PP.comp)return'post-traitement indisponible'}const s={on:PP.on,ssao:PP.ssao,mb:PP.mb,bl:PP.bl},a0=adsT;let r='';try{PP.on=true;PP.bl=true;PP.ssao=false;PP.mb=false;adsT=0;ppRender(.016);if(PP.gfx.enabled)r='passe active sans effet';else{PP.ssao=true;ppRender(.016);if(!PP.gfx.enabled)r='passe inactive avec AO';else{PP.ssao=false;adsT=.8;ppRender(.016);if(!PP.gfx.enabled)r='passe inactive en visée'}}}finally{PP.on=s.on;PP.ssao=s.ssao;PP.mb=s.mb;PP.bl=s.bl;adsT=a0}return r});
 T('Perf v62 : le ciel est dessiné après l’opaque avec test de profondeur, sa sphère reste en deçà du plan lointain',()=>{const m=sky.material;if(!m.depthTest||m.depthWrite)return'ciel : depthTest '+m.depthTest+' depthWrite '+m.depthWrite;if(!(sky.renderOrder>1000))return'renderOrder '+sky.renderOrder;const r=sky.geometry.parameters.radius;if(!(r<C.far&&r>C.far*.9))return'rayon du ciel '+r+' pour far '+C.far;return''});
 T('Perf v62 : le sol complet ne garde plus de tampon d’indices inutile (le terrain est dessiné par morceaux)',()=>{if(!window.FLOORC||!FLOORC.length)return'terrain non découpé';if(floor.geometry.index)return'index du sol complet conservé ('+floor.geometry.index.count+')';if(floor.geometry.drawRange.count!==0)return'le sol complet serait dessiné en plus des morceaux';return''});
+T('Sol (v62) : poids d’herbe par sommet — herbe sur le plat, terre nue sur les pentes et aux berges, parcelles variées',()=>{const F=window.GFLD,g=F&&F.geo.attributes.gsp;if(!g)return'attribut gsp absent';if(g.count!==F.geo.attributes.position.count)return'gsp incomplet';
+let n=0,lo=0,hi=0,sf=0,sfn=0,ss=0,ssn=0,sw=0,swn=0;const gl=(x,z)=>Math.hypot(GH(x+1.5,z)-GH(x-1.5,z),GH(x,z+1.5)-GH(x,z-1.5))/3;
+for(let a=0;a<6000;a++){const x=(Math.random()*2-1)*(MH-40),z=(Math.random()*2-1)*(MH-40),k=F.k(x,z);if(k<0||(x>140&&z<-340))continue;const v=F.g[k];n++;if(v<.25)lo++;if(v>.75)hi++;const sl=gl(x,z);if(sl>.2){ss+=v;ssn++}else if(sl<.06){sf+=v;sfn++}if(wDist(x,z)<.3){sw+=v;swn++}}
+let m='';if(lo/n<.02)m+='pas de terre nue ('+(lo/n*100).toFixed(1)+' %) ';if(hi/n<.3)m+='peu d’herbe ('+(hi/n*100).toFixed(0)+' %) ';if(ssn>15&&ss/ssn>sf/sfn-.15)m+='pentes aussi herbeuses que le plat ('+(ss/ssn).toFixed(2)+' / '+(sf/sfn).toFixed(2)+') ';if(swn>10&&sw/swn>.3)m+='berges herbeuses ('+(sw/swn).toFixed(2)+') ';return m});
+T('Sol (v62) : teintes variées (vert frais, foin, terre) — pas un aplat',()=>{const F=window.GFLD;if(!F)return'champ de sol absent';let n=0,gre=0,dry=0,s1=0,s2=0;const L=[];for(let a=0;a<4000;a++){const x=(Math.random()*2-1)*(MH-40),z=(Math.random()*2-1)*(MH-40),k=F.k(x,z);if(k<0||(x>140&&z<-340)||wDist(x,z)<3)continue;const r=F.c[k*3],gg=F.c[k*3+1],b=F.c[k*3+2];n++;if(gg>r*1.12)gre++;if(r>gg*.99)dry++;const l=(r+gg+b)/3;s1+=l;s2+=l*l;L.push(l)}
+const mu=s1/n,sd=Math.sqrt(Math.max(0,s2/n-mu*mu));let m='';if(sd<.04)m+='luminance trop uniforme (écart '+sd.toFixed(3)+') ';if(gre/n<.1)m+='peu de vert ('+(gre/n*100).toFixed(0)+' %) ';if(dry/n<.05)m+='pas de foin ni de terre ('+(dry/n*100).toFixed(0)+' %) ';return m});
+T('Sol (v62) : shader du terrain — mélange herbe/terre, 2e échelle tournée et très grande échelle contre la répétition',()=>{const sh={uniforms:{},vertexShader:'#include <common>\n#include <begin_vertex>',fragmentShader:'#include <common>\n#include <map_fragment>'};floor.material.onBeforeCompile(sh);let m='';if(!/attribute float gsp/.test(sh.vertexShader))m+='attribut gsp non lu ';if(!sh.uniforms.tGr||!sh.uniforms.tDi)m+='tuiles absentes ';if(sh.fragmentShader.split('texture2D(tGr').length<4)m+='moins de 3 échantillons d’herbe ';if(!/mix\(dc,gc,tt\)/.test(sh.fragmentShader))m+='pas de mélange ';if(!FLOORC||!FLOORC.every(c=>c.geometry.attributes.gsp))m+='morceaux sans gsp ';return m});
+T('Sol (v62) : chemins — terre tassée sur le tracé, raccordée à l’herbe alentour',()=>{const F=window.GFLD;if(!F||!window.pathWear)return'pathWear absent';let on=0,off=0,n=0;for(const pa of PATHS.slice(0,6))for(let i=0;i<pa.length-1;i++){const a=pa[i],b=pa[i+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(l<6)continue;const t=.5,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t,nx=-(b[1]-a[1])/l,nz=(b[0]-a[0])/l,k0=F.k(x,z),k1=F.k(x+nx*7,z+nz*7),k2=F.k(x-nx*7,z-nz*7);if(k0<0||k1<0||k2<0)continue;on+=F.g[k0];off+=(F.g[k1]+F.g[k2])/2;n++}
+return n<3?'peu de tronçons testés ('+n+')':on/n>.3?'tracé encore herbeux ('+(on/n).toFixed(2)+')':on/n>off/n-.15?'pas de contraste avec l’entour ('+(on/n).toFixed(2)+' / '+(off/n).toFixed(2)+')':''});
+T('Herbe (v62) : vraies lames (triangles) — plus de carte alpha ni de bord dentelé, quelques triangles par touffe',()=>{const m=GRASS&&GRASS.material,g=GRASS&&GRASS.geometry;if(!m)return'herbe absente';let r='';if(m.alphaTest||m.map)r+='encore une carte alpha ';if(g.attributes.uv)r+='UV inutiles ';if(!g.attributes.color||!m.vertexColors)r+='pas de dégradé pied/pointe ';const tri=g.index.count/3;if(tri<8||tri>16)r+=tri+' triangles par touffe ';if(m.side!==THREE.DoubleSide)r+='une seule face ';return r});
+T('Herbe (v62) : couleur reprise du sol, jamais sur la terre nue, l’eau ni les chemins',()=>{const F=window.GFLD;if(!F)return'champ de sol absent';let n=0,bad=0,col=0,ex='';for(let i=-12;i<=12;i++)for(let j=-12;j<=12;j++){for(const q of grassCell(i*3+70,j*3-90)){const x=q[0],z=q[2],k=F.k(x,z);n++;if(k<0)continue;if(F.g[k]<.4||wDep(x,z)>.02||nearPath(x,z,1)){bad++;ex=ex||x.toFixed(0)+','+z.toFixed(0)}const r=q[6]/F.c[k*3];if(r<.78||r>1.22)col++}}
+return n<100?'peu de touffes ('+n+')':bad?bad+' touffes hors sol herbeux (ex '+ex+')':col?col+' touffes de couleur éloignée du sol':''});
+T('Herbe (v62) : fondu à distance — la touffe rapetisse dans le shader, normale conservée sur la face arrière',()=>{const m=GRASS&&GRASS.material;if(!m)return'herbe absente';const sh={uniforms:{},vertexShader:'#include <project_vertex>',fragmentShader:'#include <normal_fragment_begin>'};m.onBeforeCompile(sh);let r='';if(!/cameraPosition/.test(sh.vertexShader)||!/smoothstep\(20\.,42\./.test(sh.vertexShader))r+='pas de fondu par la distance ';if(/normal = normal \* faceDirection/.test(sh.fragmentShader))r+='face arrière éclairée à l’envers ';if(GRASS.count>0&&GRASS.userData.max<2000)r+='réserve trop petite ';return r});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
