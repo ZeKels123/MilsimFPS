@@ -11,7 +11,7 @@ d.innerHTML='<span></span><div style="margin:4px auto 0;width:90px;height:3px;ba
 document.body.appendChild(d);NVG.el=d;NVG.tx=d.querySelector('span');NVG.bar=d.querySelector('i')}
 function nvMsg(t){if(typeof hlMsg==='function')hlMsg(t)}
 function nvSet(m,instant){nvInit();if(m){if(!nvHas()){nvMsg('Pas de jumelles de vision nocturne');return false}if(NVG.hs){nvMsg('Jumelles hors service : tubes grillés');return false}
- if(NVG.bat<=0&&!(HM.inv.pn>0)){nvMsg('Batterie vide : aucune pile');return false}NVG.want=m===2?2:1;NVG.on=true;if(instant){NVG.a=1;if(NVG.bat<=0)nvSwap()}}
+ if(NVG.bat<=0&&!(HM.inv.pn>0)){nvMsg('Batterie vide : aucune pile');return false}NVG.want=m===2?2:1;NVG.on=true;if(NVG.bat<=0)nvSwap();if(instant)NVG.a=1}
  else{NVG.on=false;if(instant)NVG.a=0}
  nvDerive();if(!m){NVG.heat=false;nvHeat(0)}snd(m?640:420,.05,.1,'square');return true}
 function nvToggle(){return nvSet(NVG.on?0:NVG.want)}
@@ -32,6 +32,7 @@ function nvFx(){if(NVG.a<=.002||ac.on||bench)return false;const u=PP.nv&&PP.nv.u
 function nvHeat(on){for(const b of bots){const s=b.sld;if(!s||!s.mats)continue;const h=on?(b.dead>0?Math.max(0,Math.min(1,b.dead/BOT_CORPSE)):1):0;for(const m of s.mats)if(m.emissive)m.emissive.setScalar(h*.95)}}
 function nvTick(dt){nvInit();
  if(HM.dead>0||P.hp<=0){if(NVG.on||NVG.a>0)nvSet(0,true)}
+ else if(!nvHas()&&(NVG.on||NVG.a>0))nvSet(0,true);// jumelles jetées / perdues : vision coupée
  const sp=NVG.on?(1/.55):(1/.4);NVG.a=NVG.on?Math.min(1,NVG.a+dt*sp):Math.max(0,NVG.a-dt*sp);if(NVG.swapT>0)NVG.swapT-=dt;
  NVG.amb=nvAmb();const amb=NVG.amb,mo=typeof MOO!=='undefined'?MOO.ill:.5;
  NVG.gain=1.1+(5.2+1.8*(1-mo))*(1-Math.max(0,Math.min(1,(amb-.1)/.5)));NVG.over=Math.max(0,Math.min(1,(amb-.45)/.2));

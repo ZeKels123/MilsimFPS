@@ -1,6 +1,6 @@
 // ================= v35 : survie (soif, faim, froid) et ramassage chronométré =================
 // Soif et faim baissent avec l'effort ; le froid dépend de l'heure, de la pluie, de l'abri (bâtiment) et des feux proches.
-// Boire : F au bord de l'eau, ou [=] une gourde ; manger : [-] une ration. \\ active/désactive la survie (mode long).
+// Boire : F au bord de l'eau, ou [=] une gourde ; manger : [-] une ration. [Début] active/désactive la survie (mode long).
 // Ramasser un objet prend du temps (selon sa masse) et s'interrompt si on bouge ou si on est touché.
 var SUR={on:(function(){try{return localStorage.getItem('mfps_surv')!=='0'}catch(e){return true}})(),w:1,f:1,c:1,tr:0,act:null,pk:null,el:null,t:0,m:[0,0,0],ph:0};
 function survAmb(){const sun=Math.max(0,Math.sin((TOD.t-6)/12*Math.PI)),rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);return 5+14*sun-4*rain}
@@ -33,4 +33,4 @@ if(w&&!SUR.act)h+='<div style="margin-top:3px;color:#9fd0ff">[F] boire</div>';SU
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
 if(e.code==='Minus')survStart('eat');else if(e.code==='Equal')survStart('drink');
 else if(e.code==='KeyF'&&SUR.on&&!DRV.on&&!nb&&!ndR&&!invNear()&&survWater())survStart('lake');
-else if(e.code==='Backslash'){SUR.on=!SUR.on;try{localStorage.setItem('mfps_surv',SUR.on?'1':'0')}catch(x){}survMsg(SUR.on?'Survie activée (soif, faim, froid)':'Survie désactivée')}});
+else if(e.code==='Home'){SUR.on=!SUR.on;try{localStorage.setItem('mfps_surv',SUR.on?'1':'0')}catch(x){}survMsg(SUR.on?'Survie activée (soif, faim, froid)':'Survie désactivée')}});

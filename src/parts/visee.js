@@ -15,9 +15,9 @@ function vsSway(){const a=vsAmp();if(a<=0||ac.on||HM.dead||P.hp<=0)return;const 
 let _vsH=0,_vsV=null;
 function vsFrame(sc){
  if(sc&&!bench)handL.visible=handR.visible=false;
- if(sc&&!_vsH&&gun.visible&&!DRV.on&&!bench){gun.visible=false;_vsH=1}
+ if(sc&&!DRV.on&&!bench&&!ac.on&&!(P.hp<=0)&&!INV.open){gun.visible=false;_vsH=1}// chaque image : nadeview.js remet gun.visible à chaque image
  else if(!sc&&_vsH){_vsH=0;if(!DRV.on&&!(P.hp<=0)&&!bench)gun.visible=true}
  if(!_vsV){_vsV=document.createElement('div');_vsV.style.cssText='position:fixed;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 50%,transparent 36%,rgba(0,0,0,.5) 100%)';document.body.appendChild(_vsV)}
  _vsV.style.opacity=(sc?0:adsT*.9).toFixed(2)}
 addEventListener('blur',()=>{VSB.b=0});
-addEventListener('keydown',e=>{if(e.code==='Backslash'&&!e.repeat){SET.adsTog=!SET.adsTog;if(SET.adsTog&&!VSB.b)ads=false;setSave();try{hlMsg('Visée : '+(SET.adsTog?'bascule':'maintien'))}catch(x){}try{snd(SET.adsTog?420:320,.04,.08,'square')}catch(x){}}});
+addEventListener('keydown',e=>{if(e.code==='Backslash'&&!e.repeat&&$('ov').style.display==='none'){SET.adsTog=!SET.adsTog;if(SET.adsTog&&!VSB.b)ads=false;setSave();try{hlMsg('Visée : '+(SET.adsTog?'bascule':'maintien'))}catch(x){}try{snd(SET.adsTog?420:320,.04,.08,'square')}catch(x){}}});
