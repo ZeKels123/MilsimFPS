@@ -25,7 +25,7 @@ function nvDerive(){const act=NVG.on&&NVG.a>=.999&&NVG.swapT<=0&&NVG.bat>0&&!NVG
 function nvAmb(){const rm=typeof inRoom==='function'&&inRoom(P.x,P.z)>=0;return Math.max(0,Math.min(1,(sun.intensity+hemi.intensity*.5)/2))*(rm?.35:1)}
 // uniforms du shader ; renvoie true tant que le passage doit tourner (jumelles abaissées ou en mouvement)
 function nvFx(){if(NVG.a<=.002||ac.on||bench)return false;const u=PP.nv&&PP.nv.uniforms;if(!u)return !!PP.nv;
- const amb=NVG.amb,night=Math.max(0,1-amb*3);const th=NVG.want===2;u.uMode.value=th?2:1;u.uA.value=NVG.a*NVG.a*(3-2*NVG.a);
+ const amb=NVG.amb,night=Math.max(0,1-amb*3);const th=NVG.want===2;u.uMode.value=th?2:1;u.uA.value=NVG.a*NVG.a*(3-2*NVG.a);u.uSc.value=VSX.sc;
  u.uGain.value=(th?1.2:NVG.gain)*(NVG.m?1:NVG.a*NVG.a*(NVG.on&&NVG.a>=.999?0:.3));u.uT.value=(performance.now()%1e5)/1e3;u.uFlash.value=NVG.sat;u.uOver.value=NVG.m===1?NVG.over:0;u.uIR.value=NVG.irOn?1:0;
  u.uNoise.value=(.16+.34*night*(1-(typeof MOO!=='undefined'?MOO.ill:.5))+NVG.burn*.04)*(th?.6:1);u.uLow.value=NVG.bat<.12&&NVG.m?(Math.random()<.18?.5:0):0;
  return true}
