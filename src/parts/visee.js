@@ -1,19 +1,23 @@
 // ---- Visée (ADS) : table par arme, maintien/bascule, annulation propre, balancement, vignette
 // f = FOV des organes de visée métalliques ; e = vitesse d'entrée en visée ; m = vitesse de marche en visée ; s = amplitude du balancement
 const VST=[{f:60,e:1,m:1,s:1},{f:63,e:1.3,m:1.12,s:.7},{f:66,e:1.6,m:1.18,s:.5},{f:62,e:.85,m:.95,s:1.1},{f:58,e:.6,m:.8,s:1.5},{f:60,e:.5,m:.6,s:2.1}];
-const VSB={b:0};if(typeof SET.adsTog!=='boolean')SET.adsTog=false;
+const VSB={b:0},VSX={sc:0,mt:0};if(typeof SET.adsTog!=='boolean')SET.adsTog=false;
 function vsT(){return VST[WSEL]||VST[0]}
 function vsIronFov(){return vsT().f}
 function vsRate(){const k=sight();return vsT().e*((k==='scope'||(WSEL===4&&k==='iron'))?.8:1)}
 function vsMove(){return vsT().m}
 function vsAmp(){if(!(adsT>.02))return 0;const st=Math.min(2,P.st||0);return .0016*vsT().s*adsT*[1,.7,.45][st]*(WPN.rest?.5:1)*(1-.9*(EFF.hb||0))*(1+.8*Math.min(1,effK()))*(HM.sta<.25?1.4:1)}
+// mire de secours (v61) : V fait défiler les optiques montées puis la mire métallique (sel==='iron') ; monter une optique la réactive
+const VSN={scope:'Lunette LPVO',angled:'Lunette inclinée',holo:'Holo + loupe',iron:'Mire de secours'};
+function vsNoOpt(){return!(A.scope||A.angled||A.holo)||sel==='iron'}
+function vsCycle(){const l=['scope','angled','holo'].filter(k=>A[k]);if(!l.length)return false;l.push('iron');sel=l[(l.indexOf(sight())+1)%l.length];try{hlMsg('Viseur : '+VSN[sel])}catch(x){}try{snd(380,.03,.07,'square')}catch(x){}return true}
 function vsOk(){return!reloading&&!bench&&!HNOADS()&&!HM.act&&!DRV.on&&!ac.on&&!INV.open&&!P.mant&&!(P.hp<=0)&&!NVG.blockAds&&$('ov').style.display==='none'}
-function vsAds(){if(!vsOk()){ads=false;return}
+function vsAds(){if(!vsOk()){ads=false;const n=performance.now();if(VSB.b&&NVG.blockAds&&n>VSX.mt){VSX.mt=n+2500;try{hlMsg('Jumelles en mouvement : visée impossible')}catch(x){}}return}
  if(!SET.adsTog){if(VSB.b)ads=true}
  else if(ads&&K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD)&&!P.st&&!(EFF.hb>.1))ads=false}
 function vsSway(){const a=vsAmp();if(a<=0||ac.on||HM.dead||P.hp<=0)return;const t=performance.now()*.001;C.rotation.x+=a*(Math.sin(t*1.3)+.5*Math.sin(t*2.9+1));C.rotation.y+=a*(Math.sin(t*1.1+2)+.5*Math.sin(t*2.3))}
 let _vsH=0,_vsV=null;
-function vsFrame(sc){
+function vsFrame(sc){VSX.sc=sc?1:0;
  if(sc&&!bench)handL.visible=handR.visible=false;
  if(sc&&!DRV.on&&!bench&&!ac.on&&!(P.hp<=0)&&!INV.open){gun.visible=false;_vsH=1}// chaque image : nadeview.js remet gun.visible à chaque image
  else if(!sc&&_vsH){_vsH=0;if(!DRV.on&&!(P.hp<=0)&&!bench)gun.visible=true}
