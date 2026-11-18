@@ -20,3 +20,6 @@ Décor de camp et de champ de bataille : tentes de commandement, cantine/table, 
 
 ## D. Plus tard
 Dégâts des portes par les bots, ricochets sur crêtes, lumières dynamiques des phares, sons de moteur par AOUT, nouveau mode de jeu (défense de position, évacuation).
+
+- Relève de mirador : le remplaçant ne monte pas toujours (état 'pat'), à stabiliser puis remettre un test.
+- Streaming de bld(), sons de nage/plongeon, traçante 1re image, rechargement accroupi, phares, avions touchables.

@@ -775,3 +775,8 @@ Corrigé : touche \ partagée survie/visée (survie sur Début, visée dans le m
 Mesures : chargement 36–74 s (SwiftShader), props 3D déjà partagés (≈10 draw calls), aucune fuite sur ~5400 pas × 4 conditions.
 Constaté non traité : avions décoratifs non touchables ; fuite mineure de passes de rendu au redimensionnement (ppInit) ; flou hors axe et mire de secours en lunette ; traçante vue en lunette à vérifier à la main.
 Dernière suite : 215/215.
+
+## v61 (fusion bots2 + vis2 + imm)
+- Bots : bras touché, boiterie par jambe, rampe progressive, remise à zéro d'animation.
+- Visée : touche V (cycle des optiques / mire métallique), vision nocturne combinée à la lunette (uSc), flou hors axe (uAds), ppFree.
+- Immersion : berges (bots qui longent la rive, sable/boue sans eau profonde) ; la relève des tireurs de mirador (bots_vie.js) reste instable, son test a été retiré (voir PROCHAINES_AMELIORATIONS).
