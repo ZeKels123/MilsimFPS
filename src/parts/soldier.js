@@ -48,25 +48,32 @@ function sldRot(sd,ix,axis,ang){if(ix===undefined||Math.abs(ang)<.002)return;_rq
 function sldCrouch(sd,k){const I=SLS.ix,D=.34*k;for(const s of['Left','Right']){const u=I[s+'UpLeg'],l=I[s+'Leg'],f=I[s+'Foot'];if(u===undefined||l===undefined||f===undefined)continue;const B=sd.bones,L1=B[u].position.distanceTo(B[l].position),L2=B[l].position.distanceTo(B[f].position);
 let lo=0,hi=1.5;for(let i=0;i<14;i++){const a=(lo+hi)/2,be=Math.asin(Math.min(1,L1*Math.sin(a)/L2));if(L1*(1-Math.cos(a))+L2*(1-Math.cos(be))<D)lo=a;else hi=a}
 const a=(lo+hi)/2,be=Math.asin(Math.min(1,L1*Math.sin(a)/L2));sldRot(sd,u,_rx,-a);sldRot(sd,l,_rx,a+be)}sldRot(sd,I.Spine,_rx,.28*k)}
+// blessures visibles : buste voûté, épaule du bras touché qui s'affaisse (l'arme baisse et dévie), boiterie du côté de la jambe touchée (affaissement du bassin quand le pied blessé porte)
+const _rz=new THREE.Vector3(0,0,1);
+function sldHurt(b,sd,mv){const z=b.zh,m=b.zm;sd.hz=0;if(!z||!m)return;const I=SLS.ix,f=b.fxl|0,bn=sd.bones,lm=(k,bit)=>{const r=1-Math.max(0,z[k])/m[k];return(f&bit)||z[k]<=0?Math.max(r,.6):r};
+ const ra=lm('ra',2),la=lm('la',1);if(ra>.25||la>.25){const h=Math.max(ra,la);sldRot(sd,I.Spine1,_rx,.12*h);if(ra>.25)sldRot(sd,I.RightShoulder,_rx,.3*ra);if(la>.25)sldRot(sd,I.LeftShoulder,_rx,.3*la);sldRot(sd,I.Head,_rz,(ra>la?-1:1)*.1*h)}
+ if(mv){const ll=lm('ll',4),rl=lm('rl',8),L=Math.max(ll,rl);if(L>.3){const hs=ll>rl?'Left':'Right',os=ll>rl?'Right':'Left',fh=I[hs+'Foot'],fo=I[os+'Foot'];if(fh!==undefined&&fo!==undefined){const hp=bn[fh].position,op=bn[fo].position,st=Math.max(0,Math.min(1,(op.y-hp.y)/.1)),lim=Math.min(1,(L-.3)/.5);sd.hz=(hp.x>op.x?-1:1)*.1*lim*st;sd.sg.position.y-=.06*lim*st}}}
+ sd.sg.rotation.z=sd.hz}
 function sldPick(b,mv){if(b.dead)return b.dmr?'deathR':'death';if(b.relT>0)return b.crA>.4?'idle':b.wi===3?'fire':'reload';if(b.crA>.4&&!(mv&&b.mvA>.5))return'idle';if(mv&&b.mvA>.25){const sd=b.sld,m=sd&&sd.md;if(m===1)return sd.ms>0?'strafe':'strafeR';if(m===2)return'walkB';return b.T.sp*(b.spK||1)*(b.hm||1)>3.4?'run':'walk'}return'fire'}
 const _slg=new THREE.Quaternion(),_sly=new THREE.Quaternion(),_sle=new THREE.Euler(0,0,0,'YXZ'),_slw=new THREE.Matrix4(),_slo=new THREE.Matrix4().compose(new THREE.Vector3(0,0,0),new THREE.Quaternion(),new THREE.Vector3(1,1,1));
 const _slf=new THREE.Vector3(),_slu=new THREE.Vector3(),_slx=new THREE.Vector3();const _slv1=new THREE.Vector3(1,1,1),_slv2=new THREE.Vector3();var SLW={p:[.0,.0,.0],r:[0,0,0]};
 function sldUpdate(b,dt,mv){const sd=b.sld;if(!sd)return;const g=b.g,d=Math.hypot(g.position.x-P.x,g.position.z-P.z);sldLodTick(b,d);
 sd.sg.visible=d<230;if(d>=230){sd.acc=0;return}sd.acc+=dt;const every=d<45||b.dead?1:d<110?2:4;if((++SLS.fr+(b.tm*0|0))%every&&!b.dead){/* pose gardée */}else{dt=sd.acc;sd.acc=0;
-sldClips();sldDir(b,sd,dt,mv);const want=sldPick(b,mv),dth=want==='death'||want==='deathR';if(want!==sd.cur){sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=dth?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||dth)sd.t=0}
+sldClips();sldDir(b,sd,dt,mv);const want=sldPick(b,mv),dth=want==='death'||want==='deathR';if(want!==sd.cur){sd.cy0=sd.cyA||0;sd.pv=sd.cur;sd.pt=sd.t;sd.bl=0;sd.cur=want;sd.t=dth?0:sd.t*(want==='fire'||want==='idle'?0:.5);if(want==='reload'||dth)sd.t=0}
 const rate=sd.cur==='fire'?(b.fl>0?1:0):sd.cur==='walk'?Math.max(.5,b.T.sp*(b.spK||1)*(b.hm||1)/1.5):sd.cur==='run'?Math.max(.7,b.T.sp*(b.spK||1)*(b.hm||1)/4.2):sd.cur==='walkB'?-Math.max(.5,b.T.sp*(b.spK||1)*(b.hm||1)/1.7):sd.cur==='strafe'?Math.max(.6,Math.min(2.4,b.T.sp*(b.spK||1)*(b.hm||1)/1.7)):sd.cur==='strafeR'?-Math.max(.6,Math.min(2.4,b.T.sp*(b.spK||1)*(b.hm||1)/1.7)):sd.cur==='reload'?2.6:sd.cur==='death'||sd.cur==='deathR'?(b.drt||1):1;
 sd.t+=dt*rate;sd.bl=Math.min(1,sd.bl+dt*7);
 const cl=SLA[sd.cur];sldSamp(cl,sd.cur==='fire'&&b.fl<=0?0:sd.t,SLC[sd.cur],sd.A);
 let o=sd.A;if(sd.bl<1&&sd.pv){sldSamp(SLA[sd.pv],sd.pt+= dt,SLC[sd.pv],sd.B);const w=sd.bl;for(let i=0;i<SLS.nb*3;i++)sd.B.p[i]+= (sd.A.p[i]-sd.B.p[i])*w;for(let i=0;i<SLS.nb;i++){const j=i*4,dot=sd.A.q[j]*sd.B.q[j]+sd.A.q[j+1]*sd.B.q[j+1]+sd.A.q[j+2]*sd.B.q[j+2]+sd.A.q[j+3]*sd.B.q[j+3],s=dot<0?-1:1;for(let c=0;c<4;c++)sd.B.q[j+c]+=(sd.A.q[j+c]*s-sd.B.q[j+c])*w}o=sd.B}
 // la racine suit le yaw du groupe ; à la mort, on annule l'ancienne chute pour jouer l'animation squelettique
-if(b.dead){const ez=b.drgP?1:Math.min(1,sd.t/.3),ee=ez*ez*(3-2*ez);_slg.copy(g.quaternion).invert();_sle.set(0,g.rotation.y+(b.dty||0)*ee,0);_sly.setFromEuler(_sle);sd.sg.quaternion.copy(_slg).multiply(_sly);sd.sg.position.set(0,0,0);sd.blY=0}
+if(b.dead){const ez=b.drgP?1:Math.min(1,sd.t/.3),ee=ez*ez*(3-2*ez);_slg.copy(g.quaternion).invert();_sle.set(0,g.rotation.y+(b.dty||0)*ee,0);_sly.setFromEuler(_sle);sd.sg.quaternion.copy(_slg).multiply(_sly);sd.sg.position.set(0,0,0);sd.blY=0;sd.cyA=0}
 // accroupi : g.y descend de .34 pour l'ancien corps, mais le clip accroupi baisse déjà le soldat : on remonte le modèle pour que les bottes restent au sol
-else{sd.sg.quaternion.identity();sd.sg.position.set(0,b.crA>.02&&sd.cur==='idle'?b.crA*.34:0,0);sd.blY=0;const pr=b.prA||0;if(pr>.01){sd.sg.rotation.x=pr*1.48;sd.sg.position.y+=pr*.24;sd.sg.position.z=-1.1*pr}}
+else{sd.sg.quaternion.identity();{const ty=b.crA>.02&&sd.cur==='idle'?b.crA*.34:0,cy=sd.bl<1&&sd.cy0!==undefined?sd.cy0+(ty-sd.cy0)*sd.bl:ty;sd.cyA=cy;sd.sg.position.set(0,cy,0)}sd.blY=0;sd.cwY=sd.cwZ=0;const pr=b.prA||0;if(pr>.01){sd.sg.rotation.x=pr*1.48;sd.sg.position.y+=pr*.24;sd.sg.position.z=-1.1*pr}}
 // on ne garde que le déplacement relatif du bassin pour rester sur place (hors mort)
 const hx=b.dead?0:o.p[0],hz=b.dead?0:o.p[2];
 for(let i=0;i<SLS.nb;i++){const bn=sd.bones[i];bn.position.set(o.p[i*3]-hx,o.p[i*3+1],o.p[i*3+2]-hz);_slq.set(o.q[i*4],o.q[i*4+1],o.q[i*4+2],o.q[i*4+3]);bn.quaternion.copy(_slq)}
 if(!b.dead){const kc=sd.cur==='idle'?0:Math.min(1,(b.crA||0)*1.05);if(kc>.03)sldCrouch(sd,kc);
  if(!mv&&(sd.cur==='fire'||sd.cur==='idle')&&!(b.stun>0)&&!(b.blind>0)){const I=SLS.ix,ph=b.tm*1.55+sd.k*1.7,sc=b.aimA>.3?.35:1;sldRot(sd,I.Spine1,_rx,.016*Math.sin(ph));if(b.aimA<.3&&!b.lvl)sldRot(sd,I.Head,_ry,.55*Math.sin(b.tm*.37+sd.k*2.1)*Math.sin(b.tm*.11+sd.k)+.08*Math.sin(ph*.7));else sldRot(sd,I.Head,_rx,.02*Math.sin(ph*.8)*sc)}}
+if(!b.dead)sldHurt(b,sd,mv);
 sldPitch(b,sd);
 // arme dans la main droite
 const hb=sd.bones[sd.hand],hr=hb.position,hl=sd.bones[sd.hl].position,wi=b.wi;if(!SLS.rel)SLS.rel=[];

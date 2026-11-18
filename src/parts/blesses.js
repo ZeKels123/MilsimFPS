@@ -32,8 +32,11 @@ function blsPose(b,dt,mv){
  if(b.drg){b.drg=null}
  if(b.blsLean){g.rotation.x+=(0-g.rotation.x)*Math.min(1,dt*6);if(Math.abs(g.rotation.x)<.02){g.rotation.x=0;b.blsLean=0}}
  const w=1-(b.hm===undefined?1:b.hm);
- if(w>.15&&mv&&b.hm>.35){sd.sg.rotation.z=Math.sin(b.ph*1.0)*.12*w*2;sd.blY=.06*w*(.5+.5*Math.sin(b.ph*2));sd.sg.position.y-=sd.blY}
- else if(b.hm<=.35&&mv){sd.sg.rotation.x=.55;sd.blY=.1;sd.sg.position.y-=.1;sd.sg.rotation.z=Math.sin(b.ph*.8)*.1}}
+ // rampe : le soldat se couche progressivement (fondu) quand les jambes sont brisées et qu'il se déplace ; idempotent d'une image sautée à l'autre
+ const cw0=sd.crw||0,cw=cw0+((b.hm<=.35&&mv&&!b.lvl?1:0)-cw0)*Math.min(1,dt*4);sd.crw=cw<.01?0:cw;
+ if(sd.cwY){sd.sg.position.y-=sd.cwY;sd.sg.position.z-=sd.cwZ}sd.cwY=sd.crw*.2;sd.cwZ=-sd.crw*.9;sd.sg.position.y+=sd.cwY;sd.sg.position.z+=sd.cwZ;sd.sg.rotation.x=(b.prA||0)*1.48+sd.crw*1.2;
+ if(w>.15&&mv&&b.hm>.35){sd.sg.rotation.z=(sd.hz||0)+Math.sin(b.ph*1.0)*.06*w;sd.blY=.03*w*(.5+.5*Math.sin(b.ph*2));sd.sg.position.y-=sd.blY}
+ else if(sd.crw>0){sd.sg.rotation.z=(sd.hz||0)+Math.sin(b.ph*.8)*.1*sd.crw}}
 {const sU5=sldUpdate;sldUpdate=function(b,dt,mv){sU5(b,dt,mv);if(!(b.dead>0)&&b.zh){try{blsPose(b,dt,mv)}catch(e){console.error('blsPose',e)}}}}
 // le blessé évacué est traîné : on l'accroche au camarade pendant la phase de repli
 function blsDrag(){for(const h of bots){const e=h.evac;if(!e||h.dead)continue;const w=e.w;if(!w||w.dead)continue;
