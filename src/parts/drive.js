@@ -21,7 +21,7 @@ function drvExit(force){if(!DRV.on)return;const r=DRV.r;if(!force&&Math.abs(DRV.
 const c=Math.cos(DRV.h),s=Math.sin(DRV.h),d=DRV.wid/2+.9,L=DRV.len/2+.9;let q=[-c*d,s*d];for(const t of [[-c*d,s*d],[c*d,-s*d],[s*L,c*L],[-s*L,-c*L]])if(free_(DRV.x+t[0],DRV.z+t[1])){q=t;break}P.x=DRV.x+q[0];P.z=DRV.z+q[1];P.gy=GH(P.x,P.z);P.vy=0;P.air=0;
 r.drv=0;DRV.on=0;DRV.v=0;drvLights(false);if(DRV.spd)DRV.spd.style.display='none';gun.visible=true;if(typeof canStand==='function'&&canStand())P.st=0;drvSound(false);
 const w=Math.abs(Math.sin(DRV.h))*DRV.len/2+Math.abs(Math.cos(DRV.h))*DRV.wid/2,l=Math.abs(Math.cos(DRV.h))*DRV.len/2+Math.abs(Math.sin(DRV.h))*DRV.wid/2;
-r.bx.x0=DRV.x-w;r.bx.x1=DRV.x+w;r.bx.z0=DRV.z-l;r.bx.z1=DRV.z+l;if(!boxes.includes(r.bx))boxes.push(r.bx);try{drvNav(r.bx,1)}catch(e){}if(DRV.hint)DRV.hint.style.display='none'}
+r.bx.x0=DRV.x-w;r.bx.x1=DRV.x+w;r.bx.z0=DRV.z-l;r.bx.z1=DRV.z+l;okgDirty();if(!boxes.includes(r.bx))boxes.push(r.bx);try{drvNav(r.bx,1)}catch(e){}if(DRV.hint)DRV.hint.style.display='none'}
 // eau : profondeur maximale sous l'empreinte du véhicule (centre, avant, arrière) ; les ponts (sol à WL+0,55) ne comptent pas comme de l'eau
 function drvWater(x,z,h,len){const fx=-Math.sin(h)*len/2,fz=-Math.cos(h)*len/2;return Math.max(wDep(x,z),wDep(x+fx,z+fz),wDep(x-fx,z-fz))}
 const DRV_WMAX=.45;

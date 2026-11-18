@@ -223,7 +223,7 @@ g.setDrawRange(0,0);return out}
 # ---- v16 : terrain découpé en morceaux (culling), anneau extérieur allégé
 rep("{const og=new THREE.PlaneGeometry(3600,3600,600,600);",HELPER+"{const og=new THREE.PlaneGeometry(3600,3600,360,360);")
 rep("o.receiveShadow=true;S.add(o)}","o.receiveShadow=true;window.RINGM=o}")
-rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}")
+rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor.geometry=g;window.FLOORC=chunkPlane(floor,16);floor.geometry.setIndex(null);{const rg=RINGM.geometry,rp=rg.attributes.position,cl=v=>Math.max(-749.9,Math.min(749.9,v));for(let i=0;i<rp.count;i++){const X=rp.getX(i),Z=rp.getZ(i),d=Math.max(Math.abs(X),Math.abs(Z))-750;if(d<-5){rp.setY(i,GH(cl(X),cl(Z))-1.5);continue}const e=GH(cl(X),cl(Z)),t=sstep(0,80,d);rp.setY(i,e*(1-t)+terrainH(X,Z)*t-(d<=.01?.12:0))}rg.computeVertexNormals();window.RINGC=chunkPlane(RINGM,10)}}")
 # ---- v15 : champs, forêt
 rep("const TR=[],NP=5400,NO=1860,NBU=5100;let np=0,no=0,t=0;",rd('farm.js')+"const TR=[],NP=9700,NO=7070,NBU=9400;window.TRE=TR;let np=0,no=0,t=0;"+rd('forest.js'))
 rep("if(Math.random()>p||!okPos(x,z,2.2)","if(Math.random()>p||nzSkip(x,z)||!okPos(x,z,2.2)")

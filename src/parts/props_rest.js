@@ -1,5 +1,16 @@
 const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS,[[146,-744,744,-346]]);
-const okPos=(x,z,m)=>!boxes.some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!RMS.some(r=>x>r[0]-m&&x<r[2]+m&&z>r[1]-m&&z<r[3]+m)&&!(x>-8&&x<8&&z>20&&z<30);
+// v62 perf : index spatial des boîtes (cellules de 8 m, marge 6 m) : okPos était un balayage linéaire de toutes les boîtes (≈ 9 s au chargement, plus les cellules d'herbe en jeu)
+const OKG={n:0,last:null,c:new Map(),odd:[],M:6,S:8,q:0};
+function okgDirty(){OKG.n=-1}
+function okgSync(){const n=boxes.length;if(OKG.n<0||n<OKG.n||(OKG.n&&boxes[OKG.n-1]!==OKG.last)){OKG.c.clear();OKG.odd.length=0;OKG.n=0}
+for(let k=OKG.n;k<n;k++){const o=boxes[k];if(!(isFinite(o.x0)&&isFinite(o.x1)&&isFinite(o.z0)&&isFinite(o.z1))){OKG.odd.push(o);continue}
+const i0=Math.floor((o.x0-OKG.M)/OKG.S),i1=Math.floor((o.x1+OKG.M)/OKG.S),j0=Math.floor((o.z0-OKG.M)/OKG.S),j1=Math.floor((o.z1+OKG.M)/OKG.S);
+for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const key=i*8192+j;let a=OKG.c.get(key);if(!a)OKG.c.set(key,a=[]);a.push(o)}}
+OKG.n=n;OKG.last=n?boxes[n-1]:null}
+function okBox(x,z,m){if(m>OKG.M)return boxes.some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m);okgSync();
+const a=OKG.c.get(Math.floor(x/OKG.S)*8192+Math.floor(z/OKG.S));if(a)for(let k=0;k<a.length;k++){const o=a[k];if(x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)return true}
+for(let k=0;k<OKG.odd.length;k++){const o=OKG.odd[k];if(x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)return true}return false}
+const okPos=(x,z,m)=>!okBox(x,z,m)&&!RMS.some(r=>x>r[0]-m&&x<r[2]+m&&z>r[1]-m&&z<r[3]+m)&&!(x>-8&&x<8&&z>20&&z<30);
 // pad de la zone sûre
 {const pg=new THREE.PlaneGeometry(14,8.4);scaleUV(pg,7,4.2);const pd=new THREE.Mesh(pg,matTile);pd.rotation.x=-Math.PI/2;pd.position.set(0,.014,25.2);pd.receiveShadow=true;S.add(pd)}
 // ================= TONNEAUX =================

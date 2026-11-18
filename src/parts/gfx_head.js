@@ -10,7 +10,7 @@ const C=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.05,100);C.rotatio
 const SUND=new THREE.Vector3(-.5,.6,.62).normalize();
 const LDIR=SUND.clone();
 const skyU={uTop:{value:new THREE.Color(TOP)},uHor:{value:new THREE.Color(HOR)},uSunD:{value:SUND},uSunC:{value:new THREE.Color(1,.88,.65)},uT:{value:0},uMoonK:{value:-1},uMoonD:{value:new THREE.Vector3(.3,.6,-.6).normalize()},uCov:{value:.15},uGrey:{value:0},uStar:{value:0},uFlash:{value:0},uCl:{value:new THREE.Color(1,.99,.96)}};
-const skyMat=()=>new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,depthTest:false,fog:false,
+const skyMat=()=>new THREE.ShaderMaterial({uniforms:skyU,side:THREE.BackSide,depthWrite:false,depthTest:true,fog:false,
 vertexShader:'varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
 fragmentShader:`uniform vec3 uTop,uHor,uSunD,uSunC,uMoonD,uCl;uniform float uT,uCov,uGrey,uStar,uFlash,uMoonK;varying vec3 vD;
 float h21(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -34,7 +34,8 @@ c=mix(c,cc,cl*(.82+.15*uCov));
 float lu=dot(c,vec3(.3,.55,.15));c=mix(c,vec3(lu)*.92,uGrey*.7);
 c+=vec3(.7,.75,.95)*uFlash*(.35+.65*cl);
 gl_FragColor=vec4(clamp(c,0.,8.),1.);}`});
-const sky=new THREE.Mesh(new THREE.SphereGeometry(90,32,16),skyMat());sky.renderOrder=-1000;sky.frustumCulled=false;S.add(sky);
+// v62 perf : le ciel (bruit fbm à 5 octaves par pixel) était dessiné en premier, sans test de profondeur, donc calculé sous tout le décor ; il est maintenant dessiné après les objets opaques, sphère juste en deçà du plan lointain (98 < 100 m), et le test de profondeur écarte les pixels couverts
+const sky=new THREE.Mesh(new THREE.SphereGeometry(98,32,16),skyMat());sky.renderOrder=1e6;sky.frustumCulled=false;S.add(sky);
 function envGeo(){const g=new THREE.SphereGeometry(50,64,32),p=g.attributes.position,col=new Float32Array(p.count*3),top=skyU.uTop.value.clone(),hor=skyU.uHor.value.clone(),sc=skyU.uSunC.value.clone().multiplyScalar(skyU.uSunD.value.y>0?1:.0),c=new THREE.Color(),d=new THREE.Vector3();
 for(let i=0;i<p.count;i++){d.fromBufferAttribute(p,i).normalize();const y=d.y;c.copy(hor).lerp(top,Math.sqrt(Math.max(0,y)));if(y<0)c.lerp(hor.clone().multiplyScalar(.6),Math.min(1,-y*4));
 const s=Math.max(0,d.dot(SUND)),s2=s*s,s4=s2*s2,s16=s4*s4*s4*s4,s48=s16*s16*s16;c.r+=sc.r*(.25*s4+1.5*s48);c.g+=sc.g*(.25*s4+1.5*s48);c.b+=sc.b*(.25*s4+1.5*s48);col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b}
@@ -54,11 +55,22 @@ sun2.shadow.bias=-.0012;sun2.shadow.normalBias=.22;sun2.position.copy(SUND).mult
 if(re.test(k))THREE.ShaderChunk.lights_fragment_begin=k.replace(re,`
 #if NUM_DIR_LIGHT_SHADOWS > 1
 if(UNROLLED_LOOP_INDEX==0){vec3 q0=vDirectionalShadowCoord[0].xyz/vDirectionalShadowCoord[0].w;float e0=max(abs(q0.x-.5),abs(q0.y-.5))*2.;
-float f0=getShadow(directionalShadowMap[0],directionalLightShadows[0].shadowMapSize,directionalLightShadows[0].shadowBias,directionalLightShadows[0].shadowRadius,vDirectionalShadowCoord[0]);
-float f1=getShadow(directionalShadowMap[1],directionalLightShadows[1].shadowMapSize,directionalLightShadows[1].shadowBias,directionalLightShadows[1].shadowRadius,vDirectionalShadowCoord[1]);
-directLight.color*=all(bvec2(directLight.visible,receiveShadow))?mix(f0,f1,smoothstep(.8,.97,e0)):1.;}
+float t0=smoothstep(.8,.97,e0),f0=1.,f1=1.;
+if(directLight.visible&&receiveShadow){/* v62 perf : on n'échantillonne que la carte utile (mix(f0,f1,0)=f0 et mix(f0,f1,1)=f1 exactement) : la plupart des fragments sont hors de la carte proche */
+if(t0<1.)f0=getShadow(directionalShadowMap[0],directionalLightShadows[0].shadowMapSize,directionalLightShadows[0].shadowBias,directionalLightShadows[0].shadowRadius,vDirectionalShadowCoord[0]);
+if(t0>0.)f1=getShadow(directionalShadowMap[1],directionalLightShadows[1].shadowMapSize,directionalLightShadows[1].shadowBias,directionalLightShadows[1].shadowRadius,vDirectionalShadowCoord[1]);
+directLight.color*=mix(f0,f1,t0);}}
 else if(UNROLLED_LOOP_INDEX==1){directLight.color*=0.;}
 else
 #endif
 directLight.color *= all( bvec2( directLight.visible, receiveShadow ) ) ? getShadow( directionalShadowMap[ i ], directionalLightShadow.shadowMapSize, directionalLightShadow.shadowBias, directionalLightShadow.shadowRadius, vDirectionalShadowCoord[ i ] ) : 1.0;`);else console.warn('cascade patch KO')}
+// v62 perf : PCF doux = 16 lectures de la carte par fragment et par lumière ; un rayon d'ombre NÉGATIF sélectionne le filtre bilinéaire 2x2 (4 lectures, même échantillonnage de base). Pas de recompilation : le rayon est déjà un uniform par lumière.
+{const k=THREE.ShaderChunk.shadowmap_pars_fragment,re=/shadow = \(\s*texture2DCompare\( shadowMap, uv, shadowCoord\.z \) \+/;
+if(re.test(k))THREE.ShaderChunk.shadowmap_pars_fragment=k.replace(re,`if(shadowRadius<0.){shadow=mix(mix(texture2DCompare(shadowMap,uv,shadowCoord.z),texture2DCompare(shadowMap,uv+vec2(dx,0.),shadowCoord.z),f.x),mix(texture2DCompare(shadowMap,uv+vec2(0.,dy),shadowCoord.z),texture2DCompare(shadowMap,uv+texelSize,shadowCoord.z),f.x),f.y);}else
+shadow = (
+texture2DCompare( shadowMap, uv, shadowCoord.z ) +`);else console.warn('patch PCF rapide KO')}
+sun2.shadow.radius=-1;
+// v62 perf : une lumière ponctuelle / spot à intensité nulle ou hors de sa portée (couleur nulle) coûtait quand même un BRDF GGX complet par fragment ; RE_Direct_Physical sort tout de suite quand la lumière est invisible (contribution nulle : résultat identique)
+{const k=THREE.ShaderChunk.lights_physical_pars_fragment,re=/(void RE_Direct_Physical\( const in IncidentLight directLight, const in GeometricContext geometry, const in PhysicalMaterial material, inout ReflectedLight reflectedLight \) \{)/;
+if(re.test(k))THREE.ShaderChunk.lights_physical_pars_fragment=k.replace(re,'$1\nif(!directLight.visible)return;');else console.warn('patch lumières invisibles KO')}
 S.environment=mkEnv(R);
