@@ -1703,8 +1703,13 @@ else for(let i=0;i<4;i++)emit(_p,_e.set(rnd(-.5,.5),rnd(0,.8),rnd(-.5,.5)),{colo
 // --- traceurs
 const trP=[];let trI=0;
 for(let i=0;i<14;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xffe2a0,transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}));m.visible=false;S.add(m);trP.push({m,a:new THREE.Vector3(),b:new THREE.Vector3(),t:0,max:.07,L:3})}
-function tracer(a,b){const len=a.distanceTo(b);if(len<4)return;const t=trP[trI=(trI+1)%trP.length];t.a.copy(a);t.b.copy(b);t.t=t.max=.07;t.L=Math.min(len*.5,7);t.m.visible=true}
-function trUpdate(dt){for(const t of trP){if(!t.m.visible)continue;t.t-=dt;if(t.t<=0){t.m.visible=false;continue}const f=1-t.t/t.max,len=t.a.distanceTo(t.b),c=t.L/2+f*(len-t.L);_e.copy(t.b).sub(t.a).normalize();t.m.position.copy(t.a).addScaledVector(_e,c);_p.copy(t.m.position).add(_e);t.m.lookAt(_p);t.m.scale.set(.012,.012,t.L)}}
+const _tr1=new THREE.Vector3(),_tr2=new THREE.Vector3();
+function trPlace(t){const f=1-t.t/t.max,len=t.a.distanceTo(t.b),c=t.L/2+f*(len-t.L);_e.copy(t.b).sub(t.a).normalize();t.m.position.copy(t.a).addScaledVector(_e,c);_p.copy(t.m.position).add(_e);t.m.lookAt(_p);t.m.scale.set(.012,.012,t.L)}
+// v61 : tir du joueur (a===MZ) : en visée, le départ de la traçante est ramené sur la ligne de mire (décalage latéral du canon * (1-adsT)) ; la traçante est placée dès la première image
+function tracer(a,b){const len=a.distanceTo(b);if(len<4)return;const t=trP[trI=(trI+1)%trP.length];t.a.copy(a);t.b.copy(b);
+if(a===MZ&&typeof adsT==='number'&&adsT>0){C.getWorldPosition(_tr1);_tr2.copy(b).sub(_tr1);const dl=_tr2.length();if(dl>1){_tr2.multiplyScalar(1/dl);_e.copy(t.a).sub(_tr1);t.a.sub(_e.addScaledVector(_tr2,-_e.dot(_tr2)).multiplyScalar(Math.min(1,adsT)))}}
+t.t=t.max=.07;t.L=Math.min(t.a.distanceTo(t.b)*.5,7);trPlace(t);t.m.visible=true}
+function trUpdate(dt){for(const t of trP){if(!t.m.visible)continue;t.t-=dt;if(t.t<=0){t.m.visible=false;continue}trPlace(t)}}
 // --- flash de bouche + lumière + douilles
 flash.material.blending=THREE.AdditiveBlending;flash.material.transparent=true;flash.material.toneMapped=false;flash.material.opacity=.9;flash.material.depthWrite=false;
 {const f1=new THREE.Sprite(new THREE.SpriteMaterial({map:flareT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,toneMapped:false,fog:false}));f1.scale.set(.42,.42,1);f1.position.z=-.05;flash.add(f1)}
@@ -1894,8 +1899,41 @@ function surfKind(x,y,z,sup){if(wDep(x,z)>.05)return'water';if(sup&&sup.ramp)ret
 function surfSub(k,x,z){try{if(k==='water')return wDep(x,z)<.18?'shallow':'water';if(k!=='grass'&&k!=='mud')return k;
 if(window.ROAD&&typeof CT!=='undefined'&&!(z<CT.z1+6&&z>CT.z0-6)){const dx=Math.abs(x-CT.ax);if(dx<4.4){if(BRG.some(b=>Math.abs(x-b.x)<b.hw&&Math.abs(z-b.z)<b.hl))return'wood';return dx<3.5?'conc':'gravel'}}
 const d=wDist(x,z);if(d>-.3&&d<.5)return'mud';if(d>=.5&&d<2.6)return'sand';return k==='grass'&&typeof WET!=='undefined'&&WET.v>.45?'wetgrass':k}catch(e){return k}}
+// v61 : portée du bruit des pas selon la surface (1 = herbe sèche) : la boue et le sable étouffent, le bois, le gravier et l'eau portent loin
+const SFR={grass:1,wetgrass:1.12,sand:.8,mud:.65,conc:1.2,wood:1.35,stair:1.4,gravel:1.45,shallow:1.3,water:1.5,land:1.4,vault:1.2};
+const stepRange=k=>SFR[k]||1;
+function auStepNoise(k,base){const r=base*stepRange(k);noise(P.x,P.z,r);return r}
+// éclaboussure : gerbe de bruit, corps sourd, bulles qui montent (dep 0..1 = profondeur, big = plongeon)
+function sfxSplash(out,dep,vol,big){const t=AC.currentTime,d=Math.max(0,Math.min(1,dep||0)),v=vol*(big?1.25:.85);
+const g=nz(big?.55:.2+d*.14,'bandpass',big?1500:2100,.5,.34*v,out,rnd(.8,1),.003);nz(big?.8:.3,'lowpass',big?520:820,.6,.3*v*(.4+d),out,.7,.006);
+for(let i=0,n=big?5:2+(d>.4?1:0);i<n;i++){const o=AC.createOscillator(),gg=AC.createGain(),tt=t+rnd(.02,big?.45:.2),f=rnd(380,900)*(1-d*.3);o.type='sine';o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*1.9,tt+.07);gg.gain.setValueAtTime(.0001,tt);gg.gain.linearRampToValueAtTime(.05*v,tt+.01);gg.gain.exponentialRampToValueAtTime(.0001,tt+.09);o.connect(gg);gg.connect(out);o.start(tt);o.stop(tt+.12)}
+return g}
+// brasse (nage) : l'eau fouettée en surface ; sous la surface, seulement un grondement étouffé et des bulles
+function sfxSwim(uw,v){const o=AOUT(),t=AC.currentTime;
+if(uw){nz(.55,'lowpass',420,.8,.22*v,o,.6,.08);for(let i=0;i<3;i++){const b=AC.createOscillator(),g=AC.createGain(),tt=t+rnd(.05,.5),f=rnd(300,700);b.type='sine';b.frequency.setValueAtTime(f,tt);b.frequency.exponentialRampToValueAtTime(f*2,tt+.08);g.gain.setValueAtTime(.0001,tt);g.gain.linearRampToValueAtTime(.05*v,tt+.01);g.gain.exponentialRampToValueAtTime(.0001,tt+.1);b.connect(g);g.connect(o);b.start(tt);b.stop(tt+.13)}return}
+const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=AU.nb;s.playbackRate.value=rnd(.8,1.1);f.type='bandpass';f.Q.value=.7;f.frequency.setValueAtTime(600,t);f.frequency.exponentialRampToValueAtTime(2300,t+.4);
+g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.24*v,t+.14);g.gain.exponentialRampToValueAtTime(.0001,t+.55);s.connect(f);f.connect(g);g.connect(o);s.start(t,Math.random()*.5);s.stop(t+.6);auSend(g);nz(.35,'lowpass',380,.6,.15*v,o,.5,.05)}
+// sortie de l'eau : l'eau qui ruisselle
+function sfxDrip(v){const o=AOUT(),t=AC.currentTime;nz(.9,'highpass',2400,.5,.1*v,o,1,.05);nz(.5,'lowpass',700,.6,.16*v,o,.6,.03);for(let i=0;i<4;i++){const b=AC.createOscillator(),g=AC.createGain(),tt=t+.1+i*rnd(.12,.25),f=rnd(500,1100);b.type='sine';b.frequency.setValueAtTime(f,tt);b.frequency.exponentialRampToValueAtTime(f*.6,tt+.05);g.gain.setValueAtTime(.0001,tt);g.gain.linearRampToValueAtTime(.04*v,tt+.005);g.gain.exponentialRampToValueAtTime(.0001,tt+.06);b.connect(g);g.connect(o);b.start(tt);b.stop(tt+.08)}}
+// état de l'eau côté joueur : plongeon, nage, ressortie
+const AW={ok:0,d:0,px:0,pz:0,uw:0,t:0,strokes:0,plunges:0,drips:0,gl:0};
+function auWater(dt){
+if(P.gy===undefined||HM.dead||ac.on||(typeof DRV!=='undefined'&&DRV.on)||dt<=0){AW.ok=0;return}
+const d=wDep(P.x,P.z),sp=Math.hypot(P.x-AW.px,P.z-AW.pz)/dt,uw=C.position.y<WL-.02?1:0;AW.px=P.x;AW.pz=P.z;
+if(!AW.ok){AW.ok=1;AW.d=d;AW.uw=uw;return}
+if(sp>40){AW.d=d;AW.uw=uw;return}// téléportation
+try{AC=AC||new AudioContext();auInit();if(!AU.ready){AW.d=d;AW.uw=uw;return}
+// plongeon : on entre vite dans l'eau (course, saut) ; la tête passe sous la surface
+if(AW.d<.2&&d>=.2&&sp>2.4){AW.plunges++;sfxSplash(AOUT(),Math.min(1,d/1.2),Math.min(1.2,sp/6),true);noise(P.x,P.z,16*stepRange('water'))}
+if(uw&&!AW.uw){AW.plunges++;sfxSplash(AOUT(),1,.7,true);nz(.7,'lowpass',300,.8,.3,AOUT(),.5,.05)}
+if(!uw&&AW.uw){AW.drips++;sfxDrip(1);nz(.45,'bandpass',1000,.7,.2,AOUT(),.9,.1)}
+if(AW.d>.6&&d<=.6&&sp>.2){AW.drips++;sfxDrip(.6)}
+// nage : de l'eau jusqu'à la poitrine, une brasse toutes les ~1,2 s ; sur place, un léger clapotis
+if(d>.85){const mv=sp>.5;AW.t-=dt*(mv?Math.min(1.6,.6+sp/4):.55);if(AW.t<=0){AW.t=mv?1.2:2.2;AW.strokes++;sfxSwim(uw,mv?1:.4);if(mv&&!uw)noise(P.x,P.z,9*stepRange('water'))}}else AW.t=Math.min(AW.t,.3);
+}catch(e){}
+AW.d=d;AW.uw=uw}
 function sfxFoot0(x,y,z,kind,vol,bot){try{AC=AC||new AudioContext();auInit();let k=kind;if(k==='step')k=surfSub(surfKind(x,y,z,bot?null:P.sup),x,z);const q=FST[k]||FST.grass,out=bot||k==='land'&&false?sp3(x,y+.1,z,{ref:2.4,roll:1.5,ad:18,air:9000}):(Math.hypot(x-C.position.x,z-C.position.z)<.5?AOUT():sp3(x,y+.1,z,{ref:2.4,roll:1.5,ad:18,air:9000,noocc:1}));
-const g=nz(q[3],q[0],q[1]*rnd(.85,1.15),q[2],q[4]*vol*.5,out,rnd(.85,1.2));if(!bot||true)auSend(g);if(q[5])th(q[5][0]*rnd(.9,1.1),q[5][1],q[5][2]*vol*.5,out,'sine');if(k==='land'&&P.gy<2){}}catch(e){}}
+const g=nz(q[3],q[0],q[1]*rnd(.85,1.15),q[2],q[4]*vol*.5,out,rnd(.85,1.2));if(!bot||true)auSend(g);if(k==='water'||k==='shallow'||(k==='land'&&wDep(x,z)>.08)){const dp=Math.min(1,wDep(x,z)/1.2);auSend(sfxSplash(out,dp,vol*(k==='land'?1.2:k==='shallow'?.5:.8),k==='land'));if(k==='land')return}if(q[5])th(q[5][0]*rnd(.9,1.1),q[5][1],q[5][2]*vol*.5,out,'sine');if(k==='land'&&P.gy<2){}}catch(e){}}
 // ---- pluie : nappe extérieure + crépitement sur les toits (sourd sous toit plat de béton)
 function rainMix(rn,ind,y){try{AC=AC||new AudioContext();auInit();if(!AU.ready)return;if(!AU.rainOut){const mk=(hz,q,type)=>{const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=AU.nb;s.loop=true;f.type=type;f.frequency.value=hz;f.Q.value=q;g.gain.value=0;s.connect(f);f.connect(g);g.connect(AOUT());s.start();return g};
 AU.rainOut=mk(3200,.35,'bandpass');AU.rainRoof=mk(1250,.9,'bandpass');AU.rainDeep=mk(240,.7,'lowpass');
@@ -1907,8 +1945,9 @@ const l=AC.listener,p=C.position;_la.set(0,0,-1).applyQuaternion(C.quaternion);_
 if(l.positionX){l.positionX.value=p.x;l.positionY.value=p.y;l.positionZ.value=p.z;l.forwardX.value=_la.x;l.forwardY.value=_la.y;l.forwardZ.value=_la.z;l.upX.value=_lb.x;l.upY.value=_lb.y;l.upZ.value=_lb.z}else{l.setPosition(p.x,p.y,p.z);l.setOrientation(_la.x,_la.y,_la.z,_lb.x,_lb.y,_lb.z)}
 const k=inRoom(p.x,p.z),ins=k>=0&&p.y<roofTop(p.x,p.z),bun=ins&&ROOMS[k].bun;AU.room=ins?k:-1;
 const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075*audUrb()],ks=Math.min(1,dt*3);AU.wH.gain.value+=(th_[0]-AU.wH.gain.value)*ks;AU.wB.gain.value+=(th_[1]-AU.wB.gain.value)*ks;AU.wE.gain.value+=(th_[2]-AU.wE.gain.value)*ks;
+auWater(dt);
 // pas du joueur
-if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);sfxFoot(P.x,P.gy,P.z,'step',vol);noise(P.x,P.z,[sp?13:7,2.8,1.1][P.st])}}}
+if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);const sk=surfSub(surfKind(P.x,P.gy,P.z,P.sup),P.x,P.z);sfxFoot(P.x,P.gy,P.z,sk,vol);auStepNoise(sk,[sp?13:7,2.8,1.1][P.st])}}}
 // pas des bots proches
 for(const b of bots){const g=b.g.position;if(b.dead>0){b.px=undefined;continue}if(b.px===undefined){b.px=g.x;b.pz=g.z;b.sa=0;continue}const mv=Math.hypot(g.x-b.px,g.z-b.pz);b.px=g.x;b.pz=g.z;if(mv>.6||mv<1e-4)continue;const d=Math.hypot(g.x-p.x,g.z-p.z);if(d>38)continue;b.sa+=mv;const str=b.spK>1.6?2.5:1.9;if(b.sa>=str){b.sa=0;sfxFoot(g.x,b.fy!==undefined?b.fy:g.y,g.z,surfKind(g.x,b.fy||0,g.z,null),(b.cr?.25:b.spK>1.6?.9:.55)*(b.ty===3?1.3:1),1)}}}
 // ---- diagnostic audio (F9) : niveaux des couches d'ambiance, énergie du signal, coupure couche par couche
@@ -2653,6 +2692,60 @@ if(!DRV.spd){const d=document.createElement('div');d.style.cssText='position:fix
 DRV.spd.style.display='block';DRV.spd.textContent=Math.round(Math.abs(v)*3.6)+' km/h'+(r.hp<r.max*.6?' · ⚠':'');if(DRV.hint)DRV.hint.style.display='none'}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&DRV.on){DRV.fp=!DRV.fp;if(DRV.fp)P.pitch=0}});
 addEventListener('keydown',e=>{if(e.repeat||e.code!=='KeyF'||$('ov').style.display!=='none'||ac.on||bench)return;if(DRV.on){drvExit();if(!DRV.on&&DRV.spd)DRV.spd.style.display='none'}else if(!nb&&!ndR&&!invNear()){const r=drvNear();if(r)drvEnter(r)}});
+// ================= v61 : PHARES DE VÉHICULES (nuit) + ÉBLOUISSEMENT =================
+// Aucune lumière réelle (pas de recompilation des matériaux, coût négligeable) : deux faisceaux volumétriques additifs, une flaque lumineuse qui épouse le relief
+// devant le véhicule, des halos. Le véhicule conduit allume ses phares la nuit ; une partie des camions et blindés garés de la route, moteur au ralenti, aussi.
+// Regarder droit dans des phares tournés vers soi éblouit : voile blanc qui se dissipe lentement (et surexposition des jumelles de vision nocturne).
+const HL={recs:[],t:0,gz:0,tg:0,el:null,beam:null,poolT:null,mat:null,flat:null,occT:0,occ:1,sx:50,sy:50,lit:0};
+const _phv=new THREE.Vector3(),_phd=new THREE.Vector3(),_phw=new THREE.Vector3(),_phb=new THREE.Box3();
+const hlNight=()=>typeof TOD!=='undefined'&&(TOD.t>19.3||TOD.t<5.7);
+function hlAssets(){if(HL.mat)return;const L=26,g=new THREE.CylinderGeometry(2.7,.12,L,14,6,true);g.translate(0,L/2,0);g.rotateX(-Math.PI/2);
+const pos=g.attributes.position,col=new Float32Array(pos.count*3);for(let i=0;i<pos.count;i++){const t=Math.min(1,-pos.getZ(i)/L),k=Math.pow(1-t,1.6)*.9;col[i*3]=col[i*3+1]=col[i*3+2]=k}g.setAttribute('color',new THREE.BufferAttribute(col,3));HL.beam=g;
+HL.mat=new THREE.MeshBasicMaterial({color:0xfff0c8,vertexColors:true,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false,toneMapped:false});
+HL.poolT=fxT(64,(x,w)=>{const g=x.createRadialGradient(w/2,w*.42,0,w/2,w*.42,w*.5);g.addColorStop(0,'rgba(255,240,200,.85)');g.addColorStop(.5,'rgba(255,232,180,.35)');g.addColorStop(1,'rgba(255,225,160,0)');x.fillStyle=g;x.fillRect(0,0,w,w)});
+HL.flat=new THREE.MeshBasicMaterial({map:HL.poolT,color:0xffffff,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,toneMapped:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+const e=document.createElement('div');e.id='hlglare';e.style.cssText='position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;display:none';document.body.appendChild(e);HL.el=e}
+function hlVehs(){const o=[];try{for(const r of dstS().list)if(r.e&&r.px&&r.px.userData.bmat==='veh')o.push(r)}catch(e){}return o}
+// installe les phares d'un véhicule (une seule fois) ; ne dépend que de la boîte englobante du modèle (avant = -z local)
+function hlInit(r){if(r.hl)return r.hl;hlAssets();const e=r.e,ry=e.rotation.y,rx=e.rotation.x,rz=e.rotation.z;e.rotation.set(0,0,0);e.updateMatrixWorld(true);if(r.hlG)r.hlG.visible=false;_phb.setFromObject(e);e.rotation.set(rx,ry,rz);e.updateMatrixWorld(true);
+const p=e.position,mn=_phb.min.clone().sub(p),mx=_phb.max.clone().sub(p),hw=Math.max(.6,(mx.x-mn.x)/2),len=mx.z-mn.z,cx=(mx.x+mn.x)/2,hy=mn.y+(mx.y-mn.y)*.34;
+const g=new THREE.Group();g.userData.noLayer=1;g.visible=false;
+[-1,1].forEach(s=>{const b=new THREE.Mesh(HL.beam,HL.mat);b.position.set(cx+s*hw*.6,hy,mn.z-.05);b.rotation.x=-.07;b.rotation.y=s*.03;b.frustumCulled=false;b.renderOrder=3;g.add(b);
+if(typeof flareT!=='undefined'){const f=new THREE.Sprite(new THREE.SpriteMaterial({map:flareT,color:0xfff2c8,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,toneMapped:false,fog:false}));f.scale.set(1.5,1.5,1);f.position.set(cx+s*hw*.6,hy,mn.z-.12);g.add(f)}});
+e.add(g);const pg=new THREE.PlaneGeometry(9,17,6,10);pg.rotateX(-Math.PI/2);const pool=new THREE.Mesh(pg,HL.flat);pool.frustumCulled=false;pool.visible=false;pool.renderOrder=2;pool.userData.noLayer=1;S.add(pool);
+const h={g,pool,front:-mn.z,fz:mn.z,hy,len,cx,x:1e9,z:1e9,y:1e9};r.hl=h;
+if(r.hlOn===undefined)r.hlOn=len>6&&(((Math.round(r.x*7)+Math.round(r.z*13))&1)===0)?1:0;return h}
+function hlFwd(r,o){const y=r.e.rotation.y;return o.set(-Math.sin(y),0,-Math.cos(y))}
+// flaque : sommets suivant le terrain (77 appels GH ; recalculée seulement si le véhicule a bougé)
+function hlPool(r){const h=r.hl,e=r.e,f=hlFwd(r,_phd),px=e.position.x,pz=e.position.z,y=e.rotation.y;if(Math.abs(px-h.x)<.04&&Math.abs(pz-h.z)<.04&&Math.abs(y-h.y)<.01)return;h.x=px;h.z=pz;h.y=y;
+const pos=h.pool.geometry.attributes.position,rx=-f.z,rz=f.x,base=h.front-.5;
+// le plan est centré : x in [-4.5,4.5] (latéral), z in [-8.5,8.5] (-z = devant dans le repère du plan) -> on place la flaque 1 m devant puis jusqu'à 18 m
+for(let i=0;i<pos.count;i++){const u=pos.getX(i),v=-pos.getZ(i)+8.5+1,wx=px+rx*u*-1+f.x*(base+v),wz=pz+rz*u*-1+f.z*(base+v);pos.setXYZ(i,wx,GH(wx,wz)+.07,wz)}
+pos.needsUpdate=true}
+function hlLit(r){return(r.hlOn||(DRV.on&&DRV.r===r))&&r.st===0&&r.hp>0}
+// éblouissement : angle de regard vers le phare, véhicule tourné vers le joueur, distance, ligne de vue
+function hlGlare(dt){let best=0,bx=50,by=50;C.getWorldPosition(_phv);C.getWorldDirection(_phw);
+for(const r of HL.recs){const h=r.hl;if(!h||!h.g.visible||(DRV.on&&DRV.r===r))continue;const e=r.e;hlFwd(r,_phd);const lx=e.position.x+_phd.x*(h.front+.2),lz=e.position.z+_phd.z*(h.front+.2),ly=e.position.y+h.hy;
+let dx=lx-_phv.x,dy=ly-_phv.y,dz=lz-_phv.z;const d=Math.hypot(dx,dy,dz);if(d>110||d<1.5)continue;dx/=d;dy/=d;dz/=d;
+const look=_phw.x*dx+_phw.y*dy+_phw.z*dz,face=-(_phd.x*dx+_phd.z*dz);if(look<.9||face<.72)continue;
+const g=Math.min(1,(look-.9)/.08)*Math.min(1,(face-.72)/.2)*Math.min(1,Math.max(0,1.15-d/110)*1.4);if(g>best){best=g;HL.occ0=[lx,ly,lz,d,r];
+const v=_phb.min.set(lx,ly,lz).project(C);bx=(v.x*.5+.5)*100;by=(1-(v.y*.5+.5))*100}}
+// ligne de vue (un seul rayon, au plus 8 fois par seconde)
+if(best>.05&&HL.occ0){HL.occT-=dt;if(HL.occT<=0){HL.occT=.12;const[lx,ly,lz,d,r]=HL.occ0;_phd.set(lx-_phv.x,ly-_phv.y,lz-_phv.z).multiplyScalar(1/d);RC.set(_phv,_phd);RC.far=Math.max(.1,d-.6);let n=0;for(const q of RC.intersectObjects(solids))if(q.object!==r.px&&!q.object.userData.glass){n=1;break}HL.occ=n?0:1}best*=HL.occ}
+if(NVG&&NVG.on&&NVG.a>.5)best=Math.min(1,best*1.4);
+HL.tg=best;if(best>HL.gz)HL.gz+=(best-HL.gz)*Math.min(1,dt*9);else HL.gz=Math.max(best,HL.gz-dt*.45);if(best>0){HL.sx=bx;HL.sy=by}
+if(NVG&&NVG.on&&HL.gz>.15)NVG.sat=Math.max(NVG.sat,HL.gz*.85)}
+function hlTick(dt){if(typeof dstS!=='function'||typeof C==='undefined')return;
+const night=hlNight();HL.t-=dt;
+if(HL.t<=0){HL.t=.4;HL.recs=[];if(night){const px=P.x,pz=P.z;for(const r of hlVehs()){if(Math.hypot(r.e.position.x-px,r.e.position.z-pz)>230)continue;hlInit(r);HL.recs.push(r)}}else if(HL.mat)for(const r of hlVehs())if(r.hl){r.hl.g.visible=false;r.hl.pool.visible=false}}
+let lit=0;for(const r of HL.recs){const h=r.hl;if(!h)continue;const on=hlLit(r);h.g.visible=on;h.pool.visible=on;if(on){lit++;hlPool(r)}}
+// véhicule hors zone ou éteint la nuit
+if(night)for(const r of hlVehs()){const h=r.hl;if(h&&h.g.visible&&(!HL.recs.includes(r)||!hlLit(r))){h.g.visible=false;h.pool.visible=false}}
+HL.lit=lit;
+if(!HL.el&&!lit&&HL.gz<=0)return;hlAssets();
+if(night&&lit&&!HM.dead)hlGlare(dt);else{HL.tg=0;HL.gz=Math.max(0,HL.gz-dt*.6)}
+if(HL.gz>.01){const a=Math.min(.95,HL.gz*1.0);HL.el.style.display='block';HL.el.style.opacity=a.toFixed(2);if(HL.skx!==(HL.sx|0)||HL.sky!==(HL.sy|0)){HL.skx=HL.sx|0;HL.sky=HL.sy|0;HL.el.style.background='radial-gradient(circle at '+HL.skx+'% '+HL.sky+'%,rgba(255,252,235,1) 0,rgba(255,246,215,.9) 14%,rgba(255,240,205,.5) 38%,rgba(255,236,200,.28) 100%)'}}
+else if(HL.el.style.display!=='none'){HL.el.style.display='none'}}
 // ================= BARILS DE CARBURANT : fuite, incendie, explosion retardée =================
 // Seuls les barils rouges contiennent du carburant. Une balle les perce (fuite, flaque) et peut enflammer les vapeurs (20 %).
 // Un baril en feu explose après 2,5 à 6 s s'il lui reste assez de carburant, sinon il brûle sans exploser.
@@ -3674,6 +3767,11 @@ function vsFrame(sc){VSX.sc=sc?1:0;
  _vsV.style.opacity=(sc?0:adsT*.9).toFixed(2)}
 addEventListener('blur',()=>{VSB.b=0});
 addEventListener('keydown',e=>{if(e.code==='Backslash'&&!e.repeat&&$('ov').style.display==='none'){SET.adsTog=!SET.adsTog;if(SET.adsTog&&!VSB.b)ads=false;setSave();try{hlMsg('Visée : '+(SET.adsTog?'bascule':'maintien'))}catch(x){}try{snd(SET.adsTog?420:320,.04,.08,'square')}catch(x){}}});
+// ================= v61 : rechargement accroupi =================
+// Accroupi, le joueur ramène l'arme contre la poitrine, canon relevé et incliné vers l'intérieur, et la rabaisse un peu : le chargeur se change à l'abri, près du corps.
+const CRR={k:0,n:0};
+function crReloadMod(O,ru,dt){const on=reloading>0&&P.st===1&&!DRV.on&&!ac.on;CRR.k+=((on?1:0)-CRR.k)*Math.min(1,(dt||.016)*(on?8:6));if(CRR.k<.002){CRR.k=0;return O}CRR.n++;const k=CRR.k,b=Math.sin(Math.PI*Math.min(1,Math.max(0,ru)));
+O.x+=-.035*k;O.y+=-.03*k-.012*b*k;O.z+=.07*k+.015*b*k;O.rx+=.24*k+.06*b*k;O.ry+=.2*k;O.rz+=.12*k;return O}
 // ================= BALISTIQUE (v29) =================
 // Projectiles à vitesse finie : gravité, traînée aérodynamique (Cd selon le Mach), vent de la météo,
 // mise à zéro de l'arme, énergie restante -> dégâts, pénétration des portes/vitres, balles traversantes (7.62, .50).
@@ -6111,6 +6209,49 @@ T('Végétation (v58) : aucun arbre, buisson ni herbe dans l’eau',()=>{let n=0
 T('Eau (v58) : profondeur bornée, jamais plus que la rivière (véhicules, œil du joueur)',()=>{let mx=0;for(let x=-745;x<745;x+=4)for(let z=-745;z<745;z+=4)mx=Math.max(mx,wDep(x,z));return mx>1.3?'profondeur max '+mx.toFixed(2)+' m':''});
 T('Sous l’eau (v58) : voile et son étouffé quand l’œil passe sous la surface, retiré en sortant',()=>{const p=RPTS[40],sv={x:P.x,z:P.z,gy:P.gy,cy:C.position.y};try{P.x=p[0];P.z=p[1];P.gy=GH(p[0],p[1]);C.position.set(P.x,WL-.3,P.z);natureUpdate(.01);const el=document.getElementById('uwfx');if(!el||el.style.display!=='block')return'pas de voile sous l’eau';C.position.y=WL+1.6;natureUpdate(.01);if(el.style.display!=='none')return'voile non retiré';return''}finally{P.x=sv.x;P.z=sv.z;P.gy=sv.gy;C.position.y=sv.cy;natureUpdate(.01)}});
 T('Végétation (v58) : index par cellule identique au parcours complet, et rapide',()=>{const px=P.x,pz=P.z;for(const c of[[px,pz],[300,-200],[-600,500]]){let a=0,b=0;for(const q of FOL.TR)if((q.x-c[0])**2+(q.z-c[1])**2<=190*190)a++;cellEach(FOL.TRC,c[0],c[1],190,q=>{if((q.x-c[0])**2+(q.z-c[1])**2<=190*190)b++});if(a!==b)return'arbres '+a+' vs '+b}const t=performance.now();for(let i=0;i<10;i++)cellEach(FOL.TRC,px+i,pz,190,q=>q);const ms=(performance.now()-t)/10;return ms>8?'trop lent '+ms.toFixed(1)+' ms':''});
+T('Eau (v61) : plongeon, nage et sortie de l’eau génèrent des sons et la portée des pas dépend de la surface',()=>{
+if(!(stepRange('wood')>stepRange('grass')&&stepRange('grass')>stepRange('sand')&&stepRange('sand')>stepRange('mud')&&stepRange('water')>stepRange('grass')&&stepRange('conc')>stepRange('grass')))return'portées des surfaces incohérentes';
+const sv={x:P.x,z:P.z,gy:P.gy,air:P.air,nq:NZ.q.slice(),nr:NZ.r};let msg='';
+try{const r1=auStepNoise('mud',10),r2=auStepNoise('wood',10),r3=auStepNoise('water',10);if(!(Math.abs(r1-6.5)<.01&&NZ.r===r3&&r2>r1&&r3>r2))msg='rayons '+r1+' '+r2+' '+r3;
+let sp=null;for(let a=0;a<RPTS.length&&!sp;a++)for(let k=0;k<300&&!sp;k++){const x=RPTS[a][0]+((k%20)-10)*.5,z=RPTS[a][1]+(((k/20)|0)-7)*.5;if(wDep(x,z)>.9&&Math.abs(x)<MH-8&&Math.abs(z)<MH-8)sp=[x,z]}
+if(!msg&&!sp)msg='aucun endroit assez profond';
+if(!msg){AC=AC||new AudioContext();auInit();const sx=sp[0],sz=sp[1];P.x=sx-4;P.z=sz;P.gy=GH(P.x,P.z);AW.ok=0;auWater(.016);const w0=[AW.plunges,AW.strokes];
+for(let i=0;i<4;i++){P.x+=.1*(i+1)*4;P.gy=GH(P.x,P.z);auWater(.016)}
+P.x=sx;P.z=sz;P.gy=GH(sx,sz);AW.ok=1;AW.px=P.x-.05;AW.pz=P.z;AW.d=0;AW.t=0;auWater(.016);const dp=AW.plunges;AW.t=0;for(let i=0;i<120;i++){P.x+=.02;auWater(.016)}
+if(dp<=w0[0])msg='plongeon sans son';else if(AW.strokes<=w0[1])msg='nage sans brasse';
+const f0=AW.drips;P.x=sx-6;P.gy=GH(P.x,P.z);AW.ok=0;auWater(.016);AW.d=.8;AW.px=P.x-.1;auWater(.016);
+sfxFoot(sx,GH(sx,sz),sz,'water',1);sfxFoot(sx,GH(sx,sz),sz,'land',1);sfxSwim(1,1);sfxSwim(0,1);sfxDrip(1)}
+}catch(e){msg=String(e)}
+P.x=sv.x;P.z=sv.z;P.gy=sv.gy;P.air=sv.air;NZ.q=sv.nq;NZ.r=sv.nr;AW.ok=0;return msg});
+T('Traçantes (v61) : en visée le départ est sur la ligne de mire, placée dès la première image',()=>{const sv=[adsT,MZ.clone()];let msg='';try{C.updateMatrixWorld();const o=C.getWorldPosition(new THREE.Vector3()),dir=new THREE.Vector3(0,0,-1).applyQuaternion(C.quaternion),tg=o.clone().addScaledVector(dir,60);
+const dist=(p)=>{const v=p.clone().sub(o),k=v.dot(dir);return v.addScaledVector(dir,-k).length()};
+MZ.copy(o).addScaledVector(dir,.8).add(new THREE.Vector3(.08,-.12,0).applyQuaternion(C.quaternion));
+adsT=0;tracer(MZ,tg);let t=trP[trI];const d0=dist(t.a);adsT=1;tracer(MZ,tg);t=trP[trI];const d1=dist(t.a);adsT=.5;tracer(MZ,tg);const d5=dist(trP[trI].a);
+if(!(d0>.1))msg='hors visée : décalage '+d0.toFixed(3);else if(d1>.01)msg='visée : décalage restant '+d1.toFixed(3);else if(!(d5>d1&&d5<d0))msg='visée à moitié : '+d5.toFixed(3);
+else if(t.m.position.lengthSq()<1||!t.m.visible)msg='traçante non placée à la première image';}catch(e){msg=String(e)}
+adsT=sv[0];MZ.copy(sv[1]);return msg});
+T('Rechargement accroupi (v61) : l’arme est ramenée contre le corps, puis revient',()=>{const sv=[P.st,reloading,CRR.k];let msg='';try{const mk=()=>({x:0,y:0,z:0,rx:0,ry:0,rz:0,cyc:0});CRR.k=0;P.st=1;reloading=1;let O=mk();for(let i=0;i<40;i++){O=crReloadMod(mk(),.5,.05)}
+const st=mk();P.st=0;CRR.k=0;const O0=crReloadMod(mk(),.5,.05);P.st=1;
+if(!(O.z>.05&&O.y<-.02&&O.rx>.2&&O.x<0))msg='pose accroupie absente '+JSON.stringify(O);else if(O0.z!==0||O0.rx!==0)msg='debout : pose modifiée';
+else{reloading=0;let q=O;for(let i=0;i<60;i++)q=crReloadMod(mk(),0,.05);if(Math.abs(q.z)>.001)msg='pose non relâchée '+q.z}}catch(e){msg=String(e)}
+P.st=sv[0];reloading=sv[1];CRR.k=sv[2];return msg});
+T('Phares (v61) : faisceaux la nuit, éteints le jour ou détruit, éblouissement face aux phares seulement',()=>{let V=null,msg='';const sv=[TOD.t,P.x,P.z,P.gy,P.yaw,C.position.clone(),C.quaternion.clone(),HL.gz];
+try{const[x0,z0]=dvSpot();V=dvMk(x0,z0);const r=V.r,e=V.e;e.rotation.y=0;e.updateMatrixWorld(true);r.hlOn=1;delete r.hl;
+TOD.t=23;hlTick(.5);if(!r.hl||!r.hl.g.visible||!r.hl.pool.visible)msg='phares éteints la nuit';
+if(!msg){const py=e.position.y,pos=r.hl.pool.geometry.attributes.position;let ok=0;for(let i=0;i<pos.count;i+=7)if(Math.abs(pos.getY(i)-GH(pos.getX(i),pos.getZ(i)))<.2)ok++;if(ok<5)msg='flaque hors du sol'}
+// joueur 25 m devant le véhicule (avant = -z), regardant vers lui
+const look=(ax,az,tx,tz)=>{const ey=(GH(ax,az))+1.7;P.x=ax;P.z=az;P.gy=GH(ax,az);C.position.set(ax,ey,az);const m=new THREE.Matrix4().lookAt(C.position,new THREE.Vector3(tx,ey,tz),new THREE.Vector3(0,1,0));C.quaternion.setFromRotationMatrix(m);C.updateMatrixWorld(true)};
+const run=(n)=>{for(let i=0;i<n;i++){HL.t=0;hlTick(.1)}return HL.gz};
+if(!msg){HL.gz=0;HL.occT=0;const ax=e.position.x,az=e.position.z-25;look(ax,az,e.position.x,e.position.z);const gz=run(12);
+if(!(gz>.2)&&!HL.blockedByLos){// ligne de vue possiblement coupée par le décor : ne pas conclure
+ let n=0;_phv.set(ax,GH(ax,az)+1.7,az);RC.set(_phv,new THREE.Vector3(0,0,1));RC.far=24;for(const q of RC.intersectObjects(solids))if(q.object!==r.px&&!q.object.userData.glass){n=1;break}if(!n)msg='pas d’éblouissement face aux phares : '+gz.toFixed(2)}
+else{look(ax,az,ax,az-30);const g2=run(40);if(g2>.05)msg='éblouissement en regardant ailleurs : '+g2.toFixed(2);
+ e.rotation.y=Math.PI;e.updateMatrixWorld(true);hlPool(r);HL.gz=0;look(ax,az,e.position.x,e.position.z);const g3=run(12);if(g3>.05)msg='éblouissement par l’arrière du véhicule : '+g3.toFixed(2);e.rotation.y=0}}
+if(!msg){TOD.t=12;hlTick(.5);HL.t=0;hlTick(.5);if(r.hl.g.visible)msg='phares allumés le jour';}
+if(!msg){TOD.t=23;HL.t=0;hlTick(.5);if(!r.hl.g.visible)msg='phares non rallumés';r.hp=0;r.st=1;HL.t=0;hlTick(.5);if(r.hl.g.visible)msg='phares allumés sur véhicule détruit';r.hp=700;r.st=0}
+}catch(er){msg=String(er)}
+try{if(V){if(V.r.hl){S.remove(V.r.hl.pool)}V.done()}}catch(er){}
+TOD.t=sv[0];P.x=sv[1];P.z=sv[2];P.gy=sv[3];P.yaw=sv[4];C.position.copy(sv[5]);C.quaternion.copy(sv[6]);C.updateMatrixWorld(true);HL.gz=0;HL.recs=[];return msg});
 T('Rendu : le canvas n’est pas vide',()=>{const c=R.domElement;return c&&c.width>0&&c.height>0?'':'canvas absent'});
 const ok=RS.filter(r=>r.ok).length;window.SELFTEST_RESULT={pass:ok,fail:RS.length-ok,total:RS.length,results:RS,aiMs:window.__aiMs,errors:window.__errs.slice()};return window.SELFTEST_RESULT}
 window.SELFTEST=SELFTEST;
@@ -6443,7 +6584,7 @@ document.addEventListener('pointerlockerror',()=>{if(ever)$('ov').style.display=
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()});
 // ---- Boucle
 const clock=new THREE.Clock(),V=new THREE.Vector3(),W=new THREE.Vector3();
-function loop(){requestAnimationFrame(loop);window.ldDone();const dt=Math.min(clock.getDelta(),.05)*((window.MMP||$('ov').style.display!=='none')?0:1);drvTick(dt);
+function loop(){requestAnimationFrame(loop);window.ldDone();const dt=Math.min(clock.getDelta(),.05)*((window.MMP||$('ov').style.display!=='none')?0:1);drvTick(dt);hlTick(dt);
 
 P.pitch=Math.max(-1.4,Math.min(1.4,P.pitch));
 const sk=sight(),inz=inZ(P.x,P.z),nearB=inz&&Math.hypot(P.x-BENCH.x,P.z-BENCH.z)<2.7;nb=nearB;vsAds();adsT+=((ads?1:0)-adsT)*Math.min(1,dt*10*HADS()*effADS()*vsRate());
@@ -6469,7 +6610,7 @@ kick=Math.max(0,kick-dt*10);
 const rl=reloading>0?Math.sin(Math.min(1,(RT-reloading)/RT)*Math.PI):0;
 drawT-=dt;inspT-=dt;slideK=Math.max(0,slideK-dt*(WC[WSEL].cyc?1/WC[WSEL].rate:18));if(inspT>0&&(mdown||ads||reloading>0))inspT=0;
 const dr=Math.max(0,drawT)/.45+(plateT>0?Math.sin(Math.PI*Math.min(1,(1.6-plateT)/1.6))*1.4:0),ip=inspT>0?1-inspT/2.8:0,is=Math.sin(Math.PI*ip),spr=K.ShiftLeft&&l>0&&adsT<.1&&!mdown&&!(kick>.08);sprA+=((spr?1:0)-sprA)*Math.min(1,dt*8);
-const ru=reloading>0?1-reloading/RT:0;let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];const WA=wAnim(WSEL,ru,ip,rl,is);
+const ru=reloading>0?1-reloading/RT:0;let md=0,mv=true,mgx=0,hp=[HB.lx,HB.ly,HB.lz];const WA=crReloadMod(wAnim(WSEL,ru,ip,rl,is),ru,dt);
 if(reloading>0){const M=HB.zM,S=HB.zS,H=[HB.lx,HB.ly,HB.lz],tail=reloadEmpty?[[.78,[0,.02,S]],[.86,[0,.02,S-.02]],[.95,H],[1,H]]:[[.9,H],[1,H]];hp=kf([[0,H],[.1,[0,-.1,M]],[.18,[0,-.1,M]],[.3,[0,-.3,M]],[.38,[-.08,-.4,M]],[.5,[-.08,-.4,M]],[.58,[-.02,-.28,M]],[.66,[0,-.1,M]],[.72,[0,-.1,M]]].concat(tail),ru);mv=!(ru>=.38&&ru<.5);if((ru>=.18&&ru<.38)||(ru>=.5&&ru<.72)){mgx=hp[0];md=hp[1]+.1}
 if(WSEL<2&&ru>.17&&rlS<1){rlS=1;snd(200,.07,.2,'square')}if(WSEL<2&&ru>.6&&rlS<2){rlS=2;snd(260,.07,.25,'square')}if(WSEL<2&&reloadEmpty&&ru>.8&&rlS<3){rlS=3;snd(150,.1,.25,'square')}}else rlS=0;
 if(reloading>0&&WSEL>1){const q=wHand(WSEL,ru,[HB.lx,HB.ly,HB.lz]);hp=q.h;mv=q.mv}rifleParts[4].visible=!WSEL&&mv;mp9v.magazine.visible=mv;rifleParts[4].position.set(mgx,-.1+md,.04);mp9v.magazine.position.set(mgx,md,0);handL.position.set(hp[0],hp[1],hp[2]+(reloading>0?0:po));handR.position.set(HB.rx,HB.ry,HB.rz);handL.visible=handR.visible=!bench;

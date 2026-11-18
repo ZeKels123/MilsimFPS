@@ -57,8 +57,41 @@ function surfKind(x,y,z,sup){if(wDep(x,z)>.05)return'water';if(sup&&sup.ramp)ret
 function surfSub(k,x,z){try{if(k==='water')return wDep(x,z)<.18?'shallow':'water';if(k!=='grass'&&k!=='mud')return k;
 if(window.ROAD&&typeof CT!=='undefined'&&!(z<CT.z1+6&&z>CT.z0-6)){const dx=Math.abs(x-CT.ax);if(dx<4.4){if(BRG.some(b=>Math.abs(x-b.x)<b.hw&&Math.abs(z-b.z)<b.hl))return'wood';return dx<3.5?'conc':'gravel'}}
 const d=wDist(x,z);if(d>-.3&&d<.5)return'mud';if(d>=.5&&d<2.6)return'sand';return k==='grass'&&typeof WET!=='undefined'&&WET.v>.45?'wetgrass':k}catch(e){return k}}
+// v61 : portée du bruit des pas selon la surface (1 = herbe sèche) : la boue et le sable étouffent, le bois, le gravier et l'eau portent loin
+const SFR={grass:1,wetgrass:1.12,sand:.8,mud:.65,conc:1.2,wood:1.35,stair:1.4,gravel:1.45,shallow:1.3,water:1.5,land:1.4,vault:1.2};
+const stepRange=k=>SFR[k]||1;
+function auStepNoise(k,base){const r=base*stepRange(k);noise(P.x,P.z,r);return r}
+// éclaboussure : gerbe de bruit, corps sourd, bulles qui montent (dep 0..1 = profondeur, big = plongeon)
+function sfxSplash(out,dep,vol,big){const t=AC.currentTime,d=Math.max(0,Math.min(1,dep||0)),v=vol*(big?1.25:.85);
+const g=nz(big?.55:.2+d*.14,'bandpass',big?1500:2100,.5,.34*v,out,rnd(.8,1),.003);nz(big?.8:.3,'lowpass',big?520:820,.6,.3*v*(.4+d),out,.7,.006);
+for(let i=0,n=big?5:2+(d>.4?1:0);i<n;i++){const o=AC.createOscillator(),gg=AC.createGain(),tt=t+rnd(.02,big?.45:.2),f=rnd(380,900)*(1-d*.3);o.type='sine';o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*1.9,tt+.07);gg.gain.setValueAtTime(.0001,tt);gg.gain.linearRampToValueAtTime(.05*v,tt+.01);gg.gain.exponentialRampToValueAtTime(.0001,tt+.09);o.connect(gg);gg.connect(out);o.start(tt);o.stop(tt+.12)}
+return g}
+// brasse (nage) : l'eau fouettée en surface ; sous la surface, seulement un grondement étouffé et des bulles
+function sfxSwim(uw,v){const o=AOUT(),t=AC.currentTime;
+if(uw){nz(.55,'lowpass',420,.8,.22*v,o,.6,.08);for(let i=0;i<3;i++){const b=AC.createOscillator(),g=AC.createGain(),tt=t+rnd(.05,.5),f=rnd(300,700);b.type='sine';b.frequency.setValueAtTime(f,tt);b.frequency.exponentialRampToValueAtTime(f*2,tt+.08);g.gain.setValueAtTime(.0001,tt);g.gain.linearRampToValueAtTime(.05*v,tt+.01);g.gain.exponentialRampToValueAtTime(.0001,tt+.1);b.connect(g);g.connect(o);b.start(tt);b.stop(tt+.13)}return}
+const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=AU.nb;s.playbackRate.value=rnd(.8,1.1);f.type='bandpass';f.Q.value=.7;f.frequency.setValueAtTime(600,t);f.frequency.exponentialRampToValueAtTime(2300,t+.4);
+g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.24*v,t+.14);g.gain.exponentialRampToValueAtTime(.0001,t+.55);s.connect(f);f.connect(g);g.connect(o);s.start(t,Math.random()*.5);s.stop(t+.6);auSend(g);nz(.35,'lowpass',380,.6,.15*v,o,.5,.05)}
+// sortie de l'eau : l'eau qui ruisselle
+function sfxDrip(v){const o=AOUT(),t=AC.currentTime;nz(.9,'highpass',2400,.5,.1*v,o,1,.05);nz(.5,'lowpass',700,.6,.16*v,o,.6,.03);for(let i=0;i<4;i++){const b=AC.createOscillator(),g=AC.createGain(),tt=t+.1+i*rnd(.12,.25),f=rnd(500,1100);b.type='sine';b.frequency.setValueAtTime(f,tt);b.frequency.exponentialRampToValueAtTime(f*.6,tt+.05);g.gain.setValueAtTime(.0001,tt);g.gain.linearRampToValueAtTime(.04*v,tt+.005);g.gain.exponentialRampToValueAtTime(.0001,tt+.06);b.connect(g);g.connect(o);b.start(tt);b.stop(tt+.08)}}
+// état de l'eau côté joueur : plongeon, nage, ressortie
+const AW={ok:0,d:0,px:0,pz:0,uw:0,t:0,strokes:0,plunges:0,drips:0,gl:0};
+function auWater(dt){
+if(P.gy===undefined||HM.dead||ac.on||(typeof DRV!=='undefined'&&DRV.on)||dt<=0){AW.ok=0;return}
+const d=wDep(P.x,P.z),sp=Math.hypot(P.x-AW.px,P.z-AW.pz)/dt,uw=C.position.y<WL-.02?1:0;AW.px=P.x;AW.pz=P.z;
+if(!AW.ok){AW.ok=1;AW.d=d;AW.uw=uw;return}
+if(sp>40){AW.d=d;AW.uw=uw;return}// téléportation
+try{AC=AC||new AudioContext();auInit();if(!AU.ready){AW.d=d;AW.uw=uw;return}
+// plongeon : on entre vite dans l'eau (course, saut) ; la tête passe sous la surface
+if(AW.d<.2&&d>=.2&&sp>2.4){AW.plunges++;sfxSplash(AOUT(),Math.min(1,d/1.2),Math.min(1.2,sp/6),true);noise(P.x,P.z,16*stepRange('water'))}
+if(uw&&!AW.uw){AW.plunges++;sfxSplash(AOUT(),1,.7,true);nz(.7,'lowpass',300,.8,.3,AOUT(),.5,.05)}
+if(!uw&&AW.uw){AW.drips++;sfxDrip(1);nz(.45,'bandpass',1000,.7,.2,AOUT(),.9,.1)}
+if(AW.d>.6&&d<=.6&&sp>.2){AW.drips++;sfxDrip(.6)}
+// nage : de l'eau jusqu'à la poitrine, une brasse toutes les ~1,2 s ; sur place, un léger clapotis
+if(d>.85){const mv=sp>.5;AW.t-=dt*(mv?Math.min(1.6,.6+sp/4):.55);if(AW.t<=0){AW.t=mv?1.2:2.2;AW.strokes++;sfxSwim(uw,mv?1:.4);if(mv&&!uw)noise(P.x,P.z,9*stepRange('water'))}}else AW.t=Math.min(AW.t,.3);
+}catch(e){}
+AW.d=d;AW.uw=uw}
 function sfxFoot(x,y,z,kind,vol,bot){try{AC=AC||new AudioContext();auInit();let k=kind;if(k==='step')k=surfSub(surfKind(x,y,z,bot?null:P.sup),x,z);const q=FST[k]||FST.grass,out=bot||k==='land'&&false?sp3(x,y+.1,z,{ref:2.4,roll:1.5,ad:18,air:9000}):(Math.hypot(x-C.position.x,z-C.position.z)<.5?AOUT():sp3(x,y+.1,z,{ref:2.4,roll:1.5,ad:18,air:9000,noocc:1}));
-const g=nz(q[3],q[0],q[1]*rnd(.85,1.15),q[2],q[4]*vol*.5,out,rnd(.85,1.2));if(!bot||true)auSend(g);if(q[5])th(q[5][0]*rnd(.9,1.1),q[5][1],q[5][2]*vol*.5,out,'sine');if(k==='land'&&P.gy<2){}}catch(e){}}
+const g=nz(q[3],q[0],q[1]*rnd(.85,1.15),q[2],q[4]*vol*.5,out,rnd(.85,1.2));if(!bot||true)auSend(g);if(k==='water'||k==='shallow'||(k==='land'&&wDep(x,z)>.08)){const dp=Math.min(1,wDep(x,z)/1.2);auSend(sfxSplash(out,dp,vol*(k==='land'?1.2:k==='shallow'?.5:.8),k==='land'));if(k==='land')return}if(q[5])th(q[5][0]*rnd(.9,1.1),q[5][1],q[5][2]*vol*.5,out,'sine');if(k==='land'&&P.gy<2){}}catch(e){}}
 // ---- pluie : nappe extérieure + crépitement sur les toits (sourd sous toit plat de béton)
 function rainMix(rn,ind,y){try{AC=AC||new AudioContext();auInit();if(!AU.ready)return;if(!AU.rainOut){const mk=(hz,q,type)=>{const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=AU.nb;s.loop=true;f.type=type;f.frequency.value=hz;f.Q.value=q;g.gain.value=0;s.connect(f);f.connect(g);g.connect(AOUT());s.start();return g};
 AU.rainOut=mk(3200,.35,'bandpass');AU.rainRoof=mk(1250,.9,'bandpass');AU.rainDeep=mk(240,.7,'lowpass');
@@ -70,8 +103,9 @@ const l=AC.listener,p=C.position;_la.set(0,0,-1).applyQuaternion(C.quaternion);_
 if(l.positionX){l.positionX.value=p.x;l.positionY.value=p.y;l.positionZ.value=p.z;l.forwardX.value=_la.x;l.forwardY.value=_la.y;l.forwardZ.value=_la.z;l.upX.value=_lb.x;l.upY.value=_lb.y;l.upZ.value=_lb.z}else{l.setPosition(p.x,p.y,p.z);l.setOrientation(_la.x,_la.y,_la.z,_lb.x,_lb.y,_lb.z)}
 const k=inRoom(p.x,p.z),ins=k>=0&&p.y<roofTop(p.x,p.z),bun=ins&&ROOMS[k].bun;AU.room=ins?k:-1;
 const th_=[ins&&!bun?.5:0,bun?.62:0,ins?0:.075*audUrb()],ks=Math.min(1,dt*3);AU.wH.gain.value+=(th_[0]-AU.wH.gain.value)*ks;AU.wB.gain.value+=(th_[1]-AU.wB.gain.value)*ks;AU.wE.gain.value+=(th_[2]-AU.wE.gain.value)*ks;
+auWater(dt);
 // pas du joueur
-if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);sfxFoot(P.x,P.gy,P.z,'step',vol);noise(P.x,P.z,[sp?13:7,2.8,1.1][P.st])}}}
+if(P.gy!==undefined&&!ac.on&&P.hp>0){const mv=Math.hypot(P.x-AU.sx,P.z-AU.sz);AU.sx=P.x;AU.sz=P.z;if(!P.air&&!P.mant&&mv<1.2&&mv>0){AU.ft=(AU.ft||0)+mv;const sp=K.ShiftLeft&&P.st===0,str=[sp?2.7:2.05,1.5,1.05][P.st];if(AU.ft>=str){AU.ft=0;const vol=[sp?1:.62,.22,.1][P.st]*(P.sup&&P.sup.ramp?1.2:1);const sk=surfSub(surfKind(P.x,P.gy,P.z,P.sup),P.x,P.z);sfxFoot(P.x,P.gy,P.z,sk,vol);auStepNoise(sk,[sp?13:7,2.8,1.1][P.st])}}}
 // pas des bots proches
 for(const b of bots){const g=b.g.position;if(b.dead>0){b.px=undefined;continue}if(b.px===undefined){b.px=g.x;b.pz=g.z;b.sa=0;continue}const mv=Math.hypot(g.x-b.px,g.z-b.pz);b.px=g.x;b.pz=g.z;if(mv>.6||mv<1e-4)continue;const d=Math.hypot(g.x-p.x,g.z-p.z);if(d>38)continue;b.sa+=mv;const str=b.spK>1.6?2.5:1.9;if(b.sa>=str){b.sa=0;sfxFoot(g.x,b.fy!==undefined?b.fy:g.y,g.z,surfKind(g.x,b.fy||0,g.z,null),(b.cr?.25:b.spK>1.6?.9:.55)*(b.ty===3?1.3:1),1)}}}
 // ---- diagnostic audio (F9) : niveaux des couches d'ambiance, énergie du signal, coupure couche par couche
