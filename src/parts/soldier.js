@@ -117,3 +117,6 @@ g.applyMatrix4(SLS.inv[SLS.ix.Spine2]);g.computeBoundingSphere();SLS.pg=g;SLS.pm
 function sldHelmGeo(t){SLS.hg=SLS.hg||{};if(SLS.hg[t])return SLS.hg[t];const D=HLD[t],g=new THREE.BufferGeometry(),n=D.p.length/3,P_=new Float32Array(n*3),N_=new Float32Array(n*3),C_=new Float32Array(n*3);for(let i=0;i<n*3;i++){P_[i]=D.p[i]/1e4;N_[i]=D.nr[i]/100;C_[i]=D.c[i]/255}
 g.setAttribute('position',new THREE.BufferAttribute(P_,3));g.setAttribute('normal',new THREE.BufferAttribute(N_,3));g.setAttribute('color',new THREE.BufferAttribute(C_,3));g.setIndex(new THREE.BufferAttribute(new Uint16Array(D.i),1));
 g.applyMatrix4(SLS.inv[SLS.ix.Head]);g.computeBoundingSphere();SLS.hg[t]=g;if(!SLS.hm)SLS.hm={};SLS.hm[0]=SLS.hm[0]||new THREE.MeshLambertMaterial({vertexColors:true,color:0xffffff,side:THREE.DoubleSide});SLS.hm[1]=SLS.hm[1]||new THREE.MeshLambertMaterial({vertexColors:true,color:0xf0f4e0,side:THREE.DoubleSide});SLS.hm[3]=SLS.hm[3]||new THREE.MeshLambertMaterial({vertexColors:true,color:0x7a7f88,side:THREE.DoubleSide});return g}
+
+// réapparition : sans ceci le bot ressuscité se fondait depuis la pose de mort (tête à ras du sol pendant ~0,15 s)
+{const spw0=spawn;spawn=function(b){spw0(b);const sd=b.sld;if(sd&&/^death/.test(sd.cur||'')){sd.pv=null;sd.bl=1;sd.cur='idle';sd.t=0}}}
