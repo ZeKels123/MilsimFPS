@@ -7,7 +7,7 @@ function vsIronFov(){return vsT().f}
 function vsRate(){const k=sight();return vsT().e*((k==='scope'||(WSEL===4&&k==='iron'))?.8:1)}
 function vsMove(){return vsT().m}
 function vsAmp(){if(!(adsT>.02))return 0;const st=Math.min(2,P.st||0);return .0016*vsT().s*adsT*[1,.7,.45][st]*(WPN.rest?.5:1)*(1-.9*(EFF.hb||0))*(1+.8*Math.min(1,effK()))*(HM.sta<.25?1.4:1)}
-function vsOk(){return!reloading&&!bench&&!HNOADS()&&!HM.act&&!DRV.on&&!ac.on&&!INV.open&&!P.mant&&!(P.hp<=0)&&$('ov').style.display==='none'}
+function vsOk(){return!reloading&&!bench&&!HNOADS()&&!HM.act&&!DRV.on&&!ac.on&&!INV.open&&!P.mant&&!(P.hp<=0)&&!NVG.blockAds&&$('ov').style.display==='none'}
 function vsAds(){if(!vsOk()){ads=false;return}
  if(!SET.adsTog){if(VSB.b)ads=true}
  else if(ads&&K.ShiftLeft&&(K.KeyW||K.KeyA||K.KeyS||K.KeyD)&&!P.st&&!(EFF.hb>.1))ads=false}

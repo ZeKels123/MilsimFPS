@@ -11,7 +11,7 @@ if(['scope','angled','holo'].includes(o.sel)&&A[o.sel])sel=o.sel;else{const l=['
 if(typeof o.mgIn==='boolean')mgIn=o.mgIn;
 if(Number.isInteger(o.nsel)&&o.nsel>=0&&o.nsel<NT.length)NADE.sel=o.nsel;
 if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5){GQ.mode=o.gfx;SET.gfx=o.gfx}
-if(isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
+if(typeof o.tod==='number'&&isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
 if(Number.isInteger(o.wx)&&o.wx>=0&&o.wx<5)TOD.tgt=o.wx;
 if(Number.isInteger(o.md)&&o.md>=0&&o.md<100000&&typeof MOO!=='undefined')MOO.day=o.md;
 if(o.wm&&typeof o.wm==='object'&&typeof WMOD!=='undefined'){for(const i in o.wm){const m=o.wm[i];if(m&&[0,1,2].includes(m.b)&&[0,1,2].includes(m.s)&&[0,1,2].includes(m.m))WMOD[i]={b:m.b,s:m.s,m:m.m,l:[0,1,2].includes(m.l)?m.l:0}}}
