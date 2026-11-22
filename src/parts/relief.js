@@ -89,6 +89,7 @@ for(let j=0;j<GN;j++){const z=-AR+j*GSP;if(z<CT.z1+3)continue;for(let i=Math.rou
 const g=new THREE.PlaneGeometry(2*AR,2*AR,GN-1,GN-1),p=g.attributes.position,c=new Float32Array(p.count*3);
 for(let i=0;i<p.count;i++)p.setZ(i,GH(p.getX(i),-p.getY(i)));
 scaleUV(g,25*AR/150,25*AR/150);g.computeVertexNormals();const nn=g.attributes.normal;
+// tex4 : roche des pentes calée sur Rock030 (79/77/70), boue des berges sur Ground054 (156/139/110)
 // v62 : sol varié — poids d'herbe par sommet (attribut gsp, mélangé herbe/terre par le shader du terrain) + teinte lente (vert frais / foin / terre brune / roche sur les pentes), terre nue en parcelles, berges boueuses
 const cc=new Float32Array(p.count*4);
 for(let i=0;i<p.count;i++){const X=p.getX(i),Z=-p.getY(i),h=p.getZ(i),gr_=Math.sqrt(2*Math.max(0,1-nn.getZ(i))),
@@ -96,7 +97,7 @@ f1=nz(X*.019+11,Z*.019-7)*.55+nz(X*.043+3,Z*.043+9)*.3+nz(X*.1,Z*.1+4)*.15,f2=nz
 wv=wDist(X,Z),mu=1-sstep(-.6,2.2,wv),ku=wv<0?Math.max(.45,1+wv*.18):1,st=1-sstep(.1,.3,gr_);
 let gx=.92-sstep(.09,.3,gr_)*.95-sstep(1.6,3.6,h)*.3*st-sstep(.64,.8,f3)*.75;gx=Math.max(0,Math.min(1,gx*(1-mu*.95)));
 const dy=sstep(.45,.65,f2),lu=sstep(.3,.7,f1),bl=.9+.2*lu,rk=sstep(.2,.45,gr_),k=1+.09*Math.max(-1,Math.min(1.5,h)),dk=.9+.3*f3,
-gr=(.84+.36*dy)*bl,gg=(1.02-.02*dy)*bl,gb=(.8-.12*dy)*bl,dr=(1+(.82-1)*rk)*dk,dg=(.92+(.82-.92)*rk)*dk,db=(.8+(.8-.8)*rk)*dk;
+gr=(.84+.36*dy)*bl,gg=(1.02-.02*dy)*bl,gb=(.8-.12*dy)*bl,dr=(1+(.66-1)*rk)*dk,dg=(.92+(.7-.92)*rk)*dk,db=(.8+(.74-.8)*rk)*dk;
 cc[i*4]=((gr*gx+dr*(1-gx))*k*(1-mu)+.62*mu)*ku;cc[i*4+1]=((gg*gx+dg*(1-gx))*k*(1-mu)+.55*mu)*ku;cc[i*4+2]=((gb*gx+db*(1-gx))*k*(1-mu)+.42*mu)*ku;cc[i*4+3]=gx}
 for(let ps=0;ps<2;ps++){const t=cc.slice(),W=GN*4;for(let j=1;j<GN-1;j++)for(let i=1;i<GN-1;i++){const n=(j*GN+i)*4;for(let k=0;k<4;k++)cc[n+k]=(t[n+k]*4+2*(t[n-4+k]+t[n+4+k]+t[n-W+k]+t[n+W+k])+t[n-W-4+k]+t[n-W+4+k]+t[n+W-4+k]+t[n+W+4+k])/16}}
 const gsp=new Float32Array(p.count);for(let i=0;i<p.count;i++){c[i*3]=cc[i*4];c[i*3+1]=cc[i*4+1];c[i*3+2]=cc[i*4+2];gsp[i]=cc[i*4+3]}

@@ -59,3 +59,15 @@ Ces photos PBR ne sont PAS embarquées dans le jeu : elles ont servi hors jeu à
 | Planks037A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Planks037A | `T_wood` (planches, poutres, mobilier) |
 | Planks023A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Planks023A | `T_door` (portes) |
 | RoofingTiles014A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=RoofingTiles014A | `T_roof` (tuiles) |
+
+### Photos de référence du terrain (tex4)
+
+Mêmes principes (CC0, non embarquées, tables de quantiles `PHL.grass/dirt/asph/grav/path` dans `src/parts/tex.js`). Copies de travail : `/home/claude/work/dl/textures_terrain/`, PC : `C:\Users\Fixe\Downloads\assets jeux\textures_terrain\`.
+
+| Texture ambientCG | Auteur | Licence | URL | Usage |
+|---|---|---|---|---|
+| Grass004 + Grass001 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Grass004 , https://ambientcg.com/view?id=Grass001 | tuile d'herbe du sol (`T_gg`) |
+| Pathway002 + Ground048 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Pathway002 , https://ambientcg.com/view?id=Ground048 | tuile de terre (`T_gd`) |
+| Asphalt031 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Asphalt031 | chaussées (ville, route nord-sud) |
+| Gravel041 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Gravel041 | cailloux de la terre, accotements |
+| Ground054, Ground080, Rock030, ScatteredLeaves009, Ground037, Grass007 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Ground054 (idem autres ids) | téléchargées et analysées ; non appliquées (boue du relief déjà à la couleur de Ground054) |

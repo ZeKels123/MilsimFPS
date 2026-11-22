@@ -2,8 +2,8 @@
 {const AN_=typeof AN!=='undefined'?AN:4;
 // --- route nord-sud : part de l'avenue de la ville et traverse toute la carte (x = 224) ; chaussée 7 m bombée + accotements gravillonnés de 0,9 m
 {const HA=3.5,HW=4.4,xr=CT.ax,N=Math.round(2*MH/3),PXM=20,rc=document.createElement('canvas');rc.width=Math.round(2*HW*PXM);rc.height=256;const g=rc.getContext('2d'),ex=m=>Math.round((m+HW)*PXM);
-g.fillStyle='#8a7d66';g.fillRect(0,0,rc.width,256);for(let i=0;i<500;i++){g.fillStyle='rgba('+(Math.random()<.5?'60,52,40':'200,190,165')+','+Math.random()*.25+')';g.fillRect(Math.random()*ex(-HA),Math.random()*256,2,2);g.fillRect(ex(HA)+Math.random()*(rc.width-ex(HA)),Math.random()*256,2,2)}
-g.fillStyle='#37393d';g.fillRect(ex(-HA),0,ex(HA)-ex(-HA),256);for(const c of[-1.75,1.75]){g.fillStyle='rgba(20,20,22,.22)';g.fillRect(ex(c-.55),0,Math.round(1.1*PXM),256)}
+g.fillStyle=lrg(PHL.grav,.45,1);g.fillRect(0,0,rc.width,256);for(let i=0;i<900;i++){g.fillStyle=lrg(PHL.grav,Math.random()<.5?.05:.95,Math.random()*.4);g.fillRect(Math.random()*ex(-HA),Math.random()*256,2,2);g.fillRect(ex(HA)+Math.random()*(rc.width-ex(HA)),Math.random()*256,2,2)}
+g.fillStyle=lrg(PHL.asph,.08,1);g.fillRect(ex(-HA),0,ex(HA)-ex(-HA),256);for(const c of[-1.75,1.75]){g.fillStyle='rgba(20,20,22,.22)';g.fillRect(ex(c-.55),0,Math.round(1.1*PXM),256)}
 for(let i=0;i<1500;i++){g.fillStyle='rgba(255,255,255,'+Math.random()*.06+')';g.fillRect(ex(-HA)+Math.random()*(ex(HA)-ex(-HA)),Math.random()*256,2,2)}
 for(let i=0;i<14;i++){g.strokeStyle='rgba(15,15,16,.45)';g.lineWidth=1;g.beginPath();let x=ex(-HA+.3)+Math.random()*(ex(HA)-ex(-HA)-12),y=Math.random()*256;g.moveTo(x,y);for(let k=0;k<4;k++){x+=Math.random()*8-4;y+=Math.random()*10;g.lineTo(x,y)}g.stroke()}
 g.fillStyle='#e8e2c8';g.fillRect(ex(-HA+.25),0,4,256);g.fillRect(ex(HA-.25)-4,0,4,256);g.fillStyle='#e9d95a';g.fillRect(ex(0)-2,0,4,128);

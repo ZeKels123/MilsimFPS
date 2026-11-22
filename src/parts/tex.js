@@ -138,19 +138,23 @@ P4(d,i,r_,g_,b_)}},null,12.5);
 const gwrap=(sz,px,py,m,f)=>{const ox=px<m?[0,sz]:px>sz-m?[0,-sz]:[0],oy=py<m?[0,sz]:py>sz-m?[0,-sz]:[0];for(const u of ox)for(const v of oy)f(px+u,py+v)};
 const gstroke=(x,sz,n,len,wd,cols,ang)=>{x.lineCap='round';for(let i=0;i<n;i++){const px=rnd(0,sz),py=rnd(0,sz),a=ang!==undefined?ang+rnd(-.6,.6):rnd(0,6.283),l=rnd(len[0],len[1]);x.strokeStyle=cols[(Math.random()*cols.length)|0];x.lineWidth=rnd(wd[0],wd[1]);
 gwrap(sz,px,py,14,(X,Y)=>{x.beginPath();x.moveTo(X,Y);x.lineTo(X+Math.cos(a)*l,Y+Math.sin(a)*l);x.stroke()})}};
-function gtile(kind){const sz=512,a=fbm(sz,4,4,3,kind?31:21),b=fbm(sz,16,16,3,kind?17:7),c=fbm(sz,64,64,2,kind?13:3),e=fbm(sz,2,2,2,kind?55:45),H=new Float32Array(sz*sz),cv=document.createElement('canvas');cv.width=cv.height=sz;const x=cv.getContext('2d'),im=x.createImageData(sz,sz),d=im.data;
-for(let i=0;i<sz*sz;i++){const k=.8+c[i]*.42,gr=(Math.random()-.5)*(kind?20:10);let r,g,bl;
-if(!kind){const lu=c01((a[i]-.3)*2.2),dr=c01((e[i]-.5)*3);r=(50+lu*22+dr*50+(b[i]-.5)*26)*k+gr;g=(80+lu*26+dr*20+(b[i]-.5)*30)*k+gr;bl=(30+lu*6+dr*6)*k+gr*.6}
-else{r=(124+(b[i]-.5)*46+(a[i]-.5)*30)*k+gr;g=(106+(b[i]-.5)*40+(a[i]-.5)*24)*k+gr;bl=(80+(b[i]-.5)*30+(a[i]-.5)*16)*k+gr*.8}
-P4(d,i,r,g,bl);H[i]=b[i]*.55+c[i]*.45}
+// v62 tex4 : herbe / terre calées sur les photos Grass004+Grass001 et Pathway002+Ground048 (quantiles couleur), puis brins et cailloux dessinés avec les teintes de la même rampe
+PHL.grass=[38,47,19,46,57,23,54,67,27,59,73,30,63,78,32,67,82,34,70,86,36,75,92,39,79,96,42,83,101,45,87,106,47,90,110,50,95,115,53,97,118,54,101,121,56,104,124,58,109,128,59,117,134,62,126,141,64];
+PHL.dirt=[67,59,48,77,68,56,86,76,63,92,81,67,97,86,71,102,90,74,105,92,76,111,97,80,116,101,83,120,104,86,125,108,88,130,112,91,136,117,95,140,120,97,146,124,100,152,128,104,159,135,110,174,148,121,190,163,135];
+PHL.asph=[69,69,69,81,81,81,92,92,92,97,97,97,101,101,101,105,105,105,108,107,107,112,112,112,116,116,116,119,119,119,123,123,123,127,127,127,132,132,132,136,136,136,140,140,140,146,146,146,153,153,153,164,164,164,175,175,175];
+PHL.grav=[66,63,49,79,77,62,93,90,72,101,98,80,108,105,86,114,111,91,118,116,96,127,124,104,134,131,111,141,138,118,148,146,124,155,153,132,164,162,140,170,168,144,176,174,150,183,181,156,192,189,162,206,201,172,220,214,184];
+PHL.path=[109,102,84,119,111,92,129,120,99,135,126,104,139,130,108,143,134,111,147,137,113,151,141,116,154,144,118,157,146,121,161,149,122,165,153,124,170,157,128,173,160,130,177,163,133,181,168,137,187,174,143,198,186,157,211,201,173];
+const lrg=(L,q,a)=>{lutc(L,q);return'rgba('+(LC[0]|0)+','+(LC[1]|0)+','+(LC[2]|0)+','+a+')'};
+function gtile(kind){const sz=512,sp=spec(sz,kind?[0,0,8,12,16,18,18,24,20]:[0,0,6,9,12,14,16,24,22],kind?55:45),q=qrank(sp),a=fbm(sz,4,4,3,kind?31:21),e=fbm(sz,2,2,2,kind?55:45),H=new Float32Array(sz*sz),cv=document.createElement('canvas'),L=PHL[kind?'dirt':'grass'];cv.width=cv.height=sz;const x=cv.getContext('2d'),im=x.createImageData(sz,sz),d=im.data;
+for(let i=0;i<sz*sz;i++){lutc(L,q[i]);const k=.92+a[i]*.16,dr=kind?1:1+(e[i]-.5)*.12;P4(d,i,LC[0]*k*dr,LC[1]*k,LC[2]*k*(kind?1:1+(.5-e[i])*.1));H[i]=sp[i]*.012+a[i]*.1}
 x.putImageData(im,0,0);
-if(!kind){gstroke(x,sz,5200,[5,12],[.8,1.5],['rgba(28,50,18,.5)','rgba(34,60,20,.45)','rgba(92,128,46,.4)','rgba(120,152,62,.35)']);gstroke(x,sz,900,[5,12],[.8,1.3],['rgba(165,150,76,.35)','rgba(140,128,62,.35)']);
-for(let i=0;i<70;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle=Math.random()<.5?'rgba(214,208,150,.55)':'rgba(236,236,226,.5)';x.beginPath();x.arc(px,py,rnd(.9,1.8),0,6.3);x.fill()}
-for(let i=0;i<220;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle='rgba(66,52,36,.35)';x.beginPath();x.ellipse(px,py,rnd(1,3),rnd(.8,2),rnd(0,3),0,6.3);x.fill()}}
-else{for(let i=0;i<900;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(.9,3.4),v=118+rnd(0,72)|0;x.fillStyle='rgba(20,16,10,.4)';x.beginPath();x.ellipse(px+.8,py+1,s,s*.8,0,0,6.3);x.fill();x.fillStyle='rgb('+v+','+(v-8)+','+(v-22)+')';x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}
-gstroke(x,sz,420,[4,10],[.7,1.2],['rgba(170,150,98,.4)','rgba(110,96,70,.4)'])}
+if(!kind){gstroke(x,sz,3600,[5,12],[.8,1.5],[lrg(L,.05,.4),lrg(L,.14,.4),lrg(L,.92,.34),lrg(L,.97,.3)]);gstroke(x,sz,700,[5,12],[.8,1.3],['rgba(150,138,70,.3)','rgba(128,120,60,.3)']);
+for(let i=0;i<50;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle=Math.random()<.5?'rgba(214,208,150,.5)':'rgba(236,236,226,.45)';x.beginPath();x.arc(px,py,rnd(.9,1.6),0,6.3);x.fill()}
+for(let i=0;i<160;i++){const px=rnd(4,sz-4),py=rnd(4,sz-4);x.fillStyle='rgba(60,48,34,.3)';x.beginPath();x.ellipse(px,py,rnd(1,3),rnd(.8,2),rnd(0,3),0,6.3);x.fill()}}
+else{for(let i=0;i<700;i++){const px=rnd(6,sz-6),py=rnd(6,sz-6),s=rnd(.9,3.2);x.fillStyle='rgba(20,16,10,.35)';x.beginPath();x.ellipse(px+.8,py+1,s,s*.8,0,0,6.3);x.fill();x.fillStyle=lrg(PHL.grav,.35+Math.random()*.6,1);x.beginPath();x.ellipse(px,py,s,s*rnd(.6,.9),rnd(0,3),0,6.3);x.fill()}
+gstroke(x,sz,340,[4,10],[.7,1.2],[lrg(L,.85,.35),lrg(L,.2,.35)])}
 let m=0;const dd=x.getImageData(0,0,sz,sz).data;for(let i=0;i<sz*sz;i++)m+=dd[i*4]+dd[i*4+1]+dd[i*4+2];
-return{map:tx(cv),normalMap:nmap(H,sz,2.2),mean:m/(sz*sz*765)}}
+return{map:tx(cv),normalMap:nmap(H,sz,kind?1.1:1),mean:m/(sz*sz*765)}}
 const T_gg=gtile(0),T_gd=gtile(1);
 // shader du terrain : attribut gsp (poids d'herbe), tuiles herbe/terre, 2e échelle tournée + 3e très large contre le motif répété, transition irrégulière
 function groundMat(m){m.map.repeat.set(2,2);m.onBeforeCompile=sh=>{sh.uniforms.tGr={value:T_gg.map};sh.uniforms.tDi={value:T_gd.map};sh.uniforms.uMg={value:T_gg.mean};sh.uniforms.uMd={value:T_gd.mean};
@@ -162,7 +166,8 @@ float l2=dot(g2,vec3(.3333))/uMg,l3=dot(texture2D(tGr,vUv*.137+vec2(.5,.2)).rgb,
 float mac=.8+.3*l3;
 vec3 gc=g1*mix(1.,l2,.5)*mac,dc=d1*mix(1.,l2,.3)*(.9+.2*l3);
 float tt=smoothstep(.0,1.,(vGs-.5)*3.+.5+(l2-1.)*1.6);
-diffuseColor.rgb*=mix(dc,gc,tt);`)};return m}
+diffuseColor.rgb*=mix(dc,gc,tt);`).replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );',`float lu_=dot(outgoingLight,vec3(.299,.587,.114));float sh_=1.-smoothstep(.03,.3,lu_);outgoingLight=mix(outgoingLight,vec3(lu_)*vec3(.96,1.,1.04),.5*sh_);
+gl_FragColor = vec4( outgoingLight, diffuseColor.a );`)};return m}
 // --- dalles béton
 const T_slab=ptex(512,(d,H,sz)=>{const sp=spec(sz,SPA.slab,15),q=qrank(sp),b=fbm(sz,64,64,2,8),o_=fbm(sz,6,6,3,19),tr=fbm(sz,10,10,2,23),L=PHL.slab;
 for(let y=0;y<sz;y++)for(let X=0;X<sz;X++){const i=y*sz+X,gx=X&255,gy=y&255,hh=hsh((X>>8)+3,(y>>8)+11);lutc(L,q[i]);const oil=c01((o_[i]-.66)*6)*.1,sw_=(tr[i]-.5)*.07;let v=(.96+hh*.08)*(1+sw_)*(1-oil),h=.6+sp[i]*.01+sw_;

@@ -12,7 +12,7 @@ const facC={};const facTex=(ty,rx,ry)=>{if(!facC[ty]){const[b,w,f]=FAC[ty],[c,g]
 g.fillStyle=f;g.fillRect(24,20,80,88);g.fillStyle=w;g.fillRect(28,24,72,80);g.fillStyle='rgba(255,255,255,.2)';g.beginPath();g.moveTo(28,24);g.lineTo(72,24);g.lineTo(28,84);g.fill();g.fillStyle=f;g.fillRect(62,24,4,80);g.fillRect(28,62,72,3);g.fillStyle='#b9b4a8';g.fillRect(20,108,88,6);facC[ty]=c}
 return cvT(facC[ty],rx,ry)};
 // --- asphalte
-const roadC=h=>{const[c,g]=mkC(256,256);g.fillStyle='#35373b';g.fillRect(0,0,256,256);for(let i=0;i<2500;i++){g.fillStyle='rgba('+(Math.random()<.5?'255,255,255':'0,0,0')+','+Math.random()*.07+')';g.fillRect(Math.random()*256,Math.random()*256,2,2)}
+const roadC=h=>{const[c,g]=mkC(256,256);{const sp=spec(256,[0,0,4,6,8,10,12,20,18],h?77:71),q=qrank(sp),im=g.createImageData(256,256);for(let i=0;i<65536;i++){lutc(PHL.asph,q[i]);P4(im.data,i,LC[0]*.75,LC[1]*.75,LC[2]*.78)}g.putImageData(im,0,0)}
 const L=(x,y,w,ht)=>h?g.fillRect(y,x,ht,w):g.fillRect(x,y,w,ht);g.fillStyle='#e7e2c6';L(5,0,3,256);L(248,0,3,256);g.fillStyle='#e9d95a';L(124,0,2,256);L(130,0,2,256);return c};
 const rdN=roadC(0),rdE=roadC(1);
 const asphN=len=>std(0xffffff,{map:cvT(rdN,1,len/16),roughness:.95}),asphE=len=>std(0xffffff,{map:cvT(rdE,len/16,1),roughness:.95,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1});
