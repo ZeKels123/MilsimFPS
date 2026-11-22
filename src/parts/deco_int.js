@@ -189,7 +189,7 @@ r=>{for(let i=0;i<3;i++)r.auto('rack',['l','r','b','f'],['lo','hi','c'],{rs:i==0
  const wb=r.auto('workbench',['f','b','r','l'],['c','lo','hi'],{rs:1});if(wb)r.on(wb,'medkit');
  for(let i=0;i<3;i++){const m=r.free('mcrate',(i-1)*1.3,-.2+r.hash(8+i)*.8,'f',{});if(m&&i==1)r.free('mcrate',m.cu,m.cv,'f',{y:m.h})}r.auto('extinguisher',['l','r','b','f'],['c','hi','lo'],{deco:1,y:1.1,rs:1})},
 // 7 cantine
-r=>{const t1=r.free('dtable',-.4,-.6,'f',{}),t2=r.free('dtable',-.4,1.2,'f',{});[t1,t2].forEach(t=>t&&dcoChairs(r,t,'chair',6));
+r=>{const t1=r.free('dtable',-.4,-.6,'f',{}),t2=r.free('dtable',-.4,1.2,'f',{});[t1,t2].forEach(t=>t&&dcoChairs(r,t,'chair',6));if(!t1&&!t2){const t=r.auto('dtable',['b','f','l','r'],['c','lo','hi'],{rs:0})||r.auto('table',['b','f','l','r'],['c','lo','hi'],{rs:0});t&&dcoChairs(r,t,'chair',4)}
  const c1=r.auto('counter',['f','l','r','b'],['lo','hi'],{rs:1});if(c1){const f=r.beside(c1,'fridge',1)||r.beside(c1,'fridge',-1),st=r.beside(c1,'stove',f&&(f.cu>c1.cu||f.cv>c1.cv)?-1:1)||r.beside(c1,'stove',-1);if(st)r.beside(st,'counter',f&&(f.cu>c1.cu||f.cv>c1.cv)?-1:1)}
  r.auto('sideboard',['r','l','b'],['c','hi','lo'],{rs:1});r.auto('bin',['r','l','b','f'],['hi','lo'],{rs:1});r.auto('bin_g',['l','r','b','f'],['hi','lo'],{rs:1});r.auto('extinguisher',['l','r','b','f'],['c','hi','lo'],{deco:1,y:1.1,rs:1});r.auto('clock',['b','l','r'],['c','lo','hi'],{deco:1,y:1.9,rs:1})},
 // 8 salle d'opérations
