@@ -120,7 +120,8 @@ function dxRocks(){let nr=0;
  // éboulis le long de la rivière, du ruisseau et de l'étang
  const pts=RPTS.slice();pts.forEach((p,pi)=>{if(dxH(pi,0,300)>.45)return;const n=2+Math.floor(dxH(pi,1,301)*4),a0=dxH(pi,2,302)*6.283;for(let k=0;k<n;k++){const a=a0+k*2.1,rr=3.5+dxH(pi,k,303)*5,x=p[0]+Math.cos(a)*rr,z=p[1]+Math.sin(a)*rr,w=wDist(x,z);if(w<.3||w>3.8)continue;nr+=dxRock(x,z,dxH(pi,k,304)*.8,dxH(pi,k,305),310+k,0)}});
  return nr}
-function dxCliffs(){const cand=[];dxEach(20,400,(x,z,i,j)=>{if(dxInCity(x,z)||dxInFarm(x,z)&&false)return;const sl=dxSl(x,z);if(sl>.17)cand.push([sl,x,z])});cand.sort((a,b)=>b[0]-a[0]);const done=[];
+function dxCliffs(){return 0; // v64c : modèle de falaise désactivé (maillage déformé par la décimation) ; les rochers couvrent les pentes
+const cand=[];dxEach(20,400,(x,z,i,j)=>{if(dxInCity(x,z)||dxInFarm(x,z)&&false)return;const sl=dxSl(x,z);if(sl>.17)cand.push([sl,x,z])});cand.sort((a,b)=>b[0]-a[0]);const done=[];
  for(const [sl,x,z] of cand){if(done.length>=46)break;if(done.some(d=>Math.hypot(d[0]-x,d[1]-z)<75))continue;if(!dxOk(x,z,9.5)||wDist(x,z)<10||nearPath(x,z,10)||dxInFor(x,z)&&dxH(Math.round(x),Math.round(z),401)<.5)continue;
   const gx=(GH(x+3,z)-GH(x-3,z))/6,gz=(GH(x,z+3)-GH(x,z-3))/6,gl=Math.hypot(gx,gz)||1;let yaw=Math.round(Math.atan2(-gx,-gz)/(Math.PI/2))*Math.PI/2+(dxH(Math.round(x),Math.round(z),402)-.5)*.16;if(dxH(Math.round(x),Math.round(z),406)<.5)yaw+=Math.PI;
   const s=.85+.4*dxH(Math.round(x),Math.round(z),403),c=Math.cos(yaw),sn=Math.sin(yaw);let mn=1e9;for(const [lx,lz] of [[0,0],[-6,0],[6,0],[-6,-3],[6,-3],[-6,3],[6,3],[0,-3.5],[0,3.5]]){const wx=x+(lx*c+lz*sn)*s,wz=z+(-lx*sn+lz*c)*s;mn=Math.min(mn,GH(wx,wz))}

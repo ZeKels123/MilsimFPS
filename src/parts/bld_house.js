@@ -80,9 +80,9 @@ const pr=(u0,u1,v0,v1,y=RT,h=.78)=>{const q=rW(u0,u1,v0,v1);blkR(q,y,y+h,concM2,
 pr(-PU,PU,PV0,PV0+pt);pr(-PU,PU,PV1-pt,PV1);
 pr(-PU,-PU+pt,PV0,PV1);pr(PU-pt,PU,PV0,PV1);
 // mobilier de toit (couvert)
-const rc=(u,v,du_,dv_,hh,m)=>{const q=rW(u-du_/2,u+du_/2,v-dv_/2,v+dv_/2);blkR(q,RT,RT+hh,m,{T:1.2,s:1,c:1})};
-rc(-se*1.3,-2.3,1.3,.8,.9,steelM);rc(-se*1.5,.6,.9,.9,.6,slabM);rc(si*.9,-5.9,.7,.7,.5,surf(0x6a5a3c));
-{const tk=L_(si*2.2,-4.0);const cy=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,1.1,14),steelM);cy.position.set(tk[0],RT+.55,tk[1]);cy.castShadow=true;S.add(cy);boxes.push({x0:tk[0]-.55,x1:tk[0]+.55,z0:tk[1]-.55,z1:tk[1]+.55,y0:RT,y1:RT+1.1});solids.push(cy)}
+const rc=(u,v,du_,dv_,hh,m,kd)=>{const q=rW(u-du_/2,u+du_/2,v-dv_/2,v+dv_/2);const e=blkR(q,RT,RT+hh,m,{T:1.2,s:1,c:1});if(kd)roofDress(e,kd,0)};
+rc(-se*1.3,-2.3,1.3,.8,.9,steelM,'ac');rc(-se*1.5,.6,.9,.9,.6,slabM,'sky');rc(si*.9,-5.9,.7,.7,.5,surf(0x6a5a3c),'vent');
+{const tk=L_(si*2.2,-4.0);const cy=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,1.1,14),steelM);cy.position.set(tk[0],RT+.55,tk[1]);cy.visible=false;S.add(cy);boxes.push({x0:tk[0]-.55,x1:tk[0]+.55,z0:tk[1]-.55,z1:tk[1]+.55,y0:RT,y1:RT+1.1});solids.push(cy);roofTank(tk[0],RT,tk[1],.55,.7)}
 // données pour l'IA
 const wp=(u,v)=>L_(u,v),pv=[],pr_=[];[[-.62*hu,vF-.5,0,1],[.62*hu,vF-.5,0,1],[0,vB+.5,0,-1],[hu-.5,0,1,0],[-hu+.5,0,-1,0],[hu-.5,-Df/2-Dr/2,1,0],[-hu+.5,-Df/2-Dr/2,-1,0]].forEach(q=>{if(si>0&&q[2]>0&&q[1]<0&&q[1]>vT-.5)return;if(si<0&&q[2]<0&&q[1]<0&&q[1]>vT-.5)return;const w_=wp(q[0],q[1]);pv.push([w_[0],w_[1],yawL(q[2],q[3]),q[1]>vT?1:0])});
 [[-hu+.6,vF-.3,0,1],[hu-.6,vF-.3,0,1],[-hu+.6,vB+.5,0,-1],[hu-.6,vB+.5,0,-1],[hu-.2,-1.5,1,0],[-hu+.2,-1.5,-1,0],[hu-.2,1,1,0],[-hu+.2,1,-1,0]].forEach(q=>{const w_=wp(q[0],q[1]);pr_.push([w_[0],w_[1],yawL(q[2],q[3]),q[0]*si>0?1:0])});

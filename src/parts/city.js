@@ -109,8 +109,8 @@ for(let k=1;k<=fl;k++){const top=k===fl,p=top?.14:.06,ya=k*FH-(top?.02:.26),yc=k
 if(com){FB(-Lf/2+.4,Lf/2-.4,0,1.3,2.92,3.02,AWN[(rn()*4)|0],{s:1});FB(-Math.min(3.6,Lf/2-1),Math.min(3.6,Lf/2-1),0,.1,3.5,4.2,sign(SGN[ty][(rn()*SGN[ty].length)|0],ty==='shop'?'#2a3a2c':'#5a2a1f'))}
 else{FB(-2.3,2.3,0,1.6,2.75,2.9,trimM,{s:1});[-2.1,2.1].forEach(q=>FB(q-.07,q+.07,1.4,1.54,0,2.75,railM,{s:1,c:1}));if(ty!=='apt')FB(-3,3,0,.1,3.5,4.2,sign(SGN[ty][(rn()*SGN[ty].length)|0],ty==='hotel'?'#5a1f1f':'#1d2b3a'))}}yield;
 // équipements de toit
-for(let q=0;q<2+((rn()*3)|0);q++){const u=t+SL+2+rn()*(Lu-SL-5),v=(rn()*2-1)*(Hv-2.2);B(u-.6,u+.6,v-.6,v+.6,H,H+.8,acM,{s:1,c:1})}
-if(ty==='apt'){const a=uw(Lu-3),tk=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1.8,12),wd2);tk.position.set(X?a:cv,Y+H+1.5,X?cv:a);tk.castShadow=true;S.add(tk);B(Lu-3.9,Lu-2.1,-.9,.9,H,H+.6,trimM,{s:1,c:1})}
+for(let q=0;q<2+((rn()*3)|0);q++){const u=t+SL+2+rn()*(Lu-SL-5),v=(rn()*2-1)*(Hv-2.2);{const e=B(u-.6,u+.6,v-.6,v+.6,H,H+.8,acM,{s:1,c:1});roofDress(e,rn()<.7?'ac':(rn()<.5?'vent':'duct'),X?0:Math.PI/2)}}
+if(ty==='apt'){const a=uw(Lu-3);roofTank(X?a:cv,Y+H,X?cv:a,1,1.4);B(Lu-3.9,Lu-2.1,-.9,.9,H,H+.6,trimM,{s:1,c:1}).visible=false}
 if(fl>4){const a=uw(Lu-5),an=new THREE.Mesh(new THREE.CylinderGeometry(.04,.06,6,6),std(0x444));an.position.set(X?a:cv+2,Y+H+3,X?cv+2:a);S.add(an)}
 (window.CITYB=window.CITYB||[]).push({cx,cz,w,d,fl,ty,face,H,Lu,Hv,W:(u,v)=>{const a=uw(u);return X?[a,cv+v]:[cv+v,a]}});
 const hx=w/2-t,hz=d/2-t;if(w>=d)ROOMS.push({x:cx-w/4,z:cz,hx:hx/2,hz,bun:0},{x:cx+w/4,z:cz,hx:hx/2,hz,bun:0});else ROOMS.push({x:cx,z:cz-d/4,hx,hz:hz/2,bun:0},{x:cx,z:cz+d/4,hx,hz:hz/2,bun:0})}

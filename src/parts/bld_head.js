@@ -27,6 +27,28 @@ glassM=std(0xa8cad8,{roughness:.05,metalness:.2,transparent:true,opacity:.2,envM
 const rugT=(()=>{const c=document.createElement('canvas');c.width=128;c.height=96;const x=c.getContext('2d');x.fillStyle='#7a2a24';x.fillRect(0,0,128,96);x.strokeStyle='#d8c08a';x.lineWidth=3;x.strokeRect(6,6,116,84);x.strokeStyle='#2c3a52';x.lineWidth=2;x.strokeRect(12,12,104,72);
 x.fillStyle='#d8c08a';for(let i=0;i<5;i++){x.save();x.translate(24+i*20,48);x.rotate(Math.PI/4);x.fillRect(-6,-6,12,12);x.restore()}for(let i=0;i<900;i++){x.fillStyle='rgba(0,0,0,'+rnd(.03,.12)+')';x.fillRect(rnd(0,128),rnd(0,96),1,2)}return tx(c,1)})();
 function blk(w,h,d,x,y,z,m,o){o=o||{};y+=YO;const g=new THREE.BoxGeometry(w,h,d);if(o.T)wuv(g,x,y,z,o.T,o.T);else if(o.fit)fitUV(g,w,h,d,o.fit);const e=new THREE.Mesh(g,m);e.position.set(x,y,z);e.castShadow=!o.ns;e.receiveShadow=true;S.add(e);if(o.s)solids.push(e);if(o.c)boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2});return e}
+
+// ---- v64c : équipements de toit détaillés (climatiseur, citerne, gaine, lanterneau) à la place des simples cubes ; le cube d'origine reste en collision, invisible
+const roofM={ac:std(0xb9bdc0,{roughness:.55,metalness:.45}),dk:std(0x23272b,{roughness:.6,metalness:.5}),gr:std(0x7d8388,{roughness:.5,metalness:.7}),tk:std(0x6d7a6a,{roughness:.6,metalness:.4}),gl:std(0x8fb4c4,{roughness:.2,metalness:.1,transparent:true,opacity:.55})};
+function roofDress(e,kind,yaw){const g=e.geometry.parameters,w=g.width,h=g.height,d=g.depth,x=e.position.x,z=e.position.z,y0=e.position.y-h/2;e.visible=false;e.castShadow=false;
+ const grp=new THREE.Group(),add=(geo,m,px,py,pz,rx,rz)=>{const o=new THREE.Mesh(geo,m);o.position.set(px,py,pz);if(rx)o.rotation.x=rx;if(rz)o.rotation.z=rz;o.castShadow=true;o.receiveShadow=true;grp.add(o);return o},B_=(a,b,c)=>new THREE.BoxGeometry(a,b,c),C_=(r,hh,n)=>new THREE.CylinderGeometry(r,r,hh,n||16);
+ if(kind==='ac'){const bh=h*.72;add(B_(w,bh,d),roofM.ac,0,bh/2,0);add(B_(w*1.04,.05,d*1.04),roofM.gr,0,bh+.025,0);
+  const r=Math.min(w,d)*.36;add(new THREE.CylinderGeometry(r*1.08,r*1.08,.1,20),roofM.dk,0,bh+.1,0);add(new THREE.CylinderGeometry(r*.96,r*.96,.04,20),roofM.gr,0,bh+.16,0);
+  for(let i=0;i<3;i++){const b=add(B_(r*1.9,.025,r*.28),roofM.dk,0,bh+.19,0);b.rotation.y=i*Math.PI/3}
+  const n=Math.max(3,Math.round(bh/.09));for(let i=0;i<n;i++)add(B_(w*.86,.03,.02),roofM.dk,0,.12+i*(bh-.2)/n,d/2+.005);
+  add(C_(.04,.9,8),roofM.dk,w/2-.15,.2,-d/2-.1,Math.PI/2,0);add(B_(.14,.16,.1),roofM.gr,w/2-.15,.25,d/2-.08);
+  add(B_(.1,bh*.7,.1),roofM.dk,-w/2+.12,bh*.35,-d/2+.1)}
+ else if(kind==='vent'){const r=Math.min(w,d)*.3,hh=Math.max(h,.7);add(C_(r,hh,14),roofM.gr,0,hh/2,0);add(new THREE.CylinderGeometry(r*.35,r*1.6,r*1.1,14),roofM.dk,0,hh+r*.55,0);add(C_(r*1.2,.05,14),roofM.gr,0,hh+.025,0);
+  add(C_(r*.7,.5,10),roofM.gr,r*2.2,.25,0);add(C_(r*.8,r*1.4,10),roofM.gr,r*2.2,.5+r*.7,0)}
+ else if(kind==='sky'){add(B_(w,.18,d),roofM.gr,0,.09,0);const o=add(B_(w*.86,.05,d*.86),roofM.gl,0,.3,0);add(B_(w*.9,.04,.05),roofM.dk,0,.26,d*.43);add(B_(w*.9,.04,.05),roofM.dk,0,.26,-d*.43);add(B_(.05,.04,d*.9),roofM.dk,0,.26,0)}
+ else if(kind==='duct'){const r=Math.min(d,w)*.4;add(B_(w,r*2,d*.55),roofM.gr,0,r,0);add(B_(w*1.02,.04,d*.6),roofM.dk,0,r*2,0);for(let i=-2;i<=2;i++)add(B_(.05,r*2.1,d*.6),roofM.dk,i*w*.2,r,0);add(C_(r*.8,r*3,12),roofM.gr,w*.42,r*1.5,0)}
+ grp.position.set(x,y0,z);grp.rotation.y=yaw||0;S.add(grp);return grp}
+function roofTank(cx,y0,cz,r,hh){const grp=new THREE.Group(),add=(geo,m,px,py,pz)=>{const o=new THREE.Mesh(geo,m);o.position.set(px,py,pz);o.castShadow=true;grp.add(o);return o};
+ for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4;add(new THREE.BoxGeometry(.08,.5,.08),roofM.dk,Math.cos(a)*r*.75,.25,Math.sin(a)*r*.75)}
+ add(new THREE.CylinderGeometry(r,r,hh,20),roofM.tk,0,.5+hh/2,0);add(new THREE.SphereGeometry(r,20,8,0,Math.PI*2,0,Math.PI/2),roofM.tk,0,.5+hh,0);
+ for(const f of[.25,.75])add(new THREE.CylinderGeometry(r*1.02,r*1.02,.06,20),roofM.dk,0,.5+hh*f,0);
+ add(new THREE.CylinderGeometry(.05,.05,hh*.9,8),roofM.gr,r+.1,.5+hh*.45,0);add(new THREE.CylinderGeometry(r*.25,r*.25,.15,10),roofM.dk,0,.5+hh+r+.05,0);
+ grp.position.set(cx,y0,cz);S.add(grp);return grp}
 const gb=(g,w,h,d,x,y,z,m,fit)=>{const q=new THREE.BoxGeometry(w,h,d);if(fit)fitUV(q,w,h,d,fit);const e=new THREE.Mesh(q,m);e.position.set(x,y,z);e.castShadow=e.receiveShadow=true;g.add(e);return e};
 
 const BSTY={w:0xcfccbd,s:0x4a5a3a};
