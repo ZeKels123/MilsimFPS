@@ -798,3 +798,10 @@ Dernière suite : 215/215.
 - Arbres : les 11 modèles Sketchfab (CC-BY) remplacent tous les anciens arbres et buissons : 3 feuillus, 3 conifères, morts et souche, 2 buissons ; InstancedMesh par espèce et par LOD (modèle d'origine, allégé, impostor 8 vues), culling, vent par shader, collision de tronc, couvert pour les bots. 16 920 arbres et 10 080 buissons. HTML 25,1 Mo (+4,9 Mo), chargement environ +2 s. Outils : tools/arbres_*.py.
 - Tests : 266/266.
 - À revoir : rendu en jeu des textures (bois, portes, asphalte plus clairs), forêt et feuillages assez sombres, feuillages en pointillés en LOD1, i/s en forêt à mesurer sur GPU réel, humus de forêt et sable non branchés.
+
+## v64 — mobilier intérieur et décor extérieur (modèles CC0/CC-BY)
+- **Mobilier intérieur** (`deco_int.js`, ~54 modèles) : chaque pièce des maisons, bunkers et immeubles de la ville reçoit ses meubles selon son type (chambre, cuisine, salon, atelier, poste, radio, armurerie, cantine, bureau…). Placement déterministe, hors portes, escaliers et fenêtres ; collisions, balles arrêtées avec matériau, passages IA vérifiés ; affichage à la demande en InstancedMesh.
+- **Décor extérieur** (`deco_ext.js`, 29 variantes) : buissons, haies, fougères, jeunes sapins, roseaux, rochers, falaises, clôtures de ferme, bottes de foin, tas de bois, mobilier de jardin, plaques d'égout, boîtiers, seaux, projecteurs. LOD, culling, vent par shader, collisions et navigation conservées.
+- Correctif : les arbres ne sont plus placés sur l'axe de la route hors ville (test « Convoi et végétation » intermittent).
+- Tests : 289 (15 « Décor extérieur », 8 « Mobilier v64 »). Crédits dans `CREDITS_ASSETS.md`.
+- Défauts connus : haies plates/saturées, buisson « Real Bush » ressemblant à des touffes d'herbe, jeune sapin trop clair, rochers/falaises sombres, falaises enterrées jusqu'à 4,6 m, seaux/projecteurs non posés aux bunkers, 3/39 étages sans lit, fps réels non mesurés sur GPU.

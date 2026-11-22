@@ -80,11 +80,12 @@ function cellEach(M,px,pz,R,f){const i0=Math.floor((px-R)/32),i1=Math.floor((px+
 window.cellEach=cellEach;
 const arbOkSpot=(x,z,m)=>okPos(x,z,m)&&!BRG.some(b=>Math.abs(x-b.x)<b.hw+2.6+m*.3&&Math.abs(z-b.z)<b.hl+3)&&!(typeof CT!=='undefined'&&x>CT.x0-6&&x<CT.x1+6&&z>CT.z0-6&&z<CT.z1+6);
 // forêt dense du sud-ouest (9500 arbres, clairières), puis semis général par bosquets (même densités qu'avant), puis buissons
+const arbRoad=(x,z)=>typeof CT!=='undefined'&&Math.abs(x-CT.ax)<5&&!(z<CT.z1+6&&z>CT.z0-6);
 function arbPlace(){let c=0,t=0;const FN=9500;
  while(c<FN&&t++<120000){const x=arbRg(FOR.x0,FOR.x1),z=arbRg(FOR.z0,FOR.z1),d=NZT(x*.05+11,z*.05+3);if(d<.17&&arbRR()<.85)continue;if(Math.max(Math.abs(x),Math.abs(z))>MH-9)continue;
-  if(!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4))continue;const sp=arbPick(x,z,true);if(sp>=9)continue;c++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.95,1.15)*(sp===8?.9:1)))}
+  if(!okPos(x,z,2.2)||wDist(x,z)<2.5|||nearPath(x,z,3.4)||arbRoad(x,z))continue;const sp=arbPick(x,z,true);if(sp>=9)continue;c++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.95,1.15)*(sp===8?.9:1)))}
  let g=0;t=0;const GN_=7270;
- while(g<GN_&&t++<120000){const x=arbRg(-MH+3,MH-3),z=arbRg(-MH+3,MH-3),d=NZT(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(arbRR()>p||nzSkip(x,z)||!arbOkSpot(x,z,2.2)||wDist(x,z)<2.5||wDep(x,z)>.02||nearPath(x,z,3.4)||(Math.abs(x)<9&&z>16))continue;
+ while(g<GN_&&t++<120000){const x=arbRg(-MH+3,MH-3),z=arbRg(-MH+3,MH-3),d=NZT(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(arbRR()>p||nzSkip(x,z)||!arbOkSpot(x,z,2.2)||wDist(x,z)<2.5||wDep(x,z)>.02||nearPath(x,z,3.4)||arbRoad(x,z)||(Math.abs(x)<9&&z>16))continue;
   const sp=arbPick(x,z,false);g++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.85,1.15)))}
  // buissons : forêt (4200, plus gros) puis général (5200)
  let b=0;t=0;const bp=(x,z,s,f)=>{const sp=9+(arbRR()<.5?1:0),q={x,z,y:GH(x,z)-.03,s,sp,ty:sp,r:arbRR()*6.283,h:.22+arbRR()*.08,sh:.7+arbRR()*.5,tn:arbRR(),tn2:arbRR(),k:0,hc:0};BU.push(q);arbCell(BUC,q);return q};
