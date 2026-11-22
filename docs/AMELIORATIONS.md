@@ -792,3 +792,9 @@ Dernière suite : 215/215.
 - Immersion : sons de plongeon, de nage et de clapotis, portée du bruit des pas selon la surface, traçantes dès la première image, rechargement accroupi, phares avec éblouissement la nuit.
 - Tests : correctif Mirador v59, doublon Mixamo supprimé, tests Explosion, fumigène, embuscade et missions rendus robustes. Suite : 247/247.
 - À revoir : grain du crépi trop fort, vert trop saturé à l'ombre, phares sur un vrai véhicule, hash de monde déterministe.
+
+## v63 (textures procédurales recalées sur photos, arbres Sketchfab)
+- Textures de bâtiments et de terrain : générateurs canvas recalés sur des photos ambientCG (CC0) analysées hors jeu (quantiles de couleur, spectre du grain, motifs : briques 22,5 x 7 cm, lames de 15 cm, tuiles, carrelage, asphalte, gravier, roche) ; aucune photo embarquée (HTML +10 Ko). Vert désaturé à l'ombre. Outil : tools/tex_photo_stats.py.
+- Arbres : les 11 modèles Sketchfab (CC-BY) remplacent tous les anciens arbres et buissons : 3 feuillus, 3 conifères, morts et souche, 2 buissons ; InstancedMesh par espèce et par LOD (modèle d'origine, allégé, impostor 8 vues), culling, vent par shader, collision de tronc, couvert pour les bots. 16 920 arbres et 10 080 buissons. HTML 25,1 Mo (+4,9 Mo), chargement environ +2 s. Outils : tools/arbres_*.py.
+- Tests : 266/266.
+- À revoir : rendu en jeu des textures (bois, portes, asphalte plus clairs), forêt et feuillages assez sombres, feuillages en pointillés en LOD1, i/s en forêt à mesurer sur GPU réel, humus de forêt et sable non branchés.
