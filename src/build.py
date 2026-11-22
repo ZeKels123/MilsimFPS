@@ -51,7 +51,7 @@ pr=pr+rd('nature.js')[rd('nature.js').index('// arbres'):]+rd('nature2.js')+rd('
 for a_,b_ in [("const N=110,rk=","const N=1000,rk="),("rnd(-29,29),z=rnd(-29,29);if(!okPos(x,z,.4))","rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.4)||nearPath(x,z,2))"),("while(n<7){const x=rnd(-26,26),z=rnd(-26,16)","while(n<56){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,16)"),("[[-33,-33],[33,-33],[-33,33],[33,33]]","[[-MH-3,-MH-3],[MH+3,-MH-3],[-MH-3,MH+3],[MH+3,MH+3]]"),("o.position.set(x,s*.35,z);","o.position.set(x,s*.35+GH(x,z),z);"),("p.position.set(x,.016,z);","p.position.set(x,.016+GH(x,z),z);")]:
     assert pr.count(a_)==1,a_; pr=pr.replace(a_,b_)
 rep("room(-25,-4,8,8,'E',-4);room(25,-4,8,8,'W',-4);room(-25,-14,8,6,'E',-14);room(25,-14,8,6,'W',-14);room(0,-24,10,6,'S',0);",
-    rd('bld_head.js')+rd('bld_house.js')+rd('bld_calls.js')+rd('models.js')+rd('models2.js')+rd('hyd_data.js')+rd('city.js')+rd('extra.js')+pr)
+    rd('deco_int_data.js')+rd('deco_int.js')+rd('bld_head.js')+rd('bld_house.js')+rd('bld_calls.js')+rd('models.js')+rd('models2.js')+rd('hyd_data.js')+rd('city.js')+rd('extra.js')+pr)
 # 4. explosions
 a=s.index("function boom(x,z,r){");b=s.index("function startAC()")
 s=s[:a]+s[b:]
@@ -81,7 +81,7 @@ rep("RC.set(V,W);RC.far=60;const h=RC.intersectObjects([...ray,...botParts])[0];
 # 8. fx
 rep("const handR=mkHand(true),handL=mkHand(false);",rd('hand_data.js')+rd('hands3.js')+"const handR=mkHand(true),handL=mkHand(false);")
 rep("// ---- Bots\n",rd('cityroad.js')+rd('merge.js')+rd('fx.js')+rd('weather.js')+rd('levels.js')+rd('audio3d.js')+rd('health.js')+rd('inventory.js')+rd('traps.js')+rd('trip.js')+rd('effort.js')+rd('weapon.js')+rd('destruct.js')+rd('night.js')+rd('survie.js')+rd('drive.js')+rd('phares.js')+rd('barrels.js')+rd('vehicles.js')+rd('melee.js')+rd('ai.js')+rd('bots_vie.js')+rd('stream.js')+rd('squad.js')+rd('orders.js')+rd('tactic.js')+rd('percep.js')+rd('blessures.js')+rd('monde.js')+rd('etabli.js')+rd('perf.js')+rd('anims.js')+rd('finitions.js')+rd('realisme.js')+rd('hitbox.js')+rd('blesses.js')+rd('armes2.js')+rd('visee.js')+rd('ballistics.js')+rd('flash_data.js')+rd('nadeview.js')+rd('nades.js')+rd('three_post.js')+rd('post.js')+rd('menu.js')+rd('persist.js')+rd('mort.js')+rd('props3d_data.js')+rd('props3d.js')+rd('selftest.js')+"// ---- Bots\n")
-rep("sqTick(dt);AI.budget=2;","sqTick(dt);bvTick(dt);AI.budget=2;")
+rep("sqTick(dt);AI.budget=2;","sqTick(dt);bvTick(dt);dcoFrame(dt);AI.budget=2;")
 rep("PR.render(PS,PC)}R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}")
 # 10. v4 : relief, vitres, portes, armes
 rep("acReady:false};","acReady:false,gy:0};")

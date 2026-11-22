@@ -174,7 +174,7 @@ table(-2.6,.9,2.4,1.1);F(-2.6,.9,.78,2.3,.012,1,mapM,{ns:1});colF(-2.6,.9,2.4,1.
 ,()=>{table(ci*.9,.7,1.4,.8);chair(ci*.9,1.45,1);chair(ci*.9,-.05,-1);rug(ci*.9,.7,2.4,1.8);F(ci*(hu-.3),1.9,.9,.4,1.8,1.2,furnM,{c:1,s:1,fit:1.2});
 YO=FT;F(ci*(hu-.55),-hf+1.1,.18,1,.36,2,beamM,{c:1,s:1,fit:1.2});F(ci*(hu-.55),-hf+1.1,.44,.92,.16,1.9,clothM);F(ci*(hu-.55),-hf+.4,.56,.6,.1,.35,C_(0xffffff,{roughness:1}));
 table(ci*.5,1.5,1.3,.75);chair(ci*.5,2.2,1);crate(ci*1.7,2.2,.7);crate(0,vB+1.0-OV,.9);crate(.9,vB+1.0-OV,.6);crate(-.8,vB+.9-OV,.7);crate(ci*.2,-1.8,.6);YO=0}
-][o.up?4:(o.fl!==undefined?o.fl:lay)]();
+][DCO_ON?-1:o.up?4:(o.fl!==undefined?o.fl:lay)]?.();
 // pièce arrière (u latéral, v<0 vers le fond ; hb = demi-profondeur)
 [
 // 0 — salle de bain
@@ -203,7 +203,9 @@ cylF(-hu+.45,-hb+1.2-BO,.5,.3,1,C_(0x30506a,{roughness:.5,metalness:.5}),1);cylF
 F2(hu-1.4,-hb+.35,.5,.5,1,.5,stM,{c:1,s:1});F2(hu-1.4,-hb+.35,1.05,.3,.1,.3,whM);F2(.4,-hb+.5,.55,.03,1.1,.03,stM);F2(.4,-hb+.5,1.12,.4,.02,.02,stM)},
 // 7 — réserve 2
 ()=>{shelf(hu-1.3,-hb+.25,2.4,F2);shelf(-hu+1.3,-hb+.25,2.4,F2);[0,1,2].forEach(k=>F2(-.5+k*.6,-hb+.4,.25,.55,.5,.55,sackM,{c:1,s:1}));cylF(-hu+.45,-hb+1.2-BO,.5,.3,1,C_(0x4a5a3a,{roughness:.5,metalness:.5}),1);crate(hu-.5,-hb+1.2,.6,F2)}
-][o.bk!==undefined?o.bk:bk]();
+][DCO_ON?-1:o.bk!==undefined?o.bk:bk]?.();
+// v64 : mobilier = modèles 3D instanciés (deco_int.js) ; remplace les meubles procéduraux ci-dessus
+DCO.house({cx,cz,ux,uz,fx,fz,fcx,fcz,bcx,bcz,hu,hf,hb,du:UDU,lay:o.fl!==undefined?o.fl:lay,bk:o.bk!==undefined?o.bk:bk,up:o.up,bun,H,si,FT,vB,vT});
 // plafonniers
 const lampAt=(X,Z)=>{const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),lampM);l.position.set(X,H-.6,Z);S.add(l);
 if(bun){const sh=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.2,8,1,true),darkM);sh.position.set(X,H-.6,Z);S.add(sh)}else{const sh=new THREE.Mesh(new THREE.ConeGeometry(.24,.2,14,1,true),std(st.s,{roughness:.8,side:THREE.DoubleSide}));sh.position.set(X,H-.52,Z);S.add(sh)}

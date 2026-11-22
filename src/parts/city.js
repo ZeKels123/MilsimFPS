@@ -84,7 +84,8 @@ if(!open)for(let i=1;i<n;i++){const up=t+i*bw;if(g0&&lob&&up>la+.1&&up<lb-.1)con
 ST(t+3.8,-.75,t+1.4,-.75,1.4,yb,yb+FH/2);B(t,t+1.4,-cw+.1,cw-.1,yb+FH/2-.15,yb+FH/2,stM,{s:1});SF(t,t+1.4,-cw,cw,yb+FH/2);ST(t+1.4,.75,t+3.8,.75,1.4,yb+FH/2,yb+FH);B(t+1.4,t+3.8,-.06,.06,yb,yb+FH,inM,{s:1,c:1});yield;
 // mobilier
 const F=(s,u,v,du,dv,h,y0,mat)=>B(u-du/2,u+du/2,s*(v-dv/2),s*(v+dv/2),yb+y0,yb+y0+h,mat,{s:1,c:1}),vm=(cw+Hv-t)/2,vf=Hv-t;
-if(open&&ty==='off'){for(let u=t+SL+2.5;u<Lu-t-1.5;u+=4)[-1,1].forEach(s=>{for(let v=2;v<vf-1.2;v+=3.4){if(rn()<.2)continue;F(s,u,v,1.6,.8,.75,0,wdM);if(rn()<.35)MD('chair',u,s*(v+.9),yb,rn()*6.28,.3,.9);else F(s,u,v+.9,.45,.45,.48,0,mtM)}})}
+if(DCO_ON){DCO.city({X,uw,cv,Hv,Lu,t,n,bw,cw,SL,k,yb,ty,open,com,g0,lob,fvs,la,lb,H:FH})}
+else if(open&&ty==='off'){for(let u=t+SL+2.5;u<Lu-t-1.5;u+=4)[-1,1].forEach(s=>{for(let v=2;v<vf-1.2;v+=3.4){if(rn()<.2)continue;F(s,u,v,1.6,.8,.75,0,wdM);if(rn()<.35)MD('chair',u,s*(v+.9),yb,rn()*6.28,.3,.9);else F(s,u,v+.9,.45,.45,.48,0,mtM)}})}
 else if(open&&ty==='shop'){for(let u=t+SL+2.5;u<Lu-t-1.5;u+=3){if(lob&&Math.abs(u-Lu/2)<2.4)continue;[-1,1].forEach(s=>{if(vf-cw-2.6>1)F(s,u,(cw+1+vf-1.6)/2,.55,vf-cw-2.6,1.9,0,wd2)})}F(1,t+SL+.9,cw+1.6,.7,2.2,1,0,wdM)}
 else if(open){for(let u=t+SL+2.5;u<Lu-t-1.8;u+=3.8){if(lob&&Math.abs(u-Lu/2)<2.2)continue;[-1,1].forEach(s=>{for(let v=cw+1.6;v<vf-1.3;v+=3.4){if(rn()<.15)continue;MD('table',u,s*v,yb,0,.7,.75);if(rn()<.5)MD('chair',u+1.1,s*v,yb,X?-1.57:0,.3,.9);else F(s,u+1.1,v,.42,.42,.46,0,clM[0]);F(s,u-1.1,v,.42,.42,.46,0,clM[0])}})}F(-1,t+SL+.9,cw+1.8,.7,2.6,1.1,0,wd2)}
 else for(let i=0;i<n;i++){const ua=t+i*bw+.35,ub=t+(i+1)*bw-.35,uc=(ua+ub)/2;if(g0&&lob&&uc>la&&uc<lb){if(ty==='hotel')F(-fvs,la+1,cw+2.2,.7,2.4,1.05,0,wdM);continue}

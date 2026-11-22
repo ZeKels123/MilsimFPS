@@ -91,3 +91,59 @@ Tous en licence CC Attribution (CC-BY 4.0), téléchargés au format glTF puis c
 Notes :
 - Fichiers d'origine : `arbres/<clé>_<auteur>_CCBY.glb` du dossier de téléchargement (non redistribués ; seuls le maillage et la texture convertis sont dans le jeu).
 - De la souche, seule la partie « souche » est gardée (le tronc couché, l'icosphère et les doublons du fichier sont retirés).
+
+## Mobilier intérieur (v64) : maisons, bunkers, commerces, appartements, bureaux
+
+| Modèle | Auteur | Licence | URL | Clé(s) |
+|---|---|---|---|---|
+| Wooden Bookcases with Books | Matthew Collings (mtcollings) | CC Attribution | https://sketchfab.com/3d-models/wooden-bookcases-with-books-d0618ac16b2a4a87b9b6c7d5e6765626 | bookcase |
+| Antique Wardrobe | matejbiskup97 | CC Attribution | https://sketchfab.com/3d-models/antique-wardrobe-9e194868da754d55afc876127dc8f74b | wardrobe |
+| Antique Dresser | Darren McNerney 3D (DarrenMcnerney3D) | CC Attribution | https://sketchfab.com/3d-models/antique-dresser-0a46621504c24197b5653608f474f73b | dresser |
+| Double Bed | Francesco Coldesina (topfrank2013) | CC Attribution | https://sketchfab.com/3d-models/double-bed-c505ffffc1524865ba63af837346f1f7 | bed_double |
+| Single Bed 2 | rhcreations | CC Attribution | https://sketchfab.com/3d-models/single-bed-2-81ada0e24e1647d8a0d6d0708a696f84 | bed_single |
+| Bunk Bed | neverfollow81 | CC Attribution | https://sketchfab.com/3d-models/bunk-bed-3ddab7a93381496eba3c36677e777912 | bunk |
+| Leather armchair/ Coffee table/ Floorlamp | YJ_ | CC Attribution | https://sketchfab.com/3d-models/leather-armchair-coffee-table-floorlamp-fcce92a09de84456a071ea6117b57cbc | armchair, coffee, lamp_floor |
+| Table and Chairs | Vilson Pistori (vilsonpistori) | CC Attribution | https://sketchfab.com/3d-models/table-and-chairs-2aee19db562b4b26a199a81e62760109 | table, chair |
+| Old Television | Nathan Sioui (NathanSioui) | CC Attribution | https://sketchfab.com/3d-models/old-television-86c2567eddd0460cb3127be05cc66450 | tv |
+| Fireplace Low-poly | MaX3Dd | CC Attribution | https://sketchfab.com/3d-models/fireplace-low-poly-d1473f5f384a411f979b99214de9f2a9 | fireplace |
+| Old wall clock | AndreiVNK | CC Attribution | https://sketchfab.com/3d-models/old-wall-clock-8e920e8b129842718099a3f772cec024 | clock |
+| Fancy Picture Frame | Jamie McFarlane (jamiemcfarlane) | CC Attribution | https://sketchfab.com/3d-models/fancy-picture-frame-b54984abe2394345a81621719bf8bf1a | frame |
+| Oil Lamp lowpoly | Vyacheslav_SD | CC Attribution | https://sketchfab.com/3d-models/oil-lamp-lowpoly-87aa46eb6d3242f699cb1b9fb3cfa4eb | oillamp |
+| Kitchen Counter | FordVFX | CC Attribution | https://sketchfab.com/3d-models/kitchen-counter-e46deaab889548948a31e4264de61e5a | counter |
+| Sideboard Kitchen | hate94neu | CC Attribution | https://sketchfab.com/3d-models/sideboard-kitchen-d4f7793695ec45cdb2a6b9327d9eb285 | sideboard |
+| An old refrigerator and a wooden crate | Eugen S. (eugen.storozhuk) | CC Attribution | https://sketchfab.com/3d-models/an-old-refrigerator-and-a-wooden-crate-9664f9f194ae4256a64ab168f74f8b9b | fridge, crate |
+| Bathtub with Shower | HippoStance (hippostance) | CC Attribution | https://sketchfab.com/3d-models/bathtub-with-shower-22e187363dd14bc3a3e1b4611830236a | bath |
+| Bathroom Sink - Low-Poly - Game-Ready | kEam (keam.wf) | CC Attribution | https://sketchfab.com/3d-models/bathroom-sink-low-poly-game-ready-45a6ab5e5a1a40b8913ab14314734ce8 | basin |
+| Dirty Toilet | Shedmon | CC Attribution | https://sketchfab.com/3d-models/dirty-toilet-389d5427a1f344c4aa4883ec5a6aaf05 | wc |
+| Fire Extinguisher | Loïc (loichuet1) | CC Attribution | https://sketchfab.com/3d-models/fire-extinguisher-5676b179b3b744c0aaae53a3dcea2300 | extinguisher |
+| Trash Can | Lyskilde (longtail) | CC Attribution | https://sketchfab.com/3d-models/trash-can-f61aeec14ff441abb0f6add5485a2e90 | bin, bin_g |
+| Old Style Military Radio | Dungar Singh Balecha (DungarSinghBalecha) | CC Attribution | https://sketchfab.com/3d-models/old-style-military-radio-d33869e8bec44de4b60d528712e6fc04 | radio |
+| Ladder | tasha.kosaykina | CC Attribution | https://sketchfab.com/3d-models/ladder-bb73bcf509f44588928d3d1019378e67 | ladder |
+| Wooden Bookshelf Worn | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/wooden_bookshelf_worn | bookcase2 |
+| Office Desk 140x60 | AleixoAlonso | CC Attribution | https://sketchfab.com/3d-models/office-desk-140x60-9262f311271c4c4390341e526d3fe103 | desk |
+| Metal Office Desk | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/metal_office_desk | desk_m |
+| Office Chair Modern | thethieme | CC Attribution | https://sketchfab.com/3d-models/office-chair-modern-675f34f7304e4d92812a41e9750539aa | ochair |
+| Old Table Lamp V01 | MAR.COS. (mar.cos.) | CC Attribution | https://sketchfab.com/3d-models/old-table-lamp-v01-cecd36db0c90422cbd81c2a0c3ace4f0 | desklamp |
+| Laptop | Aullwen | CC Attribution | https://sketchfab.com/3d-models/laptop-7d870e900889481395b4a575b9fa8c3e | laptop |
+| Standing Chalkboard 01 | ParzivalCG (Poly Haven) | CC0 | https://polyhaven.com/a/standing_chalkboard_01 | chalkboard |
+| Vintage Day Bed | Aron Łyczek (Poly Haven) | CC0 | https://polyhaven.com/a/vintage_day_bed | daybed |
+| Old Bedside Table | justincrazyeyes | CC Attribution | https://sketchfab.com/3d-models/old-bedside-table-62bcb265cfbb4be78107d04cc22b2628 | nightstand |
+| Cash Register 01 | Joe Seabuhr (Poly Haven) | CC0 | https://polyhaven.com/a/CashRegister_01 | register |
+| Wooden Display Shelves 01 | James Ray Cock (Poly Haven) | CC0 | https://polyhaven.com/a/wooden_display_shelves_01 | shopshelf |
+| Round Wooden Table 02 | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/round_wooden_table_02 | roundtable |
+| Metal Stool 02 | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/metal_stool_02 | stool |
+| Old Gas Stove and Oven | Glowbox 3D (glowbox3d) | CC Attribution | https://sketchfab.com/3d-models/old-gas-stove-and-oven-d98dd28d47424d7aaedfd33685af0427 | stove |
+| Cargo Crate | boysichterman | CC Attribution | https://sketchfab.com/3d-models/cargo-crate-19a32159a3d6443e95105f4f7cb51c39 | mcrate |
+| Rusty Industrial Wardrobe | Nikoleta.Zhecheva | CC Attribution | https://sketchfab.com/3d-models/rusty-industrial-wardrobe-4543aa4f542c46c3945c22568423cade | locker |
+| Workbench | JJ Chalupnik (jjchalupnik) | CC Attribution | https://sketchfab.com/3d-models/workbench-9634d6a81a494925a909512c8048f446 | workbench |
+| Metal Shelving Unit | jimbogies | CC Attribution | https://sketchfab.com/3d-models/metal-shelving-unit-4a669b8a8a1d4ea0b9ec41b97ad34353 | mshelf |
+| Steel Frame Shelves 01 | James Ray Cock (Poly Haven) | CC0 | https://polyhaven.com/a/steel_frame_shelves_01 | whshelf |
+| Medical Box | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/medical_box | medkit |
+| Worn Metal Rack | Luca B (Poly Haven) | CC0 | https://polyhaven.com/a/worn_metal_rack | rack |
+| Sofa 02 | Kirill Sannikov (Poly Haven) | CC0 | https://polyhaven.com/a/sofa_02 | sofa2 |
+| Low Poly Old Sofa with Bake Normal | Andante (AndanteOle) | CC Attribution | https://sketchfab.com/3d-models/low-poly-old-sofa-with-bake-normal-0dbc5483a7884e17bfc086886c676006 | sofa |
+| Old Radiator | thethieme | CC Attribution | https://sketchfab.com/3d-models/old-radiator-8a1a2e0263aa401591c1e87d824a79ef | radiator |
+| Wall Mirror | rickmaolly | CC Attribution | https://sketchfab.com/3d-models/wall-mirror-6177cc5abd5746a4b5ff6986b8b81edc | mirror |
+| Dining Table | Aron Łyczek (Poly Haven) | CC0 | https://polyhaven.com/a/dining_table | dtable |
+
+Notes : seuls le maillage et la texture convertis (WebP, 512–1024 px) sont dans le jeu ; fichiers d'origine non redistribués. Les modèles non utilisés par les agencements ne sont pas listés.

@@ -1,0 +1,545 @@
+{
+"bookcase": {
+"f": "bureau/bibliotheque_mtcollings_CCBY.glb",
+"sel": [
+"Victorian Bookcase Tall"
+],
+"sc": [
+"h",
+1.9
+],
+"cap": 5000,
+"ex": [
+"Small"
+]
+},
+"bookcase_s": {
+"f": "bureau/bibliotheque_mtcollings_CCBY.glb",
+"sel": [
+"Victorian Bookcase Small"
+],
+"sc": [
+"h",
+1.1
+],
+"cap": 3000
+},
+"wardrobe": {
+"f": "chambre/armoire_matejbiskup97_CCBY.glb",
+"sc": [
+"h",
+2.0
+],
+"cap": 5000,
+"drop": [
+"glass"
+],
+"yaw": -90
+},
+"dresser": {
+"f": "chambre/commode_darrenmcnerney3d_CCBY.glb",
+"sc": [
+"h",
+1.1
+],
+"cap": 5000,
+"yaw": -90
+},
+"bed_double": {
+"f": "chambre/litdouble_topfrank2013_CCBY.glb",
+"sc": [
+"L",
+2.05
+],
+"cap": 7000,
+"yaw": 90
+},
+"bed_single": {
+"f": "chambre/litsimple_rhcreations_CCBY.glb",
+"sc": [
+"L",
+2.0
+],
+"cap": 3600,
+"yaw": 180
+},
+"bunk": {
+"f": "chambre/litsuperposes_neverfollow81_CCBY.glb",
+"sc": [
+"L",
+2.0
+],
+"cap": 2000,
+"yaw": 90
+},
+"armchair": {
+"f": "salon/fauteuil_table_lampadaire_yj_CCBY.glb",
+"sel": [
+"ARMCHAIR"
+],
+"sc": [
+"k",
+1.0
+],
+"cap": 3000
+},
+"coffee": {
+"f": "salon/fauteuil_table_lampadaire_yj_CCBY.glb",
+"sel": [
+"COFFEETABLE"
+],
+"sc": [
+"k",
+1.0
+],
+"cap": 2000
+},
+"lamp_floor": {
+"f": "salon/fauteuil_table_lampadaire_yj_CCBY.glb",
+"sel": [
+"FLOORLAMP"
+],
+"sc": [
+"k",
+1.0
+],
+"cap": 3000
+},
+"table": {
+"f": "salon/tablechaises_vilsonpistori_CCBY.glb",
+"sel": [
+"Table_Table"
+],
+"sc": [
+"k",
+1.0
+],
+"cap": 2000
+},
+"chair": {
+"f": "salon/tablechaises_vilsonpistori_CCBY.glb",
+"sel": [
+"Chair_Chair"
+],
+"sc": [
+"k",
+1.0
+],
+"cap": 2000
+},
+"tv": {
+"f": "salon/television_nathansioui_CCBY.glb",
+"sc": [
+"L",
+0.55
+],
+"cap": 2000
+},
+"fireplace": {
+"f": "salon/cheminee_max3dd_CCBY.glb",
+"sc": [
+"L",
+1.3
+],
+"cap": 2000
+},
+"ceiling": {
+"f": "salon/plafonnier_heliona_CCBY.glb",
+"sc": [
+"L",
+0.5
+],
+"org": "top",
+"cap": 1500
+},
+"clock": {
+"f": "salon/horloge_andreivnk_CCBY.glb",
+"sc": [
+"h",
+0.6
+],
+"org": "wall",
+"cap": 1600
+},
+"frame": {
+"f": "salon/cadre_jamiemcfarlane_CCBY.glb",
+"sc": [
+"h",
+0.7
+],
+"org": "wall",
+"cap": 1200,
+"yaw": -90
+},
+"oillamp": {
+"f": "salon/lampetempete_vyacheslavsd_CCBY.glb",
+"sc": [
+"h",
+0.3
+],
+"cap": 1600
+},
+"counter": {
+"f": "cuisine/plandetravail_fordvfx_CCBY.glb",
+"sc": [
+"h",
+0.9
+],
+"cap": 3000,
+"yaw": -90
+},
+"sink": {
+"f": "cuisine/evier_hippostance_CCBY.glb",
+"sc": [
+"h",
+0.9
+],
+"cap": 5000
+},
+"sideboard": {
+"f": "cuisine/buffet_hate94neu_CCBY.glb",
+"sc": [
+"L",
+1.4
+],
+"cap": 1000
+},
+"fridge": {
+"f": "cuisine/refrigerateur_eugenstorozhuk_CCBY.glb",
+"sel": [
+"polySurface3_",
+"polySurface4_",
+"TubeMesh1",
+"pCylinder11",
+"pCylinder36",
+"polySurface11_",
+"polySurface12_"
+],
+"sc": [
+"h",
+1.75
+],
+"cap": 2000
+},
+"crate": {
+"f": "cuisine/refrigerateur_eugenstorozhuk_CCBY.glb",
+"sel": [
+"polySurface208",
+"polySurface209",
+"polySurface210",
+"polySurface212",
+"polySurface213"
+],
+"sc": [
+"L",
+0.6
+],
+"cap": 1800
+},
+"bath": {
+"f": "sdb/baignoire_hippostance_CCBY.glb",
+"sc": [
+"L",
+1.55
+],
+"cap": 6000,
+"yaw": -90
+},
+"basin": {
+"f": "sdb/lavabo_keamwf_CCBY.glb",
+"sc": [
+"h",
+0.85
+],
+"cap": 2800
+},
+"wc": {
+"f": "sdb/wc_shedmon_CCBY.glb",
+"sc": [
+"L",
+0.72
+],
+"cap": 3100,
+"yaw": 90
+},
+"extinguisher": {
+"f": "militaire/extincteur_loichuet1_CCBY.glb",
+"sc": [
+"h",
+0.55
+],
+"cap": 2800
+},
+"bin": {
+"f": "militaire/poubelle_longtail_CCBY.glb",
+"sel": [
+"Grey"
+],
+"sc": [
+"h",
+1.0
+],
+"cap": 1000
+},
+"bin_g": {
+"f": "militaire/poubelle_longtail_CCBY.glb",
+"sel": [
+"Green"
+],
+"sc": [
+"h",
+1.0
+],
+"cap": 1000
+},
+"radio": {
+"f": "militaire/radio_dungarsinghbalecha_CCBY.glb",
+"sc": [
+"L",
+0.85
+],
+"cap": 5000,
+"cut": 0.025,
+"yaw": -90
+},
+"ladder": {
+"f": "militaire/echelle_tashakosaykina_CCBY.glb",
+"sc": [
+"h",
+1.2
+],
+"cap": 2400,
+"yaw": -90
+},
+"bookcase2": {
+"f": "bureau/bibliotheque2_polyhaven_CC0.glb",
+"sc": [
+"h",
+2.0
+],
+"cap": 3500
+},
+"desk": {
+"f": "bureau/bureau_aleixoalonso_CCBY.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 3000
+},
+"desk_m": {
+"f": "bureau/bureaumetal_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 3000
+},
+"ochair": {
+"f": "bureau/chaisebureau_thethieme_CCBY.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 1300
+},
+"screen": {
+"f": "bureau/ecranprojection_polyhaven_CC0.glb",
+"sc": [
+"h",
+1.8
+],
+"cap": 2500
+},
+"desklamp": {
+"f": "bureau/lampe_marcos_CCBY.glb",
+"sc": [
+"h",
+0.33
+],
+"cap": 1200
+},
+"laptop": {
+"f": "bureau/ordinateurportable_aullwen_CCBY.glb",
+"sc": [
+"x",
+0.33
+],
+"cap": 1500
+},
+"chalkboard": {
+"f": "bureau/tableaunoir_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 1800
+},
+"daybed": {
+"f": "chambre/litdejour_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 2200
+},
+"nightstand": {
+"f": "chambre/tablechevet_justincrazyeyes_CCBY.glb",
+"sc": [
+"h",
+0.5
+],
+"cap": 600
+},
+"register": {
+"f": "commerce/caissenregistreuse_polyhaven_CC0.glb",
+"sc": [
+"L",
+0.42
+],
+"cap": 2500
+},
+"shopshelf": {
+"f": "commerce/etageresmagasin_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 2500,
+"yaw": 90
+},
+"roundtable": {
+"f": "commerce/tableronde_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 1800
+},
+"stool": {
+"f": "commerce/tabouret_polyhaven_CC0.glb",
+"sc": [
+"h",
+0.62
+],
+"cap": 1800
+},
+"stove": {
+"f": "cuisine/cuisiniere_glowbox3d_CCBY.glb",
+"sc": [
+"h",
+0.9
+],
+"cap": 3500
+},
+"mcrate": {
+"f": "militaire/caisse_boysichterman_CCBY.glb",
+"sc": [
+"L",
+1.0
+],
+"cap": 1500,
+"yaw": 90
+},
+"locker": {
+"f": "militaire/casiermetal_nikoletazhecheva_CCBY.glb",
+"sc": [
+"h",
+1.85
+],
+"cap": 1300,
+"yaw": 90
+},
+"workbench": {
+"f": "militaire/etabli_jjchalupnik_CCBY.glb",
+"sc": [
+"x",
+2.2
+],
+"cap": 3500
+},
+"mshelf": {
+"f": "militaire/etagere_metal_jimbogies_CCBY.glb",
+"sc": [
+"h",
+1.8
+],
+"cap": 3000
+},
+"whshelf": {
+"f": "militaire/etagereentrepot_polyhaven_CC0.glb",
+"sc": [
+"h",
+2.0
+],
+"cap": 2500
+},
+"medkit": {
+"f": "militaire/pharmacie_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"org": "wall",
+"cap": 1200
+},
+"rack": {
+"f": "militaire/rackmetal_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 2500
+},
+"sofa2": {
+"f": "salon/canape2_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 2700
+},
+"sofa": {
+"f": "salon/canape_andanteole_CCBY.glb",
+"sc": [
+"L",
+2.0
+],
+"cap": 3500
+},
+"radiator": {
+"f": "salon/radiateur_thethieme_CCBY.glb",
+"sc": [
+"k",
+1.0
+],
+"org": "wall",
+"cap": 2000
+},
+"mirror": {
+"f": "salon/miroir_rickmaolly_CCBY.glb",
+"sc": [
+"h",
+1.2
+],
+"org": "wall",
+"cap": 1600
+},
+"dtable": {
+"f": "salon/tablesalleamanger_polyhaven_CC0.glb",
+"sc": [
+"k",
+1.0
+],
+"cap": 1100
+},
+"fan": {
+"f": "salon/ventilateur_polyhaven_CC0.glb",
+"sc": [
+"L",
+1.0
+],
+"org": "top",
+"cap": 2500
+}
+}
