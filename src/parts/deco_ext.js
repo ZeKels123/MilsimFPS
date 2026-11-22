@@ -20,9 +20,11 @@ const DXG={v:{R:95,cap:[420,1400]},p:{R:125,cap:[260,700]},r:{R:275,cap:[400,150
 // ---------- textures et construction ----------
 const DXTX=[];function dxTex(i){if(DXTX[i])return DXTX[i];const im=new Image(),t=new THREE.Texture(im);t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(AN,4);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.generateMipmaps=true;t.minFilter=THREE.LinearMipmapLinearFilter;
  im.onload=()=>{t.needsUpdate=true;try{R.initTexture(t)}catch(e){}};im.src=DXD.T[i];return DXTX[i]=t}
+// v64b : calibrage luminosité (végétation trop claire/saturée, roches trop sombres)
+const DXADJ=(n,k)=>k==='rock'?1.5:n==='haie'?.62:n==='jsapin'?.74:k==='veg'?.8:1;
 function dxBuild(){let ntri=0;for(const n in DXD.M){const d=DXD.M[n],c=DXK[n];if(!c)continue;const T={n,d,c,g:c.g,L:[[],[]],m:[null,null],cnt:[0,0],cap:[0,0],total:0,r0s:c.r0*c.r0,r1s:c.r1*c.r1,two:!!d.l1};
  [0,1].forEach(L=>{const parts=L===0?d.l0:d.l1;if(!parts)return;parts.forEach(p=>{const g=arbGeo(p,d.q);ntri+=p.i/3*(L?0:1);const map=p.t>=0?dxTex(p.t):null,
-   mat=std(p.col?new THREE.Color(p.col[0],p.col[1],p.col[2]):0xffffff,{map,roughness:.95,envMapIntensity:.35,side:c.ds?THREE.DoubleSide:THREE.FrontSide});if(p.a)mat.alphaTest=.45;mat.color.multiplyScalar(d.br);
+   mat=std(p.col?new THREE.Color(p.col[0],p.col[1],p.col[2]):0xffffff,{map,roughness:.95,envMapIntensity:.35,side:c.ds?THREE.DoubleSide:THREE.FrontSide});if(p.a)mat.alphaTest=.45;mat.color.multiplyScalar(d.br*DXADJ(n,d.k));
    if(c.wk)arbWind(mat,c.wk,!!c.lf);const mesh=new THREE.InstancedMesh(g,mat,1);mesh.castShadow=!!c.sh&&L===0;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.visible=false;mesh.userData.dx=n;
    if(mesh.castShadow&&(c.wk||p.a))mesh.customDepthMaterial=arbDepth(p.a?map:null,c.wk||0,!!c.lf);S.add(mesh);T.L[L].push(mesh)})});
   DX.T[n]=T}DX.tri=ntri}

@@ -1522,7 +1522,7 @@ const arbOkSpot=(x,z,m)=>okPos(x,z,m)&&!BRG.some(b=>Math.abs(x-b.x)<b.hw+2.6+m*.
 const arbRoad=(x,z)=>typeof CT!=='undefined'&&Math.abs(x-CT.ax)<5&&!(z<CT.z1+6&&z>CT.z0-6);
 function arbPlace(){let c=0,t=0;const FN=9500;
  while(c<FN&&t++<120000){const x=arbRg(FOR.x0,FOR.x1),z=arbRg(FOR.z0,FOR.z1),d=NZT(x*.05+11,z*.05+3);if(d<.17&&arbRR()<.85)continue;if(Math.max(Math.abs(x),Math.abs(z))>MH-9)continue;
-  if(!okPos(x,z,2.2)||wDist(x,z)<2.5|||nearPath(x,z,3.4)||arbRoad(x,z))continue;const sp=arbPick(x,z,true);if(sp>=9)continue;c++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.95,1.15)*(sp===8?.9:1)))}
+  if(!okPos(x,z,2.2)||wDist(x,z)<2.5||nearPath(x,z,3.4)||arbRoad(x,z))continue;const sp=arbPick(x,z,true);if(sp>=9)continue;c++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.95,1.15)*(sp===8?.9:1)))}
  let g=0;t=0;const GN_=7270;
  while(g<GN_&&t++<120000){const x=arbRg(-MH+3,MH-3),z=arbRg(-MH+3,MH-3),d=NZT(x*.032+3,z*.032-5),p=d>.55?.5:.012;if(arbRR()>p||nzSkip(x,z)||!arbOkSpot(x,z,2.2)||wDist(x,z)<2.5||wDep(x,z)>.02||nearPath(x,z,3.4)||arbRoad(x,z)||(Math.abs(x)<9&&z>16))continue;
   const sp=arbPick(x,z,false);g++;arbAdd(arbMake(x,z,GH(x,z),sp,arbRg(.85,1.15)))}
@@ -1656,9 +1656,11 @@ const DXG={v:{R:95,cap:[420,1400]},p:{R:125,cap:[260,700]},r:{R:275,cap:[400,150
 // ---------- textures et construction ----------
 const DXTX=[];function dxTex(i){if(DXTX[i])return DXTX[i];const im=new Image(),t=new THREE.Texture(im);t.encoding=THREE.sRGBEncoding;t.anisotropy=Math.min(AN,4);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.generateMipmaps=true;t.minFilter=THREE.LinearMipmapLinearFilter;
  im.onload=()=>{t.needsUpdate=true;try{R.initTexture(t)}catch(e){}};im.src=DXD.T[i];return DXTX[i]=t}
+// v64b : calibrage luminosité (végétation trop claire/saturée, roches trop sombres)
+const DXADJ=(n,k)=>k==='rock'?1.5:n==='haie'?.62:n==='jsapin'?.74:k==='veg'?.8:1;
 function dxBuild(){let ntri=0;for(const n in DXD.M){const d=DXD.M[n],c=DXK[n];if(!c)continue;const T={n,d,c,g:c.g,L:[[],[]],m:[null,null],cnt:[0,0],cap:[0,0],total:0,r0s:c.r0*c.r0,r1s:c.r1*c.r1,two:!!d.l1};
  [0,1].forEach(L=>{const parts=L===0?d.l0:d.l1;if(!parts)return;parts.forEach(p=>{const g=arbGeo(p,d.q);ntri+=p.i/3*(L?0:1);const map=p.t>=0?dxTex(p.t):null,
-   mat=std(p.col?new THREE.Color(p.col[0],p.col[1],p.col[2]):0xffffff,{map,roughness:.95,envMapIntensity:.35,side:c.ds?THREE.DoubleSide:THREE.FrontSide});if(p.a)mat.alphaTest=.45;mat.color.multiplyScalar(d.br);
+   mat=std(p.col?new THREE.Color(p.col[0],p.col[1],p.col[2]):0xffffff,{map,roughness:.95,envMapIntensity:.35,side:c.ds?THREE.DoubleSide:THREE.FrontSide});if(p.a)mat.alphaTest=.45;mat.color.multiplyScalar(d.br*DXADJ(n,d.k));
    if(c.wk)arbWind(mat,c.wk,!!c.lf);const mesh=new THREE.InstancedMesh(g,mat,1);mesh.castShadow=!!c.sh&&L===0;mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.visible=false;mesh.userData.dx=n;
    if(mesh.castShadow&&(c.wk||p.a))mesh.customDepthMaterial=arbDepth(p.a?map:null,c.wk||0,!!c.lf);S.add(mesh);T.L[L].push(mesh)})});
   DX.T[n]=T}DX.tri=ntri}

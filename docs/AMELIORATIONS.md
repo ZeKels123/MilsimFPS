@@ -805,3 +805,4 @@ Dernière suite : 215/215.
 - Correctif : les arbres ne sont plus placés sur l'axe de la route hors ville (test « Convoi et végétation » intermittent).
 - Tests : 289 (15 « Décor extérieur », 8 « Mobilier v64 »). Crédits dans `CREDITS_ASSETS.md`.
 - Défauts connus : haies plates/saturées, buisson « Real Bush » ressemblant à des touffes d'herbe, jeune sapin trop clair, rochers/falaises sombres, falaises enterrées jusqu'à 4,6 m, seaux/projecteurs non posés aux bunkers, 3/39 étages sans lit, fps réels non mesurés sur GPU.
+- v64b : luminosité recalée (haies ×0,62, jeunes sapins ×0,74, autre végétation ×0,8, rochers/falaises ×1,5) ; le correctif « pas d'arbres sur la route » est désormais réellement compilé (erreur de syntaxe corrigée dans arbres.js).
