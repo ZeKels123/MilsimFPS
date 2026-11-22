@@ -228,6 +228,9 @@ rep("floor.geometry.dispose();floor.geometry=g}","floor.geometry.dispose();floor
 # v63 : arbres 3D instanciés (arbres.js + arbres_data.js) ; farm.js (champs, forêt) y est inséré après les définitions
 rep("//@ARBRES@",rd('arbres_data.js')+rd('arbres.js'))
 rep("//@FARM@",rd('farm.js'))
+# v64 : décor extérieur (végétation basse, rochers, falaises, clôtures, mobilier) : deco_ext.js + deco_ext_data.js, tests dans deco_ext_test.js
+rep("//@DECOEXT@",rd('deco_ext_data.js')+rd('deco_ext.js')+"{const t0=performance.now();DX.build();DX.place();DX.init();DX.tInit=performance.now()-t0}")
+rep("T('Rendu : le canvas n\u2019est pas vide'",rd('deco_ext_test.js')+"T('Rendu : le canvas n\u2019est pas vide'")
 # ---- menu : hooks de jeu
 rep("c.dmg*(A.supp?.9:1)","c.dmg*SKM.dmg*(A.supp?.9:1)",2)
 rep("...FA.hit.filter(q=>!q.userData.an.dead)])[0];if(h&&h.object.userData.glass)","...FA.hit.filter(q=>!q.userData.an.dead),...MQP])[0];if(h&&h.object.userData.glass)")
