@@ -26,6 +26,7 @@ const TR=[],BU=[];window.TRE=TR;
 //@ARBRES@
 //@FARM@
 {const t0=performance.now();ARB.build();ARB.place();ARB.init();ARB.tInit=performance.now()-t0}
+//@DECOEXT@
 // --- herbe : une réserve d'instances recentrée sur le joueur, cellules de 3 m calculées une fois puis mémorisées
 const GR={cell:new Map(),pend:[],cx:1e9,cz:1e9,R:46,max:0,q:1};
 function grassCell(i,j){const k=i*4099+j;let c=GR.cell.get(k);if(c)return c;const out=[],n=9+((hsh(i+5,j+9)*5)|0),F=window.GFLD,nzg=window.NZT;for(let q=0;q<n;q++){const x=(i+hsh(i*3+q,j*7+1))*3,z=(j+hsh(i*5+2,j*3+q))*3;if(Math.abs(x)>MH-.5||Math.abs(z)>MH-.5||!okPos(x,z,.3)||wDist(x,z)<.5||wDep(x,z)>.02||BRG.some(b=>Math.abs(x-b.x)<b.hw+1.6&&Math.abs(z-b.z)<b.hl+1.5)||nearPath(x,z,1.2))continue;
@@ -39,6 +40,6 @@ im.count=n;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceCol
 window.FOL={TR,BU,TRC:ARB.TRC,BUC:ARB.BUC};
 window.foliageUpdate=function(dt){const px=P.x,pz=P.z;last.t+=dt;
 if(GRASS){if(!GRASS.userData.max)GRASS.userData.max=GRASS.instanceMatrix.count;GR.q=window.GRQ||1;if(Math.hypot(px-GR.cx,pz-GR.cz)>4||GR.q!==GR.lq){GR.cx=px;GR.cz=pz;GR.lq=GR.q;grassFill()}}
-ARB.frame(dt)};
+ARB.frame(dt);if(window.DX&&DX.on)DX.frame(dt)};
 
 }

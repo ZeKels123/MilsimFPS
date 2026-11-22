@@ -42,6 +42,42 @@ Notes :
 - Le code procédural `tools/proc_props.py` est conservé comme secours mais n'est plus utilisé par l'export pour ces 13 clés.
 - Téléchargé, non utilisé : « destroyed tank » (kythulu, CC-BY) — en fait une cuve rouillée et non un char ; Panzer III (leoxx300, CC-BY) ; « Flag With Pole » (HPrendering, CC-BY) — drapeau couché.
 
+## v64 : végétation basse et décor extérieur (branche ext)
+Convertis par `tools/deco_ext_export.py` + `tools/deco_ext_pack.py` (mise à l'échelle en mètres, pied à y=0, sols/caméras/lumières retirés, décimation LOD0/LOD1, textures de couleur WebP 512 à 1024 px, collisions locales) puis placés par `src/parts/deco_ext.js`. Sketchfab : CC Attribution (CC-BY 4.0) ; Poly Haven : CC0.
+
+| Modèle | Auteur | Licence | Source | Usage dans le jeu |
+|---|---|---|---|---|
+| Real Bush | Marbles studio (marblesstudio) | CC Attribution | https://sketchfab.com/3d-models/real-bush-62618c3260b142cfb7ef499d75a8d21a | Buisson dense (5 variantes : petit, moyens, hauts) |
+| Lowpoly Flower Bushes | Varvara (krauchankavarvara) | CC Attribution | https://sketchfab.com/3d-models/lowpoly-flower-bushes-4b47abf072604a71aaf1bda30847a1af | Buisson fleuri |
+| Realistic Beech Fern Plant \| Games \| Film | 3D Environment Artist Shop (3d-artist-shop) | CC Attribution (d'après le nom du fichier téléchargé) | https://sketchfab.com/3d-models/realistic-beech-fern-plant-games-film-adf1e8832cf74a8a94c98792fa1d9088 | Fougère (fougere_a) |
+| Fern | evolveduk | CC Attribution | https://sketchfab.com/3d-models/fern-38531afd86434987b1a0bf5968fe001f | Fougère (fougere_b) |
+| Ferns Grass | Star3D (Star3DArt) | CC Attribution | https://sketchfab.com/3d-models/ferns-grass-45669699e1454dc0ae3d0eb40da0800f | Fougères basses (fougere_c) |
+| Square Hedge | RBG_illustrations | CC Attribution | https://sketchfab.com/3d-models/square-hedge-bd335c9bb20a4cdc8d41960ea3e9b106 | Haie (segments de 1,7 m) |
+| Tall grass | ironicalghosty | CC Attribution | https://sketchfab.com/3d-models/tall-grass-8a78295b56c64c16be6e2e4d7215dbfb | Hautes herbes (berges) |
+| Free lowpoly firtree | masakeyArt (masakeyart) | CC Attribution | https://sketchfab.com/3d-models/free-lowpoly-firtree-9b7a5f5917c645a0ba9cc7c6584caf4f | Jeune sapin (2 à 4 m) |
+| Reeds | SunsetScorpion (sunsetscorpion) | CC Attribution | https://sketchfab.com/3d-models/reeds-6106c101bbad46c39e79c745c741305e | Roseaux (roseau_a) |
+| Reeds low poly | daniel.2U | CC Attribution | https://sketchfab.com/3d-models/reeds-low-poly-a8923e7b4fd44c2c9ba7f006fb952626 | Roseaux (roseau_b) |
+| Cliff Low-Poly Game-ready | kEam (keam.wf) | CC Attribution | https://sketchfab.com/3d-models/cliff-low-poly-game-ready-918dc8e1b1f0443993a251c1302510bf | Falaise |
+| Old Mossy Fence [Rework] | MrUnity (MrUnityCreations) | CC Attribution | https://sketchfab.com/3d-models/old-mossy-fence-rework-55311bac329b47e1af0602169d13c577 | Clôture de ferme (sections de 2,6 m) |
+| Boulder | Luka Petkovic (lukica) | CC Attribution | https://sketchfab.com/3d-models/boulder-640b7dde18404a36807acacf96d59200 | Rocher 1 |
+| Medium sized Rock for Game Engines | ChrisRE | CC Attribution | https://sketchfab.com/3d-models/medium-sized-rock-for-game-engines-54cef4772d2a442680d5f18dcb2f93e7 | Rocher 2 |
+| A Common Rock #1 Low Poly Mesh | M.Reslan (mreslan) | CC Attribution | https://sketchfab.com/3d-models/a-common-rock-1-low-poly-mesh-7e27efebb49c46c2b8702977299fef07 | Rocher 3 |
+| Hay Bale | ThomasWhalley | CC Attribution | https://sketchfab.com/3d-models/hay-bale-16f3d0337ad54e92b186d8a6e8494699 | Botte de foin |
+| Firewood Pile (game ready asset) | Aparicio Silva 3D (apariciosilva3D) | CC Attribution | https://sketchfab.com/3d-models/firewood-pile-game-ready-asset-393e8b83dfdc455fa4f03dbd4f116e0c | Tas de bois |
+| Outdoor Table Chair Set 01 | James Ray Cock (Poly Haven) | CC0 | https://polyhaven.com/a/outdoor_table_chair_set_01 | Table de jardin avec chaises |
+| Painted Wooden Bench | Kirill Sannikov (Poly Haven) | CC0 | https://polyhaven.com/a/painted_wooden_bench | Banc |
+| Utility Box 01 | James Ray Cock (Poly Haven) | CC0 | https://polyhaven.com/a/utility_box_01 | Boîtier électrique (ville) |
+| Wooden Picnic Table | Ulan Cabanilla (Poly Haven) | CC0 | https://polyhaven.com/a/wooden_picnic_table | Table de pique-nique |
+| Stone Fire Pit | Sebastian Platen (Poly Haven) | CC0 | https://polyhaven.com/a/stone_fire_pit | Foyer en pierre |
+| Water Manhole Cover | Raunox (Poly Haven) | CC0 | https://polyhaven.com/a/water_manhole_cover | Plaque d'égout (ville) |
+| Wooden Bucket 01 | James Ray Cock (Poly Haven) | CC0 | https://polyhaven.com/a/wooden_bucket_01 | Seau en bois |
+| Security Light | Maximilian Schuster (Poly Haven) | CC0 | https://polyhaven.com/a/security_light | Projecteur sur poteau |
+
+Notes :
+- Les modèles Poly Haven (CC0) ne demandent pas de mention ; ils sont listés par courtoisie (Painted Wooden Bench, Outdoor Table Chair Set 01, Utility Box 01, Wooden Picnic Table, Stone Fire Pit, Water Manhole Cover, Wooden Bucket 01, Security Light).
+- Real Bush (Marbles studio) : texture 4096 px réduite à 1024 px ; ses cinq maillages (touffes d'herbes et d'arbustes bas) sont utilisés comme cinq variantes.
+- Déjà dans le jeu, non répétés ici : barbed wire, concrete jersey barrier, military sandbag barrier, tent, watchtower (sections précédentes).
+
 ## Photos de référence des textures procédurales de bâtiments (v62, branche tex4)
 
 Ces photos PBR ne sont PAS embarquées dans le jeu : elles ont servi hors jeu à mesurer palette, histogramme, spectre du grain et pente de relief (`tools/tex_photo_stats.py`). Le jeu ne contient que de petites tables de quantiles de couleur (`PHL`, 19 nœuds RGB par matériau) et des amplitudes spectrales (`SPA`), puis synthétise ses textures en code (`src/parts/tex.js`). Cartes utilisées : Color, NormalGL (1K-JPG).
