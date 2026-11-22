@@ -23,9 +23,6 @@ BARS.forEach(a=>{const x=a[0],z=a[1],cp=std(a[2],{roughness:.5,metalness:.5}),b=
 const N=110,rk=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1,0),std(0x8a877c,{roughness:.95,flatShading:true}),N);let n=0;
 while(n<N){const x=rnd(-29,29),z=rnd(-29,29);if(!okPos(x,z,.4))continue;const s=rnd(.07,.28);o.position.set(x,s*.35,z);o.rotation.set(rnd(0,3),rnd(0,3),rnd(0,3));o.scale.set(s*rnd(.9,1.5),s*rnd(.5,.8),s*rnd(.9,1.4));o.updateMatrix();rk.setMatrixAt(n,o.matrix);col.setScalar(rnd(.55,1.05));rk.setColorAt(n,col);n++}
 rk.castShadow=rk.receiveShadow=true;S.add(rk);
-const NB=46,bs=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),std(0xffffff,{roughness:1,flatShading:true,envMapIntensity:.4}),NB);n=0;
-while(n<NB){let x=rnd(-28.2,28.2),z=rnd(-28.2,28.2);if(n%2){if(Math.random()<.5)x=Math.sign(x)*rnd(27.2,28.5);else z=Math.sign(z)*rnd(27.2,28.5)}if(!okPos(x,z,.8))continue;const s=rnd(.45,.95);o.position.set(x,s*.38,z);o.rotation.set(0,rnd(0,6),0);o.scale.set(s,s*rnd(.55,.8),s*rnd(.9,1.2));o.updateMatrix();bs.setMatrixAt(n,o.matrix);col.setHSL(rnd(.22,.3),rnd(.3,.45),rnd(.14,.24));bs.setColorAt(n,col);n++}
-bs.castShadow=bs.receiveShadow=true;S.add(bs);
 const pm=std(0x2a3238,{roughness:.04,metalness:.15,envMapIntensity:1.8,transparent:true,opacity:.88,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});n=0;
 while(n<7){const x=rnd(-26,26),z=rnd(-26,16),r=rnd(.8,1.8);if(!okPos(x,z,r+.3))continue;const p=new THREE.Mesh(new THREE.CircleGeometry(r,24),pm);p.rotation.x=-Math.PI/2;p.scale.y=rnd(.6,1);p.position.set(x,.016,z);p.rotation.z=rnd(0,3);S.add(p);n++}}
 // ================= HERBE (v62) : vraies lames fines (triangles à pointe penchée, sans carte alpha donc sans bord dentelé), couleur pied/pointe =================
@@ -41,11 +38,5 @@ gm.onBeforeCompile=sh=>{ob(sh);sh.fragmentShader=sh.fragmentShader.replace('#inc
 const im=new THREE.InstancedMesh(g,gm,N);im.setColorAt(0,new THREE.Color(1,1,1));im.count=0;im.frustumCulled=false;
 im.receiveShadow=true;S.add(im)}
 // ================= FORÊT, POTEAUX D'ÉCLAIRAGE =================
-{const N=150,mt=std(0xffffff,{roughness:1,envMapIntensity:.5}),tr=new THREE.InstancedMesh(new THREE.CylinderGeometry(.22,.4,3.2,6),std(0x4a3a2a,{roughness:1}),N),c1=new THREE.InstancedMesh(new THREE.ConeGeometry(2.1,6.5,8),mt,N),c2=new THREE.InstancedMesh(new THREE.ConeGeometry(1.5,4.5,8),mt,N),o=new THREE.Object3D(),col=new THREE.Color();
-for(let i=0;i<N;i++){const a=rnd(0,6.283),r=rnd(48,105),x=Math.cos(a)*r,z=Math.sin(a)*r,h=terrainH(x,z),s=rnd(.8,1.7);
-o.rotation.y=rnd(0,6);o.scale.setScalar(s);o.position.set(x,h+1.6*s,z);o.updateMatrix();tr.setMatrixAt(i,o.matrix);
-o.position.set(x,h+5.65*s,z);o.updateMatrix();c1.setMatrixAt(i,o.matrix);o.position.set(x,h+8.05*s,z);o.updateMatrix();c2.setMatrixAt(i,o.matrix);
-col.setHSL(.3+rnd(-.03,.03),.35,rnd(.14,.24));c1.setColorAt(i,col);c2.setColorAt(i,col)}
-S.add(tr,c1,c2);
-const pm=std(0x55595a,{roughness:.6,metalness:.5}),hm=new THREE.MeshBasicMaterial({color:0xfff0c8,toneMapped:false});
+{const pm=std(0x55595a,{roughness:.6,metalness:.5}),hm=new THREE.MeshBasicMaterial({color:0xfff0c8,toneMapped:false});
 [[-33,-33],[33,-33],[-33,33],[33,33]].forEach(a=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.1,.16,11,8),pm);p.position.set(a[0],5.5,a[1]);p.castShadow=true;S.add(p);const h=new THREE.Mesh(new THREE.BoxGeometry(1.2,.2,.5),hm);h.position.set(a[0],11,a[1]);S.add(h)})}

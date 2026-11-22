@@ -71,3 +71,23 @@ Mêmes principes (CC0, non embarquées, tables de quantiles `PHL.grass/dirt/asph
 | Asphalt031 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Asphalt031 | chaussées (ville, route nord-sud) |
 | Gravel041 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Gravel041 | cailloux de la terre, accotements |
 | Ground054, Ground080, Rock030, ScatteredLeaves009, Ground037, Grass007 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Ground054 (idem autres ids) | téléchargées et analysées ; non appliquées (boue du relief déjà à la couleur de Ground054) |
+## v63 : arbres, souche et buissons Sketchfab (remplacent les arbres et buissons procéduraux)
+Tous en licence CC Attribution (CC-BY 4.0), téléchargés au format glTF puis convertis par `tools/arbres_export.py` (mise à l'échelle en mètres, origine au pied du tronc, LOD1 décimé, textures réduites en WebP), `tools/arbres_bb.py` (impostors 8 vues rendus hors jeu) et `tools/arbres_pack.py` (données embarquées `src/parts/arbres_data.js`). Mention d'auteur : ce tableau.
+
+| Modèle | Auteur | Licence | Source | Clé dans le jeu |
+|---|---|---|---|---|
+| Oak tree (chêne) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/oak-tree-6468dd4d3eb240ef902b9057d9913606 | chene |
+| Oak tree (chêne) | massive-graphisme | CC Attribution | https://sketchfab.com/3d-models/oak-tree-3dc59560f2d24345bdbe65c44636453b | chene2 |
+| Beech tree (hêtre) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/beech-tree-0983d8933531491f9be71c669e8a907b | hetre |
+| Spruce (épicéa) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/spruce-a50a5df3164246a5af97992cec33a143 | epicea |
+| Pine Tree (pin) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/pine-tree-d45218a3fab349e5b1de040f29e7b6f9 | pin |
+| Fir tree (sapin) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/fir-tree-3f39aa5485e94477a36b435f7a1a8b54 | sapin |
+| Old tree (arbre mort) | evolveduk | CC Attribution | https://sketchfab.com/3d-models/old-tree-3cb4d59eb4844dc4802480e9ee53785e | mort |
+| Low Poly: Dead Tree | ClintonAbbott.Art | CC Attribution | https://sketchfab.com/3d-models/low-poly-dead-tree-addc2aef9e534a93a8798320fea440ef | mort2 |
+| Low Poly Tree Log And Stump (souche) | BitGem | CC Attribution | https://sketchfab.com/3d-models/low-poly-tree-log-and-stump-ae1ef76afe00492daa6f8d618e9680f0 | souche |
+| Stylized Bush (buisson) | Daniel (danielpetrov) | CC Attribution | https://sketchfab.com/3d-models/stylized-bush-9d9ce79d3ae040619e96d5b22c7de1a6 | buisson |
+| Plant Bush (buisson) | Batuhan13 | CC Attribution | https://sketchfab.com/3d-models/plant-bush-42cb7fad10ba44ecbc9ae9cf5fdd63b6 | buisson2 |
+
+Notes :
+- Fichiers d'origine : `arbres/<clé>_<auteur>_CCBY.glb` du dossier de téléchargement (non redistribués ; seuls le maillage et la texture convertis sont dans le jeu).
+- De la souche, seule la partie « souche » est gardée (le tronc couché, l'icosphère et les doublons du fichier sont retirés).
