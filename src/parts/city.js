@@ -52,7 +52,7 @@ function slab(yT,X0,X1,Z0,Z1,hole,mat){const P=(a,b,c,d)=>{if(b-a<.05||d-c<.05)r
 if(!hole){P(X0,X1,Z0,Z1);return}const h=hole;P(X0,h.x0,Z0,Z1);P(h.x1,X1,Z0,Z1);P(h.x0,h.x1,Z0,h.z0);P(h.x0,h.x1,h.z1,Z1)}
 // ---- bâtiment (v14) : couloir central, pièces cloisonnées, cage d'escalier fermée jusqu'au toit, tous les étages accessibles
 function*bld(cx,cz,w,d,fl,ty,face){const x0=cx-w/2,x1=cx+w/2,z0=cz-d/2,z1=cz+d/2,H=fl*FH,X=w>=d,Lu=X?w:d,Hv=(X?d:w)/2,cv=X?cz:cx,U0=X?x0:z0,U1=X?x1:z1;
-const pc_=PAL[ty][(rn()*PAL[ty].length)|0],hk=hsh(Math.round(cx),Math.round(cz)),bk_=ty==='shop'||(ty==='resto'&&hk<.4)||(ty==='apt'&&hk<.2),m=bk_?pm(T_brick,bjit(BKTN[(hk*97|0)%BKTN.length],cx,cz),{roughness:.9}):pm(ty==='off'?T_conc:(ty==='hotel'||hk<.5)?T_plas:T_plas2,bjit(pc_,cx,cz),{roughness:.95});m.userData.T=bk_?2.4:3;
+const pc_=PAL[ty][(rn()*PAL[ty].length)|0],hk=hsh(Math.round(cx),Math.round(cz)),bk_=ty==='shop'||(ty==='resto'&&hk<.4)||(ty==='apt'&&hk<.2),m=bk_?pm(T_brick,bjit(BKTN[(hk*97|0)%BKTN.length],cx,cz),{roughness:.9}):pm(ty==='off'?T_conc:(ty==='hotel'||hk<.5)?T_plas:T_plas2,bjit(pc_,cx,cz),{roughness:.95});m.userData.T=bk_?2.25:3;
 const shM=ty==='apt'?SHC[(rn()*4)|0]:null,com=ty==='shop'||ty==='resto',res=ty==='apt'||ty==='hotel';
 const fu=X?(face==='W'?0:face==='E'?1:-1):(face==='N'?0:face==='S'?1:-1),fvs=X?(face==='N'?-1:face==='S'?1:0):(face==='W'?-1:face==='E'?1:0),se=fu===0?1:0,ou=se?-1:1;
 const uw=u=>se?U1-u:U0+u;

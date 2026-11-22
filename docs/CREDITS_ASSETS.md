@@ -41,3 +41,21 @@ Tous en licence CC Attribution (CC-BY 4.0), téléchargés au format glTF (textu
 Notes :
 - Le code procédural `tools/proc_props.py` est conservé comme secours mais n'est plus utilisé par l'export pour ces 13 clés.
 - Téléchargé, non utilisé : « destroyed tank » (kythulu, CC-BY) — en fait une cuve rouillée et non un char ; Panzer III (leoxx300, CC-BY) ; « Flag With Pole » (HPrendering, CC-BY) — drapeau couché.
+
+## Photos de référence des textures procédurales de bâtiments (v62, branche tex4)
+
+Ces photos PBR ne sont PAS embarquées dans le jeu : elles ont servi hors jeu à mesurer palette, histogramme, spectre du grain et pente de relief (`tools/tex_photo_stats.py`). Le jeu ne contient que de petites tables de quantiles de couleur (`PHL`, 19 nœuds RGB par matériau) et des amplitudes spectrales (`SPA`), puis synthétise ses textures en code (`src/parts/tex.js`). Cartes utilisées : Color, NormalGL (1K-JPG).
+
+| Texture ambientCG | Auteur | Licence | URL | Générateur calé |
+|---|---|---|---|---|
+| Plaster003 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Plaster003 | `T_plas` (crépi grossier) |
+| Plaster001 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Plaster001 | `T_plas2`, `T_ceil` (enduit lisse, plafond) |
+| Bricks097 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Bricks097 | `T_brick` (brique) |
+| Bricks108A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Bricks108A | `T_stone` (moellons) |
+| Concrete034 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Concrete034 | `T_slab` (dalles, trottoirs) + pente de `T_conc` |
+| CorrugatedSteel005 (carte Color : béton brut banché gris) | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=CorrugatedSteel005 | `T_conc` (couleur et spectre) |
+| Tiles141 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Tiles141 | `T_tile` (carrelage) |
+| WoodFloor064 | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=WoodFloor064 | `T_floor` (parquet) |
+| Planks037A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Planks037A | `T_wood` (planches, poutres, mobilier) |
+| Planks023A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=Planks023A | `T_door` (portes) |
+| RoofingTiles014A | ambientCG (Lennart Demes) | CC0 1.0 | https://ambientcg.com/view?id=RoofingTiles014A | `T_roof` (tuiles) |

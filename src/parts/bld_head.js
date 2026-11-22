@@ -21,7 +21,7 @@ rl=new THREE.Mesh(new THREE.BoxGeometry(ax?L+.2:.06,.06,ax?.06:L+.2),steelM);rl.
 return surfRamp(xa,za,xb,zb,w,ya,yb,o.sf)}
 
 const HS=[],ROOMS=[],GLASS=[],BROKEN=[],HSTY=[{w:0xf4ecda,s:0x3f6a4a},{w:0xecd9b4,s:0x8a3a2c},{w:0xe2e8ea,s:0x34506e},{w:0xf2e3c6,s:0x6a4a2c}];
-const stoneM=pm(T_stone,0xffffff,{roughness:.95}),floorM=pm(T_floor,0xc9a070,{roughness:.55}),beamM=pm(T_wood,0x6a4a2c,{roughness:.8}),furnM=pm(T_wood,0xb98a58,{roughness:.65}),
+const stoneM=pm(T_stone,0xffffff,{roughness:.95}),floorM=pm(T_floor,0xf2e6d4,{roughness:.55}),beamM=pm(T_wood,0x6a4a2c,{roughness:.8}),furnM=pm(T_wood,0xb98a58,{roughness:.65}),
 tileM=pm(T_roof,0xffffff,{roughness:.85}),ceilM=pm(T_ceil,0xeee8da,{roughness:.95}),frameM=pm(T_paint,0xf4f1e8,{roughness:.6}),darkM=std(0x1e1c1a,{roughness:.6,metalness:.4}),clothM=std(0xece8de,{roughness:1}),
 glassM=std(0xa8cad8,{roughness:.05,metalness:.2,transparent:true,opacity:.2,envMapIntensity:2.2,depthWrite:false,side:THREE.DoubleSide}),lampM=new THREE.MeshBasicMaterial({color:0xffe9b8,toneMapped:false});
 const rugT=(()=>{const c=document.createElement('canvas');c.width=128;c.height=96;const x=c.getContext('2d');x.fillStyle='#7a2a24';x.fillRect(0,0,128,96);x.strokeStyle='#d8c08a';x.lineWidth=3;x.strokeRect(6,6,116,84);x.strokeStyle='#2c3a52';x.lineWidth=2;x.strokeRect(12,12,104,72);

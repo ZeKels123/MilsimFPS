@@ -1,12 +1,12 @@
 // ---------- moteur de bâtiment : 2 pièces, cloison + porte intérieure, vitres cassables ----------
 // variété par bâtiment (déterministe, sans toucher au hasard de la carte) : type de mur et léger écart de teinte
-const BKTN=[0xf4e8de,0xe6d0c0,0xd8bfa8,0xf0dac6,0xcfb8a6],wallKind=(x,z)=>{const h=hsh(Math.round(x*3),Math.round(z*7)+5);return h<.24?1:h<.55?2:0};
+const BKTN=[0xfaf5f0,0xf2e8df,0xeadfd2,0xf8eee4,0xf0e5d9],wallKind=(x,z)=>{const h=hsh(Math.round(x*3),Math.round(z*7)+5);return h<.24?1:h<.55?2:0};
 function bjit(c,x,z){const k=.93+.12*hsh(Math.round(x*11)+1,Math.round(z*13)+2);return bright(c,k)}
 const FDU=[.2,-1.2,1.9,-2,0,-1.5,0,-1.2,3.2,4.5];
 function house(cxF,czF,W0,D0,side,st,lay,bk,o){o=o||{};const bun=!!o.bun,Dr=o.Dr||3.2,H=bun?3:2.8,t=bun?.42:.3,
 fz=side==='S'?1:side==='N'?-1:0,fx=side==='E'?1:side==='W'?-1:0,ux=fz,uz=-fx,dfx=fx!==0,
 W=W0+(fx?Dr:0),D=D0+(fz?Dr:0),cx=cxF-fx*Dr/2,cz=czF-fz*Dr/2,x0=cx-W/2,x1=cx+W/2,z0=cz-D/2,z1=cz+D/2,
-wk=bun?0:wallKind(cxF,czF),WT=wk===1?2.4:3,wm=bun?pm(T_conc,bjit(st.w,cxF,czF),{roughness:.95}):wk===1?pm(T_brick,bjit(BKTN[(hsh(cxF*5,czF*3)*BKTN.length)|0],cxF,czF),{roughness:.9}):pm(wk===2?T_plas2:T_plas,bjit(st.w,cxF,czF),{roughness:.95}),sm=pm(T_paint,st.s,{roughness:.7}),
+wk=bun?0:wallKind(cxF,czF),WT=wk===1?2.25:3,wm=bun?pm(T_conc,bjit(st.w,cxF,czF),{roughness:.95}):wk===1?pm(T_brick,bjit(BKTN[(hsh(cxF*5,czF*3)*BKTN.length)|0],cxF,czF),{roughness:.9}):pm(wk===2?T_plas2:T_plas,bjit(st.w,cxF,czF),{roughness:.95}),sm=pm(T_paint,st.s,{roughness:.7}),
 Df=dfx?W0:D0,Lt=dfx?D:W,hf=Df/2-t/2,hu=Lt/2-t/2,hb=Dr/2-t/2,OV=Dr/2,fd=dfx?fx:fz;
 const grp=(ax,f,c,out)=>{const g=new THREE.Group();g.position.set(ax==='x'?c:f,YO,ax==='x'?f:c);g.rotation.y=ax==='x'?(out>0?0:Math.PI):(out>0?Math.PI/2:-Math.PI/2);S.add(g);return g};
 const winD=(ax,f,o,out)=>{const g=grp(ax,f,o.c,out),w=o.w,h=o.y1-o.y0,yc=(o.y0+o.y1)/2,fm=bun?darkM:frameM;
