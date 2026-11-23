@@ -10,7 +10,7 @@ const wpxLoad=()=>Math.max(0,(typeof effK==='function'?effK():0));
 // saleté : poussière à plat ventre au sec, boue à plat ventre sous la pluie, chute violente ; chaque arme a la sienne
 {const j0=wpJamP;wpJamP=function(s){return Math.min(.35,j0(s)*(1+(s.dirt||0)*7))};
  const c0=wpCleanStart;wpCleanStart=function(){const s=wpS(WSEL);if(!s.jam&&s.wear<.03&&(s.dirt||0)>.03&&!WPN.cl&&!reloading&&!bench){const w=s.wear;s.wear=.031;c0();s.wear=w;return}c0()};
- const t0=wpTick;wpTick=function(dt){const cl=WPN.cl;t0(dt);if(cl>0&&WPN.cl===0&&WPN.msg==='Arme nettoyée')wpS(WSEL).dirt=0};
+ const t0=wpTick;wpTick=function(dt){const cl=WPN.cl,cw=WPN.clW;t0(dt);if(cl>0&&WPN.cl===0&&WPN.msg==='Arme nettoyée')wpS(cw===undefined?WSEL:cw).dirt=0};
  const h0=wpHud;wpHud=function(){const s=wpS(WSEL),h=h0();return(s.dirt||0)>.03?h.replace('</small>',' · saleté '+Math.round(s.dirt*100)+' %</small>'):h};
  const f0=hlFall;hlFall=function(v){f0(v);if(v>7)for(const i in WPS)WPS[i].dirt=Math.min(1,(WPS[i].dirt||0)+Math.min(.2,(v-7)*.03))}}
 function wpxTick(dt){if(P.gy===undefined||typeof WSEL==='undefined')return;WPX.t+=dt;

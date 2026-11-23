@@ -14,7 +14,7 @@ if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5){GQ.mode=o.gfx;SET.gfx=o.gfx}
 if(typeof o.tod==='number'&&isFinite(o.tod))TOD.t=((o.tod%24)+24)%24;
 if(Number.isInteger(o.wx)&&o.wx>=0&&o.wx<5)TOD.tgt=o.wx;
 if(Number.isInteger(o.md)&&o.md>=0&&o.md<100000&&typeof MOO!=='undefined')MOO.day=o.md;
-if(o.wm&&typeof o.wm==='object'&&typeof WMOD!=='undefined'){for(const i in o.wm){const m=o.wm[i];if(m&&[0,1,2].includes(m.b)&&[0,1,2].includes(m.s)&&[0,1,2].includes(m.m))WMOD[i]={b:m.b,s:m.s,m:m.m,l:[0,1,2].includes(m.l)?m.l:0}}}
+if(o.wm&&typeof o.wm==='object'&&typeof WMOD!=='undefined'){for(const i in o.wm){if(i==='__proto__'||i==='constructor'||i==='prototype'||!/^[0-9]{1,2}$/.test(i)||+i>=WC.length)continue;const m=o.wm[i];if(m&&[0,1,2].includes(m.b)&&[0,1,2].includes(m.s)&&[0,1,2].includes(m.m))WMOD[i]={b:m.b,s:m.s,m:m.m,l:[0,1,2].includes(m.l)?m.l:0}}}
 if(o.fl&&typeof flOn!=='undefined')flOn=true;
 if(o.nv&&typeof o.nv==='object'&&typeof NVG!=='undefined'){if(o.nv.m===1||o.nv.m===2)NVG.want=o.nv.m;if(typeof o.nv.ir==='boolean')NVG.ir=o.nv.ir}
 PERS.sig=JSON.stringify(PERS.snap());return true};

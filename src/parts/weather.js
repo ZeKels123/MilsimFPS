@@ -7,9 +7,10 @@ const wcur=WXD[0].slice();
 const TK=[[-.30,0x02050d,0x0a1220,0xff7a3a,0,0x1a2a4a,0x07090e,.46,1.3],[-.08,0x0c1630,0x2a2a44,0xff7a3a,0,0x23365a,0x0b0c12,.42,1.2],[-.01,0x1c2a52,0x7a5a62,0xff7a3a,.05,0x4a5a8a,0x1c1a1a,.36,1.05],
 [.07,0x3a5a98,0xf0a878,0xff9a50,.6,0x8a9ac8,0x3a3226,.3,.9],[.22,0x4676b6,0xd6d2c0,0xffd8a0,1.05,0xa8c4f0,0x4e4630,.3,.84],[.65,0x4f84c4,0xc3d0cc,0xfff0d8,1.25,0xbcd2ff,0x5a5238,.3,.82]];
 const _c=[0,1,2,3].map(()=>new THREE.Color()),_w=new THREE.Color(1,1,1);
+const _kc=[0,1,2,3,4,5].map(()=>new THREE.Color()),_ks={};
 function kfSky(e){let i=0;while(i<TK.length-2&&e>TK[i+1][0])i++;const a=TK[i],b=TK[i+1],k=Math.max(0,Math.min(1,(e-a[0])/(b[0]-a[0])));
 const col=(j,o)=>o.setHex(a[j]).lerp(_c[3].setHex(b[j]),k),num=j=>a[j]+(b[j]-a[j])*k;
-return{top:col(1,new THREE.Color()),hor:col(2,new THREE.Color()),sunC:col(3,new THREE.Color()),sunI:num(4),hs:col(5,new THREE.Color()),hg:col(6,new THREE.Color()),hI:num(7),exp:num(8)}}
+const K=_ks;return K.top=col(1,_kc[0]),K.hor=col(2,_kc[1]),K.sunC=col(3,_kc[2]),K.sunI=num(4),K.hs=col(5,_kc[4]),K.hg=col(6,_kc[5]),K.hI=num(7),K.exp=num(8),K}
 // météo : pluie en segments (shader), éclairs, tonnerre, bruit de pluie
 const RN=3200,rg=new THREE.BufferGeometry(),rp=new Float32Array(RN*6),ri=new Float32Array(RN*2),re=new Float32Array(RN*2);
 for(let i=0;i<RN;i++){const x=Math.random(),y=Math.random(),z=Math.random();for(let k=0;k<2;k++){rp.set([x,y,z],i*6+k*3);ri[i*2+k]=i/RN;re[i*2+k]=k}}

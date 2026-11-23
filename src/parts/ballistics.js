@@ -81,7 +81,7 @@ if(Math.hypot(x.point.x-P.x,x.point.z-P.z)<60){_bp.copy(x.point);emit(_bp,_e.set
 const BDOOR=.045;
 function balDoor(q,h,dir){const sp=balSpd(q);if(sp<120)return 1;const D=q.a.pen*(q.apk||1)*BMT.wood.k*Math.pow(sp/q.a.v,2);if(D<=BDOOR)return 1;
 const kv=Math.max(.3,1-.75*BDOOR/D);q.vx*=kv;q.vy*=kv;q.vz*=kv;q.px=h.point.x+dir.x*.08;q.py=h.point.y+dir.y*.08;q.pz=h.point.z+dir.z*.08;BAL.pen=(BAL.pen|0)+1;return 0}
-function balTarget(){if(!BAL.tg)BAL.tg=[...ray,...botParts.filter(q=>!q.userData.bot.dead),...FA.hit.filter(q=>!q.userData.an.dead),...MQP];return BAL.tg}
+function balTarget(){if(!BAL.tg)BAL.tg=[...ray,...botParts.filter(q=>!q.userData.bot.dead&&!q.userData.bot.dorm),...FA.hit.filter(q=>!q.userData.an.dead),...MQP];return BAL.tg}
 function balSpd(q){return Math.sqrt(q.vx*q.vx+q.vy*q.vy+q.vz*q.vz)}
 // segment d'un projectile : renvoie 1 si le projectile est arrêté
 function balSeg(q,org,dir,far){

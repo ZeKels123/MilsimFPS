@@ -103,7 +103,7 @@ hlCheck();if(HM.dead)return;
 let s=0,m=0;for(const z of HZ){s+=HM.z[z];m+=HMAX[z]}P.hp=Math.max(1,100*s/m);
 // effets d'écran
 const fx=$('hfx');if(fx){const pn=HM.mor>0?HM.pain*.15:HM.pain,o=Math.min(.95,Math.max(0,(55-HM.bl)/55)*.9+pn*.35+HM.conc*.12);fx.style.opacity=o.toFixed(2)}
-if(!ac.on){const f=HM.conc>0.2?'blur('+Math.min(3,HM.conc*.8).toFixed(1)+'px) saturate('+(1-Math.min(.5,HM.conc*.12)).toFixed(2)+')':(HM.bl<45?'saturate('+(.45+HM.bl/80).toFixed(2)+')':'');if(f!==HM.fs){HM.fs=f;R.domElement.style.filter=f||'none'}}
+if(!ac.on){const f=HM.conc>0.2?'blur('+Math.min(3,HM.conc*.8).toFixed(1)+'px) saturate('+(1-Math.min(.5,HM.conc*.12)).toFixed(2)+')':(HM.bl<45?'saturate('+(.45+HM.bl/80).toFixed(2)+')':'');if(f!==HM.fs){HM.fs=f;scrFilter('hm',f)}}
 HM.hudT-=dt;for(const z in HM.fl)if(HM.fl[z]>0)HM.fl[z]-=dt;if(HM.hudT<=0){HM.hudT=.1;hlHud()}}
 // ---- affichage : silhouette colorée, sang, objets
 let HC=null;
@@ -125,12 +125,14 @@ const a=$('hact');if(a)a.textContent=HM.act?(({bd:'Bandage',tq:'Pose du garrot',
 // ================= bots : même système, zones touchées d'après les pièces du modèle =================
 const BHW={h:.2,t:.3,a:.2,la:.075,ra:.075,ll:.075,rl:.075};
 function bhInit(b){const h=b.T.hp;b.zh={h:h*.33,t:h,a:h*.8,la:h*.5,ra:h*.5,ll:h*.55,rl:h*.55};b.zm=Object.assign({},b.zh);b.bld=0;b.blood=100;b.fxl=0;b.hm=1;b.aimM=1;b.unarm=0;b.lz=null;b.bout=0;b.armDone=0;b.rld=1;b.pk=0;b.bdz=null}
+const SCRF={hm:'',ble:'',fx:'',o:null};
+function scrFilter(k,v){SCRF[k]=v||'';const f=(SCRF.hm+' '+SCRF.ble+' '+SCRF.fx).trim();if(f!==SCRF.o){SCRF.o=f;R.domElement.style.filter=f||'none'}}
 function bhHit(b,z,dm,k){let a=0,brk=0;if(!b.zh)bhInit(b);
 if(z==='h')dm*=k==='g'?1.3:3;else if((z==='t'||z==='a')&&b.ar>0){a=1;b.ar-=dm;if(b.ar<=0){dm=-b.ar;b.ar=0;b.vest.visible=false;brk=1}else dm=0}
 if(dm>0){b.lz=z;const limb=hlLimb(z);if(limb&&b.zh[z]<=0){b.zh.t-=dm*.35}else b.zh[z]=Math.max(0,b.zh[z]-dm);
 if(dm>=4&&!b.bdz)b.bdz={};if(dm>=4)b.bdz[z]=Math.max(b.bdz[z]||0,dm>=18?2:1);
 if(limb&&(dm>=20||b.zh[z]<=0))b.fxl|=({la:1,ra:2,ll:4,rl:8})[z];if(z==='ra'&&!b.armDone&&b.zh.ra<b.zm.ra*.5&&Math.random()<.3)b.fxl|=2}
-let s=0;for(const q in BHW)s+=BHW[q]*b.zh[q]/b.zm[q];b.hp=Math.max(1,b.T.hp*s);if(b.zh.h<=0||b.zh.t<=0)b.hp=0;return{a,brk}}
+let s=0;for(const q in BHW)s+=BHW[q]*b.zh[q]/b.zm[q];b.hp=Math.max(1,b.T.hp*s-(b.hpOff||0));if(b.zh.h<=0||b.zh.t<=0)b.hp=0;return{a,brk}}
 function bhOut(b){b.bout=1;b.hp=0;if(b.pk)onKill(b,false);else botDie(b)}
 function bhUpdate(b,dt){if(!b.zh)bhInit(b);if(b.bdz){let r=0;for(const z in b.bdz)r+=b.bdz[z]===2?1.6:.3;if(b.zh.a<=0)r+=3.2;b.blood-=r*dt;if(b.blood<=0&&!b.dead){bhOut(b);return}}else if(b.zh.a<=0&&!b.dead){b.blood-=3.2*dt;if(b.blood<=0){bhOut(b);return}}
 let p=0;const f=b.fxl;[['ll',4],['rl',8]].forEach(q=>{const lv=(f&q[1])||b.zh[q[0]]<=0?2:b.zh[q[0]]<b.zm[q[0]]*.5?1:0;p+=lv===2?.5:lv===1?.18:0});b.hm=Math.max(.22,1-p);if(p>=.8)b.cr=1;

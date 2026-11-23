@@ -1,6 +1,10 @@
 // ================= MENU : réglages, bonus d'équipement, remappage des touches (chargé tôt) =================
 const SET={vol:.8,sens:1,gfx:0,keys:{},wsk:'std',out:'std'};
-try{Object.assign(SET,JSON.parse(localStorage.getItem('mfps_set')||'{}'))}catch(e){}
+try{const o=JSON.parse(localStorage.getItem('mfps_set')||'{}');if(o&&typeof o==='object'&&!Array.isArray(o)){const nb=(v,a,b)=>typeof v==='number'&&Number.isFinite(v)?Math.min(b,Math.max(a,v)):undefined;
+const v=nb(o.vol,0,1),s=nb(o.sens,.3,2.5);if(v!==undefined)SET.vol=v;if(s!==undefined)SET.sens=s;
+if(Number.isInteger(o.gfx)&&o.gfx>=0&&o.gfx<5)SET.gfx=o.gfx;
+if(typeof o.wsk==='string')SET.wsk=o.wsk;if(typeof o.out==='string')SET.out=o.out;
+if(o.keys&&typeof o.keys==='object'&&!Array.isArray(o.keys)){const k={};for(const id of Object.keys(o.keys)){if(id==='__proto__'||id==='constructor'||id==='prototype')continue;const c=o.keys[id];if(typeof c==='string'&&/^[A-Za-z0-9]{1,16}$/.test(c))k[id]=c}SET.keys=k}}}catch(e){}
 function setSave(){try{localStorage.setItem('mfps_set',JSON.stringify(SET))}catch(e){}}
 const SKM={dmg:1,rec:1,rl:1,spd:1,ar:100,stealth:1,taken:1},GM={mode:'full'},MQP=[];
 // volume général : tous les sons passent par un gain commun

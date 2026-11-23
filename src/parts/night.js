@@ -54,8 +54,8 @@ function nvTick(dt){nvInit();
  const th=NVG.m===2;if(th!==NVG.heat){NVG.heat=th;nvHeat(th)}else if(th){NVG.t-=dt;if(NVG.t<=0){NVG.t=.25;nvHeat(1)}}}
 // sol mouillé
 function wetTick(dt,rain){if(rain===undefined)rain=(typeof rainU!=='undefined'?rainU.uAmt.value:0);WET.v=Math.max(0,Math.min(1,WET.v+(rain>.15?rain*dt/70:-dt/240)));
-if(!WET.mat){const g=S.children.find(m=>m.isMesh&&m.geometry&&m.geometry.index&&m.geometry.index.count>1e6&&m.material&&m.material.color);if(g&&g.material.roughness!==undefined){WET.mat=g.material;WET.c0=g.material.color.clone();WET.r0=g.material.roughness}else WET.mat=0}
-if(WET.mat){const w=WET.v;WET.mat.color.copy(WET.c0).multiplyScalar(1-.3*w);WET.mat.roughness=Math.max(.4,WET.r0-.45*w)}
+if(WET.mat===null){const g=S.children.find(m=>m.isMesh&&m.geometry&&m.geometry.index&&m.geometry.index.count>1e6&&m.material&&m.material.color);if(g&&g.material.roughness!==undefined){WET.mat=g.material;WET.c0=g.material.color.clone();WET.r0=g.material.roughness}else WET.mat=0}
+if(WET.mat){const w=WET.v;/* todUpdate (weather.js) réécrit color/roughness chaque frame juste avant : on part de sa valeur */WET.mat.color.multiplyScalar(1-.3*w);WET.mat.roughness=Math.max(.4,WET.mat.roughness-.45*w)}
 if(FP.im)FP.im.material.opacity=.16+.5*WET.v}
 // empreintes
 function fpInit(){if(FP.im)return;const c=document.createElement('canvas');c.width=64;c.height=128;const g=c.getContext('2d');g.fillStyle='rgba(255,255,255,.95)';g.beginPath();g.ellipse(32,38,17,32,0,0,7);g.fill();g.beginPath();g.ellipse(32,100,13,19,0,0,7);g.fill();g.globalCompositeOperation='destination-out';g.fillStyle='rgba(0,0,0,.6)';for(let i=0;i<5;i++){g.fillRect(14,18+i*11,36,3)}
@@ -65,7 +65,7 @@ const _npm=new THREE.Matrix4(),_npq=new THREE.Quaternion(),_npv=new THREE.Vector
 const _fpn=new THREE.Vector3(),_fpq=new THREE.Quaternion();
 function fpAdd(x,z,yaw){fpInit();const i=FP.n++%FP.max,s=(FP.side=-FP.side)*.1;_npq.setFromAxisAngle(_npy,yaw);{const e=.4,nx=GH(x-e,z)-GH(x+e,z),nz=GH(x,z-e)-GH(x,z+e);_fpn.set(nx,2*e,nz).normalize();_fpq.setFromUnitVectors(_npy,_fpn);_npq.premultiply(_fpq)}_npv.set(x+Math.cos(yaw)*s,GH(x,z)+.02,z-Math.sin(yaw)*s);_npm.compose(_npv,_npq,_nps);FP.im.setMatrixAt(i,_npm);FP.age[i]=0;FP.im.instanceMatrix.needsUpdate=true}
 function fpTick(dt){if(!FP.im)return;FP.t+=dt;if(FP.t<1)return;const d=FP.t;FP.t=0;const life=70+WET.v*170;let ch=0;for(let i=0;i<FP.max;i++){if(FP.age[i]<1e8){FP.age[i]+=d;if(FP.age[i]>life){FP.age[i]=1e9;FP.im.setMatrixAt(i,new THREE.Matrix4().makeScale(0,0,0));ch=1}}}if(ch)FP.im.instanceMatrix.needsUpdate=true}
-function sfxFoot(x,y,z,kind,vol,bot) {sfxFoot0(x,y,z,kind,vol,bot);try{if(kind!=='step')return;const k=surfKind(x,y,z,bot?null:P.sup);if(k!=='grass'&&k!=='mud')return;
+function sfxFoot(x,y,z,kind,vol,bot) {sfxFoot0(x,y,z,kind,vol,bot);try{const k=kind==='step'?surfKind(x,y,z,bot?null:P.sup):kind;if(k!=='grass'&&k!=='mud'&&k!=='wetgrass'&&k!=='sand')return;
 if(bot){if(Math.hypot(x-P.x,z-P.z)>45)return;fpAdd(x,z,bot.g?bot.g.rotation.y:Math.random()*6.28)}else{fpAdd(x,z,P.yaw);if(WET.v>.4&&typeof AU!=='undefined'&&AU.ready)nz(.06,'bandpass',1700+rnd(-200,200),.9,.05*WET.v,AOUT(),.8,.1)}}catch(e){}}
 function nightTick(dt){nvTick(dt);wetTick(dt);fpTick(dt)}
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;

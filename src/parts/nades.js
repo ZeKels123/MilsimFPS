@@ -54,7 +54,7 @@ if(nfL.intensity>0){nfL.intensity=Math.max(0,nfL.intensity-dt*420);nfS.scale.mul
 FXP.flash=Math.max(0,FXP.flash-dt);FXP.stun=Math.max(0,FXP.stun-dt);FXP.shake=Math.max(0,FXP.shake-dt*2.2);if(FXP.stun<=0)FXP.stunK=0;
 const fo=Math.min(1,FXP.flash/1.7),so=FXP.stun>0?Math.min(1,FXP.stun/1.5)*FXP.stunK:0;FXP.elF.style.opacity=ac.on?0:fo*fo*(3-2*fo);FXP.elS.style.opacity=so*.9;
 PSTUN=so>.05?1-.5*Math.min(1,so*1.4):1;SENS=so>.05?1-.55*Math.min(1,so*1.4):1;
-if(!ac.on){const bl=so>.06?'blur('+(so*5).toFixed(1)+'px) saturate('+(1-so*.6).toFixed(2)+')':'';if(bl!==FXP.blur){FXP.blur=bl;R.domElement.style.filter=bl}}
+if(!ac.on){const bl=so>.06?'blur('+(so*5).toFixed(1)+'px) saturate('+(1-so*.6).toFixed(2)+')':'';if(bl!==FXP.blur){FXP.blur=bl;scrFilter('fx',bl)}}
 const h=(THR.on&&THR.cook>.05?'<b style="color:#ff9a60">CUISSON '+(NT[THR.k].fuse-THR.cook).toFixed(1)+' s (relâcher C : lancer)</b><br>':'')+'<span style="opacity:.6">[C] lancer (maintenu : cuire) · molette / [U] type</span><br>'+NT.map((t,k)=>(k===NADE.sel?'<b style="color:#c8f07a">▸ ':'<span style="opacity:.7">')+t.n+' ×'+NADE.inv[k]+(k===NADE.sel?'</b>':'</span>')).join(' · ');if(h!==FXP.hN){FXP.hN=h;FXP.elN.innerHTML=h}FXP.elN.style.display=ac.on||bench?'none':'block'}
 function camFx(dt){const s=FXP.shake,k=FXP.stun>0?Math.min(1,FXP.stun/1.5)*FXP.stunK:0,t=performance.now()*.001;if(s>0){C.rotation.x+=(Math.random()-.5)*.05*s;C.rotation.y+=(Math.random()-.5)*.05*s;C.rotation.z+=(Math.random()-.5)*.04*s}
 if(k>0){C.rotation.z+=Math.sin(t*2.1)*.09*k;C.rotation.x+=Math.sin(t*1.5+1)*.04*k;C.rotation.y+=Math.cos(t*1.2)*.05*k}}

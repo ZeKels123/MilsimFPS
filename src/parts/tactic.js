@@ -31,7 +31,7 @@ function tacBound(q,al,dt){if(q.ret>0||q.t<=1.5){q.bd=null;return}
  if(!n)return;cov.forEach(b=>{b.ordCover=4.4});TAC.n.bound++;const ld=sqLeader(al);if(ld&&Math.random()<.6)tacSay(ld,'bound',true)}
 // ---- moral ----
 function tacMorale(q,al,dt){const ld=sqLeader(al);
- if(q.mDead===undefined)q.mDead=0;const dead=q.n0-al.length;if(dead>q.mDead){for(const b of al)b.mor=Math.max(0,(b.mor===undefined?1:b.mor)-.17*(dead-q.mDead));q.mDead=dead}if(dead===0)q.mDead=0;
+ if(q.mDead===undefined)q.mDead=0;const dead=q.n0-al.length;if(dead>q.mDead){for(const b of al)b.mor=Math.max(0,(b.mor===undefined?1:b.mor)-.17*(dead-q.mDead));q.mDead=dead}if(dead<q.mDead)q.mDead=dead;
  for(const b of al){if(b.mor===undefined)b.mor=1;const g=b.g.position,hp=b.hp;
   if(b.hpM!==undefined&&hp<b.hpM)b.mor-=Math.min(.3,(b.hpM-hp)/b.T.hp*.7);b.hpM=hp;
   if(b.see){const pd=Math.hypot(P.x-g.x,P.z-g.z);if(pd<12)b.mor-=dt*.012*(b.ty===3?.2:1);if(AI.heat>5)b.mor-=dt*.004}

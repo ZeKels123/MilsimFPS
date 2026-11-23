@@ -82,7 +82,7 @@ function invAddGround(e){// retourne true si l'objet est entièrement ramassé
 if(e.id==='B'){const nk=e.bag.kind;if(INV.bag!==0){hlMsg('Vous portez déjà un sac (Suppr pour le jeter)');return false}
 INV.bag=nk;INV._kind=nk;let any=false;for(const k in e.bag.cont){const q=e.bag.cont[k];if(!q)continue;const r=invPut(k,q);e.bag.cont[k]=q-r;any=any||r>0}
 if(Object.values(e.bag.cont).some(v=>v>0)){hlMsg('Sac équipé — reste du contenu au sol');INV.bag=nk;const rest=invSpawn('B',1,e.m.position.x,e.m.position.y,e.m.position.z,0,0,{kind:'S',cont:e.bag.cont});rest.fall=false;rest.m.scale.setScalar(.6)}else hlMsg(BAGS[nk].n+' équipé');return true}
-const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&!invSlotFor(+e.id[1])?'Pas d’arme de ce calibre':e.id[0]==='g'&&invGet(e.id)>=GMAX?'Grenades au maximum ('+GMAX+')':'Sac plein');else hlMsg('Ramassé : '+invDef(e.id).n+' ×'+r);return e.q<=0}
+const r=invPut(e.id,e.q);e.q-=r;if(r===0)hlMsg(e.id[0]==='z'&&invSlotFor(+e.id[1])===undefined?'Pas d’arme de ce calibre':e.id[0]==='g'&&invGet(e.id)>=GMAX?'Grenades au maximum ('+GMAX+')':'Sac plein');else hlMsg('Ramassé : '+invDef(e.id).n+' ×'+r);return e.q<=0}
 const invSlotFor=c=>[slot,1-slot].find(k=>CIDX[invWpn(k)]===c);
 function invPut(id,n){if(id[0]==='z'){const k=invSlotFor(+id[1]);if(k===undefined)return 0;id='a'+k}const a=invAddable(id,n);if(a>0)invSet(id,invGet(id)+a);return a}
 function invNear(){let b=null,bd=2.3;for(const e of INV.gnd){if(e.fall||Math.abs(e.m.position.y-P.gy)>=1.6)continue;const d=Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z);if(d<bd){bd=d;b=e}}return b}

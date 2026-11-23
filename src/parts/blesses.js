@@ -44,7 +44,7 @@ function blsDrag(){for(const h of bots){const e=h.evac;if(!e||h.dead)continue;co
 // ---- 3. Cadavres : empilés les uns sur les autres, traînés par le joueur (maintenir F + avancer)
 function blsStack(b){let n=0;const g=b.g.position,i=bots.indexOf(b);
  for(let j=0;j<i;j++){const o=bots[j];if(!(o.dead>0)||o.dead>50||(o.fall||0)<1)continue;if(Math.abs(o.g.position.x-g.x)<.75&&Math.abs(o.g.position.z-g.z)<.75)n++}
- b.stk=Math.min(2,n);if(n)g.y+=.16*b.stk}
+ b.stk=Math.min(2,n);b.stkY=n?.16*b.stk:0;if(n)g.y+=.16*b.stk}
 {const sU6=sldUpdate;sldUpdate=function(b,dt,mv){sU6(b,dt,mv);if(b.dead>0&&b.dead<50&&(b.fall||0)>1){try{blsStack(b)}catch(e){}}}}
 function blsCorpseNear(r){let bb=null,bd=r;for(const o of bots){if(!(o.dead>0)||o.dead>50||(o.fall||0)<1)continue;const d=Math.hypot(o.g.position.x-P.x,o.g.position.z-P.z);if(d<bd){bd=d;bb=o}}return bb}
 function blsHint(t){if(!BLS.hint){const d=document.createElement('div');d.style.cssText='position:fixed;left:50%;bottom:22%;transform:translateX(-50%);font:13px monospace;color:#dfe8d0;text-shadow:0 1px 3px #000;pointer-events:none;z-index:6;text-align:center;display:none';document.body.appendChild(d);BLS.hint=d}

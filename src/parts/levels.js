@@ -9,7 +9,7 @@ function lvJump(){if(typeof BLE!=='undefined'&&BLE.out>0)return;if(!HJMP()||P.ma
 addEventListener('keydown',e=>{if(e.repeat||$('ov').style.display!=='none'||ac.on||bench)return;
 if(e.code==='ControlLeft'){const n=(P.st+1)%3;if(n===0&&!canStand())return;P.st=n}else if(e.code==='KeyP'){if(P.st===2){if(canStand())P.st=1}else P.st=2}
 else if(e.code==='Space'){if(P.st>0){if(canStand())P.st=0}else lvJump()}});
-function lvReset(){hlReset();if(typeof SUR!=='undefined'){SUR.w=SUR.f=SUR.c=1;SUR.act=null;SUR.pk=null}if(typeof BLE!=='undefined'){BLE.rec=0;BLE.cd=0}P.gy=GH(P.x,P.z);P.vy=0;P.st=0;P.mant=null;P.eh=1.7}
+function lvReset(){hlReset();if(typeof SUR!=='undefined'){SUR.w=SUR.f=SUR.c=1;SUR.act=null;SUR.pk=null}if(typeof BLE!=='undefined'){BLE.rec=0;BLE.cd=0;BLE.out=0;BLE.s=0;if(BLE.tun)BLE.tun.style.opacity=0;if(BLE.blk)BLE.blk.style.opacity=0}if(typeof TRP!=='undefined')TRP.snare=0;if(typeof EFF!=='undefined'){EFF.gasp=0;EFF.hb=0}P.gy=GH(P.x,P.z);P.vy=0;P.st=0;P.mant=null;P.eh=1.7}
 function lvStep(dt){if(P.gy===undefined)P.gy=GH(P.x,P.z);
 const m=P.mant;if(m){m.t+=dt/.5;const k=Math.min(1,m.t),e=k*k*(3-2*k);P.x=m.x0+(m.x1-m.x0)*e;P.z=m.z0+(m.z1-m.z0)*e;P.gy=m.y0+(m.y1-m.y0)*e+Math.sin(Math.PI*k)*.3;if(k>=1){P.mant=null;P.gy=m.y1;P.vy=0;P.st=1}}
 else{const g=groundAt(P.x,P.z,P.gy,P.st?.4:.55);P.sup=GSUP;

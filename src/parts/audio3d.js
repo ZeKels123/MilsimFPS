@@ -1,5 +1,5 @@
 // ================= v6 : AUDIO SPATIALISÉ (stéréo HRTF, réverbération des maisons, bruits de pas selon le sol, pluie sur les toits) =================
-const AU={ready:0,nb:null,wet:null,revH:null,revB:null,echo:null,wH:null,wB:null,wE:null,occ:0,room:-1,bun:0,sx:0,sz:0,rainOut:null,rainRoof:null,rainDeep:null,rg:[0,0,0],lastE:0};
+const AU={ready:0,nb:null,wet:null,revH:null,revB:null,echo:null,wH:null,wB:null,wE:null,occ:0,occB:0,room:-1,bun:0,sx:0,sz:0,rainOut:null,rainRoof:null,rainDeep:null,rg:[0,0,0],lastE:0};
 function roofTop(x,z){for(let i=0;i<UPH.length;i++){const h=UPH[i].rect;if(x>h[0]&&x<h[1]&&z>h[2]&&z<h[3])return UPH[i].RT-.5}if(window.CITYB)for(const b of CITYB)if(Math.abs(x-b.cx)<b.w/2&&Math.abs(z-b.cz)<b.d/2)return CT.y+b.H-.5;return 2.9}
 function auIR(sec,dec,hp){const n=Math.floor(AC.sampleRate*sec),b=AC.createBuffer(2,n,AC.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);let l=0;for(let i=0;i<n;i++){const t=i/n,w=Math.random()*2-1;l+=(w-l)*(hp?.6:.25);d[i]=l*Math.pow(1-t,dec)*(i<AC.sampleRate*.004?i/(AC.sampleRate*.004):1)}}return b}
 function auInit(){if(AU.ready||!AC)return;try{AU.nb=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const d=AU.nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;

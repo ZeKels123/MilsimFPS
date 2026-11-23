@@ -10,7 +10,7 @@ function bleTick(dt){if(!BLE.tun){const t=document.createElement('div');t.style.
  if(HM.dead||P.hp<=0){BLE.out=0;BLE.tun.style.opacity=0;BLE.blk.style.opacity=0;return}
  const s=bleSev();BLE.s+=(s-BLE.s)*Math.min(1,dt*2);
  BLE.tun.style.opacity=Math.min(1,BLE.s*1.7).toFixed(2);BLE.tun.style.setProperty('--r',(78-58*BLE.s).toFixed(1)+'%');
- const gs=BLE.s>.3?'grayscale('+(Math.min(.8,BLE.s*.8)).toFixed(2)+')':'';if(BLE.gs!==gs){BLE.gs=gs;R.domElement.style.filter=gs}
+ const gs=BLE.s>.3?'grayscale('+(Math.min(.8,BLE.s*.8)).toFixed(2)+')':'';if(BLE.gs!==gs){BLE.gs=gs;scrFilter('ble',gs)}
  BLE.cd=Math.max(0,BLE.cd-dt);
  if(BLE.out>0){BLE.out-=dt;HM.act=null;BLE.blk.style.opacity=Math.min(1,BLE.out*1.5).toFixed(2);if(BLE.out<=0){BLE.rec=14;BLE.cd=40;HM.sta=Math.max(HM.sta,.35);try{feed('Vous reprenez connaissance')}catch(e){}}return}
  BLE.blk.style.opacity=0;if(BLE.rec>0)BLE.rec-=dt;

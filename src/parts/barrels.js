@@ -29,7 +29,7 @@ function brFireR(q){return q.st===1?Math.max(1,q.pool?q.pool.scale.x:0):(q.st===
 function brTick(){const now=performance.now(),dt=Math.min(.2,(now-BRS.last)/1000);BRS.last=now;if(dt<=0)return;const ov=document.getElementById('ov');if(ov&&ov.style.display!=='none')return;
 let best=null,bd=28,onP=false;
 for(const b of BRL){const q=b.userData.barrel;if(!q.fuel)continue;const d=Math.hypot(P.x-q.x,P.z-q.z),vis=d<75,y0=q.y0,fr=brFireR(q);
-if(fr>0){const yb=brBase(q);if(d<fr&&(P.gy===undefined||brAt(yb,P.gy)))onP=true;for(const bt of bots){if(bt.dead)continue;const g=bt.g.position;if(Math.hypot(g.x-q.x,g.z-q.z)<fr&&brAt(yb,g.y)){bt.hp-=28*dt;bt.flinch=1;if(bt.hp<=0){if(q.src==='p')onKill(bt,false);else botDie(bt)}}}}
+if(fr>0){const yb=brBase(q);if(d<fr&&(P.gy===undefined||brAt(yb,P.gy)))onP=true;for(const bt of bots){if(bt.dead)continue;const g=bt.g.position;if(Math.hypot(g.x-q.x,g.z-q.z)<fr&&brAt(yb,g.y)){bt.hpOff=(bt.hpOff||0)+28*dt;bt.hp-=28*dt;bt.flinch=1;if(bt.hp<=0){if(q.src==='p')onKill(bt,false);else botDie(bt)}}}}
 
 if(q.st<2&&q.holes.length){let leaking=false;for(const h of q.holes){if(q.f*.95>h.y-y0&&q.f>0){leaking=true;q.f=Math.max(0,q.f-.045*dt);if(vis&&Math.random()<dt*22)emit(brV.set(h.x,h.y,h.z),brE.set(h.nx*1.1,.2,h.nz*1.1),{map:puffT,color:0xb89a3c,size:.03,life:.55,a:.7,g:9})}}
 if(!q.pool)q.pool=brGround(q,.2,brPM);q.pool.scale.setScalar(.25+(1-q.f)*1.25)}

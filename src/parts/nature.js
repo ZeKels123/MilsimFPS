@@ -35,7 +35,9 @@ const kk=F?F.k(x,z):-1,gx=kk<0?.8:F.g[kk];if(hsh(i*11+q*3,j*7+q)>sstep(.42,.8,gx
 const s=.55+hsh(i+q*13,j)*.55,v=.82+hsh(q,i*3+j)*.36,tn=kk<0?[.9,1,.8]:[F.c[kk*3],F.c[kk*3+1],F.c[kk*3+2]];
 out.push([x,GH(x,z),z,hsh(i,j+q*17)*6.3,s,s*(.7+hsh(i+q,j*2)*.6)*(.7+.5*gx),tn[0]*v,tn[1]*v*(.92+hsh(j,q)*.16),tn[2]*v])}GR.cell.set(k,out);return out}
 function grassFill(){const im=GRASS;if(!im)return;const R=GR.R,ci=Math.floor(GR.cx/3),cj=Math.floor(GR.cz/3),rc=Math.ceil(R/3);let n=0;const mx=Math.floor(im.userData.max*GR.q);
-for(let i=ci-rc;i<=ci+rc&&n<mx;i++)for(let j=cj-rc;j<=cj+rc&&n<mx;j++){const mxx=(i+.5)*3-GR.cx,mzz=(j+.5)*3-GR.cz;if(mxx*mxx+mzz*mzz>R*R)continue;const c=grassCell(i,j);for(const g of c){if(n>=mx)break;oo.position.set(g[0],g[1],g[2]);oo.rotation.set(0,g[3],0);oo.scale.set(g[4],g[5],g[4]);oo.updateMatrix();im.setMatrixAt(n,oo.matrix);col.setRGB(g[6],g[7],g[8]);im.setColorAt(n,col);n++}}
+const cl=[];for(let i=ci-rc;i<=ci+rc;i++)for(let j=cj-rc;j<=cj+rc;j++){const mxx=(i+.5)*3-GR.cx,mzz=(j+.5)*3-GR.cz,d2=mxx*mxx+mzz*mzz;if(d2>R*R)continue;cl.push([d2,i,j])}
+cl.sort((a,b)=>a[0]-b[0]);
+for(let k=0;k<cl.length&&n<mx;k++){const c=grassCell(cl[k][1],cl[k][2]);for(const g of c){if(n>=mx)break;oo.position.set(g[0],g[1],g[2]);oo.rotation.set(0,g[3],0);oo.scale.set(g[4],g[5],g[4]);oo.updateMatrix();im.setMatrixAt(n,oo.matrix);col.setRGB(g[6],g[7],g[8]);im.setColorAt(n,col);n++}}
 im.count=n;im.instanceMatrix.needsUpdate=true;if(im.instanceColor)im.instanceColor.needsUpdate=true;if(GR.cell.size>2600)GR.cell.clear()}
 window.FOL={TR,BU,TRC:ARB.TRC,BUC:ARB.BUC};
 window.foliageUpdate=function(dt){const px=P.x,pz=P.z;last.t+=dt;
