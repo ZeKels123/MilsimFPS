@@ -3,7 +3,8 @@
 const MERGED={n:0,out:0,ms:performance.now()};
 // générateur : un « yield » après chaque lot fusionné (le streaming peut ainsi étaler la fusion sur plusieurs images)
 function mergeRoots(roots){const g=mergeGen(roots);let r;while(!(r=g.next()).done);return r.value}
-function*mergeGen(roots){const made=[],dyn=new Set([C,sky]);doors.forEach(d=>dyn.add(d.pv));
+function*mergeGen(roots){const made=[];try{yield*mergeGen0(roots,made)}catch(e){console.warn('merge',e)}return made}
+function*mergeGen0(roots,made){const dyn=new Set([C,sky]);doors.forEach(d=>dyn.add(d.pv));
 const sg=m=>[m.type,m.color.getHex(),m.map?m.map.uuid:0,m.normalMap?m.normalMap.uuid:0,m.roughnessMap?m.roughnessMap.uuid:0,m.roughness,m.metalness,m.flatShading?1:0,m.side,m.vertexColors?1:0,m.emissive?m.emissive.getHex():0,m.emissiveIntensity,m.envMapIntensity,m.alphaTest,m.polygonOffset?m.polygonOffsetFactor:0,m.normalScale?m.normalScale.x:0,m.toneMapped?1:0].join('|');
 const groups=new Map(),list=[];
 const walk=(function walk(o,ok){if(dyn.has(o)||!o.visible)return;if(o.isMesh&&!o.isInstancedMesh&&!o.isSkinnedMesh&&o!==floor){const m=o.material,g=o.geometry;

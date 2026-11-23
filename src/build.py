@@ -4,8 +4,16 @@ s=open(P+'orig.html',encoding='utf-8').read()
 rd=lambda n:open(P+'parts/'+n,encoding='utf-8').read()
 def rep(old,new,cnt=1):
     global s
-    assert s.count(old)==cnt,(s.count(old),old[:80])
+    if s.count(old)!=cnt:raise SystemExit('ERREUR rep(): %d occurrence(s) au lieu de %d : %r'%(s.count(old),cnt,old[:80]))
     s=s.replace(old,new)
+def srep(txt,old,new,cnt=1,warn=False):
+    # str.replace controle : nombre d'occurrences attendu (warn=True : simple avertissement si different)
+    n=txt.count(old)
+    if n!=cnt:
+        m='%d occurrence(s) au lieu de %d : %r'%(n,cnt,old[:80])
+        if not warn:raise SystemExit('ERREUR srep(): '+m)
+        print('AVERTISSEMENT srep():',m)
+    return txt.replace(old,new)
 # 0. script externe inconnu (Discord CDN) supprimé
 a=s.index("<script type='text/javascript' src='https://cdn.discordapp.com");b=s.index("</script>",a)+9
 s=s[:a]+s[b:]
@@ -40,16 +48,16 @@ rep("L(0x6f6d62));ce.position.set(cx,3.08,cz);","L(0x6f6d62));ce.castShadow=ce.r
 rep("const lt=new THREE.PointLight(0xffe2b0,.7,9);lt.position.set(cx,2.6,cz);S.add(lt);","if(!NOL){const lt=new THREE.PointLight(0xffe2b0,.7,9);lt.position.set(cx,2.6,cz);S.add(lt)}")
 pr=rd('props_rest.js')
 a_=pr.index('// pad de la zone sûre');b_=pr.index('// ================= TONNEAUX');pr=pr[:a_]+pr[b_:]
-pr=pr.replace('[-16.8,-14.6,0x8a3028]','[-26,-6,0x8a3028]').replace('[19.5,-11.3,0x30506a]','[27,-6,0x30506a]')
-pr=pr.replace("const okPos=(x,z,m)=>","const okPos=(x,z,m)=>wDist(x,z)>m+.5&&")
-pr=pr.replace("const okPos=(x,z,m)=>","const okPos=(x,z,m)=>!(Math.abs(x-CT.ax)<4+m&&!(z<CT.z1+6&&z>CT.z0-6))&&")
-pr=pr.replace("const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS);","const RMS=HS;")
+pr=srep(pr,'[-16.8,-14.6,0x8a3028]','[-26,-6,0x8a3028]');pr=srep(pr,'[19.5,-11.3,0x30506a]','[27,-6,0x30506a]')
+pr=srep(pr,"const okPos=(x,z,m)=>","const okPos=(x,z,m)=>wDist(x,z)>m+.5&&")
+pr=srep(pr,"const okPos=(x,z,m)=>","const okPos=(x,z,m)=>!(Math.abs(x-CT.ax)<4+m&&!(z<CT.z1+6&&z>CT.z0-6))&&")
+pr=srep(pr,"const RMS=[[-29,-8,-21,0],[21,-8,29,0],[-29,-17,-21,-11],[21,-17,29,-11],[-5,-27,5,-21]].concat(HS);","const RMS=HS;",1,warn=True)  # 0 occurrence aujourd'hui (deja absent des sources) : avertissement seulement
 mk="// ================= RELIEF, ROCHERS"
-assert pr.count(mk)==1
+if pr.count(mk)!=1:raise SystemExit('ERREUR marqueur RELIEF absent ou multiple')
 pr=pr.replace(mk,rd('relief.js')+rd('nature.js')[:rd('nature.js').index('// arbres')]+mk)
 pr=pr+rd('nature.js')[rd('nature.js').index('// arbres'):]+rd('nature2.js')+rd('snake_data.js')+rd('snake.js')+rd('samples_data.js')+rd('samples.js')
 for a_,b_ in [("const N=110,rk=","const N=1000,rk="),("rnd(-29,29),z=rnd(-29,29);if(!okPos(x,z,.4))","rnd(-MH+2,MH-2),z=rnd(-MH+2,MH-2);if(!okPos(x,z,.4)||nearPath(x,z,2))"),("while(n<7){const x=rnd(-26,26),z=rnd(-26,16)","while(n<56){const x=rnd(-MH+5,MH-5),z=rnd(-MH+5,16)"),("[[-33,-33],[33,-33],[-33,33],[33,33]]","[[-MH-3,-MH-3],[MH+3,-MH-3],[-MH-3,MH+3],[MH+3,MH+3]]"),("o.position.set(x,s*.35,z);","o.position.set(x,s*.35+GH(x,z),z);"),("p.position.set(x,.016,z);","p.position.set(x,.016+GH(x,z),z);")]:
-    assert pr.count(a_)==1,a_; pr=pr.replace(a_,b_)
+    pr=srep(pr,a_,b_)
 rep("room(-25,-4,8,8,'E',-4);room(25,-4,8,8,'W',-4);room(-25,-14,8,6,'E',-14);room(25,-14,8,6,'W',-14);room(0,-24,10,6,'S',0);",
     rd('deco_int_data.js')+rd('deco_int.js')+rd('bld_head.js')+rd('bld_house.js')+rd('bld_calls.js')+rd('models.js')+rd('models2.js')+rd('hyd_data.js')+rd('city.js')+rd('extra.js')+pr)
 # 4. explosions
@@ -171,7 +179,7 @@ rep("<tr><td>R</td><td>Recharger</td></tr>","<tr><td>R</td><td>Recharger</td></t
 rep("RC=new THREE.Raycaster();","RC=new THREE.Raycaster();RC.layers.enable(1);")
 rep("const spd=ads?2.2:(K.ShiftLeft?6.5:4)*(Math.abs(P.lean)>.5?.7:1);","const spd=(ads?2.2:(K.ShiftLeft&&P.st===0?6.5:4)*(Math.abs(P.lean)>.5?.7:1))*PWADE*PSTUN*STS[P.st]*(P.air?.8:1);")
 rep("im.receiveShadow=true;S.add(im)}","im.receiveShadow=true;S.add(im);GRASS=im}")
-s=s.replace(".connect(AC.destination)",".connect(AOUT())")
+s=srep(s,".connect(AC.destination)",".connect(AOUT())",5)
 rep("PR.render(PS,PC)}fxFrame(dt);R.render(S,C)}","PR.render(PS,PC)}fxFrame(dt);if(DRV.on)gun.visible=false;gqFrame(dt);ppRender(dt)}")
 rep("if(++aqF>240){","if(0){")
 rep("+'<br><span style=\"opacity:.55\">[N] heure · [M] météo · [L] lampe</span>'","+'<br><span style=\"opacity:.55\">[Ctrl] posture · [P] couché · [Espace] saut / enjamber · [N] heure · [M] météo · [L] lampe · [O] qualité : '+(GQ.mode?'':'Auto · ')+GQ.names[GQ.lvl]+' · '+GQ.fps+' i/s</span>'")
@@ -183,7 +191,7 @@ rep("hitFx(h,hitA,brk,u.head,b);","hitFx(h,hitA,brk,u.head,b);aiHit(b);")
 rep("o.connect(g).connect(AOUT());o.start();o.stop(AC.currentTime+d)","o.connect(g).connect(AOUT());auSend(g);o.start();o.stop(AC.currentTime+d)")
 rep("P.deaths++;P.x=0;P.z=23;","P.deaths++;P.x=0;P.z=23;lvReset();nadeReset();")
 rep("C.rotation.set(P.pitch,P.yaw,-P.lean*.3)}","C.rotation.set(P.pitch,P.yaw,-P.lean*.3);camFx(dt)}")
-assert s.count("const s=C.fov/75*.0022;")==2;s=s.replace("const s=C.fov/75*.0022;","const s=C.fov/75*.0022*SENS;")
+s=srep(s,"const s=C.fov/75*.0022;","const s=C.fov/75*.0022*SENS;",2)
 # 12. v8 : animaux touchables
 rep("const h=castShot(o,d);if(n<3)tracer(MZ,h?h.point:_p2.copy(o).addScaledVector(d,60));","const h=castShot(o,d);if(n<3)tracer(MZ,h?h.point:_p2.copy(o).addScaledVector(d,60));if(h&&h.object.userData.an){if(faHit(h.object.userData.an,h.point,c.dmg)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}}else if(faShotBirds(o,d,h?h.distance:80,c.dmg)){hit=1;hitT=.2;$('hit').style.opacity=1;$('hit').style.color='#fc0'}")
 # 13. v9 : bruitages
@@ -275,15 +283,17 @@ rep("aSc.visible=A.scope&&!(adsT>.6&&sk==='scope');aAn.visible=A.angled;","aSc.v
 rep("const hid=adsT>.6&&sk==='holo'&&mgIn;","const hid=(adsT>.6&&sk==='holo'&&mgIn)||(adsT>.3&&sk==='iron');")
 rep("Q/E pencher · molette : zoom</div>","Q/E pencher · molette : zoom · V : viseur / mire de secours</div>")
 rep("<tr><td>V</td><td>Changer de viseur (si les deux)</td></tr>","<tr><td>V</td><td>Changer de viseur (optiques montées, puis mire de secours)</td></tr>")
-open(P+'../MILSIM_FPS.html','w',encoding='utf-8').write(s)
-open(P+'../index.html','w',encoding='utf-8').write(s)
 
-# vérification de syntaxe du script principal (échoue le build si une erreur casserait tout le jeu)
-import re,subprocess,shutil,tempfile,os
-if shutil.which('node'):
-    big=max(re.findall(r"<script[^>]*>(.*?)</script>",s,re.S),key=len)
-    f=tempfile.NamedTemporaryFile('w',suffix='.js',delete=False,encoding='utf-8');f.write(big);f.close()
-    r=subprocess.run(['node','--check',f.name],capture_output=True,text=True);os.unlink(f.name)
-    if r.returncode:
-        print('ERREUR DE SYNTAXE\n'+r.stderr[:600]);raise SystemExit(1)
+# verification de syntaxe AVANT toute ecriture : le bon HTML n'est jamais ecrase par un build casse
+import re,subprocess,shutil,tempfile
+if not shutil.which('node'):
+    raise SystemExit("ERREUR : node introuvable, impossible de verifier la syntaxe. HTML non regenere.")
+big=max(re.findall(r"<script[^>]*>(.*?)</script>",s,re.S),key=len)
+f=tempfile.NamedTemporaryFile('w',suffix='.js',delete=False,encoding='utf-8');f.write(big);f.close()
+r=subprocess.run(['node','--check',f.name],capture_output=True,text=True);os.unlink(f.name)
+if r.returncode:
+    print('ERREUR DE SYNTAXE (HTML non regenere)\n'+r.stderr[:600]);raise SystemExit(1)
+for n_ in ('MILSIM_FPS.html','index.html'):
+    d_=P+'../'+n_;t_=d_+'.tmp'
+    open(t_,'w',encoding='utf-8').write(s);os.replace(t_,d_)
 print('ok',len(s))
