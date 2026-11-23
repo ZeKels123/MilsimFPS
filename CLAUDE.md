@@ -5,10 +5,14 @@ Le propriétaire (Kilian) reste sur HTML (pas de .exe/Godot pour l'instant), veu
 
 ## Sources et build
 - Le HTML est **généré** : `cd src && python3 build.py` concatène `src/parts/*.js` (≈100 fichiers) + patches `rep(old,new)` dans `build.py` → écrit `MILSIM_FPS.html` et `index.html`. Ne jamais éditer le HTML à la main.
-- Le build affiche « ok <taille> » ; **s'il affiche ERREUR DE SYNTAXE, le HTML n'est pas régénéré** (ne pas masquer la sortie avec `tail -1` sans vérifier).
+- Le build affiche « ok <taille> ». La syntaxe JS est vérifiée avec `node --check` **avant** toute écriture (écriture atomique via fichier temporaire) : en cas d'ERREUR DE SYNTAXE, ou si `node` est absent, le build échoue et `MILSIM_FPS.html`/`index.html` existants restent intacts. Les `rep()`/`srep()` échouent si le nombre d'occurrences diffère de l'attendu.
 - Avant livraison : `grep -c "cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" MILSIM_FPS.html` = 1 et `grep -c '\.\./three.min.js'` = 0 (une variante de test avec `../three.min.js` bloque le jeu à 93 % au chargement).
-- `src/parts/weapons2.js` : fichier **non versionné** mais requis par le build (ne pas le commiter ; en garder une copie).
+- `src/parts/weapons2.js` : absent du build (non référencé par `build.py`), inutile ; ne pas le recréer.
 - Données lourdes générées par outils : `arbres_data.js` (arbres Sketchfab), `deco_int_data.js` (mobilier intérieur), `deco_ext_data.js` (buissons/décor extérieur), `models.js`. Outils dans `tools/` (`*_export.py` = lecture des .glb sur le PC, `*_pack.py` = empaquetage, `tex_photo_stats.py` = calibrage des textures procédurales).
+
+## Graphify
+- Carte du code : `docs/MODULES.md` (générée). Après modification des parts : `graphify update src/parts`.
+- `src/parts/graphify-out/` est ignoré par git (`.gitignore`) ; ne pas le commiter.
 
 ## Tests
 - Suite : `python3 tests/run_tests.py <fichier.html>` (Playwright + Chromium SwiftShader, ~5–10 min, ~289 tests dans `src/parts/selftest.js`, `deco_ext_test.js`, etc., dont « un test par fonctionnalité »). Un seul test : `window.SELFONLY=/regex/; SELFTEST().results` après chargement.

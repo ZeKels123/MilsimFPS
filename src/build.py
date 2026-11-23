@@ -281,6 +281,7 @@ rep("mp9v.viseur.visible=!(A.scope||A.angled||A.holo);rd.visible=","mp9v.viseur.
 rep("scBI.visible=!(A.scope||A.angled||A.holo)&&!(adsT>.6&&sk==='iron')","scBI.visible=vsNoOpt()&&!(adsT>.6&&sk==='iron')")
 rep("aSc.visible=A.scope&&!(adsT>.6&&sk==='scope');aAn.visible=A.angled;","aSc.visible=A.scope&&!(adsT>.6&&sk==='scope')&&!(adsT>.3&&sk==='iron');aAn.visible=A.angled&&!(adsT>.3&&sk==='iron');")
 rep("const hid=adsT>.6&&sk==='holo'&&mgIn;","const hid=(adsT>.6&&sk==='holo'&&mgIn)||(adsT>.3&&sk==='iron');")
+rep("function bombBot(b,dm){if(b.dead)return;if(b.ar>0){b.ar-=dm;if(b.ar<=0){b.hp+=b.ar;b.ar=0;b.vest.visible=false;crack()}}else b.hp-=dm;","function bombBot(b,dm){if(b.dead)return;if(b.ar>0){b.ar-=dm;if(b.ar<=0){b.hp+=b.ar;b.hpOff=(b.hpOff||0)-b.ar;b.ar=0;b.vest.visible=false;crack()}}else{b.hp-=dm;b.hpOff=(b.hpOff||0)+dm}")
 rep("Q/E pencher · molette : zoom</div>","Q/E pencher · molette : zoom · V : viseur / mire de secours</div>")
 rep("<tr><td>V</td><td>Changer de viseur (si les deux)</td></tr>","<tr><td>V</td><td>Changer de viseur (optiques montées, puis mire de secours)</td></tr>")
 

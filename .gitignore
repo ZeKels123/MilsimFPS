@@ -1,0 +1,7 @@
+src/parts/graphify-out/
+__pycache__/
+*.pyc
+.env*
+*.key
+*.pem
+*.log
